@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- *  PRODUCT CATEGORIES
+ *  PRODUCT CATEGORIES — PowerKing Nepal (consumer electronics wholesale)
  * ============================================================================
  *  Categories are defined here once and drive: the homepage category grid,
  *  the catalogue filters, the category pages and the sitemap.
@@ -10,54 +10,77 @@
  *    2. Use its `name` as the `category` value on your products.
  *  To remove one, delete the object (and re-assign any products using it).
  *
- *  `icon` must be one of the keys in src/templates/icons.js — add a new SVG
- *  there if you need a different symbol.
+ *  `icon`  must be a key in src/templates/icons.js.
+ *  `color` is the accent used on the category tile and its placeholder
+ *          artwork. Any CSS colour works — these are what give the homepage
+ *          its colour, so keep them bright and distinct from one another.
  * ============================================================================
  */
 
 export const categories = [
   {
-    name: 'Beverages',
-    slug: 'beverages',
-    icon: 'bottle',
+    name: 'Speakers',
+    slug: 'speakers',
+    icon: 'speaker',
+    color: '#00C2FF',
     description:
-      'Soft drinks, water, juices and other packaged drinks supplied by the case.',
+      'Bluetooth, portable and party speakers supplied by the carton for retail counters.',
   },
   {
-    name: 'Snacks',
-    slug: 'snacks',
-    icon: 'snack',
-    description: 'Crisps, namkeen, nuts and everyday impulse snack lines.',
+    name: 'Headphones',
+    slug: 'headphones',
+    icon: 'headphone',
+    color: '#7C5CFF',
+    description:
+      'Wired and wireless over-ear and on-ear headphones for everyday retail.',
   },
   {
-    name: 'Confectionery',
-    slug: 'confectionery',
-    icon: 'candy',
-    description: 'Biscuits, chocolate, sweets and counter-top confectionery.',
+    name: 'Earbuds',
+    slug: 'earbuds',
+    icon: 'earbuds',
+    color: '#FF3D8B',
+    description:
+      'TWS earbuds, neckbands and in-ear earphones — the fastest-moving lines we carry.',
   },
   {
-    name: 'Food & Grocery',
-    slug: 'food-grocery',
-    icon: 'grocery',
-    description: 'Staples, cooking essentials and packaged grocery lines.',
+    name: 'Chargers & Adapters',
+    slug: 'chargers-adapters',
+    icon: 'charger',
+    color: '#FF7A1A',
+    description:
+      'Fast chargers, wall adapters, car chargers and power delivery bricks.',
   },
   {
-    name: 'Personal Care',
-    slug: 'personal-care',
-    icon: 'care',
-    description: 'Soaps, shampoos, oral care and daily personal hygiene lines.',
+    name: 'Data Cables',
+    slug: 'data-cables',
+    icon: 'cable',
+    color: '#00D68F',
+    description:
+      'USB-C, Lightning and micro-USB charging and data cables in retail packs.',
   },
   {
-    name: 'Household',
-    slug: 'household',
-    icon: 'home',
-    description: 'Cleaning, laundry and general household consumables.',
+    name: 'Power & Multiplugs',
+    slug: 'power-multiplugs',
+    icon: 'plug',
+    color: '#FFC400',
+    description:
+      'Multiplugs, extension boards, surge protectors and universal sockets.',
   },
   {
-    name: 'Other',
-    slug: 'other',
-    icon: 'box',
-    description: 'Additional wholesale lines that sit outside the main ranges.',
+    name: 'Phone Coolers',
+    slug: 'phone-coolers',
+    icon: 'cooler',
+    color: '#22C1DC',
+    description:
+      'Magnetic and clip-on phone cooling fans for gaming and heavy use.',
+  },
+  {
+    name: 'Mobile Accessories',
+    slug: 'mobile-accessories',
+    icon: 'mobile',
+    color: '#A855F7',
+    description:
+      'Holders, power banks, screen protectors, cases and everyday phone add-ons.',
   },
 ];
 

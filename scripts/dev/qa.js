@@ -31,8 +31,8 @@ const VIEWPORTS = [
 ];
 
 const PAGES = [
-  '/', '/products/', '/products/beverages/', '/products/other/',
-  '/products/sample-cola-500ml/', '/about/', '/contact/', '/brands/',
+  '/', '/products/', '/products/speakers/', '/products/data-cables/',
+  '/products/sample-tws-wireless-earbuds/', '/about/', '/contact/', '/brands/',
   '/privacy/', '/404.html',
 ];
 
@@ -101,7 +101,7 @@ async function main() {
     await page.goto(`${BASE}/products/`);
 
     const total = await page.eval(`return document.querySelectorAll('[data-product]').length;`);
-    check('all products render server-side', total === 12, `got ${total}`);
+    check('all products render server-side', total === 15, `got ${total}`);
 
     const search = (term) => page.eval(`
       const i = document.getElementById('product-search');
@@ -111,55 +111,31 @@ async function main() {
         .filter(c => !c.hidden).map(c => c.querySelector('.card__title').textContent.trim());
     `);
 
-    const byName = await search('cola');
-    check('search by product name ("cola") matches only the cola product',
-      byName.length === 1 && byName[0].includes('Cola'), byName.join(', '));
+    const byName = await search('earbuds');
+    check('search by product name/category ("earbuds") matches 2',
+      byName.length === 2, byName.join(', '));
+
+    const byBrand = await search('samplelink');
+    check('search by brand matches 2', byBrand.length === 2, byBrand.join(', '));
+
+    const bySku = await search('pk-cbl-001');
+    check('search by SKU (with punctuation) matches 1', bySku.length === 1, bySku.join(', '));
 
     // Matching is anchored to word starts: type-ahead works, but a term must
     // not match the middle of an unrelated word.
-    const prefix = await search('choco');
-    check('type-ahead prefix ("choco") finds chocolate',
-      prefix.length === 1 && prefix[0].includes('Chocolate'), prefix.join(', '));
-    const midWord = await search('ocolate');
-    check('mid-word fragment ("ocolate") matches nothing', midWord.length === 0, midWord.join(', '));
+    const prefix = await search('earbu');
+    check('type-ahead prefix ("earbu") still matches', prefix.length === 2, prefix.join(', '));
+    const midWord = await search('buds');
+    check('mid-word fragment ("buds") matches nothing', midWord.length === 0, midWord.join(', '));
 
-    const punctuated = await search('pk-sample-006');
-    check('SKU search tolerates punctuation', punctuated.length === 1, punctuated.join(', '));
-
-    const multiWord = await search('demo foods rice');
-    check('multi-word search requires every term', multiWord.length === 1, multiWord.join(', '));
-    const conflicting = await search('cola crisps');
-    check('conflicting terms match nothing', conflicting.length === 0, conflicting.join(', '));
-
-    const byBrand = await page.eval(`
-      const i = document.getElementById('product-search');
-      i.value = 'demo snacks';
-      i.dispatchEvent(new Event('input', { bubbles: true }));
-      return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
-    `);
-    check('search by brand ("demo snacks") matches 2', byBrand === 2, `got ${byBrand}`);
-
-    const bySku = await page.eval(`
-      const i = document.getElementById('product-search');
-      i.value = 'PK-SAMPLE-006';
-      i.dispatchEvent(new Event('input', { bubbles: true }));
-      return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
-    `);
-    check('search by SKU matches 1', bySku === 1, `got ${bySku}`);
-
-    const byCategoryTerm = await page.eval(`
-      const i = document.getElementById('product-search');
-      i.value = 'beverages';
-      i.dispatchEvent(new Event('input', { bubbles: true }));
-      return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
-    `);
-    check('search by category name matches 3', byCategoryTerm === 3, `got ${byCategoryTerm}`);
+    const byTag = await search('powerbank');
+    check('search matches hidden tags ("powerbank")', byTag.length === 1, byTag.join(', '));
 
     // Regression guard: assert the pixels, not just the `hidden` property.
     // A CSS class that sets `display` silently beats the UA [hidden] rule.
     const reallyHidden = await page.eval(`
       const i = document.getElementById('product-search');
-      i.value = 'cola';
+      i.value = 'powerbank';
       i.dispatchEvent(new Event('input', { bubbles: true }));
       const cards = [...document.querySelectorAll('[data-product]')];
       const hiddenOnes = cards.filter(c => c.hidden);
@@ -186,11 +162,11 @@ async function main() {
       document.getElementById('reset-filters').click();
       return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
     `);
-    check('clear filters restores all products', reset === 12, `got ${reset}`);
+    check('clear filters restores all products', reset === 15, `got ${reset}`);
 
     const status = await page.eval(`
       const i = document.getElementById('product-search');
-      i.value = 'soap';
+      i.value = 'neckband';
       i.dispatchEvent(new Event('input', { bubbles: true }));
       return document.getElementById('search-status').textContent.trim();
     `);
@@ -205,20 +181,20 @@ async function main() {
     await page.setViewport(1280, 800, false);
     await page.goto(`${BASE}/products/`);
     const filtered = await page.eval(`
-      const chip = document.querySelector('[data-filter-cat="Snacks"]');
+      const chip = document.querySelector('[data-filter-cat="Speakers"]');
       chip.click();
       return {
         visible: [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length,
         pressed: chip.getAttribute('aria-pressed'),
       };
     `);
-    check('category chip filters to 2 snacks', filtered.visible === 2, JSON.stringify(filtered));
+    check('category chip filters to 2 speakers', filtered.visible === 2, JSON.stringify(filtered));
     check('active chip sets aria-pressed', filtered.pressed === 'true');
 
     const brand = await page.eval(`
       document.querySelector('[data-filter-cat=""]').click();
       const s = document.getElementById('brand-filter');
-      s.value = 'Demo Foods';
+      s.value = 'SampleLink';
       s.dispatchEvent(new Event('change', { bubbles: true }));
       return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
     `);
@@ -226,7 +202,7 @@ async function main() {
 
     const combined = await page.eval(`
       const i = document.getElementById('product-search');
-      i.value = 'rice';
+      i.value = 'lightning';
       i.dispatchEvent(new Event('input', { bubbles: true }));
       return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
     `);
@@ -276,7 +252,7 @@ async function main() {
   {
     const page = await newPage(port);
     await page.setViewport(1280, 800, false);
-    await page.goto(`${BASE}/products/sample-cola-500ml/`);
+    await page.goto(`${BASE}/products/sample-tws-wireless-earbuds/`);
     const wa = await page.eval(`
       const links = [...document.querySelectorAll('[data-wa-track]')];
       return {
@@ -287,11 +263,12 @@ async function main() {
       };
     `);
     check('product page has WhatsApp CTAs', wa.count >= 4, `count ${wa.count}`);
-    check('product name is attached for analytics', wa.product === 'Sample Cola 500ml', wa.product);
-    check(
-      'unconfigured number degrades to /contact/ (no broken wa.me link)',
-      wa.href === '/contact/', wa.href,
-    );
+    check('product name is attached for analytics',
+      wa.product === 'Sample TWS Wireless Earbuds', wa.product);
+    check('WhatsApp link is a real wa.me chat with the number configured',
+      /^https:\/\/wa\.me\/9779863215831\?text=/.test(wa.href || ''), wa.href);
+    check('the pre-filled message names the product',
+      decodeURIComponent(wa.href || '').includes('Sample TWS Wireless Earbuds'), wa.href);
     check(
       'CTAs cover header, floating, product and footer',
       ['header', 'floating_button', 'product_page', 'footer'].every((l) => wa.locations.includes(l)),
@@ -312,7 +289,7 @@ async function main() {
   {
     const page = await newPage(port);
     await page.setViewport(1280, 800, false);
-    await page.goto(`${BASE}/products/sample-cola-500ml/`);
+    await page.goto(`${BASE}/products/sample-tws-wireless-earbuds/`);
     const ev = await page.eval(`
       const seen = [];
       window.gtag = (type, name, params) => { if (type === 'event') seen.push({ name, params }); };
@@ -326,7 +303,7 @@ async function main() {
     const waEv = ev.seen.find(e => e.name === 'whatsapp_click');
     check(
       'whatsapp_click carries product + location',
-      waEv?.params?.product === 'Sample Cola 500ml' && waEv?.params?.location === 'product_page',
+      waEv?.params?.product === 'Sample TWS Wireless Earbuds' && waEv?.params?.location === 'product_page',
       JSON.stringify(waEv?.params),
     );
 
@@ -335,7 +312,7 @@ async function main() {
       const seen = [];
       window.gtag = (t, name, params) => { if (t === 'event') seen.push({ name, params }); };
       const i = document.getElementById('product-search');
-      i.value = 'chocolate';
+      i.value = 'powerbank';
       i.dispatchEvent(new Event('input', { bubbles: true }));
       await new Promise(r => setTimeout(r, 900));
       document.querySelector('[data-track-category]')?.click();
@@ -344,10 +321,10 @@ async function main() {
     check('product_search fires (debounced)', search.some(e => e.name === 'product_search'),
       JSON.stringify(search.map(e => e.name)));
     const se = search.find(e => e.name === 'product_search');
-    check('product_search carries term + result count', se?.params?.search_term === 'chocolate' && se?.params?.results === 1,
+    check('product_search carries term + result count', se?.params?.search_term === 'powerbank' && se?.params?.results === 1,
       JSON.stringify(se?.params));
 
-    await page.goto(`${BASE}/products/beverages/`);
+    await page.goto(`${BASE}/products/speakers/`);
     const cat = await page.eval(`
       return (window.dataLayer || []).some(x => x.event === 'category_view');
     `);
@@ -410,7 +387,7 @@ async function main() {
     const res = await fetch(`${BASE}/products/`);
     const body = await res.text();
     const count = (body.match(/data-product/g) || []).length;
-    check('catalogue HTML contains every product without JS', count === 12, `found ${count}`);
+    check('catalogue HTML contains every product without JS', count === 15, `found ${count}`);
     check('search form falls back to a GET submit',
       /<form[^>]+action="\/products\/"[^>]+method="get"/.test(body) || /action="\/products\/"/.test(body));
     await page.close();

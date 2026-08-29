@@ -17,9 +17,9 @@ export const siteConfig = {
   // --- Identity -------------------------------------------------------------
   businessName: 'PowerKing Nepal',
   legalName: 'PowerKing Nepal',
-  tagline: 'Wholesale Distribution & Supply',
+  tagline: 'Electronics Wholesale & Supply',
   shortDescription:
-    'Wholesale distribution and supply in Nepal. Browse our product catalogue and enquire on WhatsApp for pricing, availability and minimum order quantities.',
+    'Wholesale electronics distribution in Nepal — speakers, headphones, earbuds, chargers, data cables, multiplugs and mobile accessories. Browse the catalogue and enquire on WhatsApp for trade pricing, availability and minimum order quantities.',
 
   // --- Domain ---------------------------------------------------------------
   // Used for canonical URLs, Open Graph URLs and sitemap.xml. No trailing slash.
@@ -30,7 +30,7 @@ export const siteConfig = {
   // Nepal country code is 977. Example: a number 98XXXXXXXX becomes 97798XXXXXXXX
   // While this is left blank, every WhatsApp button safely links to /contact/
   // instead of producing a broken wa.me link.
-  whatsappNumber: '', // e.g. '9779800000000'
+  whatsappNumber: '9779863215831',
 
   // --- Contact --------------------------------------------------------------
   phone: '', // e.g. '+977 1 4XXXXXX'  — leave blank to show a placeholder
@@ -72,7 +72,7 @@ export const siteConfig = {
 
   // --- Branding -------------------------------------------------------------
   // Colours live in src/assets/css/styles.css under :root as CSS variables.
-  themeColor: '#0E1726',
+  themeColor: '#0A0E27',
 
   // --- Feature flags --------------------------------------------------------
   features: {

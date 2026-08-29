@@ -14,7 +14,7 @@
  * ============================================================================
  */
 
-import { mkdir, writeFile, rm, cp, readdir, stat } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, rm, cp, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -256,7 +256,11 @@ async function build() {
 
   // --- assets ---------------------------------------------------------------
   await mkdir(path.join(DIST, 'assets'), { recursive: true });
-  await cp(path.join(ROOT, 'src/assets/css/styles.css'), path.join(DIST, 'assets/styles.css'));
+  // Font declarations are prepended to the stylesheet rather than @import-ed,
+  // so the page still needs only one CSS request.
+  const fontCss = await readFile(path.join(ROOT, 'src/assets/css/fonts.css'), 'utf8');
+  const siteCss = await readFile(path.join(ROOT, 'src/assets/css/styles.css'), 'utf8');
+  await writeFile(path.join(DIST, 'assets/styles.css'), `${fontCss}\n${siteCss}`, 'utf8');
   await cp(path.join(ROOT, 'src/assets/js/app.js'), path.join(DIST, 'assets/app.js'));
   await cp(path.join(ROOT, 'src/assets/js/catalogue.js'), path.join(DIST, 'assets/catalogue.js'));
 

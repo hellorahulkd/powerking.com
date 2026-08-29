@@ -112,7 +112,7 @@ ${pageHead({
       <h2 class="section__title section__title--sm">Business details</h2>
       <ul class="details">
         ${detail({
-          iconName: 'box',
+          iconName: 'bolt',
           label: 'Business name',
           value: siteConfig.businessName,
           placeholder: 'BUSINESS NAME',

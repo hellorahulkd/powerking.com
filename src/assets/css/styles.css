@@ -4,36 +4,52 @@
    ========================================================================== */
 
 :root {
-  /* Brand palette — deep industrial navy with a confident amber accent.
-     Replace these six values to apply official brand colours later. */
-  --primary:        #0E1726;   /* deep navy — headers, footer, headings   */
-  --primary-800:    #16223A;
-  --primary-600:    #24344F;
-  --primary-300:    #7A8AA3;
-  --accent:         #E8940C;   /* amber — CTAs, highlights                */
-  --accent-600:     #C97A05;
-  --accent-100:     #FDF1DC;
+  /* ---------------------------------------------------------------------
+     BRAND PALETTE — consumer electronics. Bright, high-energy, high-contrast.
+     Change these and the whole site re-skins.
+     --------------------------------------------------------------------- */
+  --primary:        #0A0E27;   /* deep ink indigo — hero, footer, headings */
+  --primary-800:    #141A3D;
+  --primary-600:    #2C3573;
+  --primary-300:    #8B93C9;
+
+  --accent:         #00C2FF;   /* electric cyan — the brand signal colour   */
+  --accent-600:     #0281AB;   /* darker cyan, readable as text on white    */
+  --accent-100:     #DFF6FF;   /* cyan tint for chips and icon plates       */
+
+  --violet:         #7C5CFF;   /* second brand colour, pairs with the cyan  */
+  --violet-600:     #5B34E8;
+  --violet-100:     #EDE8FF;
+
+  --cta:            #FF6A2B;   /* vivid coral — primary buttons             */
+  --cta-600:        #E8501A;
+  --cta-ink:        #2B0E00;   /* dark text on the bright button            */
+
   --whatsapp:       #25D366;
   --whatsapp-600:   #1DA851;
 
-  /* Neutrals */
+  /* Neutrals — cooled slightly so the brights sit on a crisp ground */
   --bg:             #FFFFFF;
-  --bg-alt:         #F5F7FA;
-  --bg-sunken:      #EEF1F6;
+  --bg-alt:         #F4F7FC;
+  --bg-sunken:      #E9EFF8;
   --surface:        #FFFFFF;
-  --text:           #14202F;
-  --text-muted:     #5B6A7E;
-  --text-faint:     #8494A8;
-  --border:         #E1E6ED;
-  --border-strong:  #C9D2DE;
-  --danger:         #B4321F;
+  --text:           #121834;
+  --text-muted:     #58628A;
+  --text-faint:     #858FB4;
+  --border:         #E2E8F4;
+  --border-strong:  #C4CEE2;
+  --danger:         #D92D20;
 
-  /* Typography — a tuned system stack: zero network requests, no layout
-     shift, and renders natively on low-end Android and iOS.
-     To use a webfont instead, add the @font-face/link and prepend it here. */
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-               "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  --font-display: var(--font-sans);
+  /* Signature gradient — cyan to violet. Used sparingly: logo, glows, rules. */
+  --grad-brand: linear-gradient(120deg, var(--accent) 0%, var(--violet) 100%);
+
+  /* Typography — self-hosted variable fonts, see scripts/fetch-fonts.js.
+     Space Grotesk has a squared, technical geometry that suits hardware;
+     Inter keeps body copy legible on low-end Android screens. */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont,
+                  'Segoe UI', Roboto, Arial, sans-serif;
 
   /* Scale */
   --step--1: clamp(0.80rem, 0.78rem + 0.10vw, 0.86rem);
@@ -45,15 +61,19 @@
 
   /* Space & shape */
   --gap: 1.25rem;
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
-  --shadow-sm: 0 1px 2px rgba(16, 28, 45, .06), 0 1px 3px rgba(16, 28, 45, .05);
-  --shadow-md: 0 4px 10px rgba(16, 28, 45, .07), 0 12px 28px rgba(16, 28, 45, .07);
-  --shadow-lg: 0 18px 45px rgba(16, 28, 45, .14);
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 2px rgba(10, 14, 39, .06), 0 1px 3px rgba(10, 14, 39, .05);
+  --shadow-md: 0 4px 10px rgba(10, 14, 39, .07), 0 12px 28px rgba(10, 14, 39, .08);
+  --shadow-lg: 0 18px 45px rgba(10, 14, 39, .16);
   --container: 1180px;
   --header-h: 68px;
-  --ring: 0 0 0 3px rgba(232, 148, 12, .38);
+  --ring: 0 0 0 3px rgba(0, 194, 255, .40);
+
+  /* Per-category accent. Each category page and tile overrides this with the
+     `color` set in src/data/categories.js — that is what colours the grid. */
+  --cat: var(--accent);
 }
 
 /* --------------------------------------------------------------- reset -- */
@@ -131,8 +151,8 @@ code {
 .btn:hover { color: var(--btn-fg); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
 .btn:active { transform: translateY(0); }
 .btn .icon { flex: none; }
-.btn--primary   { --btn-bg: var(--accent); --btn-bd: var(--accent); --btn-fg: #201400; }
-.btn--primary:hover { --btn-bg: var(--accent-600); --btn-bd: var(--accent-600); }
+.btn--primary   { --btn-bg: var(--cta); --btn-bd: var(--cta); --btn-fg: var(--cta-ink); }
+.btn--primary:hover { --btn-bg: var(--cta-600); --btn-bd: var(--cta-600); }
 .btn--whatsapp  { --btn-bg: var(--whatsapp); --btn-bd: var(--whatsapp); --btn-fg: #04310f; }
 .btn--whatsapp:hover { --btn-bg: var(--whatsapp-600); --btn-bd: var(--whatsapp-600); }
 .btn--outline   { --btn-bg: transparent; --btn-bd: currentColor; --btn-fg: var(--primary); color: var(--primary); }
@@ -170,7 +190,10 @@ code {
   font-family: var(--font-display); font-weight: 800; font-size: 1.06rem;
   letter-spacing: -.03em; color: var(--primary);
 }
-.logo__np { color: var(--accent-600); }
+.logo__np {
+  background: var(--grad-brand);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 .logo__tag {
   font-size: .625rem; letter-spacing: .13em; text-transform: uppercase;
   color: var(--text-faint); font-weight: 600;
@@ -183,7 +206,7 @@ code {
   text-decoration: none; transition: background-color .15s, color .15s;
 }
 .nav-desktop a:hover { background: var(--bg-alt); color: var(--primary); }
-.nav-desktop a[aria-current="page"] { color: var(--accent-600); background: var(--accent-100); }
+.nav-desktop a[aria-current="page"] { color: var(--violet-600); background: var(--violet-100); }
 .site-header__actions { display: flex; align-items: center; gap: .5rem; }
 .nav-wa { display: none; }
 .nav-toggle {
@@ -228,19 +251,20 @@ code {
 
 /* --------------------------------------------------------------- notice -- */
 .notice {
-  background: var(--accent-100); border-bottom: 1px solid #F2DFBA;
-  color: #6B4A05; font-size: var(--step--1); padding: .6rem 0;
+  background: var(--violet-100); border-bottom: 1px solid #D9CEFF;
+  color: #4A2FA8; font-size: var(--step--1); padding: .6rem 0;
 }
-.notice strong { color: #5A3D02; }
+.notice strong { color: #3A208F; }
 
 /* ----------------------------------------------------------------- hero -- */
 .hero { position: relative; overflow: hidden; background: var(--primary); color: #fff; isolation: isolate; }
 .hero__bg {
   position: absolute; inset: 0; z-index: -1;
   background:
-    radial-gradient(60rem 30rem at 82% 12%, rgba(232,148,12,.20), transparent 62%),
-    radial-gradient(40rem 26rem at 8% 92%, rgba(90,130,190,.16), transparent 60%),
-    linear-gradient(168deg, var(--primary-800) 0%, var(--primary) 62%);
+    radial-gradient(56rem 30rem at 84% 8%,  rgba(0,194,255,.34), transparent 62%),
+    radial-gradient(44rem 30rem at 12% 96%, rgba(124,92,255,.32), transparent 62%),
+    radial-gradient(30rem 20rem at 50% 50%, rgba(255,106,43,.12), transparent 70%),
+    linear-gradient(168deg, var(--primary-800) 0%, var(--primary) 64%);
 }
 .hero__bg::after {
   content: ""; position: absolute; inset: 0; opacity: .35;
@@ -256,7 +280,7 @@ code {
   display: inline-block; margin: 0 0 1rem;
   font-size: var(--step--1); font-weight: 650; letter-spacing: .1em;
   text-transform: uppercase; color: var(--accent);
-  border: 1px solid rgba(232,148,12,.35); background: rgba(232,148,12,.10);
+  border: 1px solid rgba(0,194,255,.42); background: rgba(0,194,255,.12);
   padding: .32rem .7rem; border-radius: 100px;
 }
 .hero__title { color: #fff; margin: 0 0 1rem; font-weight: 800; letter-spacing: -.033em; }
@@ -308,7 +332,7 @@ code {
 .section__foot { margin-top: 2rem; display: flex; justify-content: center; }
 .eyebrow {
   margin: 0 0 .45rem; font-size: var(--step--1); font-weight: 700;
-  letter-spacing: .11em; text-transform: uppercase; color: var(--accent-600);
+  letter-spacing: .11em; text-transform: uppercase; color: var(--violet-600);
 }
 .page-head { background: var(--bg-alt); border-bottom: 1px solid var(--border); padding: 2rem 0 2.25rem; }
 .page-head h1 { margin: 0 0 .4rem; font-size: var(--step-3); }
@@ -332,6 +356,7 @@ code {
   display: grid; place-items: center; width: 40px; height: 40px;
   border-radius: var(--radius-sm); background: var(--accent-100);
   color: var(--accent-600); margin-bottom: .85rem;
+  box-shadow: inset 0 0 0 1px rgba(0,194,255,.22);
 }
 .prop__title { font-size: var(--step-0); margin: 0 0 .35rem; font-weight: 700; }
 .prop__body { margin: 0; color: var(--text-muted); font-size: var(--step--1); }
@@ -341,23 +366,52 @@ code {
 @media (min-width: 640px) { .cat-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 980px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
 .cat-tile {
-  display: grid; gap: .15rem; padding: 1.15rem 1rem; height: 100%;
+  position: relative; display: grid; gap: .15rem; padding: 1.15rem 1rem;
+  height: 100%; overflow: hidden;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius); text-decoration: none; color: var(--primary);
   transition: border-color .16s, box-shadow .16s, transform .16s;
 }
+/* Each tile is tinted with its category's own colour (--cat, set inline from
+   src/data/categories.js). This is what gives the homepage its colour. */
+.cat-tile::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(150deg,
+    color-mix(in srgb, var(--cat) 15%, transparent) 0%,
+    color-mix(in srgb, var(--cat) 3%, transparent) 55%,
+    transparent 78%);
+  transition: opacity .18s ease;
+}
+.cat-tile::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: var(--cat); opacity: .9;
+}
+.cat-tile > * { position: relative; z-index: 1; }
 .cat-tile:hover {
-  border-color: var(--accent); box-shadow: var(--shadow-md);
-  transform: translateY(-2px); color: var(--primary);
+  border-color: var(--cat); transform: translateY(-3px);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--cat) 26%, transparent);
+  color: var(--primary);
 }
 .cat-tile__icon {
-  display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: .5rem;
-  border-radius: var(--radius-sm); background: var(--bg-sunken); color: var(--primary-600);
-  transition: background-color .16s, color .16s;
+  display: grid; place-items: center; width: 46px; height: 46px;
+  margin-bottom: .55rem; border-radius: 11px;
+  background: color-mix(in srgb, var(--cat) 16%, #fff);
+  color: color-mix(in srgb, var(--cat) 78%, #05122b);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat) 30%, transparent);
+  transition: background-color .16s, color .16s, transform .16s;
 }
-.cat-tile:hover .cat-tile__icon { background: var(--accent-100); color: var(--accent-600); }
-.cat-tile__name { font-weight: 700; font-size: var(--step-0); }
-.cat-tile__count { font-size: var(--step--1); color: var(--text-faint); }
+.cat-tile:hover .cat-tile__icon {
+  background: var(--cat); color: #fff; transform: scale(1.06);
+}
+.cat-tile__name { font-family: var(--font-display); font-weight: 700; font-size: var(--step-0); }
+.cat-tile__count { font-size: var(--step--1); color: var(--text-muted); }
+
+/* Fallback for browsers without color-mix() (older Android WebView). */
+@supports not (background: color-mix(in srgb, red 10%, white)) {
+  .cat-tile::before { background: none; }
+  .cat-tile__icon { background: var(--accent-100); color: var(--accent-600); }
+  .cat-tile:hover .cat-tile__icon { background: var(--accent); color: #fff; }
+}
 
 .cat-strip { display: flex; flex-wrap: wrap; gap: .5rem; }
 .cat-strip__item {
@@ -366,8 +420,15 @@ code {
   border: 1px solid var(--border); border-radius: 100px;
   font-size: var(--step--1); font-weight: 600; color: var(--text); text-decoration: none;
 }
-.cat-strip__item:hover { border-color: var(--accent); color: var(--accent-600); background: var(--accent-100); }
-.cat-strip__item .icon { color: var(--accent-600); }
+.cat-strip__item:hover {
+  border-color: var(--cat); color: var(--primary);
+  background: color-mix(in srgb, var(--cat) 12%, #fff);
+}
+.cat-strip__item .icon { color: color-mix(in srgb, var(--cat) 80%, #05122b); }
+@supports not (background: color-mix(in srgb, red 10%, white)) {
+  .cat-strip__item:hover { border-color: var(--accent); background: var(--accent-100); }
+  .cat-strip__item .icon { color: var(--accent-600); }
+}
 
 /* -------------------------------------------------------------- toolbar -- */
 .toolbar {
@@ -460,7 +521,7 @@ code {
   display: inline-block; padding: .2rem .5rem; border-radius: 4px;
   font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
 }
-.badge--sample { background: var(--accent-100); color: #7A5304; border: 1px solid #EBD3A5; }
+.badge--sample { background: var(--violet-100); color: #4A2FA8; border: 1px solid #D2C4FF; }
 .badge--out { background: #FBE9E6; color: var(--danger); border: 1px solid #F1C9C2; }
 .badge--float { position: absolute; top: .75rem; left: .75rem; }
 .card__body { padding: .85rem .9rem .5rem; flex: 1; display: flex; flex-direction: column; }
@@ -469,7 +530,7 @@ code {
   margin: 0 0 .3rem; font-size: .72rem; font-weight: 650;
   text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint);
 }
-.card__brand { color: var(--accent-600); }
+.card__brand { color: var(--violet-600); }
 .card__cat { color: var(--text-faint); text-decoration: none; }
 .card__cat:hover { color: var(--primary); text-decoration: underline; }
 .card__title { font-size: var(--step-0); margin: 0 0 .35rem; line-height: 1.3; }
@@ -532,7 +593,7 @@ code {
   display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 .5rem;
   font-size: var(--step--1); font-weight: 650; text-transform: uppercase; letter-spacing: .07em;
 }
-.pd__eyebrow a { color: var(--accent-600); text-decoration: none; }
+.pd__eyebrow a { color: var(--violet-600); text-decoration: none; }
 .pd__eyebrow a:hover { text-decoration: underline; }
 .pd__eyebrow span { color: var(--border-strong); }
 .pd__title { font-size: var(--step-3); margin: 0 0 .75rem; }
@@ -559,10 +620,13 @@ code {
 .enquiry {
   margin-top: 1.75rem; padding: 1.4rem 1.25rem;
   background: var(--primary); color: #fff; border-radius: var(--radius-lg);
-  background-image: radial-gradient(30rem 16rem at 100% 0%, rgba(232,148,12,.20), transparent 60%);
+  background-image:
+    radial-gradient(26rem 16rem at 100% 0%, rgba(0,194,255,.30), transparent 62%),
+    radial-gradient(22rem 16rem at 0% 100%, rgba(124,92,255,.28), transparent 62%);
 }
 .enquiry__title { color: #fff; font-size: var(--step-2); margin: 0 0 .25rem; }
 .enquiry__price { margin: 0 0 .6rem; font-size: var(--step-1); font-weight: 700; color: var(--accent); }
+.enquiry .btn--whatsapp { box-shadow: 0 8px 24px rgba(37,211,102,.35); }
 .enquiry__body { margin: 0 0 1.1rem; color: #BFCBDB; font-size: var(--step--1); }
 .enquiry__note { margin: .75rem 0 0; font-size: var(--step--1); color: #93A3B8; text-align: center; }
 .enquiry__note strong { color: #D7E0EC; }
@@ -583,7 +647,7 @@ code {
 .steps li::before {
   content: counter(s); position: absolute; left: 0; top: .05rem;
   display: grid; place-items: center; width: 1.7rem; height: 1.7rem;
-  border-radius: 50%; background: var(--accent-100); color: var(--accent-600);
+  border-radius: 50%; background: var(--violet-100); color: var(--violet-600);
   font-size: .8rem; font-weight: 700;
 }
 .steps strong { color: var(--primary); }
@@ -680,7 +744,7 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
 .notfound__code {
   font-size: clamp(4.5rem, 18vw, 8rem); font-weight: 800; line-height: 1;
   margin: 0 0 .25rem; letter-spacing: -.05em;
-  background: linear-gradient(135deg, var(--accent), var(--primary-600));
+  background: var(--grad-brand);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .notfound h1 { font-size: var(--step-2); }
@@ -695,6 +759,7 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
 @media (min-width: 1000px) { .footer__grid { grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 2.5rem; } }
 .footer__name { font-family: var(--font-display); font-size: var(--step-1); font-weight: 800; color: #fff; margin: 0; letter-spacing: -.025em; }
 .footer__tagline { margin: .1rem 0 .8rem; font-size: var(--step--1); font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .09em; }
+.site-footer { border-top: 3px solid transparent; border-image: var(--grad-brand) 1; }
 .footer__blurb { font-size: var(--step--1); color: #93A3B8; max-width: 30rem; }
 .footer__heading { font-size: var(--step-0); color: #fff; margin: 0 0 .8rem; }
 .footer__col ul { display: grid; gap: .5rem; }

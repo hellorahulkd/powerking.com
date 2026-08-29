@@ -1,7 +1,9 @@
 # PowerKing Nepal — Wholesale Product Catalogue
 
 The official online product catalogue for **PowerKing Nepal**, a wholesale
-distribution and supply business.
+supplier of consumer electronics and mobile accessories — speakers,
+headphones, earbuds, chargers, data cables, multiplugs, phone coolers and
+phone accessories.
 
 It is a **catalogue, not a shop**: there are no customer accounts, no cart, no
 checkout and no online payments. Visitors browse products and enquire on
@@ -59,20 +61,20 @@ to the list:
 
 ```js
 {
-  id: 13,                                  // must be unique, never reuse
-  name: 'Coca-Cola 500ml',
-  slug: 'coca-cola-500ml',                 // becomes /products/coca-cola-500ml/
-  brand: 'Coca-Cola',
-  category: 'Beverages',                   // must match a category name
-  description: 'Carbonated soft drink in a 500ml PET bottle, supplied by the case.',
-  image: '/images/products/coca-cola-500ml.jpg',
-  gallery: [],                             // optional extra images
-  packSize: '24 x 500ml',
-  unit: 'Per case',                        // optional
-  sku: 'PK-0013',                          // optional, searchable
-  featured: true,                          // shows on the homepage
+  id: 16,                                     // must be unique, never reuse
+  name: 'Wireless Earbuds Pro',
+  slug: 'wireless-earbuds-pro',               // → /products/wireless-earbuds-pro/
+  brand: 'Your Brand',
+  category: 'Earbuds',                        // must match a category name
+  description: 'TWS earbuds with charging case, touch controls and 24h playback.',
+  image: '/images/products/wireless-earbuds-pro.jpg',
+  gallery: [],                                // optional extra images
+  packSize: '50 pcs per carton',
+  unit: 'Per carton',                         // optional
+  sku: 'PK-EAR-010',                          // optional, searchable
+  featured: true,                             // shows on the homepage
   available: true,
-  tags: ['soft drink', 'cola'],            // optional extra search keywords
+  tags: ['tws', 'bluetooth', 'earphones'],    // optional extra search keywords
 },
 ```
 
@@ -80,7 +82,7 @@ to the list:
 
 ```bash
 git add .
-git commit -m "Add Coca-Cola 500ml"
+git commit -m "Add Wireless Earbuds Pro"
 git push
 ```
 
@@ -143,7 +145,7 @@ photographs this is handled automatically with no extra step.
 Open `src/config/site.config.js` and set **one** value:
 
 ```js
-whatsappNumber: '9779800000000',
+whatsappNumber: '9779863215831',   // ← currently configured
 ```
 
 - International format, **digits only** — no `+`, spaces or dashes.
@@ -153,8 +155,8 @@ whatsappNumber: '9779800000000',
 That single value powers every WhatsApp button on the site: header, hero,
 product cards, product pages, contact page, footer and the floating button.
 
-**Until you set it,** every WhatsApp button safely links to `/contact/` instead
-of producing a broken `wa.me` link, and the contact page tells you what is
+If it is ever left blank, every WhatsApp button safely links to `/contact/`
+instead of producing a broken `wa.me` link, and the contact page says what is
 missing. Nothing on the site is left visibly broken.
 
 ### Pre-filled messages
@@ -247,12 +249,27 @@ The whole palette is six CSS variables at the top of
 
 ```css
 :root {
-  --primary: #0E1726;   /* deep navy  */
-  --accent:  #E8940C;   /* amber      */
+  --primary: #0A0E27;   /* deep ink indigo — hero, footer   */
+  --accent:  #00C2FF;   /* electric cyan — brand signal     */
+  --violet:  #7C5CFF;   /* second brand colour              */
+  --cta:     #FF6A2B;   /* vivid coral — primary buttons    */
   --whatsapp:#25D366;
   ...
 }
 ```
+
+### Changing the typefaces
+
+Headings use **Space Grotesk**, body text uses **Inter** — both self-hosted
+(no Google CDN request) from `public/fonts/`, both SIL Open Font Licence, so
+commercial use is fine. To switch: edit the `FAMILIES` list in
+`scripts/fetch-fonts.js`, run `node scripts/fetch-fonts.js`, then update
+`--font-display` / `--font-sans` in `styles.css`.
+
+⚠️ **A note on DaFont and similar sites:** most fonts there are licensed
+*free for personal use only*, which does not cover a commercial business
+website. Check the licence before using one, and prefer SIL OFL or Apache
+licensed families.
 
 Change these and the entire site re-skins.
 
@@ -264,16 +281,23 @@ Edit `src/data/categories.js`:
 
 ```js
 {
-  name: 'Beverages',        // must match the `category` on your products
-  slug: 'beverages',        // becomes /products/beverages/
-  icon: 'bottle',           // a key from src/templates/icons.js
-  description: 'Soft drinks, water, juices and other packaged drinks.',
+  name: 'Smart Watches',      // must match the `category` on your products
+  slug: 'smart-watches',      // becomes /products/smart-watches/
+  icon: 'mobile',             // a key from src/templates/icons.js
+  color: '#00D68F',           // tints the tile and the placeholder artwork
+  description: 'Smart watches and fitness bands supplied by the carton.',
 },
 ```
 
 Adding a category automatically creates its page, its homepage tile, its filter
-chip and its sitemap entry. Available icons: `bottle`, `snack`, `candy`,
-`grocery`, `care`, `home`, `box`, `truck`, `shield`, `tag`.
+chip and its sitemap entry.
+
+Available icons: `speaker`, `headphone`, `earbuds`, `charger`, `cable`, `plug`,
+`cooler`, `mobile`, `bolt`, `truck`, `shield`, `tag`, `handshake`.
+
+**`color` is what makes the homepage colourful** — each category tile is tinted
+with it, and the placeholder product artwork is generated from it. Keep the
+colours bright and clearly distinct from one another.
 
 ---
 
@@ -298,6 +322,7 @@ real product photography:
 
 | Script | Purpose |
 | --- | --- |
+| `scripts/fetch-fonts.js` | Re-downloads and self-hosts the webfonts |
 | `scripts/gen-images.js` | Regenerates the placeholder SVG artwork |
 | `scripts/rasterize.js` | Converts SVG artwork to PNG (needs Chrome) |
 | `scripts/optimize-png.js` | Losslessly shrinks PNGs (typically 50–70%) |
@@ -479,10 +504,11 @@ React/Vite or a template engine.
 
 ## 12. Removing the sample products
 
-The catalogue currently ships with **12 clearly-labelled sample products**
-(fictional brands like "SampleCo" and "Demo Snacks") so you can see the site
-working. They are not real PowerKing products, and every one carries a visible
-"Sample" badge plus a notice banner.
+The catalogue currently ships with **15 clearly-labelled sample products**
+across all 8 categories, using stand-in brand names ("SampleAudio",
+"SamplePower", "SampleLink", "SampleGear") so you can see the site working.
+The pack sizes and SKUs are illustrative. Every one carries a visible "Sample"
+badge plus a notice banner.
 
 To replace them:
 
@@ -502,15 +528,14 @@ To replace them:
 
 The build prints this list every time. Currently outstanding:
 
-- [ ] **WhatsApp number** — the single most important item; buttons link to
-      `/contact/` until it is set
+- [x] ~~**WhatsApp number**~~ — configured: `+977 9863215831`
 - [ ] **Phone number** — enables the "Call us" button
 - [ ] **Email address**
 - [ ] **Business address** and Google Maps link
 - [ ] **Opening hours**
 - [ ] **Social media profile URLs**
 - [ ] **Google Analytics measurement ID**
-- [ ] **Real products** to replace the 12 samples
+- [ ] **Real products** to replace the 15 samples — and your real brand names
 - [ ] **About page details** — company history, location, years in business,
       brands carried, distribution areas, mission. These are marked as
       placeholders in `src/pages/about.js`; nothing has been invented.

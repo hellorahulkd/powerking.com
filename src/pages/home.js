@@ -9,15 +9,16 @@ function hero() {
   <div class="hero__bg" aria-hidden="true"></div>
   <div class="container hero__inner">
     <div class="hero__copy">
-      <p class="hero__eyebrow">Wholesale &amp; Distribution · Nepal</p>
+      <p class="hero__eyebrow">Electronics Wholesale · Nepal</p>
       <h1 class="hero__title">
         PowerKing Nepal
-        <span class="hero__title-sub">Wholesale Distribution &amp; Supply</span>
+        <span class="hero__title-sub">Electronics Wholesale &amp; Supply</span>
       </h1>
       <p class="hero__lead">
-        A dependable wholesale supply partner for retailers, shops and
-        businesses across Nepal. Browse our catalogue, then message us on
-        WhatsApp for pricing, availability and minimum order quantities.
+        Speakers, earbuds, headphones, chargers, data cables, multiplugs and
+        mobile accessories — supplied by the carton to shops and retailers
+        across Nepal. Browse the catalogue, then message us on WhatsApp for
+        trade pricing, stock and minimum order quantities.
       </p>
       <div class="hero__actions">
         <a class="btn btn--primary btn--lg" href="/products/">
@@ -31,13 +32,13 @@ function hero() {
         </a>
       </div>
       <ul class="hero__points">
-        <li>${icon('tag', { size: 18 })}<span>Wholesale pricing on enquiry</span></li>
-        <li>${icon('truck', { size: 18 })}<span>Bulk &amp; case quantities</span></li>
+        <li>${icon('tag', { size: 18 })}<span>Trade pricing on enquiry</span></li>
+        <li>${icon('truck', { size: 18 })}<span>Carton &amp; bulk quantities</span></li>
         <li>${icon('whatsapp', { size: 18 })}<span>Fast replies on WhatsApp</span></li>
       </ul>
     </div>
     <div class="hero__visual" aria-hidden="true">
-      <img src="/images/hero/hero-crates.svg" alt="" width="640" height="560"
+      <img src="/images/hero/hero-electronics.svg" alt="" width="640" height="560"
            fetchpriority="high" decoding="async">
     </div>
   </div>
@@ -48,23 +49,23 @@ function valueProps() {
   const items = [
     {
       icon: 'truck',
-      title: 'Reliable supply',
-      body: 'Consistent availability on the lines you order most, so your shelves stay stocked.',
+      title: 'Consistent stock',
+      body: 'The fast-moving lines — earbuds, cables, chargers — kept available carton after carton.',
     },
     {
       icon: 'tag',
-      title: 'Wholesale pricing',
-      body: 'Competitive trade rates quoted per case, carton or bale. Ask us for your rate.',
+      title: 'Trade pricing',
+      body: 'Rates quoted per carton or master box, so you can price your counter with confidence.',
     },
     {
       icon: 'shield',
-      title: 'Quality products',
-      body: 'Sealed, in-date stock handled and stored with care before it reaches you.',
+      title: 'Checked before dispatch',
+      body: 'Stock arrives in sealed retail packaging, with any warranty terms confirmed up front.',
     },
     {
       icon: 'handshake',
       title: 'Long-term partners',
-      body: 'We work with retailers and businesses that want a supplier they can rely on.',
+      body: 'We would rather be the supplier a shop keeps returning to than a one-off sale.',
     },
   ];
   return `<section class="section section--tight">
@@ -99,7 +100,9 @@ function categorySection(categories, countsByCategory) {
         .map((c) => {
           const n = countsByCategory[c.name] || 0;
           return `<li>
-        <a class="cat-tile" href="/products/${esc(c.slug)}/" data-track-category="${esc(c.name)}">
+        <a class="cat-tile" href="/products/${esc(c.slug)}/"
+           style="--cat: ${esc(c.color || 'var(--accent)')}"
+           data-track-category="${esc(c.name)}">
           <span class="cat-tile__icon" aria-hidden="true">${icon(c.icon, { size: 26 })}</span>
           <span class="cat-tile__name">${esc(c.name)}</span>
           <span class="cat-tile__count">${n} ${n === 1 ? 'product' : 'products'}</span>

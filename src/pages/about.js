@@ -34,12 +34,12 @@ export function aboutPage() {
     {
       icon: 'tag',
       title: 'Competitive wholesale pricing',
-      body: 'Trade rates quoted per case or carton, so retailers can price with confidence.',
+      body: 'Trade rates quoted per carton or master box, so retailers can price with confidence.',
     },
     {
       icon: 'shield',
-      title: 'Quality products',
-      body: 'Sealed, in-date stock, stored and handled properly before it reaches your shop.',
+      title: 'Genuine, checked stock',
+      body: 'Products supplied in sealed retail packaging, with warranty terms confirmed before dispatch.',
     },
     {
       icon: 'handshake',
@@ -52,7 +52,7 @@ export function aboutPage() {
 ${pageHead({
   eyebrow: 'About Us',
   title: 'About PowerKing Nepal',
-  lead: 'PowerKing Nepal is a wholesale distribution and supply business serving retailers and businesses in Nepal.',
+  lead: 'PowerKing Nepal is a wholesale supplier of consumer electronics and mobile accessories, serving shops and retailers in Nepal.',
   crumbs,
 })}
 
@@ -61,10 +61,12 @@ ${pageHead({
     <div class="prose">
       <h2>What we do</h2>
       <p>
-        We supply products in wholesale quantities to shops, retailers and
-        businesses. Rather than selling online, we work the way wholesale
-        actually works: you tell us what you need, we quote a trade price for
-        the quantity you want, and we arrange supply.
+        We supply consumer electronics and mobile accessories in wholesale
+        quantities to shops and retailers — speakers, headphones, earbuds,
+        chargers, data cables, multiplugs, phone coolers and everyday phone
+        add-ons. Rather than selling online, we work the way wholesale actually
+        works: you tell us what you need, we quote a trade price for the
+        quantity you want, and we arrange supply.
       </p>
       <p>
         This website is our online catalogue. It exists so you can see what we

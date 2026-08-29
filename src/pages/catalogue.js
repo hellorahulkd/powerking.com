@@ -78,6 +78,7 @@ export function cataloguePage({ products, categories, brands }) {
       ${categories
         .map(
           (c) => `<li><a class="cat-strip__item" href="/products/${esc(c.slug)}/"
+            style="--cat: ${esc(c.color || 'var(--accent)')}"
             data-track-category="${esc(c.name)}">
         ${icon(c.icon, { size: 20 })}<span>${esc(c.name)}</span></a></li>`,
         )
@@ -163,6 +164,7 @@ export function categoryPage({ category, products, categories, brands }) {
     .filter((c) => c.slug !== category.slug)
     .map(
       (c) => `<li><a class="cat-strip__item" href="/products/${esc(c.slug)}/"
+      style="--cat: ${esc(c.color || 'var(--accent)')}"
       data-track-category="${esc(c.name)}">${icon(c.icon, { size: 20 })}<span>${esc(
         c.name,
       )}</span></a></li>`,

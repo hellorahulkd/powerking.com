@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Sample Wireless Over-Ear Headphones — sample product image">
+  <rect width="800" height="800" fill="#694ed9"/>
+  <path d="M0 470 800 300V800H0Z" fill="#382973" fill-opacity=".55"/>
+  <circle cx="400" cy="322" r="188" fill="#9176ff" fill-opacity=".18"/>
+  <circle cx="400" cy="322" r="188" fill="none" stroke="#fff" stroke-opacity=".30" stroke-width="3"/>
+  <circle cx="400" cy="322" r="150" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"
+          stroke-dasharray="10 14"/>
+  <g transform="translate(280 210) scale(10)" color="#ffffff"
+     stroke-width="1.35" opacity=".95"><path d="M4 14v-2a8 8 0 1 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 13.5h2.5a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-5ZM20 13.5h-2.5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1H19a1 1 0 0 0 1-1v-5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="400" y="700" text-anchor="middle" font-size="22" font-weight="600"
+        fill="#fff" opacity=".62" letter-spacing="5" font-family="Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif">SAMPLE IMAGE</text>
+  <g font-family="Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif"><text x="400" y="592" text-anchor="middle" font-size="34"
+       font-weight="700" fill="#fff" opacity=".97">Sample Wireless</text><text x="400" y="638" text-anchor="middle" font-size="34"
+       font-weight="700" fill="#fff" opacity=".97">Over-Ear</text><text x="400" y="684" text-anchor="middle" font-size="34"
+       font-weight="700" fill="#fff" opacity=".97">Headphones</text></g>
+</svg>
