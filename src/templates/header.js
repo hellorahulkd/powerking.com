@@ -1,6 +1,7 @@
 import { siteConfig } from '../config/site.config.js';
 import { esc, whatsappUrl, hasWhatsApp } from '../lib/html.js';
 import { icon } from './icons.js';
+import { markTile, wordmark } from './brand.js';
 import { categories } from '../data/categories.js';
 
 const NAV = [
@@ -12,29 +13,14 @@ const NAV = [
 ];
 
 export function logo() {
-  // The mark: a gradient tile carrying a power ring and lightning bolt —
-  // reads as "electronics / power" instantly, and stays legible at 32px.
+  // PWRKNG is the visual mark; "PowerKing Nepal" remains the accessible and
+  // indexed name, so the rebrand costs nothing in search or recognition.
   return `<a class="logo" href="/" aria-label="${esc(siteConfig.businessName)} — home">
-  <span class="logo__mark" aria-hidden="true">
-    <svg viewBox="0 0 40 40" width="38" height="38">
-      <defs>
-        <linearGradient id="pkMark" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#00C2FF"/>
-          <stop offset="1" stop-color="#7C5CFF"/>
-        </linearGradient>
-      </defs>
-      <rect width="40" height="40" rx="11" fill="url(#pkMark)"/>
-      <circle cx="20" cy="20.5" r="11.5" fill="none" stroke="#fff"
-              stroke-opacity=".38" stroke-width="2.4"
-              stroke-linecap="round" stroke-dasharray="47 25"
-              transform="rotate(-115 20 20.5)"/>
-      <path d="M23.4 7.6 14 22.2h5.1l-2.3 10.4 9.6-14.9h-5.2l2.2-10.1Z"
-            fill="#fff"/>
-    </svg>
-  </span>
+  <span class="logo__mark">${markTile({ size: 36, bg: 'var(--volt)', fg: 'var(--ink)', radius: 0.2 })}</span>
   <span class="logo__text">
-    <span class="logo__name">PowerKing<span class="logo__np"> Nepal</span></span>
-    <span class="logo__tag">${esc(siteConfig.tagline)}</span>
+    <span class="logo__word">${wordmark({ height: 17 })}</span>
+    <span class="logo__tag"><span class="logo__tag-name">PowerKing Nepal</span><span
+      class="logo__tag-more"> · ${esc(siteConfig.tagline)}</span></span>
   </span>
 </a>`;
 }

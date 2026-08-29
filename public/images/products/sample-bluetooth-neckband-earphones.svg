@@ -1,16 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Sample Bluetooth Neckband Earphones — sample product image">
-  <rect width="800" height="800" fill="#d93476"/>
-  <path d="M0 470 800 300V800H0Z" fill="#731b3f" fill-opacity=".55"/>
-  <circle cx="400" cy="322" r="188" fill="#ff5c9e" fill-opacity=".18"/>
-  <circle cx="400" cy="322" r="188" fill="none" stroke="#fff" stroke-opacity=".30" stroke-width="3"/>
-  <circle cx="400" cy="322" r="150" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"
+  <rect width="800" height="800" fill="#0A0B0F"/>
+  <rect width="800" height="800" fill="#FF3D8B" fill-opacity=".10"/>
+  <rect y="0" width="800" height="10" fill="#FF3D8B"/>
+  <circle cx="400" cy="330" r="188" fill="#FF3D8B" fill-opacity=".16"/>
+  <circle cx="400" cy="330" r="188" fill="none" stroke="#FF3D8B" stroke-opacity=".55" stroke-width="3"/>
+  <circle cx="400" cy="330" r="150" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="2"
           stroke-dasharray="10 14"/>
   <g transform="translate(280 210) scale(10)" color="#ffffff"
      stroke-width="1.35" opacity=".95"><path d="M8 3.5a3.5 3.5 0 0 1 3.5 3.5v6a3 3 0 0 1-6 0V9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9a2.5 2.5 0 0 1 5 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 13.5a3 3 0 0 1 3 3v2a2 2 0 0 1-4 0v-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>
-  <text x="400" y="700" text-anchor="middle" font-size="22" font-weight="600"
-        fill="#fff" opacity=".62" letter-spacing="5" font-family="Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif">SAMPLE IMAGE</text>
-  <g font-family="Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif"><text x="400" y="592" text-anchor="middle" font-size="34"
-       font-weight="700" fill="#fff" opacity=".97">Sample Bluetooth</text><text x="400" y="638" text-anchor="middle" font-size="34"
-       font-weight="700" fill="#fff" opacity=".97">Neckband</text><text x="400" y="684" text-anchor="middle" font-size="34"
-       font-weight="700" fill="#fff" opacity=".97">Earphones</text></g>
+  <g transform="translate(24 736) scale(0.34)" fill="#FFE01A" color="#FFE01A"><rect x="0" y="0" width="22" height="100"/><path d="M 82 0 L 42 50 L 82 100" fill="none"
+         stroke="currentColor" stroke-width="22"
+         stroke-linecap="butt" stroke-linejoin="miter"/></g>
+  <text x="70" y="768" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="19" letter-spacing="4" fill="#6E7687">SAMPLE IMAGE</text>
+  <g font-family="Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif"><text x="400" y="606" text-anchor="middle" font-size="33"
+       font-weight="700" fill="#fff">Sample Bluetooth</text><text x="400" y="650" text-anchor="middle" font-size="33"
+       font-weight="700" fill="#fff">Neckband</text><text x="400" y="694" text-anchor="middle" font-size="33"
+       font-weight="700" fill="#fff">Earphones</text></g>
 </svg>

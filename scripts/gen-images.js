@@ -19,13 +19,14 @@ import { fileURLToPath } from 'node:url';
 import { products } from '../src/data/products.js';
 import { categories } from '../src/data/categories.js';
 import { icons } from '../src/templates/icons.js';
+import { wordmarkGeometry, markKGeometry } from '../src/templates/brand.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public/images');
 
-const BRAND_CYAN = '#00C2FF';
-const BRAND_VIOLET = '#7C5CFF';
-const INK = '#0A0E27';
+const VOLT = '#FFE01A';
+const INK = '#0A0B0F';
+const INK_800 = '#14161F';
 
 const esc = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -68,42 +69,41 @@ const FONT = 'Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-ser
 
 function productTile(product) {
   const cat = categories.find((c) => c.name === product.category);
-  const base = cat?.color || BRAND_CYAN;
-  const dark = shade(base, -0.55);
-  const mid = shade(base, -0.15);
-  const id = `p${product.id}`;
+  const base = cat?.color || VOLT;
   const lines = wrap(product.name);
+  const kScale = 34 / KM.height;
 
   const text = lines
     .map(
       (l, i) =>
-        `<text x="400" y="${592 + i * 46}" text-anchor="middle" font-size="34"
-       font-weight="700" fill="#fff" opacity=".97">${esc(l)}</text>`,
+        `<text x="400" y="${606 + i * 44}" text-anchor="middle" font-size="33"
+       font-weight="700" fill="#fff">${esc(l)}</text>`,
     )
     .join('');
 
-  // Deliberately flat (no smooth gradients): it reads as clean modern product
-  // signage, and flat colour is what lets the PNG twin used for social
-  // previews compress to a few KB instead of a couple of hundred.
+  // Flat by design: it reads as product signage, and flat colour is what lets
+  // the PNG twin used for link previews stay a few KB instead of a few hundred.
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="${esc(
     product.name,
   )} — sample product image">
-  <rect width="800" height="800" fill="${mid}"/>
-  <path d="M0 470 800 300V800H0Z" fill="${dark}" fill-opacity=".55"/>
-  <circle cx="400" cy="322" r="188" fill="${shade(base, 0.16)}" fill-opacity=".18"/>
-  <circle cx="400" cy="322" r="188" fill="none" stroke="#fff" stroke-opacity=".30" stroke-width="3"/>
-  <circle cx="400" cy="322" r="150" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"
+  <rect width="800" height="800" fill="${INK}"/>
+  <rect width="800" height="800" fill="${base}" fill-opacity=".10"/>
+  <rect y="0" width="800" height="10" fill="${base}"/>
+  <circle cx="400" cy="330" r="188" fill="${base}" fill-opacity=".16"/>
+  <circle cx="400" cy="330" r="188" fill="none" stroke="${base}" stroke-opacity=".55" stroke-width="3"/>
+  <circle cx="400" cy="330" r="150" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="2"
           stroke-dasharray="10 14"/>
-  ${bigIcon(cat?.icon || 'bolt', { x: 280, y: 210, size: 240, width: 1.35 })}
-  <text x="400" y="700" text-anchor="middle" font-size="22" font-weight="600"
-        fill="#fff" opacity=".62" letter-spacing="5" font-family="${FONT}">SAMPLE IMAGE</text>
+  ${bigIcon(cat?.icon || 'bolt', { x: 280, y: 210, size: 240, color: '#ffffff', width: 1.35 })}
+  <g transform="translate(24 736) scale(${kScale})" fill="${VOLT}" color="${VOLT}">${KM.svg}</g>
+  <text x="70" y="768" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="19" letter-spacing="4" fill="#6E7687">SAMPLE IMAGE</text>
   <g font-family="${FONT}">${text}</g>
 </svg>
 `;
 }
 
 /* --------------------------------------------------------------- hero ----- */
-/** Orbiting product glyphs around a power core. */
+/** Product glyphs orbiting the K. */
 function heroSvg() {
   const orbit = [
     { icon: 'speaker', color: '#00C2FF', x: 92, y: 96, r: 46 },
@@ -117,9 +117,9 @@ function heroSvg() {
   const nodes = orbit
     .map(
       (o) => `<g>
-    <circle cx="${o.x + o.r}" cy="${o.y + o.r}" r="${o.r}" fill="${o.color}" fill-opacity=".16"/>
+    <circle cx="${o.x + o.r}" cy="${o.y + o.r}" r="${o.r}" fill="${o.color}" fill-opacity=".14"/>
     <circle cx="${o.x + o.r}" cy="${o.y + o.r}" r="${o.r}" fill="none"
-            stroke="${o.color}" stroke-opacity=".65" stroke-width="2"/>
+            stroke="${o.color}" stroke-opacity=".62" stroke-width="2"/>
     ${bigIcon(o.icon, {
       x: o.x + o.r * 0.42,
       y: o.y + o.r * 0.42,
@@ -131,102 +131,94 @@ function heroSvg() {
     )
     .join('\n');
 
+  const kScale = 116 / KM.height;
+  const kx = 320 - (KM.width * kScale) / 2;
+  const ky = 278 - 58;
+
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 560" width="640" height="560" role="img" aria-label="Illustration of wholesale consumer electronics: speakers, earbuds, chargers, cables and multiplugs">
   <defs>
-    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="${BRAND_CYAN}"/><stop offset="1" stop-color="${BRAND_VIOLET}"/>
-    </linearGradient>
     <radialGradient id="halo" cx=".5" cy=".5" r=".5">
-      <stop offset="0" stop-color="${BRAND_CYAN}" stop-opacity=".45"/>
-      <stop offset="1" stop-color="${BRAND_CYAN}" stop-opacity="0"/>
+      <stop offset="0" stop-color="${VOLT}" stop-opacity=".38"/>
+      <stop offset="1" stop-color="${VOLT}" stop-opacity="0"/>
     </radialGradient>
   </defs>
-
   <circle cx="320" cy="278" r="230" fill="url(#halo)"/>
-  <circle cx="320" cy="278" r="176" fill="none" stroke="#fff" stroke-opacity=".14"
+  <circle cx="320" cy="278" r="176" fill="none" stroke="#fff" stroke-opacity=".13"
           stroke-width="1.5" stroke-dasharray="5 9"/>
-  <circle cx="320" cy="278" r="232" fill="none" stroke="#fff" stroke-opacity=".09"
+  <circle cx="320" cy="278" r="232" fill="none" stroke="#fff" stroke-opacity=".08"
           stroke-width="1.5" stroke-dasharray="5 9"/>
-
   ${nodes}
-
-  <!-- power core -->
   <g>
-    <rect x="234" y="192" width="172" height="172" rx="46" fill="url(#core)"/>
-    <rect x="234" y="192" width="172" height="172" rx="46" fill="none"
-          stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
-    <circle cx="320" cy="280" r="52" fill="none" stroke="#fff" stroke-opacity=".45"
-            stroke-width="7" stroke-linecap="round" stroke-dasharray="212 115"
-            transform="rotate(-115 320 280)"/>
-    <path d="M334 224 292 289h23l-10 47 43-67h-23l9-45Z" fill="#fff"/>
+    <rect x="230" y="188" width="180" height="180" rx="38" fill="${VOLT}"/>
+    <g transform="translate(${kx} ${ky}) scale(${kScale})" fill="${INK}" color="${INK}">${KM.svg}</g>
   </g>
 </svg>
 `;
 }
 
 /* -------------------------------------------------------------- brand ----- */
-const markDefs = `<linearGradient id="m" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="${BRAND_CYAN}"/><stop offset="1" stop-color="${BRAND_VIOLET}"/>
-    </linearGradient>`;
+const WORD = wordmarkGeometry();
+const KM = markKGeometry();
 
-const markGroup = (s) => `<g transform="scale(${s / 40})">
-    <rect width="40" height="40" rx="11" fill="url(#m)"/>
-    <circle cx="20" cy="20.5" r="11.5" fill="none" stroke="#fff" stroke-opacity=".38"
-            stroke-width="2.4" stroke-linecap="round" stroke-dasharray="47 25"
-            transform="rotate(-115 20 20.5)"/>
-    <path d="M23.4 7.6 14 22.2h5.1l-2.3 10.4 9.6-14.9h-5.2l2.2-10.1Z" fill="#fff"/>
-  </g>`;
-
-const logoSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 88" width="340" height="88" role="img" aria-label="PowerKing Nepal logo">
-  <defs>${markDefs}
-    <linearGradient id="w" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="${BRAND_CYAN}"/><stop offset="1" stop-color="${BRAND_VIOLET}"/>
-    </linearGradient>
-  </defs>
-  <rect width="340" height="88" fill="${INK}"/>
-  <g transform="translate(18 20)">${markGroup(48)}</g>
-  <g font-family="${FONT}" fill="#fff">
-    <text x="80" y="47" font-size="27" font-weight="700" letter-spacing="-.6">PowerKing<tspan fill="url(#w)"> Nepal</tspan></text>
-    <text x="81" y="65" font-size="9.5" font-weight="600" letter-spacing="2.7" fill="#8B93C9">ELECTRONICS WHOLESALE &amp; SUPPLY</text>
-  </g>
+/** The K locked in a volt tile — favicon and app icon. */
+const faviconSvg = (() => {
+  const box = 140;
+  const scale = 78 / KM.height;
+  const gx = (box - KM.width * scale) / 2;
+  const gy = (box - KM.height * scale) / 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${box} ${box}" width="${box}" height="${box}">
+  <rect width="${box}" height="${box}" rx="28" fill="${VOLT}"/>
+  <g transform="translate(${gx} ${gy}) scale(${scale})" fill="${INK}" color="${INK}">${KM.svg}</g>
 </svg>
 `;
+})();
 
-const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <defs>${markDefs}</defs>
-  <g transform="translate(4 4)">${markGroup(40)}</g>
+/** Horizontal lockup for letterheads, invoices and packaging. */
+const logoSvg = (() => {
+  const scale = 46 / WORD.height;
+  const kScale = 58 / KM.height;
+  const kW = KM.width * kScale;
+  const wordX = 34 + kW + 26;
+  const width = wordX + WORD.width * scale + 34;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${Math.round(width)} 130" width="${Math.round(width)}" height="130" role="img" aria-label="PowerKing Nepal logo">
+  <rect width="${Math.round(width)}" height="130" fill="${INK}"/>
+  <g transform="translate(34 36) scale(${kScale})" fill="${VOLT}" color="${VOLT}">${KM.svg}</g>
+  <g transform="translate(${wordX} 34) scale(${scale})" fill="${VOLT}" color="${VOLT}">${WORD.svg}</g>
+  <text x="${wordX + 2}" y="98" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="11" letter-spacing="3.4" fill="#6E7687">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
 </svg>
 `;
+})();
 
-const ogSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <defs>${markDefs}
+/** Open Graph card — what a shared link looks like on WhatsApp and Facebook. */
+const ogSvg = (() => {
+  const scale = 132 / WORD.height;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#141A3D"/><stop offset="1" stop-color="${INK}"/>
+      <stop offset="0" stop-color="${INK_800}"/><stop offset="1" stop-color="${INK}"/>
     </linearGradient>
-    <radialGradient id="gc" cx=".86" cy=".12" r=".6">
-      <stop offset="0" stop-color="${BRAND_CYAN}" stop-opacity=".42"/>
-      <stop offset="1" stop-color="${BRAND_CYAN}" stop-opacity="0"/>
+    <radialGradient id="glow" cx=".84" cy=".1" r=".62">
+      <stop offset="0" stop-color="${VOLT}" stop-opacity=".26"/>
+      <stop offset="1" stop-color="${VOLT}" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="gv" cx=".06" cy=".95" r=".6">
-      <stop offset="0" stop-color="${BRAND_VIOLET}" stop-opacity=".40"/>
-      <stop offset="1" stop-color="${BRAND_VIOLET}" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="w2" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="${BRAND_CYAN}"/><stop offset="1" stop-color="${BRAND_VIOLET}"/>
-    </linearGradient>
+    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="1" fill="#fff" fill-opacity=".05"/>
+    </pattern>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect width="1200" height="630" fill="url(#gc)"/>
-  <rect width="1200" height="630" fill="url(#gv)"/>
-  <g transform="translate(88 150)">${markGroup(96)}</g>
-  <g font-family="${FONT}">
-    <text x="88" y="358" font-size="80" font-weight="700" fill="#fff" letter-spacing="-2">PowerKing<tspan fill="url(#w2)"> Nepal</tspan></text>
-    <text x="92" y="410" font-size="27" font-weight="600" fill="#8B93C9" letter-spacing="4.5">ELECTRONICS WHOLESALE &amp; SUPPLY</text>
-    <text x="92" y="474" font-size="29" fill="#C6CEEA">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
-  </g>
-  <rect x="92" y="516" width="210" height="8" rx="4" fill="url(#w2)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="url(#scan)"/>
+  <g transform="translate(84 214) scale(${scale})" fill="${VOLT}" color="${VOLT}">${WORD.svg}</g>
+  <text x="88" y="418" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="23" letter-spacing="7" fill="#8B93A5">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+  <text x="88" y="486" font-family="Space Grotesk, Inter, Arial, sans-serif"
+        font-size="30" fill="#D5D9E2">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
+  <rect x="88" y="524" width="230" height="9" fill="${VOLT}"/>
+  <rect y="0" width="1200" height="6" fill="${VOLT}"/>
 </svg>
 `;
+})();
 
 async function main() {
   await mkdir(path.join(OUT, 'products'), { recursive: true });

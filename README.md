@@ -242,21 +242,55 @@ Google Maps → find your location → Share → **Embed a map** → copy the UR
 inside `src="…"` → paste it into `googleMapsEmbedUrl`. The map section appears
 on the contact page automatically.
 
+### The brand marks
+
+The **PWRKNG** wordmark and the **K** symbol are drawn as geometry in
+[`src/templates/brand.js`](src/templates/brand.js) — not set in a typeface.
+
+That matters: a logo set in a font is only as ownable as that font's licence,
+and it needs the font present to render. These letterforms are plain SVG
+rectangles and polygons on a 100-unit cap height, so the mark is genuinely
+yours, renders identically in every browser, email client and print file, and
+downloads nothing.
+
+- `markK()` — the K on its own. **This is the symbol.** Use it alone on
+  stickers, cartons, the favicon and social avatars.
+- `markTile()` — the K in a filled tile (app icon, header lockup).
+- `wordmark()` — the full PWRKNG wordmark.
+
+The K's arms are held off its stem by a deliberate gap — a spark gap. It
+implies current jumping a contact without drawing a lightning bolt, which
+every electronics brand already owns.
+
+`PowerKing Nepal` remains the business name in page titles, structured data
+and the logo's accessible label, so the short mark costs nothing in search or
+recognition.
+
+To regenerate every asset after editing the geometry:
+
+```bash
+node scripts/gen-images.js    # SVG: favicon, logo lockup, OG card, hero, tiles
+node scripts/rasterize.js     # PNG versions (needs Chrome)
+node scripts/optimize-png.js  # shrink them
+```
+
 ### Changing the colours
 
-The whole palette is six CSS variables at the top of
+The whole palette is a handful of CSS variables at the top of
 `src/assets/css/styles.css`:
 
 ```css
 :root {
-  --primary: #0A0E27;   /* deep ink indigo — hero, footer   */
-  --accent:  #00C2FF;   /* electric cyan — brand signal     */
-  --violet:  #7C5CFF;   /* second brand colour              */
-  --cta:     #FF6A2B;   /* vivid coral — primary buttons    */
-  --whatsapp:#25D366;
+  --volt: #FFE01A;   /* the brand colour — buttons, marks, accents */
+  --ink:  #0A0B0F;   /* the black — header, hero, footer, cartons  */
+  --whatsapp: #25D366;
   ...
 }
 ```
+
+Two colours carry the identity. The only other colour on the site comes from
+the per-category accents in `categories.js`, so colour stays *meaningful*
+(it tells you which range you are looking at) rather than decorative.
 
 ### Changing the typefaces
 
