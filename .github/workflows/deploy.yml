@@ -1,0 +1,58 @@
+name: Build & Deploy to GitHub Pages
+
+# Every push to main rebuilds the site and publishes it.
+# Adding a product = edit src/data/products.js, commit, push. That is the
+# entire deployment process.
+on:
+  push:
+    branches: [main]
+  # Lets you re-deploy by hand from the Actions tab without pushing a commit.
+  workflow_dispatch:
+
+# Required for the deploy step to publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# If two pushes land close together, let the newer one win rather than
+# queueing a deploy of stale content.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # No `npm install` — the build has zero dependencies on purpose, so
+      # there is nothing to install, audit or break.
+      - name: Build the site
+        run: node build.js
+
+      - name: Verify the build output
+        run: node scripts/check.js
+
+      - name: Upload the built site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

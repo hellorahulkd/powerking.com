@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80" role="img" aria-label="PowerKing Nepal logo">
+  <rect width="320" height="80" fill="#0E1726"/>
+  <g transform="translate(16 16)">
+    <path d="M24 2 44 12.6v22.8L24 46 4 35.4V12.6L24 2Z" fill="#E8940C" fill-opacity=".16"/>
+    <path d="M24 2 44 12.6v22.8L24 46 4 35.4V12.6L24 2Z" fill="none" stroke="#E8940C" stroke-width="2.6"/>
+    <path d="M27.5 13 18 26h5.4l-2.2 10 9.5-13h-5.4l2.2-10Z" fill="#E8940C"/>
+  </g>
+  <g font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" fill="#fff">
+    <text x="76" y="42" font-size="25" font-weight="800" letter-spacing="-.5">PowerKing<tspan fill="#E8940C"> Nepal</tspan></text>
+    <text x="77" y="59" font-size="9.5" font-weight="600" letter-spacing="2.6" fill="#8494A8">WHOLESALE DISTRIBUTION &amp; SUPPLY</text>
+  </g>
+</svg>
