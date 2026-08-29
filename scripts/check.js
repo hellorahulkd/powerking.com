@@ -155,6 +155,25 @@ async function main() {
     assert(`internal link ${link} resolves`, existsSync(target));
   }
 
+  /* ----------------------------------------------------------- fonts -- */
+  // The stylesheet is generated from src/assets/css/fonts.css, but the .woff2
+  // files it points at live in public/fonts and are copied separately. If
+  // scripts/fetch-fonts.js was never run, the build would still succeed and
+  // the site would silently fall back to system fonts — catch that here.
+  const builtCss = await readFile(path.join(DIST, 'assets/styles.css'), 'utf8');
+  const fontUrls = [...builtCss.matchAll(/url\('(\/fonts\/[^']+)'\)/g)].map((m) => m[1]);
+  assert('stylesheet declares @font-face rules', /@font-face/.test(builtCss));
+  assert('stylesheet references at least two font files', fontUrls.length >= 2,
+    `${fontUrls.length} found`);
+  for (const f of [...new Set(fontUrls)]) {
+    assert(`font file ${f} was published`, existsSync(path.join(DIST, f)));
+  }
+  // The two faces the pages preload must be the ones actually served.
+  for (const preload of ['/fonts/space-grotesk-latin.woff2', '/fonts/inter-latin.woff2']) {
+    assert(`preloaded font ${preload} exists`, existsSync(path.join(DIST, preload)));
+    assert(`preloaded font ${preload} is declared in CSS`, fontUrls.includes(preload));
+  }
+
   /* -------------------------------------------------------- whatsapp -- */
   const productDoc = await html(`/products/${products[0].slug}/`);
   assert('product page includes WhatsApp CTAs', /data-wa-track/.test(productDoc));
