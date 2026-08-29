@@ -123,7 +123,7 @@ ${pageHead({
       ${placeholderBlock('Years in business', '[ADD YEARS IN BUSINESS]')}
       ${placeholderBlock('Brands we carry', '[ADD THE BRANDS YOU DISTRIBUTE]')}
       ${placeholderBlock('Distribution areas', '[ADD THE AREAS/DISTRICTS YOU SUPPLY — do not claim nationwide coverage unless it is accurate]')}
-      ${placeholderBlock('Mission &amp; vision', '[ADD MISSION AND VISION STATEMENT]')}
+      ${placeholderBlock('Mission & vision', '[ADD MISSION AND VISION STATEMENT]')}
     </div>
   </div>
 </section>

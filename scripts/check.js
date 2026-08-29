@@ -103,6 +103,11 @@ async function main() {
     // No unescaped template leftovers.
     assert(`${rel} has no unrendered template placeholders`,
       !/\$\{|\[object Object\]|undefined<|>undefined/.test(doc));
+    // Double-escaped entities mean a string was HTML-encoded twice — it shows
+    // up to visitors as literal "&amp;" text.
+    assert(`${rel} has no double-escaped entities`,
+      !/&amp;(amp|lt|gt|quot|#39);/.test(doc),
+      doc.match(/&amp;(amp|lt|gt|quot|#39);/)?.[0]);
   }
 
   /* --------------------------------------------- Open Graph image type -- */
