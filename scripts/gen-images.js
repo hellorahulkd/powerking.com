@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { products } from '../src/data/products.js';
 import { categories } from '../src/data/categories.js';
 import { wordmarkGeometry, glitchGeometry } from '../src/templates/brand.js';
+import { artFor } from './product-art.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public/images');
@@ -59,33 +60,34 @@ function wrap(text, width = 17, maxLines = 3) {
 const FONT = 'Archivo, Inter, Helvetica, Arial, sans-serif';
 
 function productTile(product) {
-  // Composed like a product shot: centred on white, with air around it, so it
-  // sits correctly in the card's padded, contain-fitted media area and reads
-  // consistently once real photography replaces it.
-  const lines = wrap(product.category, 13, 3);
-  const startY = 400 - ((lines.length - 1) * 92) / 2;
-  const text = lines
+  // A generic drawing of the product type, centred on white like a product
+  // shot. These are stand-ins: replace a product's `image` with a real
+  // photograph and none of this is used for it any more.
+  const art = artFor(product);
+  if (!art) {
+    // No drawing for this type yet — fall back to the category set in type.
+    const lines = wrap(product.category, 13, 3);
+    const startY = 400 - ((lines.length - 1) * 92) / 2;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="${esc(
+      product.category,
+    )} — sample product image">
+  <rect width="800" height="800" fill="#FFFFFF"/>
+  <g font-family="${FONT}">${lines
     .map(
       (l, i) =>
         `<text x="400" y="${startY + i * 92}" text-anchor="middle" font-size="76"
        font-weight="900" letter-spacing="-2.5" fill="${INK}">${esc(l)}</text>`,
     )
-    .join('');
+    .join('')}</g>
+</svg>
+`;
+  }
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="${esc(
-    product.category,
-  )} — sample product image">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Illustration of ${esc(
+    product.name,
+  )}">
   <rect width="800" height="800" fill="#FFFFFF"/>
-  <text x="400" y="214" text-anchor="middle"
-        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="25" letter-spacing="8" fill="${MUTED}">${esc(
-    (product.brand || '').toUpperCase(),
-  )}</text>
-  <g font-family="${FONT}">${text}</g>
-  <rect x="356" y="516" width="88" height="7" rx="3.5" fill="${VOLT}"/>
-  <text x="400" y="600" text-anchor="middle"
-        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="6" fill="${MUTED}">SAMPLE IMAGE</text>
+  ${art}
 </svg>
 `;
 }

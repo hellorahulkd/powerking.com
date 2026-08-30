@@ -131,6 +131,16 @@ opens a message naming that product.
 Images are lazy-loaded below the fold, given explicit dimensions to prevent
 layout shift, and carry descriptive alt text automatically.
 
+### The stand-in product drawings
+
+Until real photography exists, each sample product shows a flat vector drawing
+of its product *type* — a speaker, a charger, a cable — from
+`scripts/product-art.js`. They are generic representations, carry no brand
+marks, and depict no real manufacturer's item.
+
+Point a product's `image` at a real photograph and none of this applies to it
+any more. Delete `scripts/product-art.js` once every product has one.
+
 ### Social sharing previews
 
 When a product link is shared on WhatsApp or Facebook, the preview uses the
@@ -376,6 +386,7 @@ real product photography:
 | --- | --- |
 | `scripts/fetch-fonts.js` | Re-downloads and self-hosts the webfonts |
 | `scripts/gen-images.js` | Regenerates the placeholder SVG artwork |
+| `scripts/product-art.js` | The generic product drawings used as stand-in photography |
 | `scripts/rasterize.js` | Converts SVG artwork to PNG (needs Chrome) |
 | `scripts/optimize-png.js` | Losslessly shrinks PNGs (typically 50–70%) |
 | `scripts/dev/qa.js` | Browser tests: layout, search, menu, WhatsApp, analytics |

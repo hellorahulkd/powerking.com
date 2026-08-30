@@ -1,12 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Phone Coolers — sample product image">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Illustration of Sample Magnetic Phone Cooling Fan">
   <rect width="800" height="800" fill="#FFFFFF"/>
-  <text x="400" y="214" text-anchor="middle"
-        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="25" letter-spacing="8" fill="#86868B">SAMPLEGEAR</text>
-  <g font-family="Archivo, Inter, Helvetica, Arial, sans-serif"><text x="400" y="400" text-anchor="middle" font-size="76"
-       font-weight="900" letter-spacing="-2.5" fill="#1A1A1C">Phone Coolers</text></g>
-  <rect x="356" y="516" width="88" height="7" rx="3.5" fill="#F3D74B"/>
-  <text x="400" y="600" text-anchor="middle"
-        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="6" fill="#86868B">SAMPLE IMAGE</text>
+  
+    <ellipse cx="400" cy="606" rx="150" ry="18" fill="#000" opacity=".07"/>
+    <rect x="268" y="268" width="264" height="264" rx="46" fill="#3A3A42"/>
+    <rect x="290" y="290" width="220" height="220" rx="34" fill="#26262C"/>
+    <circle cx="400" cy="400" r="92" fill="#33333B"/>
+    <path d="M400 400 L475.0 378.5 A78 78 0 0 1 475.0 421.5 Z" fill="#4E4E58"/><path d="M400 400 L456.1 454.2 A78 78 0 0 1 418.9 475.7 Z" fill="#4E4E58"/><path d="M400 400 L381.1 475.7 A78 78 0 0 1 343.9 454.2 Z" fill="#4E4E58"/><path d="M400 400 L325.0 421.5 A78 78 0 0 1 325.0 378.5 Z" fill="#4E4E58"/><path d="M400 400 L343.9 345.8 A78 78 0 0 1 381.1 324.3 Z" fill="#4E4E58"/><path d="M400 400 L418.9 324.3 A78 78 0 0 1 456.1 345.8 Z" fill="#4E4E58"/>
+    <circle cx="400" cy="400" r="22" fill="#C5C5CD"/>
+    <rect x="268" y="512" width="264" height="20" rx="10" fill="#F3D74B"/>
+    <rect x="360" y="236" width="80" height="34" rx="12" fill="#5A5A64"/>
+    <rect x="516" y="356" width="34" height="88" rx="12" fill="#5A5A64"/>
 </svg>

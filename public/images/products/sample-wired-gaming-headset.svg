@@ -1,12 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Headphones — sample product image">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Illustration of Sample Wired Gaming Headset">
   <rect width="800" height="800" fill="#FFFFFF"/>
-  <text x="400" y="214" text-anchor="middle"
-        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="25" letter-spacing="8" fill="#86868B">SAMPLEGEAR</text>
-  <g font-family="Archivo, Inter, Helvetica, Arial, sans-serif"><text x="400" y="400" text-anchor="middle" font-size="76"
-       font-weight="900" letter-spacing="-2.5" fill="#1A1A1C">Headphones</text></g>
-  <rect x="356" y="516" width="88" height="7" rx="3.5" fill="#F3D74B"/>
-  <text x="400" y="600" text-anchor="middle"
-        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="6" fill="#86868B">SAMPLE IMAGE</text>
+  
+    <ellipse cx="400" cy="618" rx="165" ry="18" fill="#000" opacity=".07"/>
+    <path d="M214 428 Q214 190 400 190 Q586 190 586 428" fill="none" stroke="#3A3A42" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="160" y="396" width="116" height="190" rx="52" fill="#3A3A42"/>
+    <rect x="524" y="396" width="116" height="190" rx="52" fill="#3A3A42"/>
+    <rect x="178" y="416" width="80" height="150" rx="40" fill="#4E4E58"/>
+    <rect x="542" y="416" width="80" height="150" rx="40" fill="#4E4E58"/>
+    <ellipse cx="218" cy="491" rx="26" ry="52" fill="#F3D74B"/>
+    <ellipse cx="582" cy="491" rx="26" ry="52" fill="#F3D74B"/>
+    <path d="M262 552 Q330 604 392 578" fill="none" stroke="#26262C" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="398" cy="576" rx="22" ry="15" fill="#2C2C34"/>
+    <rect x="370" y="176" width="60" height="16" rx="8" fill="#5A5A64"/>
 </svg>

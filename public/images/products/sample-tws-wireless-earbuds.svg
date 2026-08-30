@@ -1,12 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Earbuds — sample product image">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Illustration of Sample TWS Wireless Earbuds">
   <rect width="800" height="800" fill="#FFFFFF"/>
-  <text x="400" y="214" text-anchor="middle"
-        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="25" letter-spacing="8" fill="#86868B">SAMPLEAUDIO</text>
-  <g font-family="Archivo, Inter, Helvetica, Arial, sans-serif"><text x="400" y="400" text-anchor="middle" font-size="76"
-       font-weight="900" letter-spacing="-2.5" fill="#1A1A1C">Earbuds</text></g>
-  <rect x="356" y="516" width="88" height="7" rx="3.5" fill="#F3D74B"/>
-  <text x="400" y="600" text-anchor="middle"
-        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="6" fill="#86868B">SAMPLE IMAGE</text>
+  
+    <ellipse cx="400" cy="606" rx="168" ry="18" fill="#000" opacity=".07"/>
+    <rect x="236" y="372" width="328" height="210" rx="46" fill="#3A3A42"/>
+    <rect x="236" y="372" width="328" height="26" rx="13" fill="#5A5A64"/>
+    <rect x="258" y="414" width="284" height="148" rx="30" fill="#26262C"/>
+    <ellipse cx="330" cy="470" rx="40" ry="46" fill="#F2F2F4"/>
+    <ellipse cx="470" cy="470" rx="40" ry="46" fill="#F2F2F4"/>
+    <rect x="320" y="500" width="20" height="74" rx="10" fill="#F2F2F4"/>
+    <rect x="460" y="500" width="20" height="74" rx="10" fill="#F2F2F4"/>
+    <circle cx="330" cy="464" r="15" fill="#E6E6EB"/><circle cx="470" cy="464" r="15" fill="#E6E6EB"/>
+    <rect x="376" y="340" width="48" height="10" rx="5" fill="#F3D74B"/>
 </svg>
