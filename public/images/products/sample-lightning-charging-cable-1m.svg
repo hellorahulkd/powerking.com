@@ -1,10 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Data Cables — sample product image">
-  <rect width="800" height="800" fill="#F5F5F7"/>
-  <text x="64" y="150" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="26" letter-spacing="8" fill="#86868B">SAMPLELINK</text>
-  <g font-family="Archivo, Inter, Helvetica, Arial, sans-serif"><text x="64" y="318" font-size="92" font-weight="900"
-       letter-spacing="-3" fill="#1A1A1C">Data Cables</text></g>
-  <text x="64" y="730" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="24" letter-spacing="6" fill="#86868B">SAMPLE IMAGE</text>
-  <rect x="64" y="752" width="150" height="8" rx="4" fill="#F3D74B"/>
+  <rect width="800" height="800" fill="#FFFFFF"/>
+  <text x="400" y="214" text-anchor="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="25" letter-spacing="8" fill="#86868B">SAMPLELINK</text>
+  <g font-family="Archivo, Inter, Helvetica, Arial, sans-serif"><text x="400" y="400" text-anchor="middle" font-size="76"
+       font-weight="900" letter-spacing="-2.5" fill="#1A1A1C">Data Cables</text></g>
+  <rect x="356" y="516" width="88" height="7" rx="3.5" fill="#F3D74B"/>
+  <text x="400" y="600" text-anchor="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="23" letter-spacing="6" fill="#86868B">SAMPLE IMAGE</text>
 </svg>

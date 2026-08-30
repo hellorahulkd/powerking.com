@@ -59,29 +59,33 @@ function wrap(text, width = 17, maxLines = 3) {
 const FONT = 'Archivo, Inter, Helvetica, Arial, sans-serif';
 
 function productTile(product) {
-  // Light and monochrome: the catalogue's colour comes from real product
-  // photography once it exists, not from the placeholder.
-  const lines = wrap(product.category, 12, 3);
+  // Composed like a product shot: centred on white, with air around it, so it
+  // sits correctly in the card's padded, contain-fitted media area and reads
+  // consistently once real photography replaces it.
+  const lines = wrap(product.category, 13, 3);
+  const startY = 400 - ((lines.length - 1) * 92) / 2;
   const text = lines
     .map(
       (l, i) =>
-        `<text x="64" y="${318 + i * 104}" font-size="92" font-weight="900"
-       letter-spacing="-3" fill="${INK}">${esc(l)}</text>`,
+        `<text x="400" y="${startY + i * 92}" text-anchor="middle" font-size="76"
+       font-weight="900" letter-spacing="-2.5" fill="${INK}">${esc(l)}</text>`,
     )
     .join('');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="${esc(
     product.category,
   )} — sample product image">
-  <rect width="800" height="800" fill="${PAPER}"/>
-  <text x="64" y="150" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="26" letter-spacing="8" fill="${MUTED}">${esc(
+  <rect width="800" height="800" fill="#FFFFFF"/>
+  <text x="400" y="214" text-anchor="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="25" letter-spacing="8" fill="${MUTED}">${esc(
     (product.brand || '').toUpperCase(),
   )}</text>
   <g font-family="${FONT}">${text}</g>
-  <text x="64" y="730" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="24" letter-spacing="6" fill="${MUTED}">SAMPLE IMAGE</text>
-  <rect x="64" y="752" width="150" height="8" rx="4" fill="${VOLT}"/>
+  <rect x="356" y="516" width="88" height="7" rx="3.5" fill="${VOLT}"/>
+  <text x="400" y="600" text-anchor="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="23" letter-spacing="6" fill="${MUTED}">SAMPLE IMAGE</text>
 </svg>
 `;
 }
