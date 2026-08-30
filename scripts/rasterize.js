@@ -15,14 +15,12 @@
  */
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { products } from '../src/data/products.js';
+import { launch, newPage } from './dev/cdp.js';
 
-const run = promisify(execFile);
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const CANDIDATES = [
@@ -41,79 +39,88 @@ function findChrome() {
   return null;
 }
 
-/** Screenshot an SVG file at an exact pixel size. */
-async function rasterize(chrome, svgPath, outPath, width, height) {
+/**
+ * Screenshot an SVG file at an exact pixel size.
+ *
+ * Driven over CDP rather than Chrome's --screenshot flag so we can await
+ * document.fonts.ready first. The wordmark is set in type, so a capture that
+ * fires before the webfont loads bakes in a fallback face; and the plain flag
+ * combined with --virtual-time-budget was also producing short captures with
+ * a white band at the foot of the image.
+ */
+async function rasterize(page, svgPath, outPath, width, height) {
   const svg = await readFile(svgPath, 'utf8');
   const tmpDir = path.join(os.tmpdir(), 'pk-raster');
   await mkdir(tmpDir, { recursive: true });
   const htmlPath = path.join(tmpDir, `${path.basename(outPath)}.html`);
 
-  // A wrapper page pins the SVG to exactly width x height with no margin,
-  // so the screenshot has no white gutter.
+  const fontDir = path.join(ROOT, 'public/fonts');
+  const faces = ['archivo-latin', 'inter-latin']
+    .filter((f) => existsSync(path.join(fontDir, `${f}.woff2`)))
+    .map(
+      (f) => `@font-face{font-family:'${f.startsWith('archivo') ? 'Archivo' : 'Inter'}';
+        font-weight:400 900;font-style:normal;font-display:block;
+        src:url('file://${path.join(fontDir, `${f}.woff2`)}') format('woff2');}`,
+    )
+    .join('\n');
+
   await writeFile(
     htmlPath,
     `<!doctype html><meta charset="utf-8">
 <style>
-  html,body{margin:0;padding:0;background:transparent}
+  ${faces}
+  html,body{margin:0;padding:0;background:transparent;overflow:hidden}
   svg{display:block;width:${width}px;height:${height}px}
 </style>${svg}`,
     'utf8',
   );
 
-  await run(chrome, [
-    '--headless',
-    '--no-sandbox',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    '--force-device-scale-factor=1',
-    '--default-background-color=00000000',
-    `--window-size=${width},${height}`,
-    `--screenshot=${outPath}`,
-    `file://${htmlPath}`,
-  ]).catch((e) => {
-    // Chrome writes noise to stderr even on success; only a missing file is fatal.
-    if (!existsSync(outPath)) throw e;
-  });
-
+  await page.setViewport(width, height, false);
+  await page.goto(`file://${htmlPath}`);
+  await page.eval(`
+    await document.fonts.ready;
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    return 1;
+  `);
+  await page.screenshot(outPath);
   await rm(htmlPath, { force: true });
 }
 
 async function main() {
-  const chrome = findChrome();
-  if (!chrome) {
-    process.stderr.write(
-      '  ✗ No Chrome/Chromium found. Set CHROME_BIN=/path/to/chrome and re-run.\n' +
-        '    (The committed PNGs are still valid — this step is only needed after\n' +
-        '     you change the SVG artwork.)\n',
-    );
-    process.exitCode = 1;
-    return;
-  }
-
   const img = (p) => path.join(ROOT, 'public/images', p);
   const jobs = [
-    // Open Graph / Twitter card — 1200x630 is the format every platform accepts.
+    // Open Graph / Twitter card — 1200x630 is accepted by every platform.
     [img('hero/og-default.svg'), img('hero/og-default.png'), 1200, 630],
-    // PWA + Apple touch icons.
+    // Brand lockup for letterheads, invoices and packaging.
+    [img('brands/powerking-nepal-logo.svg'), img('brands/powerking-nepal-logo.png'), 900, 300],
+    // PWA + Apple touch icons + favicon.
     [path.join(ROOT, 'public/favicon.svg'), img('brands/icon-192.png'), 192, 192],
     [path.join(ROOT, 'public/favicon.svg'), img('brands/icon-512.png'), 512, 512],
     [path.join(ROOT, 'public/favicon.svg'), img('brands/apple-touch-icon.png'), 180, 180],
+    [path.join(ROOT, 'public/favicon.svg'), img('brands/favicon-48.png'), 48, 48],
   ];
 
-  // A PNG twin for each sample product tile, so shared product links preview.
+  // A PNG for each sample product tile: an <img>-loaded SVG cannot pull in a
+  // webfont, so the raster is what the site actually displays.
   for (const p of products) {
-    if (!p.sample || !p.image.endsWith('.svg')) continue;
-    const svg = path.join(ROOT, 'public', p.image);
+    if (!p.sample) continue;
+    const svg = path.join(ROOT, 'public', p.image.replace(/\.(png|jpe?g|webp)$/i, '.svg'));
     if (!existsSync(svg)) continue;
-    // 600px is comfortably above every platform's preview requirement and
-    // keeps these placeholder files small in the repository.
     jobs.push([svg, svg.replace(/\.svg$/, '.png'), 600, 600]);
   }
 
-  for (const [from, to, w, h] of jobs) {
-    await mkdir(path.dirname(to), { recursive: true });
-    await rasterize(chrome, from, to, w, h);
-    process.stdout.write(`  ✓ ${path.relative(ROOT, to)}  (${w}x${h})\n`);
+  const { proc, port } = await launch();
+  const page = await newPage(port);
+  try {
+    for (const [from, to, w, h] of jobs) {
+      if (!existsSync(from)) continue;
+      await mkdir(path.dirname(to), { recursive: true });
+      await rasterize(page, from, to, w, h);
+      process.stdout.write(`  ✓ ${path.relative(ROOT, to)}  (${w}x${h})\n`);
+    }
+  } finally {
+    await page.close();
+    proc.kill();
   }
 }
 

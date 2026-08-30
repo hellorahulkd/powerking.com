@@ -244,15 +244,14 @@ on the contact page automatically.
 
 ### The brand marks
 
-The **pwrkng** wordmark is drawn as geometry in
-[`src/templates/brand.js`](src/templates/brand.js) — plain SVG rectangles and
-polygons on a 128-unit em, cut at display weight (29-unit stems).
+The **pwrkng** wordmark is **set in type**, not drawn as polygons, in
+[`src/templates/brand.js`](src/templates/brand.js).
 
-> ⚠️ **This is a stand-in.** It reproduces the Canva wordmark's construction so
-> the site is not left without a logo, but it is *not* the original artwork.
-> Export the real mark from Canva (**Share → Download → SVG**) and drop it in
-> to replace this. SVG, not PNG — it has to scale to signage without
-> pixelating.
+An earlier pass constructed the letters from rectangles, which produced
+squared modular forms — a different typeface to the reference, which has round
+bowls on the p and g and an arched shoulder on the n. It is now set in
+**Archivo 900** (self-hosted, SIL Open Font Licence, commercial use covered)
+with tight negative tracking and a stroke that fattens the weight further.
 
 | Function | Use it for |
 | --- | --- |
@@ -265,6 +264,12 @@ displacement table is **hard-coded, never random** — a logo that reshuffles
 itself on every build is not a logo. `amount` scales it from 0 (clean) to 1
 (full); the header runs at 0.55 because full amplitude below ~20px reads as
 blur rather than as an effect.
+
+**Rasterised assets.** An SVG loaded through `<img>` cannot pull in a
+webfont, so anything shown that way — the product tiles, the favicon — is
+generated as PNG by `scripts/rasterize.js`, which drives Chrome over CDP and
+waits for `document.fonts.ready` before capturing. The header and hero use
+inline SVG, so they stay vector and crisp at any size.
 
 **There is no symbol and no icon set.** Categories, features and contact
 details are set in type. The favicon is the **p** cut from the wordmark — a

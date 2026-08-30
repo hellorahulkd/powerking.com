@@ -53,7 +53,7 @@ async function main() {
   /* --------------------------------------------------- required files -- */
   for (const f of ['sitemap.xml', 'robots.txt', '404.html', '.nojekyll', 'CNAME',
                    'assets/styles.css', 'assets/app.js', 'assets/catalogue.js',
-                   'favicon.svg', 'site.webmanifest']) {
+                   'images/brands/icon-192.png', 'site.webmanifest']) {
     assert(`dist/${f} exists`, existsSync(path.join(DIST, f)));
   }
 

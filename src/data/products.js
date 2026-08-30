@@ -21,6 +21,8 @@
  *  category    string   MUST match a `name` in src/data/categories.js.
  *  description string   1–3 sentences. Used for the page and meta description.
  *  image       string   Path from the site root, e.g. '/images/products/x.jpg'.
+ *                       Use a real photo (jpg/png/webp). The sample entries
+ *                       point at generated .png placeholders.
  *  gallery     string[] Optional extra images. Omit or leave [] if none.
  *  packSize    string   e.g. '20 pcs per carton'. Use '' if not known.
  *  unit        string   Optional: how it is sold, e.g. 'Per carton'.
@@ -42,7 +44,7 @@ export const products = [
     category: 'Speakers',
     description:
       'Compact 10W Bluetooth speaker with TWS pairing, TF card slot and around 8 hours of playback. A steady counter line for everyday retail.',
-    image: '/images/products/sample-portable-bluetooth-speaker-10w.svg',
+    image: '/images/products/sample-portable-bluetooth-speaker-10w.png',
     gallery: [],
     packSize: '20 pcs per carton',
     unit: 'Per carton',
@@ -60,7 +62,7 @@ export const products = [
     category: 'Speakers',
     description:
       'Large 40W party speaker with RGB lighting, wireless mic input and a rechargeable battery. Sells well through the festival season.',
-    image: '/images/products/sample-party-speaker-40w-rgb.svg',
+    image: '/images/products/sample-party-speaker-40w-rgb.png',
     gallery: [],
     packSize: '4 pcs per carton',
     unit: 'Per carton',
@@ -80,7 +82,7 @@ export const products = [
     category: 'Headphones',
     description:
       'Foldable over-ear Bluetooth headphones with a built-in mic, AUX fallback and roughly 20 hours of playback per charge.',
-    image: '/images/products/sample-wireless-over-ear-headphones.svg',
+    image: '/images/products/sample-wireless-over-ear-headphones.png',
     gallery: [],
     packSize: '30 pcs per carton',
     unit: 'Per carton',
@@ -98,7 +100,7 @@ export const products = [
     category: 'Headphones',
     description:
       'Wired 3.5mm gaming headset with boom mic and RGB earcups. Popular with gaming and cyber-cafe customers.',
-    image: '/images/products/sample-wired-gaming-headset.svg',
+    image: '/images/products/sample-wired-gaming-headset.png',
     gallery: [],
     packSize: '24 pcs per carton',
     unit: 'Per carton',
@@ -118,7 +120,7 @@ export const products = [
     category: 'Earbuds',
     description:
       'True wireless earbuds with a charging case, touch controls and a digital battery display. One of the fastest-moving lines in the range.',
-    image: '/images/products/sample-tws-wireless-earbuds.svg',
+    image: '/images/products/sample-tws-wireless-earbuds.png',
     gallery: [],
     packSize: '50 pcs per carton',
     unit: 'Per carton',
@@ -136,7 +138,7 @@ export const products = [
     category: 'Earbuds',
     description:
       'Magnetic neckband earphones with around 12 hours of playback, sweat resistance and in-line controls.',
-    image: '/images/products/sample-bluetooth-neckband-earphones.svg',
+    image: '/images/products/sample-bluetooth-neckband-earphones.png',
     gallery: [],
     packSize: '60 pcs per carton',
     unit: 'Per carton',
@@ -156,7 +158,7 @@ export const products = [
     category: 'Chargers & Adapters',
     description:
       'Single-port 20W USB-C power delivery wall charger with built-in over-current protection. Supplied in retail-ready boxes.',
-    image: '/images/products/sample-20w-usb-c-fast-charger.svg',
+    image: '/images/products/sample-20w-usb-c-fast-charger.png',
     gallery: [],
     packSize: '100 pcs per carton',
     unit: 'Per carton',
@@ -174,7 +176,7 @@ export const products = [
     category: 'Chargers & Adapters',
     description:
       'Dual USB-A plus USB-C car charger with quick-charge support and an LED indicator ring.',
-    image: '/images/products/sample-3-port-car-charger.svg',
+    image: '/images/products/sample-3-port-car-charger.png',
     gallery: [],
     packSize: '80 pcs per carton',
     unit: 'Per carton',
@@ -194,7 +196,7 @@ export const products = [
     category: 'Data Cables',
     description:
       'Braided 1 metre USB-C to USB-A cable rated for 3A fast charging and data transfer. Supplied in hanging retail packs.',
-    image: '/images/products/sample-usb-c-fast-charging-cable-1m.svg',
+    image: '/images/products/sample-usb-c-fast-charging-cable-1m.png',
     gallery: [],
     packSize: '200 pcs per carton',
     unit: 'Per carton',
@@ -212,7 +214,7 @@ export const products = [
     category: 'Data Cables',
     description:
       'One metre Lightning to USB-A charging and sync cable with a reinforced strain relief collar.',
-    image: '/images/products/sample-lightning-charging-cable-1m.svg',
+    image: '/images/products/sample-lightning-charging-cable-1m.png',
     gallery: [],
     packSize: '200 pcs per carton',
     unit: 'Per carton',
@@ -232,7 +234,7 @@ export const products = [
     category: 'Power & Multiplugs',
     description:
       'Four universal sockets plus two USB ports, with a master switch and child-safety shutters.',
-    image: '/images/products/sample-4-socket-multiplug-with-usb.svg',
+    image: '/images/products/sample-4-socket-multiplug-with-usb.png',
     gallery: [],
     packSize: '30 pcs per carton',
     unit: 'Per carton',
@@ -250,7 +252,7 @@ export const products = [
     category: 'Power & Multiplugs',
     description:
       'Extension board with a 2 metre copper cord, individual switches and surge protection.',
-    image: '/images/products/sample-extension-board-2m-cord.svg',
+    image: '/images/products/sample-extension-board-2m-cord.png',
     gallery: [],
     packSize: '20 pcs per carton',
     unit: 'Per carton',
@@ -270,7 +272,7 @@ export const products = [
     category: 'Phone Coolers',
     description:
       'Magnetic semiconductor phone cooler with RGB lighting and a USB-C feed, for gaming and long recording sessions.',
-    image: '/images/products/sample-magnetic-phone-cooling-fan.svg',
+    image: '/images/products/sample-magnetic-phone-cooling-fan.png',
     gallery: [],
     packSize: '40 pcs per carton',
     unit: 'Per carton',
@@ -290,7 +292,7 @@ export const products = [
     category: 'Mobile Accessories',
     description:
       'Slim 10000mAh power bank with dual output, USB-C input and a four-stage LED charge indicator.',
-    image: '/images/products/sample-10000mah-power-bank.svg',
+    image: '/images/products/sample-10000mah-power-bank.png',
     gallery: [],
     packSize: '40 pcs per carton',
     unit: 'Per carton',
@@ -308,7 +310,7 @@ export const products = [
     category: 'Mobile Accessories',
     description:
       'Foldable aluminium desk and car phone holder with an adjustable arm and non-slip pads.',
-    image: '/images/products/sample-adjustable-phone-holder.svg',
+    image: '/images/products/sample-adjustable-phone-holder.png',
     gallery: [],
     packSize: '60 pcs per carton',
     unit: 'Per carton',

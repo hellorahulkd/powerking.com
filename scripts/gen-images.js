@@ -55,7 +55,7 @@ function wrap(text, width = 17, maxLines = 3) {
   return lines;
 }
 
-const FONT = 'Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif';
+const FONT = 'Archivo, Inter, Helvetica, Arial, sans-serif';
 
 function productTile(product) {
   const cat = categories.find((c) => c.name === product.category);
@@ -138,7 +138,7 @@ const ogSvg = (() => {
   <g transform="translate(132 176) scale(${scale})" fill="${VOLT}" color="${VOLT}">${GLITCH_OG.svg}</g>
   <text x="98" y="446" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
         font-size="23" letter-spacing="7" fill="#8A8A94">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
-  <text x="98" y="508" font-family="Space Grotesk, Inter, Arial, sans-serif"
+  <text x="98" y="508" font-family="Archivo, Inter, Arial, sans-serif"
         font-size="29" fill="#D2D2D8">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
   <rect x="98" y="546" width="230" height="8" fill="${VOLT}"/>
   <rect y="0" width="1200" height="6" fill="${VOLT}"/>
@@ -154,8 +154,11 @@ async function main() {
   let n = 0;
   for (const p of products) {
     if (!p.sample) continue; // never overwrite a real product photo
-    if (!p.image.endsWith('.svg')) continue;
-    await writeFile(path.join(ROOT, 'public', p.image), productTile(p), 'utf8');
+    // Products point at the rasterised .png (an <img>-loaded SVG cannot pull
+    // in a webfont); the .svg beside it is the source rasterize.js converts.
+    const svgPath = p.image.replace(/\.(png|jpe?g|webp)$/i, '.svg');
+    if (!svgPath.endsWith('.svg')) continue;
+    await writeFile(path.join(ROOT, 'public', svgPath), productTile(p), 'utf8');
     n++;
   }
 

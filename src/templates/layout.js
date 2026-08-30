@@ -113,7 +113,8 @@ ${noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<meta name="
 <meta name="twitter:description" content="${esc(desc)}">
 <meta name="twitter:image" content="${esc(ogImage)}">
 
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/images/brands/icon-192.png" type="image/png" sizes="192x192">
+<link rel="icon" href="/images/brands/favicon-48.png" type="image/png" sizes="48x48">
 <link rel="apple-touch-icon" href="/images/brands/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
