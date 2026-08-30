@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140">
   <rect width="140" height="140" fill="#F3D74B"/>
-  <g transform="translate(35.5625 6) scale(0.90625)" fill="#000000" color="#000000"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
+  <g transform="translate(35.5625 6) scale(0.90625)" fill="#1A1A1C" color="#1A1A1C"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
      font-weight="900" letter-spacing="-7"
      fill="currentColor" stroke="currentColor" stroke-width="6"
      stroke-linejoin="round" paint-order="stroke"

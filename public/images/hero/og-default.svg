@@ -1,12 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
-      <rect width="4" height="1" fill="#fff" fill-opacity=".055"/>
-    </pattern>
+    <radialGradient id="glow" cx=".84" cy="-.05" r=".7">
+      <stop offset="0" stop-color="#F3D74B" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#F3D74B" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="1200" height="630" fill="#000000"/>
-  <rect width="1200" height="630" fill="url(#scan)"/>
-  <g transform="translate(132 176) scale(1.3125)" fill="#F3D74B" color="#F3D74B"><defs><clipPath id="ogs0"><rect x="-90" y="0" width="628" height="22"/></clipPath><clipPath id="ogs1"><rect x="-90" y="22" width="628" height="6"/></clipPath><clipPath id="ogs2"><rect x="-90" y="28" width="628" height="18"/></clipPath><clipPath id="ogs3"><rect x="-90" y="46" width="628" height="5"/></clipPath><clipPath id="ogs4"><rect x="-90" y="51" width="628" height="22"/></clipPath><clipPath id="ogs5"><rect x="-90" y="73" width="628" height="5"/></clipPath><clipPath id="ogs6"><rect x="-90" y="78" width="628" height="16"/></clipPath><clipPath id="ogs7"><rect x="-90" y="94" width="628" height="5"/></clipPath><clipPath id="ogs8"><rect x="-90" y="99" width="628" height="18"/></clipPath><clipPath id="ogs9"><rect x="-90" y="117" width="628" height="6"/></clipPath><clipPath id="ogs10"><rect x="-90" y="123" width="628" height="5"/></clipPath></defs><g clip-path="url(#ogs0)" transform="translate(0.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
+  <rect width="1200" height="630" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#glow)"/>
+  <g transform="translate(132 176) scale(1.3125)" fill="#1A1A1C" color="#1A1A1C"><defs><clipPath id="ogs0"><rect x="-90" y="0" width="628" height="22"/></clipPath><clipPath id="ogs1"><rect x="-90" y="22" width="628" height="6"/></clipPath><clipPath id="ogs2"><rect x="-90" y="28" width="628" height="18"/></clipPath><clipPath id="ogs3"><rect x="-90" y="46" width="628" height="5"/></clipPath><clipPath id="ogs4"><rect x="-90" y="51" width="628" height="22"/></clipPath><clipPath id="ogs5"><rect x="-90" y="73" width="628" height="5"/></clipPath><clipPath id="ogs6"><rect x="-90" y="78" width="628" height="16"/></clipPath><clipPath id="ogs7"><rect x="-90" y="94" width="628" height="5"/></clipPath><clipPath id="ogs8"><rect x="-90" y="99" width="628" height="18"/></clipPath><clipPath id="ogs9"><rect x="-90" y="117" width="628" height="6"/></clipPath><clipPath id="ogs10"><rect x="-90" y="123" width="628" height="5"/></clipPath></defs><g clip-path="url(#ogs0)" transform="translate(0.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
      font-weight="900" letter-spacing="-7"
      fill="currentColor" stroke="currentColor" stroke-width="6"
      stroke-linejoin="round" paint-order="stroke"
@@ -58,9 +59,9 @@
        opacity="0.45"/><rect x="-19" y="116" width="21.0" height="4"
        opacity="0.50"/></g>
   <text x="98" y="446" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="7" fill="#8A8A94">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+        font-size="23" letter-spacing="7" fill="#86868B">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
   <text x="98" y="508" font-family="Archivo, Inter, Arial, sans-serif"
-        font-size="29" fill="#D2D2D8">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
+        font-size="29" fill="#565660">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
   <rect x="98" y="546" width="230" height="8" fill="#F3D74B"/>
   <rect y="0" width="1200" height="6" fill="#F3D74B"/>
 </svg>

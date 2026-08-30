@@ -1,12 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Power &amp; Multiplugs — sample product image">
-  <rect width="800" height="800" fill="#000000"/>
-  <rect y="0" width="800" height="26" fill="#FFC400"/>
+  <rect width="800" height="800" fill="#F5F5F7"/>
   <text x="64" y="150" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="26" letter-spacing="8" fill="#FFC400">SAMPLEPOWER</text>
-  <g font-family="Archivo, Inter, Helvetica, Arial, sans-serif"><text x="64" y="300" font-size="92" font-weight="900"
-       letter-spacing="-3" fill="#fff">Power &amp;</text><text x="64" y="404" font-size="92" font-weight="900"
-       letter-spacing="-3" fill="#fff">Multiplugs</text></g>
-  <text x="64" y="726" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="24" letter-spacing="6" fill="#74747E">SAMPLE IMAGE</text>
-  <rect x="64" y="748" width="150" height="10" fill="#FFC400"/>
+        font-size="26" letter-spacing="8" fill="#86868B">SAMPLEPOWER</text>
+  <g font-family="Archivo, Inter, Helvetica, Arial, sans-serif"><text x="64" y="318" font-size="92" font-weight="900"
+       letter-spacing="-3" fill="#1A1A1C">Power &amp;</text><text x="64" y="422" font-size="92" font-weight="900"
+       letter-spacing="-3" fill="#1A1A1C">Multiplugs</text></g>
+  <text x="64" y="730" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="24" letter-spacing="6" fill="#86868B">SAMPLE IMAGE</text>
+  <rect x="64" y="752" width="150" height="8" rx="4" fill="#F3D74B"/>
 </svg>

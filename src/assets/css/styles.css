@@ -5,59 +5,56 @@
 
 :root {
   /* ---------------------------------------------------------------------
-     PWRKNG — brand system.
-     Two colours carry the identity: volt yellow and near-black. Everything
-     else is neutral. The only other colour on the site comes from the
-     per-category accents in src/data/categories.js, so category coding stays
-     meaningful instead of decorative.
+     PWRKNG — light system.
+     The page is white. Ink is for type, not for surfaces. Exactly one accent
+     colour exists — the brand yellow — and it appears almost nowhere except
+     the primary buttons, so it still means something when it does.
+     There is no per-category colour: category is communicated by the word.
      --------------------------------------------------------------------- */
-  --volt:           #F3D74B;   /* the brand colour, matched to the wordmark */
-  --volt-600:       #DEC134;   /* pressed / hover                           */
-  --volt-100:       #FBF3D6;   /* tint for chips on light ground            */
-  --volt-ink:       #000000;   /* text on volt — always black               */
+  --volt:           #F3D74B;   /* the brand yellow — primary buttons only    */
+  --volt-600:       #E4C633;
+  --volt-100:       #FDF7DF;
+  --volt-ink:       #1A1A1C;   /* type on the yellow                         */
 
-  --ink:            #000000;   /* the black. Flat and absolute, as the mark
-                                  is drawn on it.                           */
-  --ink-800:        #101012;
-  --ink-600:        #1E1E22;
-  --ink-300:        #74747E;
+  --ink:            #1A1A1C;   /* near-black. Type and the wordmark.         */
+  --ink-800:        #2B2B2F;
+  --ink-600:        #4A4A50;
+  --ink-300:        #86868B;
 
-  --whatsapp:       #25D366;
-  --whatsapp-600:   #1DA851;
+  --whatsapp:       #25D366;   /* WhatsApp brand green, with ink labels: the
+                                  green cannot carry white type at 4.5:1     */
+  --whatsapp-600:   #1FBA59;
 
-  /* Neutrals */
+  /* Surfaces — white, with one light grey for banding. */
   --bg:             #FFFFFF;
-  --bg-alt:         #F4F4F5;
-  --bg-sunken:      #E7E7EA;
+  --bg-alt:         #F5F5F7;
+  --bg-sunken:      #EDEDF0;
   --surface:        #FFFFFF;
-  --text:           #101012;
-  --text-muted:     #5C5C66;
-  --text-faint:     #86868F;
-  --border:         #E4E4E7;
-  --border-strong:  #C4C4CB;
-  --danger:         #D92D20;
+  --text:           #1A1A1C;
+  --text-muted:     #565660;
+  --text-faint:     #86868B;
+  --border:         #E3E3E7;
+  --border-strong:  #C9C9CF;
+  --danger:         #C4341F;
 
-  /* Aliases kept so older rules and any custom CSS keep working. */
+  /* Aliases kept so older rules keep working. */
   --primary:        var(--ink);
   --primary-800:    var(--ink-800);
   --primary-600:    var(--ink-600);
   --primary-300:    var(--ink-300);
   --accent:         var(--volt);
-  --accent-600:     #7A6600;   /* volt is unreadable as text on white; this
-                                  is the darkened equivalent for type       */
+  --accent-600:     #6B5A00;   /* the yellow is unreadable as type on white;
+                                  this is its darkened equivalent            */
   --accent-100:     var(--volt-100);
   --violet:         var(--volt);
-  --violet-600:     #7A6600;
+  --violet-600:     #6B5A00;
   --violet-100:     var(--volt-100);
   --cta:            var(--volt);
   --cta-600:        var(--volt-600);
   --cta-ink:        var(--volt-ink);
   --grad-brand:     linear-gradient(90deg, var(--volt) 0%, var(--volt) 100%);
-
-  /* The static motif — scanlines. Used on dark surfaces only, at low
-     opacity, so it reads as texture rather than interference. */
-  --scanlines: repeating-linear-gradient(
-    0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 4px);
+  --scanlines:      none;      /* the static lives in the logo, not the page */
+  --cat:            var(--ink);
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
@@ -74,19 +71,17 @@
   --step-3:  clamp(1.90rem, 1.50rem + 1.85vw, 3.10rem);
   --step-4:  clamp(2.40rem, 1.70rem + 3.20vw, 4.60rem);
 
-  /* Space & shape — squarer than before, to match the letterforms. */
+  /* Space & shape — softer corners, lighter rules. */
   --gap: 1.25rem;
-  --radius-sm: 2px;
-  --radius: 3px;
-  --radius-lg: 4px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .08), 0 1px 3px rgba(0, 0, 0, .06);
-  --shadow-md: 0 4px 10px rgba(0, 0, 0, .09), 0 12px 28px rgba(0, 0, 0, .10);
-  --shadow-lg: 0 18px 45px rgba(0, 0, 0, .20);
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.05), 0 12px 28px rgba(0,0,0,.06);
+  --shadow-lg: 0 18px 45px rgba(0,0,0,.10);
   --container: 1180px;
   --header-h: 66px;
   --ring: 0 0 0 3px rgba(243, 215, 75, .55);
-
-  --cat: var(--volt);
 }
 
 /* --------------------------------------------------------------- reset -- */
@@ -156,7 +151,7 @@ code {
   --btn-bg: var(--primary); --btn-fg: #fff; --btn-bd: var(--primary);
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
   background: var(--btn-bg); color: var(--btn-fg);
-  border: 2px solid var(--btn-bd); border-radius: var(--radius-sm);
+  border: 1.5px solid var(--btn-bd); border-radius: 100px;
   padding: .8rem 1.4rem; font-size: var(--step-0); font-weight: 800;
   letter-spacing: -.005em;
   line-height: 1.2; text-decoration: none; cursor: pointer;
@@ -168,7 +163,7 @@ code {
 .btn .icon { flex: none; }
 .btn--primary   { --btn-bg: var(--cta); --btn-bd: var(--cta); --btn-fg: var(--cta-ink); }
 .btn--primary:hover { --btn-bg: var(--cta-600); --btn-bd: var(--cta-600); }
-.btn--whatsapp  { --btn-bg: var(--whatsapp); --btn-bd: var(--whatsapp); --btn-fg: #032109; }
+.btn--whatsapp  { --btn-bg: var(--whatsapp); --btn-bd: var(--whatsapp); --btn-fg: #06280F; }
 .btn--whatsapp:hover { --btn-bg: var(--whatsapp-600); --btn-bd: var(--whatsapp-600); }
 .btn--outline   { --btn-bg: transparent; --btn-bd: currentColor; --btn-fg: var(--primary); color: var(--primary); }
 .btn--outline:hover { --btn-bg: var(--primary); --btn-fg: #fff; }
@@ -190,83 +185,72 @@ code {
 /* --------------------------------------------------------------- header -- */
 .site-header {
   position: sticky; top: 0; z-index: 60;
-  background: var(--ink);
-  border-bottom: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.82);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
 }
-.site-header::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: -3px; height: 3px;
-  background: var(--volt);
-}
-.site-header.is-scrolled { box-shadow: 0 6px 22px rgba(10,11,15,.28); }
-.site-header__inner {
-  display: flex; align-items: center; gap: 1rem;
-  min-height: var(--header-h);
-}
+.site-header.is-scrolled { border-bottom-color: var(--border-strong); }
+.site-header__inner { display: flex; align-items: center; gap: 1rem; min-height: var(--header-h); }
 
-/* --- logo lockup: K tile + PWRKNG wordmark --- */
 .logo { display: grid; gap: 1px; text-decoration: none; margin-right: auto; }
-.logo__word { display: block; color: var(--volt); margin-left: -8px; }
+.logo__word { display: block; color: var(--ink); margin-left: -8px; }
 .logo__word svg { display: block; }
 .logo__tag {
   font-family: var(--font-mono);
   font-size: .565rem; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--ink-300); white-space: nowrap;
+  color: var(--text-faint); white-space: nowrap;
 }
-/* The full subline is wider than a 360px phone once the wordmark and the
-   header actions are alongside it, so drop the tagline half on small screens
-   and keep the business name. */
 .logo__tag-more { display: none; }
 @media (min-width: 560px) { .logo__tag-more { display: inline; } }
-.logo:hover .logo__word { color: #fff; }
 
 .nav-desktop { display: none; }
 .nav-desktop ul { display: flex; gap: .15rem; }
 .nav-desktop a {
   display: block; padding: .5rem .8rem; border-radius: var(--radius-sm);
-  font-weight: 800; font-size: var(--step--1); color: #C6CAD4;
-  text-transform: uppercase; letter-spacing: .06em;
-  text-decoration: none; transition: background-color .15s, color .15s;
+  font-weight: 600; font-size: var(--step--1); color: var(--text-muted);
+  text-decoration: none; transition: color .15s, background-color .15s;
 }
-.nav-desktop a:hover { background: rgba(255,255,255,.07); color: #fff; }
-.nav-desktop a[aria-current="page"] { color: var(--volt); background: rgba(243,215,75,.12); }
+.nav-desktop a:hover { color: var(--ink); background: var(--bg-alt); }
+.nav-desktop a[aria-current="page"] { color: var(--ink); background: var(--bg-alt); }
 .site-header__actions { display: flex; align-items: center; gap: .5rem; }
 .nav-wa { display: none; }
 .nav-toggle {
-  display: grid; place-items: center; min-width: 68px; height: 44px;
+  display: grid; place-items: center; min-width: 68px; height: 42px;
   padding: 0 .85rem;
-  background: transparent; border: 2px solid var(--volt);
-  border-radius: var(--radius-sm); color: var(--volt); cursor: pointer;
-  font-family: var(--font-display); font-weight: 900; font-size: .8rem;
-  letter-spacing: .08em; text-transform: uppercase;
+  background: transparent; border: 1.5px solid var(--border-strong);
+  border-radius: 100px; color: var(--ink); cursor: pointer;
+  font-family: var(--font-display); font-weight: 800; font-size: .78rem;
+  letter-spacing: .06em; text-transform: uppercase;
 }
-.nav-toggle:hover { background: rgba(255,255,255,.08); }
+.nav-toggle:hover { background: var(--bg-alt); }
 .nav-toggle__close { display: none; }
 .nav-toggle[aria-expanded="true"] .nav-toggle__open { display: none; }
 .nav-toggle[aria-expanded="true"] .nav-toggle__close { display: block; }
 
 .mobile-menu {
-  border-top: 1px solid rgba(255,255,255,.10); background: var(--ink);
+  border-top: 1px solid var(--border); background: var(--bg);
   max-height: calc(100dvh - var(--header-h)); overflow-y: auto;
   padding: 1rem 0 1.5rem;
 }
 .mobile-menu__main a {
   display: block; padding: .8rem .25rem; font-size: var(--step-1);
-  font-weight: 600; color: #fff; text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,.10);
+  font-weight: 700; color: var(--ink); text-decoration: none;
+  border-bottom: 1px solid var(--border);
 }
-.mobile-menu__main a[aria-current="page"] { color: var(--volt); }
+.mobile-menu__main a[aria-current="page"] { color: var(--text-muted); }
 .mobile-menu__heading {
   margin: 1.25rem 0 .5rem; font-family: var(--font-mono);
   font-size: var(--step--1); font-weight: 700;
-  text-transform: uppercase; letter-spacing: .12em; color: var(--ink-300);
+  text-transform: uppercase; letter-spacing: .12em; color: var(--text-faint);
 }
 .mobile-menu__cats { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: 1.25rem; }
 .mobile-menu__cats a {
   display: flex; align-items: center; gap: .5rem; padding: .7rem .75rem;
-  background: rgba(255,255,255,.06); border-radius: var(--radius-sm);
-  font-size: var(--step--1); font-weight: 550; color: #DCDFE6; text-decoration: none;
+  background: var(--bg-alt); border-radius: var(--radius-sm);
+  font-size: var(--step--1); font-weight: 600; color: var(--ink); text-decoration: none;
 }
-.mobile-menu__cats a:hover { background: rgba(255,255,255,.12); color: #fff; }
+.mobile-menu__cats a:hover { background: var(--bg-sunken); }
 .mobile-menu__cats .icon { color: var(--volt); flex: none; }
 
 @media (min-width: 900px) {
@@ -278,25 +262,19 @@ code {
 
 /* --------------------------------------------------------------- notice -- */
 .notice {
-  background: var(--ink-800); border-bottom: 1px solid rgba(255,255,255,.08);
-  color: #A8AEBD; font-size: var(--step--1); padding: .55rem 0;
+  background: var(--volt-100); border-bottom: 1px solid #EFE4B8;
+  color: #6B5A00; font-size: var(--step--1); padding: .55rem 0;
 }
-.notice strong { color: var(--volt); font-weight: 650; }
+.notice strong { color: #4E4200; font-weight: 700; }
 
 /* ----------------------------------------------------------------- hero -- */
-.hero { position: relative; overflow: hidden; background: var(--primary); color: #fff; isolation: isolate; }
+.hero { position: relative; overflow: hidden; background: var(--bg); color: var(--text); isolation: isolate; }
 .hero__bg {
   position: absolute; inset: 0; z-index: -1;
   background:
-    radial-gradient(52rem 30rem at 82% 6%, rgba(243,215,75,.22), transparent 60%),
-    radial-gradient(40rem 28rem at 8% 98%, rgba(243,215,75,.10), transparent 58%),
-    linear-gradient(170deg, var(--ink-800) 0%, var(--ink) 62%);
-}
-/* Static: fine scanlines over the hero. Low contrast on purpose — the idea
-   is CRT texture, not a broken signal. A wholesaler should not look faulty. */
-.hero__bg::after {
-  content: ""; position: absolute; inset: 0; opacity: .8;
-  background-image: var(--scanlines);
+    radial-gradient(46rem 26rem at 78% -10%, rgba(243,215,75,.30), transparent 62%),
+    radial-gradient(38rem 24rem at 4% 104%, rgba(243,215,75,.14), transparent 60%),
+    var(--bg);
 }
 .hero__inner {
   padding: 2.75rem 1.15rem 3rem;
@@ -311,24 +289,23 @@ code {
   padding: .3rem .7rem; border-radius: 2px;
 }
 .hero__title { margin: 0 0 .5rem; line-height: 1; }
-.hero__wordmark { display: block; color: var(--volt); }
+.hero__wordmark { display: block; color: var(--ink); }
 .hero__wordmark svg { display: block; width: 100%; height: auto; max-width: 54rem; }
 .hero__title-sub {
   font-family: var(--font-mono);
   font-size: var(--step--1); font-weight: 600; letter-spacing: .18em;
-  text-transform: uppercase; color: #8A8A94; margin: 0 0 1.5rem;
+  text-transform: uppercase; color: var(--text-faint); margin: 0 0 1.5rem;
 }
 .hero__lead {
-  font-size: var(--step-1); color: #C4C4CC; max-width: 40rem; margin: 0 0 1.85rem;
+  font-size: var(--step-1); color: var(--text-muted); max-width: 40rem; margin: 0 0 1.85rem;
 }
 .hero__actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 2rem; }
 .hero__actions .btn--lg { flex: 1 1 auto; min-width: 15rem; }
 .hero__points { display: grid; gap: .6rem; }
 .hero__points li {
   display: flex; align-items: center; gap: .6rem;
-  color: #9A9AA4; font-size: var(--step--1); font-weight: 550;
+  color: var(--text-muted); font-size: var(--step--1); font-weight: 600;
 }
-.hero__points .icon { color: var(--volt); flex: none; }
 .hero__visual { display: none; }
 
 @media (min-width: 720px) {
@@ -344,7 +321,7 @@ code {
 /* ------------------------------------------------------------- sections -- */
 .section { padding: 3.25rem 0; }
 .section--tight { padding: 2.25rem 0; }
-.section--alt { background: var(--bg-alt); border-block: 4px solid var(--ink); }
+.section--alt { background: var(--bg-alt); }
 .section--top-0 { padding-top: 1.5rem; }
 @media (min-width: 800px) { .section { padding: 4.25rem 0; } }
 .section__head {
@@ -361,7 +338,7 @@ code {
   font-size: var(--step--1); font-weight: 700;
   letter-spacing: .16em; text-transform: uppercase; color: var(--accent-600);
 }
-.page-head { background: var(--bg-alt); border-bottom: 4px solid var(--ink); padding: 2.5rem 0 2.75rem; }
+.page-head { background: var(--bg-alt); padding: 2.75rem 0 3rem; }
 .page-head h1 { margin: 0 0 .5rem; font-size: var(--step-4); }
 .page-head__lead { color: var(--text-muted); max-width: 48rem; margin: 0; font-size: var(--step-1); }
 
@@ -376,8 +353,8 @@ code {
 @media (min-width: 620px) { .props { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 980px) { .props, .props--4 { grid-template-columns: repeat(4, 1fr); } }
 .prop {
-  padding: 1.4rem 1.25rem 1.5rem; background: var(--surface);
-  border-top: 4px solid var(--ink);
+  padding: 1.5rem 1.35rem 1.6rem; background: var(--bg-alt);
+  border-radius: var(--radius);
 }
 .prop__num {
   display: block; font-family: var(--font-mono); font-size: .8rem;
@@ -396,84 +373,58 @@ code {
 @media (min-width: 980px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
 .cat-tile {
   position: relative; display: grid; align-content: start;
-  padding: 1.35rem 1.15rem 1.2rem; min-height: 9.5rem;
-  height: 100%; overflow: hidden;
-  background: var(--ink); border: 1px solid var(--ink);
-  border-radius: var(--radius); text-decoration: none; color: #fff;
-  transition: transform .16s, box-shadow .16s;
+  padding: 1.5rem 1.35rem 1.35rem; min-height: 9.5rem; overflow: hidden;
+  background: var(--bg-alt); border: 1px solid transparent;
+  border-radius: var(--radius); text-decoration: none; color: var(--ink);
+  transition: background-color .18s, transform .18s, box-shadow .18s;
 }
-/* The category's own colour is the coding: a keyline at the top, a wash
-   behind, and the icon. The card itself stays in the brand's black. */
-.cat-tile::before {
-  content: ""; position: absolute; inset: 0; z-index: 0;
-  background: linear-gradient(160deg,
-    color-mix(in srgb, var(--cat) 26%, transparent) 0%,
-    transparent 62%);
-}
-.cat-tile::after {
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px;
-  background: var(--cat);
-}
-.cat-tile > * { position: relative; z-index: 1; }
 .cat-tile:hover {
-  transform: translateY(-3px); color: #fff;
-  box-shadow: 0 12px 30px color-mix(in srgb, var(--cat) 34%, transparent);
+  background: var(--bg); border-color: var(--border);
+  transform: translateY(-2px); box-shadow: var(--shadow-md); color: var(--ink);
 }
 .cat-tile__name {
   font-family: var(--font-display); font-weight: 900;
-  font-size: var(--step-1); color: #fff; letter-spacing: -.03em;
+  font-size: var(--step-1); color: var(--ink); letter-spacing: -.03em;
   line-height: 1.05; margin-bottom: .35rem;
 }
 .cat-tile__count {
   font-family: var(--font-mono); font-size: .7rem; letter-spacing: .1em;
-  color: var(--ink-300); text-transform: uppercase;
+  color: var(--text-faint); text-transform: uppercase;
 }
 .cat-tile__go {
-  font-size: 1.5rem; line-height: 1; color: var(--cat);
+  font-size: 1.4rem; line-height: 1; color: var(--ink);
   margin-top: 1.1rem; transition: transform .18s ease;
 }
 .cat-tile:hover .cat-tile__go { transform: translateX(5px); }
 
-@supports not (background: color-mix(in srgb, red 10%, white)) {
-  .cat-tile::before { background: none; }
-  .cat-tile__icon { background: rgba(255,255,255,.10); color: var(--volt); }
-  .cat-tile:hover .cat-tile__icon { background: var(--volt); color: var(--ink); }
-}
-
 .cat-strip { display: flex; flex-wrap: wrap; gap: .5rem; }
 .cat-strip__item {
   display: inline-flex; align-items: center;
-  padding: .55rem .9rem; background: var(--surface);
-  border: 2px solid var(--ink); border-radius: var(--radius-sm);
+  padding: .55rem 1rem; background: var(--bg-alt);
+  border: 1px solid transparent; border-radius: 100px;
   font-family: var(--font-display); font-size: var(--step--1);
   font-weight: 800; letter-spacing: -.01em;
   color: var(--ink); text-decoration: none;
 }
-.cat-strip__item:hover {
-  border-color: var(--cat); color: var(--primary);
-  background: color-mix(in srgb, var(--cat) 12%, #fff);
-}
-.cat-strip__item .icon { color: color-mix(in srgb, var(--cat) 80%, #05122b); }
-@supports not (background: color-mix(in srgb, red 10%, white)) {
-  .cat-strip__item:hover { border-color: var(--accent); background: var(--accent-100); }
-  .cat-strip__item .icon { color: var(--accent-600); }
-}
+.cat-strip__item:hover { background: var(--bg-sunken); color: var(--ink); }
 
 /* -------------------------------------------------------------- toolbar -- */
 .toolbar {
   position: sticky; top: var(--header-h); z-index: 40;
-  background: rgba(255,255,255,.95); backdrop-filter: blur(8px);
-  border-block: 1px solid var(--border); padding: .85rem 0;
+  background: rgba(255,255,255,.88);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border); padding: .9rem 0;
 }
 .toolbar__search { position: relative; display: flex; align-items: center; gap: .5rem; }
 .toolbar__search-icon {
   position: absolute; left: .8rem; color: var(--text-faint); pointer-events: none; display: grid;
 }
 .toolbar__search input {
-  flex: 1; width: 100%; padding: .95rem 5rem .95rem 1rem;
+  flex: 1; width: 100%; padding: .85rem 5rem .85rem 1.15rem;
   font: inherit; font-size: var(--step-0); color: var(--text);
-  background: var(--bg-alt); border: 2px solid var(--ink);
-  border-radius: var(--radius-sm); min-height: 56px; font-weight: 600;
+  background: var(--bg-alt); border: 1px solid var(--border);
+  border-radius: 100px; min-height: 52px; font-weight: 600;
   -webkit-appearance: none; appearance: none;
 }
 .toolbar__search input::-webkit-search-cancel-button { display: none; }
@@ -483,7 +434,7 @@ code {
 .toolbar__clear {
   position: absolute; right: .5rem; padding: .4rem .7rem;
   border: 0; border-radius: var(--radius-sm);
-  background: var(--ink); color: var(--volt); cursor: pointer;
+  background: var(--ink); color: #fff; cursor: pointer;
   font-family: var(--font-display); font-weight: 800; font-size: .78rem;
   text-transform: uppercase; letter-spacing: .06em;
 }
@@ -503,17 +454,15 @@ code {
   .chips { flex-wrap: wrap; overflow-x: visible; row-gap: .45rem; }
 }
 .chip {
-  flex: none; padding: .42rem .8rem; border-radius: 3px; cursor: pointer;
-  background: var(--bg-alt); border: 2px solid var(--border);
+  flex: none; padding: .45rem .95rem; border-radius: 100px; cursor: pointer;
+  background: var(--bg-alt); border: 1px solid transparent;
   font-family: var(--font-display);
-  font-size: var(--step--1); font-weight: 800; color: var(--text-muted);
-  white-space: nowrap; text-decoration: none;
+  font-size: var(--step--1); font-weight: 700; color: var(--text-muted);
+  white-space: nowrap; text-decoration: none; border-radius: 100px;
   transition: background-color .15s, color .15s, border-color .15s;
 }
 .chip:hover { border-color: var(--ink-300); color: var(--ink); }
-.chip.is-active {
-  background: var(--ink); border-color: var(--ink); color: var(--volt);
-}
+.chip.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
 .toolbar__brand select {
   padding: .45rem 2rem .45rem .7rem; font: inherit; font-size: var(--step--1);
   font-weight: 600; color: var(--text); background: var(--bg-alt);
@@ -539,14 +488,14 @@ code {
 /* ------------------------------------------------------------------ card -- */
 .card {
   position: relative; display: flex; flex-direction: column;
-  background: var(--surface); border: 2px solid var(--ink);
+  background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius); overflow: hidden;
   transition: border-color .16s, box-shadow .16s, transform .16s;
 }
 .card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .card--out { opacity: .82; }
 .card__media {
-  display: block; aspect-ratio: 1 / 1; background: var(--bg-sunken);
+  display: block; aspect-ratio: 1 / 1; background: var(--bg-alt);
   overflow: hidden; border-bottom: 1px solid var(--border);
 }
 .card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
@@ -591,7 +540,7 @@ code {
 .card__price {
   margin: auto 0 0; font-family: var(--font-mono); font-size: .72rem;
   font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
-  color: var(--primary); padding-top: .6rem; border-top: 2px solid var(--ink);
+  color: var(--text-muted); padding-top: .6rem; border-top: 1px solid var(--border);
 }
 .card__actions {
   display: grid; grid-template-columns: 1fr 1fr; gap: .4rem;
@@ -602,8 +551,8 @@ code {
 
 /* ---------------------------------------------------------- empty state -- */
 .empty {
-  text-align: center; padding: 3rem 1.25rem; background: var(--bg-alt);
-  border: 1px dashed var(--border-strong); border-radius: var(--radius);
+  text-align: center; padding: 3.5rem 1.25rem; background: var(--bg-alt);
+  border-radius: var(--radius);
 }
 .empty__title { margin: 0 0 .4rem; font-size: var(--step-2); font-weight: 900; color: var(--primary); letter-spacing: -.03em; }
 .empty__msg { margin: 0 0 1rem; color: var(--text-muted); }
@@ -660,19 +609,16 @@ code {
 .pd__desc p { color: var(--text-muted); }
 
 .enquiry {
-  margin-top: 1.75rem; padding: 1.4rem 1.25rem;
-  background: var(--primary); color: #fff; border-radius: var(--radius-lg);
-  background-image:
-    radial-gradient(24rem 16rem at 100% 0%, rgba(243,215,75,.22), transparent 62%),
-    var(--scanlines);
-  border-left: 4px solid var(--volt);
+  margin-top: 1.75rem; padding: 1.6rem 1.4rem;
+  background: var(--bg-alt); color: var(--text); border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
 }
-.enquiry__title { color: #fff; font-size: var(--step-3); margin: 0 0 .35rem; }
-.enquiry__price { margin: 0 0 .6rem; font-size: var(--step-1); font-weight: 700; color: var(--accent); }
-.enquiry .btn--whatsapp { box-shadow: 0 8px 24px rgba(37,211,102,.35); }
-.enquiry__body { margin: 0 0 1.1rem; color: #BFCBDB; font-size: var(--step--1); }
-.enquiry__note { margin: .75rem 0 0; font-size: var(--step--1); color: #93A3B8; text-align: center; }
-.enquiry__note strong { color: #D7E0EC; }
+.enquiry__title { color: var(--ink); font-size: var(--step-3); margin: 0 0 .35rem; }
+.enquiry__price { margin: 0 0 .6rem; font-size: var(--step-1); font-weight: 800; color: var(--ink); }
+.enquiry .btn--whatsapp { box-shadow: 0 8px 22px rgba(37,211,102,.32); }
+.enquiry__body { margin: 0 0 1.2rem; color: var(--text-muted); font-size: var(--step--1); }
+.enquiry__note { margin: .8rem 0 0; font-size: var(--step--1); color: var(--text-faint); text-align: center; }
+.enquiry__note strong { color: var(--text-muted); }
 
 /* ---------------------------------------------------------------- about -- */
 .prose-grid { display: grid; gap: 2rem; }
@@ -695,8 +641,8 @@ code {
 }
 .steps strong { color: var(--primary); }
 .side-card {
-  padding: 1.35rem 1.25rem; background: var(--bg-alt);
-  border: 1px solid var(--border); border-radius: var(--radius); display: grid; gap: .6rem;
+  padding: 1.5rem 1.35rem; background: var(--bg-alt);
+  border-radius: var(--radius); display: grid; gap: .6rem;
 }
 .side-card__title { font-size: var(--step-1); margin: 0; }
 .side-card p { margin: 0 0 .35rem; color: var(--text-muted); font-size: var(--step--1); }
@@ -704,8 +650,8 @@ code {
 @media (min-width: 640px) { .fill-grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 980px) { .fill-grid { grid-template-columns: repeat(3, 1fr); } }
 .fill-me {
-  padding: 1.1rem; border: 1px dashed var(--border-strong);
-  border-radius: var(--radius); background: var(--bg-alt);
+  padding: 1.2rem; border: 1px dashed var(--border-strong);
+  border-radius: var(--radius); background: var(--bg);
 }
 .fill-me h3 { font-size: var(--step-0); margin: 0 0 .3rem; }
 .fill-me p { margin: 0; font-size: var(--step--1); color: var(--text-faint); font-style: italic; }
@@ -714,20 +660,18 @@ code {
 .contact__grid { display: grid; gap: 2rem; }
 @media (min-width: 880px) { .contact__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 3rem; align-items: start; } }
 .contact__cta-card {
-  padding: 1.5rem 1.35rem; background: var(--primary); color: #fff;
+  padding: 1.7rem 1.5rem; background: var(--bg-alt); color: var(--text);
   border-radius: var(--radius-lg); display: grid; gap: .7rem;
-  background-image: radial-gradient(28rem 16rem at 110% -10%, rgba(37,211,102,.22), transparent 60%);
 }
-.contact__cta-card h2 { color: #fff; font-size: var(--step-2); margin: 0; }
-.contact__cta-card > p { margin: 0 0 .4rem; color: #BFCBDB; font-size: var(--step--1); }
+.contact__cta-card h2 { color: var(--ink); font-size: var(--step-2); margin: 0; }
+.contact__cta-card > p { margin: 0 0 .4rem; color: var(--text-muted); font-size: var(--step--1); }
 .contact__warn {
   margin: 0; padding: .6rem .75rem; border-radius: var(--radius-sm);
-  background: rgba(255,255,255,.07); border: 1px dashed rgba(255,255,255,.25);
-  color: #C9D4E4; font-size: var(--step--1);
+  background: var(--bg); border: 1px dashed var(--border-strong);
+  color: var(--text-muted); font-size: var(--step--1);
 }
-.contact__warn code { background: rgba(255,255,255,.12); color: #F0D9A8; }
 .details { display: grid; gap: .5rem; margin-bottom: 1.5rem; }
-.detail { border: 2px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.detail { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
 .detail > a, .detail { text-decoration: none; }
 .detail > a { display: block; color: inherit; }
 .detail > a:hover { color: inherit; background: var(--bg-alt); border-radius: var(--radius); }
@@ -741,7 +685,7 @@ code {
 .is-placeholder > span:last-child,
 li.is-placeholder,
 dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 500; }
-.hours { padding: 1.1rem; background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius); }
+.hours { padding: 1.25rem; background: var(--bg-alt); border-radius: var(--radius); }
 .hours__title { display: flex; align-items: center; gap: .45rem; font-size: var(--step-0); margin: 0 0 .6rem; }
 .hours dl { display: grid; gap: .4rem; margin: 0; }
 .hours dl > div { display: flex; justify-content: space-between; gap: 1rem; font-size: var(--step--1); }
@@ -763,32 +707,30 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
 .brand-block__head p { margin: .15rem 0 0; font-size: var(--step--1); color: var(--text-faint); }
 
 /* ------------------------------------------------------------------ cta -- */
-.cta { background: var(--primary); color: #fff; padding: 3rem 0; }
+.cta { background: var(--bg-alt); color: var(--text); padding: 3.5rem 0; }
 .cta--slim { padding: 2.25rem 0; }
 .cta__inner { display: grid; gap: 1.5rem; align-items: center; }
 @media (min-width: 860px) { .cta__inner { grid-template-columns: minmax(0, 1.4fr) auto; gap: 2.5rem; } }
-.cta__title { color: #fff; font-size: var(--step-3); margin: 0 0 .5rem; }
-.cta__body { margin: 0; color: #BFCBDB; max-width: 40rem; }
+.cta__title { color: var(--ink); font-size: var(--step-3); margin: 0 0 .5rem; }
+.cta__body { margin: 0; color: var(--text-muted); max-width: 40rem; }
 .cta__actions { display: flex; flex-wrap: wrap; gap: .75rem; }
-/* Outline buttons default to ink, which is invisible on the dark panels.
-   Every dark surface that can hold one needs the reversed treatment. */
+/* Every panel is light now, so outline buttons keep the default ink. */
 .cta .btn--outline,
 .contact__cta-card .btn--outline,
 .enquiry .btn--outline,
-.hero .btn--outline { --btn-fg: #fff; color: #fff; --btn-bd: rgba(255,255,255,.45); }
+.hero .btn--outline { --btn-fg: var(--ink); color: var(--ink); --btn-bd: var(--border-strong); }
 .cta .btn--outline:hover,
 .contact__cta-card .btn--outline:hover,
 .enquiry .btn--outline:hover,
-.hero .btn--outline:hover { --btn-bg: #fff; --btn-fg: var(--ink); color: var(--ink); }
+.hero .btn--outline:hover { --btn-bg: var(--ink); --btn-fg: #fff; color: #fff; --btn-bd: var(--ink); }
 
 /* ------------------------------------------------------------------ 404 -- */
 .notfound { padding: 3.5rem 0 4.5rem; }
 .notfound__inner { max-width: 40rem; margin-inline: auto; text-align: center; }
 .notfound__code {
-  font-size: clamp(4.5rem, 18vw, 8rem); font-weight: 800; line-height: 1;
-  margin: 0 0 .25rem; letter-spacing: -.05em;
-  background: var(--grad-brand);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 18vw, 8rem); font-weight: 900; line-height: 1;
+  margin: 0 0 .25rem; letter-spacing: -.05em; color: var(--ink);
 }
 .notfound h1 { font-size: var(--step-2); }
 .notfound__lead { color: var(--text-muted); margin-bottom: 1.75rem; }
@@ -796,68 +738,76 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
 .notfound__hint { font-size: var(--step--1); color: var(--text-faint); }
 
 /* --------------------------------------------------------------- footer -- */
-.site-footer { background: var(--primary); color: #AFBCCC; padding: 3rem 0 1.5rem; margin-top: auto; }
+.site-footer {
+  background: var(--bg-alt); color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding: 3rem 0 1.5rem; margin-top: auto;
+}
 .footer__grid { display: grid; gap: 2rem; }
 @media (min-width: 700px) { .footer__grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1000px) { .footer__grid { grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 2.5rem; } }
-.footer__name { font-family: var(--font-display); font-size: var(--step-1); font-weight: 800; color: #fff; margin: 0; letter-spacing: -.025em; }
-.footer__tagline { margin: .1rem 0 .8rem; font-size: var(--step--1); font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .09em; }
-.site-footer { border-top: 3px solid transparent; border-image: var(--grad-brand) 1; }
-.footer__blurb { font-size: var(--step--1); color: #93A3B8; max-width: 30rem; }
-.footer__heading { font-size: var(--step-0); color: #fff; margin: 0 0 .8rem; }
+.footer__name {
+  font-family: var(--font-display); font-size: var(--step-1); font-weight: 900;
+  color: var(--ink); margin: 0; letter-spacing: -.03em;
+}
+.footer__tagline {
+  margin: .1rem 0 .8rem; font-family: var(--font-mono);
+  font-size: .68rem; font-weight: 600; color: var(--text-faint);
+  text-transform: uppercase; letter-spacing: .12em;
+}
+.footer__blurb { font-size: var(--step--1); color: var(--text-muted); max-width: 30rem; }
+.footer__heading { font-size: var(--step-0); color: var(--ink); margin: 0 0 .8rem; }
 .footer__col ul { display: grid; gap: .5rem; }
-.footer__col a { color: #AFBCCC; text-decoration: none; font-size: var(--step--1); }
-.footer__col a:hover { color: var(--accent); text-decoration: underline; }
+.footer__col a { color: var(--text-muted); text-decoration: none; font-size: var(--step--1); }
+.footer__col a:hover { color: var(--ink); text-decoration: underline; }
 .footer__contact li { font-size: var(--step--1); }
-.footer__contact .is-placeholder { color: #6E7E93; font-style: italic; }
+.footer__contact .is-placeholder { color: var(--text-faint); font-style: italic; }
 .footer__contact .btn { margin-top: 1rem; }
-/* `.footer__col a` sets a muted link colour and outranks `.btn`, which was
-   painting the footer's WhatsApp button pale grey on green — roughly 1.6:1,
-   effectively unreadable. Any container that colours its links needs the
-   button to win it back. */
+/* `.footer__col a` sets a link colour that outranks `.btn`, which was painting
+   the footer's WhatsApp button into its own background. Win it back. */
 .site-footer a.btn,
 .prose a.btn,
 .side-card a.btn { color: var(--btn-fg); }
 .site-footer a.btn:hover { color: var(--btn-fg); text-decoration: none; }
-.footer__social { display: flex; gap: .5rem; margin-top: 1.1rem; }
+.footer__social { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.1rem; }
 .footer__social a {
-  display: inline-block; padding: .4rem .7rem;
-  border: 2px solid rgba(255,255,255,.22); border-radius: var(--radius-sm);
-  font-family: var(--font-display); font-weight: 800; font-size: .78rem;
+  display: inline-block; padding: .4rem .8rem;
+  border: 1px solid var(--border-strong); border-radius: 100px;
+  font-family: var(--font-display); font-weight: 700; font-size: .74rem;
   text-transform: uppercase; letter-spacing: .05em;
-  color: #C7D2E0; text-decoration: none;
+  color: var(--text-muted); text-decoration: none;
   transition: background-color .15s, color .15s, border-color .15s;
 }
-.footer__social a:hover { background: var(--volt); color: var(--ink); border-color: var(--volt); }
+.footer__social a:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 .footer__bar {
   display: flex; flex-wrap: wrap; gap: .5rem 1.25rem;
   align-items: center; justify-content: space-between;
   margin-top: 2.5rem; padding-top: 1.25rem;
-  border-top: 1px solid rgba(255,255,255,.10);
-  font-size: var(--step--1); color: #7E8DA1;
+  border-top: 1px solid var(--border);
+  font-size: var(--step--1); color: var(--text-faint);
 }
 .footer__bar p { margin: 0; }
 .footer__bar ul { display: flex; gap: 1.25rem; }
-.footer__bar a { color: #7E8DA1; text-decoration: none; }
-.footer__bar a:hover { color: var(--accent); }
+.footer__bar a { color: var(--text-faint); text-decoration: none; }
+.footer__bar a:hover { color: var(--ink); }
 
 /* ------------------------------------------------------ floating whatsapp -- */
 .wa-float {
-  color: #032109;
+  color: #06280F;
   position: fixed; right: 1rem; z-index: 55;
   bottom: max(1rem, env(safe-area-inset-bottom));
   display: inline-flex; align-items: center; gap: .5rem;
   padding: .8rem; border-radius: 100px;
-  background: var(--whatsapp); color: #04310f; text-decoration: none;
-  box-shadow: 0 6px 22px rgba(37,211,102,.42), var(--shadow-sm);
+  background: var(--whatsapp); color: #06280F; text-decoration: none;
+  box-shadow: 0 6px 22px rgba(37,211,102,.38), var(--shadow-sm);
   transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
 }
-.wa-float:hover { background: var(--whatsapp-600); color: #04310f; transform: translateY(-2px) scale(1.03); }
+.wa-float:hover { background: var(--whatsapp-600); color: #06280F; transform: translateY(-2px) scale(1.03); }
 .wa-float__label { display: none; font-weight: 700; font-size: var(--step--1); padding-right: .35rem; }
 @media (min-width: 600px) { .wa-float {
-  color: #032109; right: 1.5rem; bottom: 1.5rem; } .wa-float__label { display: inline; } }
+  color: #06280F; right: 1.5rem; bottom: 1.5rem; } .wa-float__label { display: inline; } }
 /* Keep the bubble clear of content and hide it while the mobile menu is open
    or when the footer CTA is already on screen. */
 body.menu-open .wa-float {
-  color: #032109; opacity: 0; pointer-events: none; transform: scale(.85); }
+  color: #06280F; opacity: 0; pointer-events: none; transform: scale(.85); }
 @media print { .wa-float, .site-header, .site-footer { display: none; } }

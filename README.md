@@ -293,16 +293,22 @@ The whole palette is a handful of CSS variables at the top of
 
 ```css
 :root {
-  --volt: #F3D74B;   /* the brand colour — matched to the wordmark */
-  --ink:  #000000;   /* flat black, as the mark is drawn on        */
+  --volt: #F3D74B;   /* the accent — primary buttons, almost nothing else */
+  --ink:  #1A1A1C;   /* near-black. Type and the wordmark, not surfaces.  */
+  --bg-alt: #F5F5F7; /* the one grey, for banding sections                */
   --whatsapp: #25D366;
   ...
 }
 ```
 
-Two colours carry the identity. The only other colour on the site comes from
-the per-category accents in `categories.js`, so colour stays *meaningful*
-(it tells you which range you are looking at) rather than decorative.
+**The page is white and there is exactly one accent.** Ink is for type, not
+for surfaces. The yellow appears on primary buttons and almost nowhere else,
+so it still means something when it does. Categories carry no colour of their
+own — the word does that job. Colour on the catalogue should come from real
+product photography, not from the chrome.
+
+WhatsApp buttons use dark ink on the brand green: the green cannot carry white
+type at 4.5:1 without darkening so far it stops reading as WhatsApp.
 
 ### Changing the typefaces
 

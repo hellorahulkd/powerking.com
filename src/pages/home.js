@@ -103,7 +103,6 @@ function categorySection(categories, countsByCategory) {
           const n = countsByCategory[c.name] || 0;
           return `<li>
         <a class="cat-tile" href="/products/${esc(c.slug)}/"
-           style="--cat: ${esc(c.color || 'var(--accent)')}"
            data-track-category="${esc(c.name)}">
           <span class="cat-tile__name">${esc(c.name)}</span>
           <span class="cat-tile__count">${n} ${n === 1 ? 'product' : 'products'}</span>

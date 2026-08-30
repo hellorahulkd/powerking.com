@@ -24,8 +24,9 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public/images');
 
 const VOLT = '#F3D74B';
-const INK = '#000000';
-const INK_800 = '#101012';
+const INK = '#1A1A1C';
+const PAPER = '#F5F5F7';
+const MUTED = '#86868B';
 
 const esc = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -58,33 +59,29 @@ function wrap(text, width = 17, maxLines = 3) {
 const FONT = 'Archivo, Inter, Helvetica, Arial, sans-serif';
 
 function productTile(product) {
-  const cat = categories.find((c) => c.name === product.category);
-  const base = cat?.color || VOLT;
-  // The card already prints the product name directly beneath the image, so
-  // the placeholder carries the category instead — no duplication.
+  // Light and monochrome: the catalogue's colour comes from real product
+  // photography once it exists, not from the placeholder.
   const lines = wrap(product.category, 12, 3);
-
   const text = lines
     .map(
       (l, i) =>
-        `<text x="64" y="${300 + i * 104}" font-size="92" font-weight="900"
-       letter-spacing="-3" fill="#fff">${esc(l)}</text>`,
+        `<text x="64" y="${318 + i * 104}" font-size="92" font-weight="900"
+       letter-spacing="-3" fill="${INK}">${esc(l)}</text>`,
     )
     .join('');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="${esc(
     product.category,
   )} — sample product image">
-  <rect width="800" height="800" fill="${INK}"/>
-  <rect y="0" width="800" height="26" fill="${base}"/>
+  <rect width="800" height="800" fill="${PAPER}"/>
   <text x="64" y="150" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="26" letter-spacing="8" fill="${base}">${esc(
+        font-size="26" letter-spacing="8" fill="${MUTED}">${esc(
     (product.brand || '').toUpperCase(),
   )}</text>
   <g font-family="${FONT}">${text}</g>
-  <text x="64" y="726" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="24" letter-spacing="6" fill="#74747E">SAMPLE IMAGE</text>
-  <rect x="64" y="748" width="150" height="10" fill="${base}"/>
+  <text x="64" y="730" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="24" letter-spacing="6" fill="${MUTED}">SAMPLE IMAGE</text>
+  <rect x="64" y="752" width="150" height="8" rx="4" fill="${VOLT}"/>
 </svg>
 `;
 }
@@ -117,9 +114,9 @@ const logoSvg = (() => {
   const width = Math.round(GLITCH.width * scale + 150);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} 150" width="${width}" height="150" role="img" aria-label="PowerKing Nepal logo">
   <rect width="${width}" height="150" fill="${INK}"/>
-  <g transform="translate(75 34) scale(${scale})" fill="${VOLT}" color="${VOLT}">${GLITCH.svg}</g>
+  <g transform="translate(75 34) scale(${scale})" fill="${INK}" color="${INK}">${GLITCH.svg}</g>
   <text x="76" y="126" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="11" letter-spacing="3.6" fill="#74747E">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+        font-size="11" letter-spacing="3.6" fill="${MUTED}">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
 </svg>
 `;
 })();
@@ -129,17 +126,18 @@ const ogSvg = (() => {
   const scale = 168 / GLITCH_OG.height;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
-      <rect width="4" height="1" fill="#fff" fill-opacity=".055"/>
-    </pattern>
+    <radialGradient id="glow" cx=".84" cy="-.05" r=".7">
+      <stop offset="0" stop-color="${VOLT}" stop-opacity=".38"/>
+      <stop offset="1" stop-color="${VOLT}" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="1200" height="630" fill="${INK}"/>
-  <rect width="1200" height="630" fill="url(#scan)"/>
-  <g transform="translate(132 176) scale(${scale})" fill="${VOLT}" color="${VOLT}">${GLITCH_OG.svg}</g>
+  <rect width="1200" height="630" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#glow)"/>
+  <g transform="translate(132 176) scale(${scale})" fill="${INK}" color="${INK}">${GLITCH_OG.svg}</g>
   <text x="98" y="446" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="7" fill="#8A8A94">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+        font-size="23" letter-spacing="7" fill="${MUTED}">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
   <text x="98" y="508" font-family="Archivo, Inter, Arial, sans-serif"
-        font-size="29" fill="#D2D2D8">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
+        font-size="29" fill="#565660">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
   <rect x="98" y="546" width="230" height="8" fill="${VOLT}"/>
   <rect y="0" width="1200" height="6" fill="${VOLT}"/>
 </svg>
