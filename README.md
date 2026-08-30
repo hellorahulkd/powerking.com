@@ -391,6 +391,7 @@ real product photography:
 | `scripts/optimize-png.js` | Losslessly shrinks PNGs (typically 50–70%) |
 | `scripts/dev/qa.js` | Browser tests: layout, search, menu, WhatsApp, analytics |
 | `scripts/dev/slider-test.js` | Browser tests for the homepage product carousel |
+| `scripts/dev/compare-test.js` | Browser tests for the product comparison table |
 
 ---
 
@@ -534,7 +535,7 @@ powerking.com/
 | `/` | Homepage — product carousel, catalogue, categories |
 | `/products/` | Full catalogue with search and filters |
 | `/products/<category>/` | One page per category |
-| `/products/<product>/` | One page per product |
+| `/products/<product>/` | One page per product, with a comparison table against the rest of its category |
 | `/about/` | About |
 | `/contact/` | Contact |
 | `/brands/` | Products grouped by brand |

@@ -64,11 +64,10 @@ function badges(product) {
  *                       largest contentful paint is not lazy-loaded.
  */
 export function productCard(product, { eager = false, location = 'product_card' } = {}) {
+  // The card carries only what someone needs to decide whether to open it:
+  // what it is, what it is called, and how it is packed. Description, SKU and
+  // the pricing line all live on the product page.
   const url = `/products/${product.slug}/`;
-  const meta = [product.packSize, product.sku && `SKU ${product.sku}`]
-    .filter(Boolean)
-    .map((m) => `<span>${esc(m)}</span>`)
-    .join('');
 
   // The search haystack is built here, at build time, so filtering at runtime
   // is a handful of string tests per card — fast even on a low-end phone.
@@ -92,15 +91,9 @@ export function productCard(product, { eager = false, location = 'product_card' 
   </div>
   ${badges(product)}
   <div class="card__body">
-    <p class="card__eyebrow">
-      <span class="card__brand">${esc(product.brand)}</span>
-      <span class="card__dot" aria-hidden="true">·</span>
-      <a class="card__cat" href="/products/${esc(slugifyCategory(product.category))}/">${esc(product.category)}</a>
-    </p>
+    <p class="card__eyebrow">${esc(product.category)}</p>
     <h3 class="card__title"><a href="${esc(url)}">${esc(product.name)}</a></h3>
-    ${meta ? `<p class="card__meta">${meta}</p>` : ''}
-    <p class="card__desc">${esc(product.description)}</p>
-    <p class="card__price">Contact us for wholesale pricing</p>
+    ${product.packSize ? `<p class="card__meta">${esc(product.packSize)}</p>` : ''}
   </div>
   <div class="card__actions">
     <a class="btn btn--ghost btn--icon" href="${esc(url)}"

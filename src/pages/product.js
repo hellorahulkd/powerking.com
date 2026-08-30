@@ -4,7 +4,7 @@ import {
 } from '../lib/html.js';
 import { layout } from '../templates/layout.js';
 import {
-  productCard, whatsappButton, breadcrumbSchema, slugifyCategory,
+  whatsappButton, breadcrumbSchema, slugifyCategory,
 } from '../templates/components.js';
 
 function specRow(label, value) {
@@ -40,6 +40,118 @@ function gallery(product) {
     ${main}
     <div class="pd-gallery__thumbs" role="group" aria-label="Product images">${thumbs}</div>
   </div>`;
+}
+
+/**
+ * Side-by-side comparison against the other products in the same category.
+ *
+ * Rendered as a real table so the relationships survive a screen reader: row
+ * headers name the attribute, column headers name the product. The whole
+ * thing scrolls horizontally on a phone with the attribute column pinned, and
+ * the chips above let a visitor drop columns they do not care about.
+ */
+function compareSection(product, siblings) {
+  if (!siblings.length) return '';
+
+  const all = [product, ...siblings];
+  const rows = [
+    ['Brand', (p) => p.brand],
+    ['Pack size', (p) => p.packSize],
+    ['Sold as', (p) => p.unit],
+    ['SKU', (p) => p.sku],
+    ['Availability', (p) => (p.available === false ? 'Currently unavailable' : 'Available')],
+  ];
+
+  const head = all
+    .map(
+      (p, i) => `<th scope="col" data-compare-col="${i}"${
+        i === 0 ? ' class="is-current"' : ''
+      }>
+      <a class="compare__product" href="/products/${esc(p.slug)}/">
+        <span class="compare__media">
+          <img src="${esc(p.image)}" alt="" width="200" height="200" loading="lazy" decoding="async">
+        </span>
+        <span class="compare__name">${esc(p.name)}</span>
+      </a>
+      <span class="compare__flag${i === 0 ? '' : ' is-blank'}"${
+        i === 0 ? '' : ' aria-hidden="true"'
+      }>${i === 0 ? 'This product' : ''}</span>
+    </th>`,
+    )
+    .join('');
+
+  const body = rows
+    .map(([label, get]) => {
+      const cells = all
+        .map((p, i) => {
+          const v = get(p);
+          return `<td data-compare-col="${i}"${i === 0 ? ' class="is-current"' : ''}>${
+            v ? esc(v) : '<span class="compare__none">—</span>'
+          }</td>`;
+        })
+        .join('');
+      return `<tr><th scope="row">${esc(label)}</th>${cells}</tr>`;
+    })
+    .join('');
+
+  const actions = all
+    .map(
+      (p, i) => `<td data-compare-col="${i}"${i === 0 ? ' class="is-current"' : ''}>
+      ${whatsappButton({
+        location: 'compare_table',
+        product: p,
+        label: 'Enquire',
+        size: 'sm',
+      })}
+    </td>`,
+    )
+    .join('');
+
+  const chips = siblings
+    .map(
+      (p, i) =>
+        `<label class="compare__chip">
+      <input type="checkbox" data-compare-toggle="${i + 1}" checked>
+      <span>${esc(p.name)}</span>
+    </label>`,
+    )
+    .join('');
+
+  return `<section class="section section--alt" id="compare">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <p class="eyebrow">Compare</p>
+        <h2 class="section__title">Others in ${esc(product.category)}</h2>
+      </div>
+      <a class="link-arrow" href="/products/${esc(slugifyCategory(product.category))}/">
+        View category <span aria-hidden="true">→</span></a>
+    </div>
+
+    <fieldset class="compare__filters">
+      <legend class="sr-only">Choose which products to compare</legend>
+      ${chips}
+    </fieldset>
+
+    <div class="compare__scroll" tabindex="0" role="region"
+         aria-label="Comparison table, scrollable">
+      <table class="compare">
+        <caption class="sr-only">
+          ${esc(product.name)} compared with other ${esc(product.category)} products
+        </caption>
+        <thead><tr><td class="compare__corner"></td>${head}</tr></thead>
+        <tbody>
+          ${body}
+          <tr class="compare__actions"><th scope="row">Enquire</th>${actions}</tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="compare__note">
+      Prices are quoted on enquiry. Message us with the products you are
+      comparing and we will send trade pricing for each.
+    </p>
+  </div>
+</section>`;
 }
 
 export function productPage({ product, related }) {
@@ -117,25 +229,7 @@ export function productPage({ product, related }) {
   </div>
 </section>
 
-${
-  related.length
-    ? `<section class="section section--alt">
-  <div class="container">
-    <div class="section__head">
-      <div>
-        <p class="eyebrow">More from ${esc(product.category)}</p>
-        <h2 class="section__title">Related products</h2>
-      </div>
-      <a class="link-arrow" href="/products/${esc(categorySlug)}/">
-        View category <span aria-hidden="true">→</span></a>
-    </div>
-    <div class="grid grid--cards">
-      ${related.map((p) => productCard(p, { location: 'related_products' })).join('')}
-    </div>
-  </div>
-</section>`
-    : ''
-}`;
+${compareSection(product, related)}`;
 
   const description = metaDescription(
     `${product.name} — ${product.brand}${

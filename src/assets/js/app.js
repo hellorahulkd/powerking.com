@@ -146,6 +146,37 @@
     onScroll();
   }
 
+  /* ------------------------------------------------- compare columns -- */
+  // Let a visitor drop products they are not interested in. Columns are keyed
+  // by index on both the header cell and every body cell.
+  var compareToggles = document.querySelectorAll('[data-compare-toggle]');
+  if (compareToggles.length) {
+    var applyCompare = function (col, on) {
+      var cells = document.querySelectorAll('[data-compare-col="' + col + '"]');
+      for (var i = 0; i < cells.length; i++) {
+        cells[i].classList.toggle('is-hidden', !on);
+      }
+    };
+    compareToggles.forEach(function (input) {
+      input.addEventListener('change', function () {
+        var col = input.getAttribute('data-compare-toggle');
+        applyCompare(col, input.checked);
+        track('compare_toggle', {
+          column: col,
+          shown: input.checked,
+          product: (window.PK_PRODUCT || {}).name || '',
+        });
+      });
+    });
+    if (window.PK_PRODUCT) {
+      track('compare_view', {
+        product: window.PK_PRODUCT.name,
+        category: window.PK_PRODUCT.category,
+        compared: compareToggles.length + 1,
+      });
+    }
+  }
+
   /* ------------------------------------------------- product gallery -- */
   var thumbs = document.querySelectorAll('.pd-thumb');
   var mainImg = document.getElementById('pd-main-image');
