@@ -11,29 +11,30 @@
      per-category accents in src/data/categories.js, so category coding stays
      meaningful instead of decorative.
      --------------------------------------------------------------------- */
-  --volt:           #FFE01A;   /* the brand colour. High-voltage yellow.    */
-  --volt-600:       #E6C800;   /* pressed / hover                           */
-  --volt-100:       #FFF7CC;   /* tint for chips on light ground            */
-  --volt-ink:       #0A0B0F;   /* text on volt — always near-black          */
+  --volt:           #F3D74B;   /* the brand colour, matched to the wordmark */
+  --volt-600:       #DEC134;   /* pressed / hover                           */
+  --volt-100:       #FBF3D6;   /* tint for chips on light ground            */
+  --volt-ink:       #000000;   /* text on volt — always black               */
 
-  --ink:            #0A0B0F;   /* the black. Header, hero, footer, cartons. */
-  --ink-800:        #14161F;
-  --ink-600:        #232733;
-  --ink-300:        #6E7687;
+  --ink:            #000000;   /* the black. Flat and absolute, as the mark
+                                  is drawn on it.                           */
+  --ink-800:        #101012;
+  --ink-600:        #1E1E22;
+  --ink-300:        #74747E;
 
   --whatsapp:       #25D366;
   --whatsapp-600:   #1DA851;
 
   /* Neutrals */
   --bg:             #FFFFFF;
-  --bg-alt:         #F4F5F7;
-  --bg-sunken:      #E7E9ED;
+  --bg-alt:         #F4F4F5;
+  --bg-sunken:      #E7E7EA;
   --surface:        #FFFFFF;
-  --text:           #14161F;
-  --text-muted:     #5A6070;
-  --text-faint:     #868D9C;
-  --border:         #E3E5EA;
-  --border-strong:  #C3C7D0;
+  --text:           #101012;
+  --text-muted:     #5C5C66;
+  --text-faint:     #86868F;
+  --border:         #E4E4E7;
+  --border-strong:  #C4C4CB;
   --danger:         #D92D20;
 
   /* Aliases kept so older rules and any custom CSS keep working. */
@@ -42,11 +43,11 @@
   --primary-600:    var(--ink-600);
   --primary-300:    var(--ink-300);
   --accent:         var(--volt);
-  --accent-600:     #8A7400;   /* volt is unreadable as text on white; this
+  --accent-600:     #7A6600;   /* volt is unreadable as text on white; this
                                   is the darkened equivalent for type       */
   --accent-100:     var(--volt-100);
   --violet:         var(--volt);
-  --violet-600:     #8A7400;
+  --violet-600:     #7A6600;
   --violet-100:     var(--volt-100);
   --cta:            var(--volt);
   --cta-600:        var(--volt-600);
@@ -75,15 +76,15 @@
 
   /* Space & shape — squarer than before, to match the letterforms. */
   --gap: 1.25rem;
-  --radius-sm: 4px;
-  --radius: 6px;
-  --radius-lg: 10px;
-  --shadow-sm: 0 1px 2px rgba(10, 11, 15, .07), 0 1px 3px rgba(10, 11, 15, .06);
-  --shadow-md: 0 4px 10px rgba(10, 11, 15, .08), 0 12px 28px rgba(10, 11, 15, .09);
-  --shadow-lg: 0 18px 45px rgba(10, 11, 15, .18);
+  --radius-sm: 2px;
+  --radius: 3px;
+  --radius-lg: 4px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .08), 0 1px 3px rgba(0, 0, 0, .06);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, .09), 0 12px 28px rgba(0, 0, 0, .10);
+  --shadow-lg: 0 18px 45px rgba(0, 0, 0, .20);
   --container: 1180px;
   --header-h: 66px;
-  --ring: 0 0 0 3px rgba(255, 224, 26, .55);
+  --ring: 0 0 0 3px rgba(243, 215, 75, .55);
 
   --cat: var(--volt);
 }
@@ -202,8 +203,8 @@ code {
 /* --- logo lockup: K tile + PWRKNG wordmark --- */
 .logo { display: flex; align-items: center; gap: .6rem; text-decoration: none; margin-right: auto; }
 .logo__mark { display: grid; place-items: center; flex: none; }
-.logo__text { display: grid; gap: 3px; }
-.logo__word { display: block; color: var(--volt); }
+.logo__text { display: grid; gap: 1px; }
+.logo__word { display: block; color: var(--volt); margin-left: -6px; }
 .logo__word svg { display: block; }
 .logo__tag {
   font-family: var(--font-mono);
@@ -225,7 +226,7 @@ code {
   text-decoration: none; transition: background-color .15s, color .15s;
 }
 .nav-desktop a:hover { background: rgba(255,255,255,.07); color: #fff; }
-.nav-desktop a[aria-current="page"] { color: var(--volt); background: rgba(255,224,26,.12); }
+.nav-desktop a[aria-current="page"] { color: var(--volt); background: rgba(243,215,75,.12); }
 .site-header__actions { display: flex; align-items: center; gap: .5rem; }
 .nav-wa { display: none; }
 .nav-toggle {
@@ -282,8 +283,8 @@ code {
 .hero__bg {
   position: absolute; inset: 0; z-index: -1;
   background:
-    radial-gradient(52rem 30rem at 82% 6%, rgba(255,224,26,.22), transparent 60%),
-    radial-gradient(40rem 28rem at 8% 98%, rgba(255,224,26,.10), transparent 58%),
+    radial-gradient(52rem 30rem at 82% 6%, rgba(243,215,75,.22), transparent 60%),
+    radial-gradient(40rem 28rem at 8% 98%, rgba(243,215,75,.10), transparent 58%),
     linear-gradient(170deg, var(--ink-800) 0%, var(--ink) 62%);
 }
 /* Static: fine scanlines over the hero. Low contrast on purpose — the idea
@@ -292,47 +293,48 @@ code {
   content: ""; position: absolute; inset: 0; opacity: .8;
   background-image: var(--scanlines);
 }
-.hero__inner { padding: 3rem 1.15rem 3.25rem; display: grid; gap: 2.5rem; }
-.hero__eyebrow {
-  display: inline-block; margin: 0 0 1rem;
-  font-size: var(--step--1); font-weight: 650; letter-spacing: .1em;
-  font-family: var(--font-mono);
-  text-transform: uppercase; color: var(--volt);
-  border: 1px solid rgba(255,224,26,.40); background: rgba(255,224,26,.10);
-  border-radius: 2px;
-  padding: .32rem .7rem; border-radius: 100px;
+.hero__inner {
+  padding: 2.75rem 1.15rem 3rem;
+  display: grid; justify-items: start; max-width: 60rem;
 }
-.hero__title { color: #fff; margin: 0 0 1rem; font-weight: 800; letter-spacing: -.033em; }
+.hero__eyebrow {
+  display: inline-block; margin: 0 0 1.1rem;
+  font-family: var(--font-mono);
+  font-size: var(--step--1); font-weight: 650; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--volt);
+  border: 1px solid rgba(243,215,75,.42); background: rgba(243,215,75,.10);
+  padding: .3rem .7rem; border-radius: 2px;
+}
+.hero__title { margin: 0 0 .5rem; line-height: 1; }
+.hero__wordmark { display: block; color: var(--volt); }
+.hero__wordmark svg { display: block; width: 100%; height: auto; max-width: 44rem; }
 .hero__title-sub {
-  display: block; margin-top: .35em; font-size: var(--step-2);
-  font-weight: 600; color: var(--volt); letter-spacing: -.02em;
+  font-family: var(--font-mono);
+  font-size: var(--step--1); font-weight: 600; letter-spacing: .18em;
+  text-transform: uppercase; color: #8A8A94; margin: 0 0 1.5rem;
 }
 .hero__lead {
-  font-size: var(--step-1); color: #C9D4E4; max-width: 34rem; margin: 0 0 1.75rem;
+  font-size: var(--step-1); color: #C4C4CC; max-width: 40rem; margin: 0 0 1.85rem;
 }
 .hero__actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 2rem; }
 .hero__actions .btn--lg { flex: 1 1 auto; min-width: 15rem; }
 .hero__points { display: grid; gap: .6rem; }
 .hero__points li {
   display: flex; align-items: center; gap: .6rem;
-  color: #B7C4D6; font-size: var(--step--1); font-weight: 550;
+  color: #9A9AA4; font-size: var(--step--1); font-weight: 550;
 }
 .hero__points .icon { color: var(--volt); flex: none; }
 .hero__visual { display: none; }
-@media (min-width: 880px) {
-  .hero__inner {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
-    align-items: center; padding: 4.5rem 2rem 5rem; gap: 3rem;
-  }
-  .hero__visual { display: block; }
-  .hero__visual img {
-    width: 100%; height: auto;
-    filter: drop-shadow(0 26px 50px rgba(0,0,0,.4));
-    animation: floaty 7s ease-in-out infinite;
-  }
+
+@media (min-width: 720px) {
+  .hero__inner { padding: 4rem 2rem 4.25rem; }
   .hero__actions .btn--lg { flex: 0 0 auto; min-width: 0; }
+  .hero__points { grid-auto-flow: column; justify-content: start; gap: 1.75rem; }
 }
-@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (min-width: 1040px) {
+  .hero__inner { padding: 5rem 2rem 5.25rem; }
+}
+
 
 /* ------------------------------------------------------------- sections -- */
 .section { padding: 3.25rem 0; }
@@ -648,7 +650,7 @@ code {
   margin-top: 1.75rem; padding: 1.4rem 1.25rem;
   background: var(--primary); color: #fff; border-radius: var(--radius-lg);
   background-image:
-    radial-gradient(24rem 16rem at 100% 0%, rgba(255,224,26,.22), transparent 62%),
+    radial-gradient(24rem 16rem at 100% 0%, rgba(243,215,75,.22), transparent 62%),
     var(--scanlines);
   border-left: 4px solid var(--volt);
 }

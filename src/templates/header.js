@@ -1,7 +1,7 @@
 import { siteConfig } from '../config/site.config.js';
 import { esc, whatsappUrl, hasWhatsApp } from '../lib/html.js';
 import { icon } from './icons.js';
-import { markTile, wordmark } from './brand.js';
+import { markTile, glitchWordmark } from './brand.js';
 import { categories } from '../data/categories.js';
 
 const NAV = [
@@ -13,12 +13,13 @@ const NAV = [
 ];
 
 export function logo() {
-  // PWRKNG is the visual mark; "PowerKing Nepal" remains the accessible and
-  // indexed name, so the rebrand costs nothing in search or recognition.
+  // The glitched wordmark is the logo. At header size the displacement is
+  // scaled back — full amplitude below ~20px reads as blur, not as an effect.
+  // "PowerKing Nepal" stays the accessible and indexed name.
   return `<a class="logo" href="/" aria-label="${esc(siteConfig.businessName)} — home">
-  <span class="logo__mark">${markTile({ size: 36, bg: 'var(--volt)', fg: 'var(--ink)', radius: 0.2 })}</span>
+  <span class="logo__mark">${markTile({ size: 34, bg: 'var(--volt)', fg: '#000', radius: 0.18 })}</span>
   <span class="logo__text">
-    <span class="logo__word">${wordmark({ height: 17 })}</span>
+    <span class="logo__word">${glitchWordmark({ height: 26, amount: 0.5, id: 'hw' })}</span>
     <span class="logo__tag"><span class="logo__tag-name">PowerKing Nepal</span><span
       class="logo__tag-more"> · ${esc(siteConfig.tagline)}</span></span>
   </span>

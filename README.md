@@ -244,32 +244,42 @@ on the contact page automatically.
 
 ### The brand marks
 
-The **PWRKNG** wordmark and the **K** symbol are drawn as geometry in
+The **pwrkng** wordmark and the **k** symbol are drawn as geometry in
 [`src/templates/brand.js`](src/templates/brand.js) — not set in a typeface.
 
 That matters: a logo set in a font is only as ownable as that font's licence,
-and it needs the font present to render. These letterforms are plain SVG
-rectangles and polygons on a 100-unit cap height, so the mark is genuinely
-yours, renders identically in every browser, email client and print file, and
-downloads nothing.
+and it needs the font present to render — in Canva, in a print file, on a
+supplier's packaging artwork. These letterforms are plain SVG rectangles and
+polygons on a 128-unit em, so the mark is genuinely yours, renders identically
+everywhere, and downloads nothing.
 
-- `markK()` — the K on its own. **This is the symbol.** Use it alone on
-  stickers, cartons, the favicon and social avatars.
-- `markTile()` — the K in a filled tile (app icon, header lockup).
-- `wordmark()` — the full PWRKNG wordmark.
+| Function | Use it for |
+| --- | --- |
+| `glitchWordmark()` | The logo. Hero, social card, letterhead, signage. |
+| `wordmark()` | The clean cut, for small sizes and single-colour printing. |
+| `markK()` / `markTile()` | The **k** alone — stickers, cartons, favicon, avatars. |
 
-The K's arms are held off its stem by a deliberate gap — a spark gap. It
-implies current jumping a contact without drawing a lightning bolt, which
-every electronics brand already owns.
+**The static treatment.** The wordmark is sliced into horizontal bands and
+displaced, with torn streaks thrown clear of the letters. The displacement
+table is **hard-coded, never random** — a logo that reshuffles itself on every
+build is not a logo. The mark is byte-identical in every render and print file.
+
+`amount` scales the effect from 0 (clean) to 1 (full). Below roughly 20px tall
+the slices stop reading as an effect and start reading as blur, so the header
+uses `amount: 0.5` and the favicon uses the clean **k**. Same mark, cut for
+the size it is printed at.
+
+**The k** is the standalone symbol. Its arms are held off the stem by a gap — a
+spark gap, implying current jumping a contact without drawing the lightning
+bolt every electronics brand already owns.
 
 `PowerKing Nepal` remains the business name in page titles, structured data
-and the logo's accessible label, so the short mark costs nothing in search or
-recognition.
+and the hero's `h1` text, so the short mark costs nothing in search.
 
 To regenerate every asset after editing the geometry:
 
 ```bash
-node scripts/gen-images.js    # SVG: favicon, logo lockup, OG card, hero, tiles
+node scripts/gen-images.js    # SVG: favicon, logo lockup, OG card, tiles
 node scripts/rasterize.js     # PNG versions (needs Chrome)
 node scripts/optimize-png.js  # shrink them
 ```
@@ -281,8 +291,8 @@ The whole palette is a handful of CSS variables at the top of
 
 ```css
 :root {
-  --volt: #FFE01A;   /* the brand colour — buttons, marks, accents */
-  --ink:  #0A0B0F;   /* the black — header, hero, footer, cartons  */
+  --volt: #F3D74B;   /* the brand colour — matched to the wordmark */
+  --ink:  #000000;   /* flat black, as the mark is drawn on        */
   --whatsapp: #25D366;
   ...
 }

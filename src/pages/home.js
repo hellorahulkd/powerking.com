@@ -1,46 +1,48 @@
 import { siteConfig } from '../config/site.config.js';
 import { esc, whatsappUrl, hasWhatsApp } from '../lib/html.js';
 import { icon } from '../templates/icons.js';
+import { glitchWordmark } from '../templates/brand.js';
 import { layout } from '../templates/layout.js';
 import { productCard, sampleNotice, whatsappButton } from '../templates/components.js';
 
 function hero() {
+  // The wordmark is the hero. The h1 carries the real business name as text
+  // for search and screen readers; the mark itself is decorative on top of it.
   return `<section class="hero">
   <div class="hero__bg" aria-hidden="true"></div>
   <div class="container hero__inner">
-    <div class="hero__copy">
-      <p class="hero__eyebrow">Electronics Wholesale · Nepal</p>
-      <h1 class="hero__title">
-        PowerKing Nepal
-        <span class="hero__title-sub">Electronics Wholesale &amp; Supply</span>
-      </h1>
-      <p class="hero__lead">
-        Speakers, earbuds, headphones, chargers, data cables, multiplugs and
-        mobile accessories — supplied by the carton to shops and retailers
-        across Nepal. Browse the catalogue, then message us on WhatsApp for
-        trade pricing, stock and minimum order quantities.
-      </p>
-      <div class="hero__actions">
-        <a class="btn btn--primary btn--lg" href="/products/">
-          <span>Explore Products</span>${icon('arrow', { size: 20 })}
-        </a>
-        <a class="btn btn--whatsapp btn--lg"
-           href="${esc(whatsappUrl('hero'))}"
-           ${hasWhatsApp() ? 'target="_blank" rel="noopener"' : ''}
-           data-wa-track data-wa-location="hero">
-          ${icon('whatsapp', { size: 20 })}<span>Contact Us on WhatsApp</span>
-        </a>
-      </div>
-      <ul class="hero__points">
-        <li>${icon('tag', { size: 18 })}<span>Trade pricing on enquiry</span></li>
-        <li>${icon('truck', { size: 18 })}<span>Carton &amp; bulk quantities</span></li>
-        <li>${icon('whatsapp', { size: 18 })}<span>Fast replies on WhatsApp</span></li>
-      </ul>
+    <p class="hero__eyebrow">Electronics Wholesale · Nepal</p>
+
+    <h1 class="hero__title">
+      <span class="sr-only">PowerKing Nepal — Electronics Wholesale &amp; Supply</span>
+      <span class="hero__wordmark">${glitchWordmark({ height: 200, amount: 1, id: 'hero' })}</span>
+    </h1>
+    <p class="hero__title-sub">PowerKing Nepal · Electronics Wholesale &amp; Supply</p>
+
+    <p class="hero__lead">
+      Speakers, earbuds, headphones, chargers, data cables, multiplugs and
+      mobile accessories — supplied by the carton to shops and retailers across
+      Nepal. Browse the catalogue, then message us on WhatsApp for trade
+      pricing, stock and minimum order quantities.
+    </p>
+
+    <div class="hero__actions">
+      <a class="btn btn--primary btn--lg" href="/products/">
+        <span>Explore Products</span>${icon('arrow', { size: 20 })}
+      </a>
+      <a class="btn btn--whatsapp btn--lg"
+         href="${esc(whatsappUrl('hero'))}"
+         ${hasWhatsApp() ? 'target="_blank" rel="noopener"' : ''}
+         data-wa-track data-wa-location="hero">
+        ${icon('whatsapp', { size: 20 })}<span>Contact Us on WhatsApp</span>
+      </a>
     </div>
-    <div class="hero__visual" aria-hidden="true">
-      <img src="/images/hero/hero-electronics.svg" alt="" width="640" height="560"
-           fetchpriority="high" decoding="async">
-    </div>
+
+    <ul class="hero__points">
+      <li>${icon('tag', { size: 18 })}<span>Trade pricing on enquiry</span></li>
+      <li>${icon('truck', { size: 18 })}<span>Carton &amp; bulk quantities</span></li>
+      <li>${icon('whatsapp', { size: 18 })}<span>Fast replies on WhatsApp</span></li>
+    </ul>
   </div>
 </section>`;
 }

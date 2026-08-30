@@ -3,104 +3,120 @@
  *  POWERKING NEPAL — BRAND MARKS
  * ============================================================================
  *
- *  The PWRKNG wordmark is drawn as geometry, not set in a typeface.
+ *  The pwrkng wordmark is drawn as geometry, not set in a typeface.
  *
- *  Why: a logo built from a licensed font is only ever as ownable as the
- *  licence behind it, and it needs that font present to render. These
- *  letterforms are pure SVG rectangles and polygons on a 100-unit cap height,
- *  so the mark is genuinely PowerKing's, renders identically in every browser,
- *  email client and print file, and needs nothing downloaded.
+ *  Why: a logo built from a licensed font is only ever as ownable as that
+ *  font's licence, and it needs the font present to render — in Canva, in a
+ *  print file, on a supplier's packaging artwork. These letterforms are plain
+ *  SVG rectangles and polygons, so the mark is genuinely PowerKing's and
+ *  renders identically everywhere with nothing to download.
  *
- *  The construction is a squared industrial grotesk: uniform 22-unit stems,
- *  flat terminals, no curves. It reads as engineered hardware rather than
- *  software, which is the point.
+ *  ── METRICS ───────────────────────────────────────────────────────────────
+ *  Lowercase, on a 128-unit em:
+ *      y=0    ascender top (the k)
+ *      y=28   x-height top
+ *      y=100  baseline
+ *      y=128  descender bottom (the p and g)
+ *  Stems are a uniform 22 units. Terminals are flat; there are no curves.
+ *
+ *  ── THE GLITCH ────────────────────────────────────────────────────────────
+ *  The signature treatment slices the wordmark into horizontal bands and
+ *  displaces them, with a few torn streaks thrown clear of the letters.
+ *
+ *  The displacement table is HARD-CODED, never random. A logo that reshuffles
+ *  itself on every build is not a logo — this way the mark is byte-identical
+ *  in every render, print file and cached asset.
+ *
+ *  Amplitude scales with size (see glitchWordmark). Below roughly 20px the
+ *  slices stop reading as an effect and start reading as blur, so the small
+ *  sizes use the clean cut: same letterforms, no displacement.
  *
  *  ── THE K ─────────────────────────────────────────────────────────────────
- *  The K is the standalone symbol. Its arms are detached from the stem by an
- *  11-unit gap — a spark gap. It implies current jumping a contact without
- *  drawing a lightning bolt, which every electronics brand already owns.
- *  Use markK() alone on stickers, cartons, the favicon and social avatars.
+ *  The k is the standalone symbol. Its arms are held off the stem by a gap —
+ *  a spark gap, implying current jumping a contact without drawing the
+ *  lightning bolt every electronics brand already owns.
  * ============================================================================
  */
 
-const CAP = 100;   // cap height — all geometry is expressed against this
-const STEM = 22;   // uniform stroke weight
-const TRACK = 10;  // letter spacing (tight, so the word reads as one block)
+const ASC = 0;      // ascender top
+const XTOP = 28;    // x-height top
+const BASE = 100;   // baseline
+const DESC = 128;   // descender bottom
+const STEM = 22;
+const TRACK = 8;    // letter spacing — tight, so the word reads as one block
 
 const r = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`;
 const poly = (pts) => `<polygon points="${pts.map(([a, b]) => `${a},${b}`).join(' ')}"/>`;
 
 /* --------------------------------------------------------------- glyphs -- */
-/* Each returns { w, svg } where svg is filled shapes in a 0..w × 0..100 box. */
 
 const GLYPHS = {
-  P: (x) => ({
-    w: 74,
+  // stem drops to the descender; squared bowl sits on the baseline
+  p: (x) => ({
+    w: 76,
     svg: [
-      r(x, 0, STEM, CAP),          // stem
-      r(x + 22, 0, 52, 22),        // top bar
-      r(x + 52, 22, 22, 18),       // right wall (counter is 18 deep)
-      r(x + 22, 40, 52, 20),       // bowl floor
+      r(x, XTOP, STEM, DESC - XTOP),
+      r(x + 22, XTOP, 54, 22),        // bowl top
+      r(x + 54, 50, 22, 28),          // bowl right wall
+      r(x + 22, 78, 54, 22),          // bowl floor
     ].join(''),
   }),
 
-  W: (x) => ({
-    w: 112,
+  w: (x) => ({
+    w: 104,
     svg: poly([
-      [x, 0], [x + 24, 0], [x + 40, 62], [x + 50, 18], [x + 62, 18],
-      [x + 72, 62], [x + 88, 0], [x + 112, 0], [x + 92, 100], [x + 72, 100],
-      [x + 56, 48], [x + 40, 100], [x + 20, 100],
+      [x, XTOP], [x + 24, XTOP], [x + 38, 74], [x + 48, 42], [x + 60, 42],
+      [x + 70, 74], [x + 84, XTOP], [x + 104, XTOP], [x + 86, BASE],
+      [x + 66, BASE], [x + 54, 64], [x + 40, BASE], [x + 20, BASE],
     ]),
   }),
 
-  R: (x) => ({
-    w: 80,
+  r: (x) => ({
+    w: 54,
     svg: [
-      r(x, 0, STEM, CAP),
-      r(x + 22, 0, 52, 22),
-      r(x + 52, 22, 22, 18),
-      r(x + 22, 40, 52, 20),
-      poly([[x + 42, 60], [x + 64, 60], [x + 80, 100], [x + 58, 100]]), // leg
+      r(x, XTOP, STEM, BASE - XTOP),
+      r(x + 22, XTOP, 32, 22),        // shoulder
     ].join(''),
   }),
 
-  // The signature glyph. Arms are a single mitred stroke, held off the stem.
-  K: (x) => ({
-    w: 91,
+  // the signature glyph — full ascender, arms detached from the stem
+  k: (x) => ({
+    w: 78,
     svg:
-      r(x, 0, STEM, CAP) +
-      `<path d="M ${x + 82} 0 L ${x + 42} 50 L ${x + 82} 100" fill="none"
+      r(x, ASC, STEM, BASE - ASC) +
+      `<path d="M ${x + 70} 38 L ${x + 40} 70 L ${x + 70} 100" fill="none"
          stroke="currentColor" stroke-width="${STEM}"
          stroke-linecap="butt" stroke-linejoin="miter"/>`,
   }),
 
-  N: (x) => ({
-    w: 78,
+  n: (x) => ({
+    w: 76,
     svg: [
-      r(x, 0, STEM, CAP),
-      r(x + 56, 0, STEM, CAP),
-      poly([[x, 0], [x + 22, 0], [x + 78, 100], [x + 56, 100]]), // diagonal
+      r(x, XTOP, STEM, BASE - XTOP),
+      r(x + 22, XTOP, 32, 22),        // shoulder
+      r(x + 54, XTOP, STEM, BASE - XTOP),
     ].join(''),
   }),
 
-  G: (x) => ({
-    w: 80,
+  // single-storey g: bowl on the baseline, straight descender, tail to the left
+  g: (x) => ({
+    w: 76,
     svg: [
-      r(x, 0, STEM, CAP),        // left wall
-      r(x + 22, 0, 58, 22),      // top bar
-      r(x + 22, 78, 58, 22),     // bottom bar
-      r(x + 58, 44, 22, 34),     // right wall, lower half only
-      r(x + 40, 44, 18, 12),     // spur into the counter
+      r(x, XTOP, 76, 22),             // bowl top
+      r(x, 50, STEM, 18),             // bowl left wall
+      r(x + 54, 50, 22, 18),          // bowl right wall
+      r(x, 68, 76, 22),               // bowl floor
+      r(x + 54, 90, 22, 16),          // descender
+      r(x + 12, 106, 64, 22),         // tail
     ].join(''),
   }),
 };
 
 /**
- * The PWRKNG wordmark.
- * @returns {{ width: number, height: number, svg: string }} geometry in a
- *          0..width × 0..100 box, filled with `currentColor`.
+ * Wordmark outlines, undistorted.
+ * @returns {{ width, height, svg }} in a 0..width × 0..128 box, `currentColor`.
  */
-export function wordmarkGeometry(letters = 'PWRKNG') {
+export function wordmarkGeometry(letters = 'pwrkng') {
   let x = 0;
   const parts = [];
   for (const ch of letters) {
@@ -110,51 +126,121 @@ export function wordmarkGeometry(letters = 'PWRKNG') {
     parts.push(svg);
     x += w + TRACK;
   }
-  return { width: x - TRACK, height: CAP, svg: parts.join('') };
+  return { width: x - TRACK, height: DESC, svg: parts.join('') };
 }
 
-/** The K, on its own, as the brand symbol. */
+/** The k alone, as the brand symbol. */
 export function markKGeometry() {
-  const { svg } = GLYPHS.K(0);
-  return { width: 91, height: CAP, svg };
+  const { svg } = GLYPHS.k(0);
+  return { width: 78, height: DESC, svg };
 }
 
-/**
- * Standalone K symbol as a complete <svg>.
- * @param {object} o { size, color, pad }
- */
-export function markK({ size = 40, color = 'currentColor', pad = 14 } = {}) {
-  const g = markKGeometry();
-  const vbW = g.width + pad * 2;
-  const vbH = g.height + pad * 2;
-  return `<svg viewBox="0 0 ${vbW} ${vbH}" width="${size}" height="${Math.round(
-    (size * vbH) / vbW,
-  )}" fill="${color}" color="${color}" aria-hidden="true"><g transform="translate(${pad} ${pad})">${g.svg}</g></svg>`;
-}
+/* --------------------------------------------------------------- glitch -- */
 
 /**
- * The K locked into a filled tile — the app-icon / sticker form.
+ * Fixed slice table. Each row is [yTop, height, dx] against the 128-unit em.
+ * Hand-tuned, never generated — see the note at the top of this file.
  */
-export function markTile({ size = 40, bg = '#0A0B0F', fg = '#FFE01A', radius = 0.22 } = {}) {
-  const g = markKGeometry();
-  const box = 140;
-  const scale = 74 / g.height;
-  const gx = (box - g.width * scale) / 2;
-  const gy = (box - g.height * scale) / 2;
-  return `<svg viewBox="0 0 ${box} ${box}" width="${size}" height="${size}" aria-hidden="true">
-  <rect width="${box}" height="${box}" rx="${Math.round(box * radius)}" fill="${bg}"/>
-  <g transform="translate(${gx} ${gy}) scale(${scale})" fill="${fg}" color="${fg}">${g.svg}</g>
-</svg>`;
-}
+const SLICES = [
+  [0, 19, 0], [19, 6, 6], [25, 15, -2], [40, 5, 8], [45, 19, 0],
+  [64, 6, -5], [70, 14, 3], [84, 5, 7], [89, 17, -1], [106, 6, -6],
+  [112, 16, 4],
+];
+
+/** Torn streaks thrown clear of the letters: [x, y, w, h, opacity]. */
+const STREAKS = [
+  [-22, 22, 30, 4, 0.8], [498, 47, 34, 4, 0.7], [-13, 72, 18, 3, 0.55],
+  [506, 91, 24, 4, 0.75], [472, 16, 20, 3, 0.45], [-18, 112, 22, 3, 0.5],
+];
 
 /**
- * Full PWRKNG wordmark as a complete <svg>.
+ * The wordmark with the static treatment applied.
+ *
+ * @param {object} o
+ * @param {number} o.amount  0 = clean, 1 = full displacement. Scale this down
+ *                           at small sizes; below ~20px tall the slices read
+ *                           as blur rather than as an effect.
+ * @param {string} o.id      unique id — two glitched marks on one page must
+ *                           not share clipPath ids.
  */
-export function wordmark({ height = 28, color = 'currentColor', letters = 'PWRKNG' } = {}) {
+export function glitchGeometry({ amount = 1, id = 'g', letters = 'pwrkng' } = {}) {
+  const base = wordmarkGeometry(letters);
+  if (amount <= 0) return base;
+
+  const clips = SLICES.map(
+    ([y, h], i) =>
+      `<clipPath id="${id}s${i}"><rect x="-80" y="${y}" width="${
+        base.width + 160
+      }" height="${h}"/></clipPath>`,
+  ).join('');
+
+  const bands = SLICES.map(
+    ([, , dx], i) =>
+      `<g clip-path="url(#${id}s${i})" transform="translate(${(dx * amount).toFixed(
+        2,
+      )} 0)">${base.svg}</g>`,
+  ).join('');
+
+  const streaks = STREAKS.map(
+    ([x, y, w, h, o]) =>
+      `<rect x="${(x + 0).toFixed(1)}" y="${y}" width="${(w * amount).toFixed(
+        1,
+      )}" height="${h}" opacity="${(o * amount).toFixed(2)}"/>`,
+  ).join('');
+
+  return {
+    width: base.width,
+    height: base.height,
+    svg: `<defs>${clips}</defs>${bands}${streaks}`,
+  };
+}
+
+/* ------------------------------------------------------------ renderers -- */
+
+/** Clean wordmark as a complete <svg>. */
+export function wordmark({ height = 28, color = 'currentColor', letters = 'pwrkng' } = {}) {
   const g = wordmarkGeometry(letters);
   return `<svg viewBox="0 0 ${g.width} ${g.height}"
    width="${Math.round((height * g.width) / g.height)}" height="${height}"
    fill="${color}" color="${color}" aria-hidden="true">${g.svg}</svg>`;
 }
 
-export const BRAND = { CAP, STEM, TRACK };
+/**
+ * Glitched wordmark as a complete <svg>. The viewBox is padded so displaced
+ * slices and streaks are not clipped at the edges.
+ */
+export function glitchWordmark({
+  height = 40, color = 'currentColor', amount = 1, id = 'gw', letters = 'pwrkng',
+} = {}) {
+  const g = glitchGeometry({ amount, id, letters });
+  const padX = 34;
+  const vbW = g.width + padX * 2;
+  return `<svg viewBox="${-padX} 0 ${vbW} ${g.height}"
+   width="${Math.round((height * vbW) / g.height)}" height="${height}"
+   fill="${color}" color="${color}" aria-hidden="true">${g.svg}</svg>`;
+}
+
+/** Standalone k symbol. */
+export function markK({ size = 40, color = 'currentColor', pad = 14 } = {}) {
+  const g = markKGeometry();
+  const vbW = g.width + pad * 2;
+  const vbH = BASE + pad * 2;
+  return `<svg viewBox="0 0 ${vbW} ${vbH}" width="${size}" height="${Math.round(
+    (size * vbH) / vbW,
+  )}" fill="${color}" color="${color}" aria-hidden="true"><g transform="translate(${pad} ${pad})">${g.svg}</g></svg>`;
+}
+
+/** The k in a filled tile — app icon, favicon, sticker. Always the clean cut. */
+export function markTile({ size = 40, bg = '#0A0B0F', fg = '#F3D74B', radius = 0.2 } = {}) {
+  const g = markKGeometry();
+  const box = 140;
+  const scale = 82 / BASE;
+  const gx = (box - g.width * scale) / 2;
+  const gy = (box - BASE * scale) / 2;
+  return `<svg viewBox="0 0 ${box} ${box}" width="${size}" height="${size}" aria-hidden="true">
+  <rect width="${box}" height="${box}" rx="${Math.round(box * radius)}" fill="${bg}"/>
+  <g transform="translate(${gx} ${gy}) scale(${scale})" fill="${fg}" color="${fg}">${g.svg}</g>
+</svg>`;
+}
+
+export const BRAND = { ASC, XTOP, BASE, DESC, STEM, TRACK };

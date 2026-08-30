@@ -72,7 +72,7 @@ export const siteConfig = {
 
   // --- Branding -------------------------------------------------------------
   // Colours live in src/assets/css/styles.css under :root as CSS variables.
-  themeColor: '#0A0E27',
+  themeColor: '#000000',
 
   // --- Feature flags --------------------------------------------------------
   features: {

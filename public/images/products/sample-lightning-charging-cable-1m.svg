@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Sample Lightning Charging Cable 1m — sample product image">
-  <rect width="800" height="800" fill="#0A0B0F"/>
+  <rect width="800" height="800" fill="#000000"/>
   <rect width="800" height="800" fill="#00D68F" fill-opacity=".10"/>
   <rect y="0" width="800" height="10" fill="#00D68F"/>
   <circle cx="400" cy="330" r="188" fill="#00D68F" fill-opacity=".16"/>
@@ -8,7 +8,7 @@
           stroke-dasharray="10 14"/>
   <g transform="translate(280 210) scale(10)" color="#ffffff"
      stroke-width="1.35" opacity=".95"><path d="M6.5 3.5v4a2.5 2.5 0 0 0 5 0v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 3.5v-1M10.5 3.5v-1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 10v3.5a4 4 0 0 0 4 4h1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 15.5h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>
-  <g transform="translate(24 736) scale(0.34)" fill="#FFE01A" color="#FFE01A"><rect x="0" y="0" width="22" height="100"/><path d="M 82 0 L 42 50 L 82 100" fill="none"
+  <g transform="translate(24 736) scale(0.34)" fill="#F3D74B" color="#F3D74B"><rect x="0" y="0" width="22" height="100"/><path d="M 70 38 L 40 70 L 70 100" fill="none"
          stroke="currentColor" stroke-width="22"
          stroke-linecap="butt" stroke-linejoin="miter"/></g>
   <text x="70" y="768" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"

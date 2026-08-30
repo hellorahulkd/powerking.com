@@ -19,14 +19,14 @@ import { fileURLToPath } from 'node:url';
 import { products } from '../src/data/products.js';
 import { categories } from '../src/data/categories.js';
 import { icons } from '../src/templates/icons.js';
-import { wordmarkGeometry, markKGeometry } from '../src/templates/brand.js';
+import { wordmarkGeometry, glitchGeometry, markKGeometry } from '../src/templates/brand.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public/images');
 
-const VOLT = '#FFE01A';
-const INK = '#0A0B0F';
-const INK_800 = '#14161F';
+const VOLT = '#F3D74B';
+const INK = '#000000';
+const INK_800 = '#101012';
 
 const esc = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -71,7 +71,7 @@ function productTile(product) {
   const cat = categories.find((c) => c.name === product.category);
   const base = cat?.color || VOLT;
   const lines = wrap(product.name);
-  const kScale = 34 / KM.height;
+  const kScale = 34 / 100;
 
   const text = lines
     .map(
@@ -131,7 +131,7 @@ function heroSvg() {
     )
     .join('\n');
 
-  const kScale = 116 / KM.height;
+  const kScale = 116 / 100;
   const kx = 320 - (KM.width * kScale) / 2;
   const ky = 278 - 58;
 
@@ -158,16 +158,19 @@ function heroSvg() {
 
 /* -------------------------------------------------------------- brand ----- */
 const WORD = wordmarkGeometry();
+const GLITCH = glitchGeometry({ amount: 1, id: 'lg' });
+const GLITCH_OG = glitchGeometry({ amount: 1, id: 'og' });
 const KM = markKGeometry();
+const KBASE = 100; // baseline of the k within the 128-unit em
 
-/** The K locked in a volt tile — favicon and app icon. */
+/** The k in a volt tile — favicon and app icon. Always the clean cut. */
 const faviconSvg = (() => {
   const box = 140;
-  const scale = 78 / KM.height;
+  const scale = 86 / KBASE;
   const gx = (box - KM.width * scale) / 2;
-  const gy = (box - KM.height * scale) / 2;
+  const gy = (box - KBASE * scale) / 2;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${box} ${box}" width="${box}" height="${box}">
-  <rect width="${box}" height="${box}" rx="28" fill="${VOLT}"/>
+  <rect width="${box}" height="${box}" rx="25" fill="${VOLT}"/>
   <g transform="translate(${gx} ${gy}) scale(${scale})" fill="${INK}" color="${INK}">${KM.svg}</g>
 </svg>
 `;
@@ -175,46 +178,34 @@ const faviconSvg = (() => {
 
 /** Horizontal lockup for letterheads, invoices and packaging. */
 const logoSvg = (() => {
-  const scale = 46 / WORD.height;
-  const kScale = 58 / KM.height;
-  const kW = KM.width * kScale;
-  const wordX = 34 + kW + 26;
-  const width = wordX + WORD.width * scale + 34;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${Math.round(width)} 130" width="${Math.round(width)}" height="130" role="img" aria-label="PowerKing Nepal logo">
-  <rect width="${Math.round(width)}" height="130" fill="${INK}"/>
-  <g transform="translate(34 36) scale(${kScale})" fill="${VOLT}" color="${VOLT}">${KM.svg}</g>
-  <g transform="translate(${wordX} 34) scale(${scale})" fill="${VOLT}" color="${VOLT}">${WORD.svg}</g>
-  <text x="${wordX + 2}" y="98" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="11" letter-spacing="3.4" fill="#6E7687">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+  const scale = 62 / GLITCH.height;
+  const width = Math.round(GLITCH.width * scale + 150);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} 150" width="${width}" height="150" role="img" aria-label="PowerKing Nepal logo">
+  <rect width="${width}" height="150" fill="${INK}"/>
+  <g transform="translate(75 34) scale(${scale})" fill="${VOLT}" color="${VOLT}">${GLITCH.svg}</g>
+  <text x="76" y="126" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="11" letter-spacing="3.6" fill="#74747E">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
 </svg>
 `;
 })();
 
 /** Open Graph card — what a shared link looks like on WhatsApp and Facebook. */
 const ogSvg = (() => {
-  const scale = 132 / WORD.height;
+  const scale = 168 / GLITCH_OG.height;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="${INK_800}"/><stop offset="1" stop-color="${INK}"/>
-    </linearGradient>
-    <radialGradient id="glow" cx=".84" cy=".1" r=".62">
-      <stop offset="0" stop-color="${VOLT}" stop-opacity=".26"/>
-      <stop offset="1" stop-color="${VOLT}" stop-opacity="0"/>
-    </radialGradient>
     <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
-      <rect width="4" height="1" fill="#fff" fill-opacity=".05"/>
+      <rect width="4" height="1" fill="#fff" fill-opacity=".055"/>
     </pattern>
   </defs>
-  <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="${INK}"/>
   <rect width="1200" height="630" fill="url(#scan)"/>
-  <g transform="translate(84 214) scale(${scale})" fill="${VOLT}" color="${VOLT}">${WORD.svg}</g>
-  <text x="88" y="418" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="7" fill="#8B93A5">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
-  <text x="88" y="486" font-family="Space Grotesk, Inter, Arial, sans-serif"
-        font-size="30" fill="#D5D9E2">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
-  <rect x="88" y="524" width="230" height="9" fill="${VOLT}"/>
+  <g transform="translate(132 176) scale(${scale})" fill="${VOLT}" color="${VOLT}">${GLITCH_OG.svg}</g>
+  <text x="98" y="446" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="23" letter-spacing="7" fill="#8A8A94">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+  <text x="98" y="508" font-family="Space Grotesk, Inter, Arial, sans-serif"
+        font-size="29" fill="#D2D2D8">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
+  <rect x="98" y="546" width="230" height="8" fill="${VOLT}"/>
   <rect y="0" width="1200" height="6" fill="${VOLT}"/>
 </svg>
 `;
