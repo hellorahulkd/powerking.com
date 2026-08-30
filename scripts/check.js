@@ -169,7 +169,7 @@ async function main() {
     assert(`font file ${f} was published`, existsSync(path.join(DIST, f)));
   }
   // The two faces the pages preload must be the ones actually served.
-  for (const preload of ['/fonts/space-grotesk-latin.woff2', '/fonts/inter-latin.woff2']) {
+  for (const preload of ['/fonts/archivo-latin.woff2', '/fonts/inter-latin.woff2']) {
     assert(`preloaded font ${preload} exists`, existsSync(path.join(DIST, preload)));
     assert(`preloaded font ${preload} is declared in CSS`, fontUrls.includes(preload));
   }

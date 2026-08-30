@@ -244,37 +244,34 @@ on the contact page automatically.
 
 ### The brand marks
 
-The **pwrkng** wordmark and the **k** symbol are drawn as geometry in
-[`src/templates/brand.js`](src/templates/brand.js) — not set in a typeface.
+The **pwrkng** wordmark is drawn as geometry in
+[`src/templates/brand.js`](src/templates/brand.js) — plain SVG rectangles and
+polygons on a 128-unit em, cut at display weight (29-unit stems).
 
-That matters: a logo set in a font is only as ownable as that font's licence,
-and it needs the font present to render — in Canva, in a print file, on a
-supplier's packaging artwork. These letterforms are plain SVG rectangles and
-polygons on a 128-unit em, so the mark is genuinely yours, renders identically
-everywhere, and downloads nothing.
+> ⚠️ **This is a stand-in.** It reproduces the Canva wordmark's construction so
+> the site is not left without a logo, but it is *not* the original artwork.
+> Export the real mark from Canva (**Share → Download → SVG**) and drop it in
+> to replace this. SVG, not PNG — it has to scale to signage without
+> pixelating.
 
 | Function | Use it for |
 | --- | --- |
 | `glitchWordmark()` | The logo. Hero, social card, letterhead, signage. |
 | `wordmark()` | The clean cut, for small sizes and single-colour printing. |
-| `markK()` / `markTile()` | The **k** alone — stickers, cartons, favicon, avatars. |
 
-**The static treatment.** The wordmark is sliced into horizontal bands and
-displaced, with torn streaks thrown clear of the letters. The displacement
-table is **hard-coded, never random** — a logo that reshuffles itself on every
-build is not a logo. The mark is byte-identical in every render and print file.
+**The static treatment** slices the wordmark into horizontal bands and
+displaces them, with torn streaks thrown clear of the letters. The
+displacement table is **hard-coded, never random** — a logo that reshuffles
+itself on every build is not a logo. `amount` scales it from 0 (clean) to 1
+(full); the header runs at 0.55 because full amplitude below ~20px reads as
+blur rather than as an effect.
 
-`amount` scales the effect from 0 (clean) to 1 (full). Below roughly 20px tall
-the slices stop reading as an effect and start reading as blur, so the header
-uses `amount: 0.5` and the favicon uses the clean **k**. Same mark, cut for
-the size it is printed at.
-
-**The k** is the standalone symbol. Its arms are held off the stem by a gap — a
-spark gap, implying current jumping a contact without drawing the lightning
-bolt every electronics brand already owns.
-
-`PowerKing Nepal` remains the business name in page titles, structured data
-and the hero's `h1` text, so the short mark costs nothing in search.
+**There is no symbol and no icon set.** Categories, features and contact
+details are set in type. The favicon is the **p** cut from the wordmark — a
+full "pwrkng" is illegible at 32px, so the logotype's initial stands in, which
+is how wordmark-only brands get a square mark. The one graphic kept anywhere
+on the site is WhatsApp's own mark on the WhatsApp buttons, because it
+identifies a third-party platform on the primary call to action.
 
 To regenerate every asset after editing the geometry:
 
@@ -304,7 +301,7 @@ the per-category accents in `categories.js`, so colour stays *meaningful*
 
 ### Changing the typefaces
 
-Headings use **Space Grotesk**, body text uses **Inter** — both self-hosted
+Headings use **Archivo** at weight 900, body text uses **Inter** — both self-hosted
 (no Google CDN request) from `public/fonts/`, both SIL Open Font Licence, so
 commercial use is fine. To switch: edit the `FAMILIES` list in
 `scripts/fetch-fonts.js`, run `node scripts/fetch-fonts.js`, then update

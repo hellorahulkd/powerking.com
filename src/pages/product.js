@@ -2,7 +2,6 @@ import { siteConfig } from '../config/site.config.js';
 import {
   esc, absoluteUrl, whatsappUrl, jsonForScript, metaDescription, socialImage,
 } from '../lib/html.js';
-import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
 import {
   productCard, whatsappButton, breadcrumbSchema, slugifyCategory,
@@ -76,12 +75,8 @@ export function productPage({ product, related }) {
 
         ${
           product.available === false
-            ? `<p class="pd__stock pd__stock--out">${icon('clock', {
-                size: 18,
-              })}<span>Currently unavailable — message us and we will let you know when it is back in stock.</span></p>`
-            : `<p class="pd__stock">${icon('shield', {
-                size: 18,
-              })}<span>Available for wholesale supply</span></p>`
+            ? `<p class="pd__stock pd__stock--out">Currently unavailable — message us and we will let you know when it is back in stock.</p>`
+            : `<p class="pd__stock">Available for wholesale supply</p>`
         }
 
         <dl class="pd__specs">
@@ -132,7 +127,7 @@ ${
         <h2 class="section__title">Related products</h2>
       </div>
       <a class="link-arrow" href="/products/${esc(categorySlug)}/">
-        View category ${icon('arrow', { size: 18 })}</a>
+        View category <span aria-hidden="true">→</span></a>
     </div>
     <div class="grid grid--cards">
       ${related.map((p) => productCard(p, { location: 'related_products' })).join('')}

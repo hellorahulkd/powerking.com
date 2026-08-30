@@ -1,6 +1,5 @@
 import { absoluteUrl } from '../lib/html.js';
 import { esc } from '../lib/html.js';
-import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
 import { pageHead, whatsappButton, breadcrumbSchema } from '../templates/components.js';
 
@@ -27,22 +26,18 @@ export function aboutPage() {
 
   const focus = [
     {
-      icon: 'truck',
       title: 'Reliable supply',
       body: 'Keeping the lines our customers depend on consistently available, order after order.',
     },
     {
-      icon: 'tag',
       title: 'Competitive wholesale pricing',
       body: 'Trade rates quoted per carton or master box, so retailers can price with confidence.',
     },
     {
-      icon: 'shield',
       title: 'Genuine, checked stock',
       body: 'Products supplied in sealed retail packaging, with warranty terms confirmed before dispatch.',
     },
     {
-      icon: 'handshake',
       title: 'Long-term relationships',
       body: 'We would rather be a supplier a business keeps than one it uses once.',
     },
@@ -99,8 +94,8 @@ ${pageHead({
     <ul class="props props--4">
       ${focus
         .map(
-          (f) => `<li class="prop">
-        <span class="prop__icon" aria-hidden="true">${icon(f.icon, { size: 22 })}</span>
+          (f, n) => `<li class="prop">
+        <span class="prop__num" aria-hidden="true">${String(n + 1).padStart(2, '0')}</span>
         <h3 class="prop__title">${esc(f.title)}</h3>
         <p class="prop__body">${esc(f.body)}</p>
       </li>`,

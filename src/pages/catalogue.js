@@ -1,5 +1,4 @@
 import { esc, jsonForScript, absoluteUrl } from '../lib/html.js';
-import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
 import {
   productCard, emptyState, sampleNotice, whatsappButton,
@@ -32,13 +31,10 @@ function toolbar(categories, brands, activeCategory) {
   <div class="container">
     <form class="toolbar__search" role="search" id="search-form" action="/products/" method="get">
       <label class="sr-only" for="product-search">Search products by name, brand, category or SKU</label>
-      <span class="toolbar__search-icon" aria-hidden="true">${icon('search', { size: 20 })}</span>
       <input id="product-search" name="q" type="search" autocomplete="off"
              placeholder="Search products, brands or SKU…"
              aria-describedby="search-status">
-      <button type="button" class="toolbar__clear" id="search-clear" hidden aria-label="Clear search">
-        ${icon('close', { size: 18 })}
-      </button>
+      <button type="button" class="toolbar__clear" id="search-clear" hidden aria-label="Clear search">Clear</button>
       <noscript><button class="btn btn--primary btn--sm" type="submit">Search</button></noscript>
     </form>
 
@@ -79,8 +75,7 @@ export function cataloguePage({ products, categories, brands }) {
         .map(
           (c) => `<li><a class="cat-strip__item" href="/products/${esc(c.slug)}/"
             style="--cat: ${esc(c.color || 'var(--accent)')}"
-            data-track-category="${esc(c.name)}">
-        ${icon(c.icon, { size: 20 })}<span>${esc(c.name)}</span></a></li>`,
+            data-track-category="${esc(c.name)}">${esc(c.name)}</a></li>`,
         )
         .join('')}
     </ul>
@@ -165,9 +160,7 @@ export function categoryPage({ category, products, categories, brands }) {
     .map(
       (c) => `<li><a class="cat-strip__item" href="/products/${esc(c.slug)}/"
       style="--cat: ${esc(c.color || 'var(--accent)')}"
-      data-track-category="${esc(c.name)}">${icon(c.icon, { size: 20 })}<span>${esc(
-        c.name,
-      )}</span></a></li>`,
+      data-track-category="${esc(c.name)}">${esc(c.name)}</a></li>`,
     )
     .join('');
 

@@ -28,7 +28,7 @@ function hero() {
 
     <div class="hero__actions">
       <a class="btn btn--primary btn--lg" href="/products/">
-        <span>Explore Products</span>${icon('arrow', { size: 20 })}
+        <span>Explore Products</span><span class="btn__arrow" aria-hidden="true">→</span>
       </a>
       <a class="btn btn--whatsapp btn--lg"
          href="${esc(whatsappUrl('hero'))}"
@@ -39,9 +39,9 @@ function hero() {
     </div>
 
     <ul class="hero__points">
-      <li>${icon('tag', { size: 18 })}<span>Trade pricing on enquiry</span></li>
-      <li>${icon('truck', { size: 18 })}<span>Carton &amp; bulk quantities</span></li>
-      <li>${icon('whatsapp', { size: 18 })}<span>Fast replies on WhatsApp</span></li>
+      <li>Trade pricing on enquiry</li>
+      <li>Carton &amp; bulk quantities</li>
+      <li>Fast replies on WhatsApp</li>
     </ul>
   </div>
 </section>`;
@@ -75,8 +75,8 @@ function valueProps() {
     <ul class="props">
       ${items
         .map(
-          (i) => `<li class="prop">
-        <span class="prop__icon" aria-hidden="true">${icon(i.icon, { size: 22 })}</span>
+          (i, n) => `<li class="prop">
+        <span class="prop__num" aria-hidden="true">${String(n + 1).padStart(2, '0')}</span>
         <h2 class="prop__title">${esc(i.title)}</h2>
         <p class="prop__body">${esc(i.body)}</p>
       </li>`,
@@ -95,7 +95,7 @@ function categorySection(categories, countsByCategory) {
         <p class="eyebrow">Browse Our Catalogue</p>
         <h2 class="section__title">Shop by category</h2>
       </div>
-      <a class="link-arrow" href="/products/">All products ${icon('arrow', { size: 18 })}</a>
+      <a class="link-arrow" href="/products/">All products <span aria-hidden="true">→</span></a>
     </div>
     <ul class="cat-grid">
       ${categories
@@ -105,9 +105,9 @@ function categorySection(categories, countsByCategory) {
         <a class="cat-tile" href="/products/${esc(c.slug)}/"
            style="--cat: ${esc(c.color || 'var(--accent)')}"
            data-track-category="${esc(c.name)}">
-          <span class="cat-tile__icon" aria-hidden="true">${icon(c.icon, { size: 26 })}</span>
           <span class="cat-tile__name">${esc(c.name)}</span>
           <span class="cat-tile__count">${n} ${n === 1 ? 'product' : 'products'}</span>
+          <span class="cat-tile__go" aria-hidden="true">→</span>
         </a>
       </li>`;
         })
@@ -126,7 +126,7 @@ function featuredSection(featured) {
         <p class="eyebrow">Featured Products</p>
         <h2 class="section__title">A selection from our catalogue</h2>
       </div>
-      <a class="link-arrow" href="/products/">View all products ${icon('arrow', { size: 18 })}</a>
+      <a class="link-arrow" href="/products/">View all products <span aria-hidden="true">→</span></a>
     </div>
     <div class="grid grid--cards">
       ${featured
@@ -135,7 +135,7 @@ function featuredSection(featured) {
     </div>
     <div class="section__foot">
       <a class="btn btn--primary btn--lg" href="/products/">
-        <span>View All Products</span>${icon('arrow', { size: 20 })}
+        <span>View All Products</span><span class="btn__arrow" aria-hidden="true">→</span>
       </a>
     </div>
   </div>

@@ -143,7 +143,6 @@ export function emptyState({
   action = '',
 } = {}) {
   return `<div class="empty">
-  <span class="empty__icon" aria-hidden="true">${icon('search', { size: 32 })}</span>
   <p class="empty__title">${esc(title)}</p>
   <p class="empty__msg">${esc(message)}</p>
   ${action}

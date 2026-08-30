@@ -7,10 +7,9 @@ import { layout } from '../templates/layout.js';
 import { pageHead, breadcrumbSchema } from '../templates/components.js';
 
 /** One contact detail. Renders a visible placeholder if not configured yet. */
-function detail({ iconName, label, value, href, placeholder, trackAs }) {
+function detail({ label, value, href, placeholder, trackAs }) {
   const { text, isPlaceholder } = orPlaceholder(value, placeholder);
   const inner = `
-    <span class="detail__icon" aria-hidden="true">${icon(iconName, { size: 20 })}</span>
     <span class="detail__body">
       <span class="detail__label">${esc(label)}</span>
       <span class="detail__value">${esc(text)}</span>
@@ -32,7 +31,7 @@ function hours() {
   const list = siteConfig.openingHours || [];
   if (!list.length) return '';
   return `<div class="hours">
-    <h2 class="hours__title">${icon('clock', { size: 18 })}<span>Opening hours</span></h2>
+    <h2 class="hours__title">Opening hours</h2>
     <dl>
       ${list
         .map(
@@ -86,7 +85,6 @@ ${pageHead({
 
     <div class="contact__primary">
       <div class="contact__cta-card">
-        <span class="contact__cta-icon" aria-hidden="true">${icon('whatsapp', { size: 32 })}</span>
         <h2>Chat with us on WhatsApp</h2>
         <p>The quickest way to reach us. Opens WhatsApp with a message ready to send.</p>
         <a class="btn btn--whatsapp btn--lg btn--block" href="${esc(waHref)}"
@@ -102,7 +100,7 @@ ${pageHead({
         ${
           phoneHref
             ? `<a class="btn btn--outline btn--lg btn--block" href="${esc(phoneHref)}"
-                  data-track-contact="call">${icon('phone', { size: 20 })}<span>Call us</span></a>`
+                  data-track-contact="call"><span>Call us</span></a>`
             : `<p class="contact__warn">Phone number not added yet — set <code>phone</code> in <code>src/config/site.config.js</code> to show a “Call us” button.</p>`
         }
       </div>
@@ -112,13 +110,11 @@ ${pageHead({
       <h2 class="section__title section__title--sm">Business details</h2>
       <ul class="details">
         ${detail({
-          iconName: 'bolt',
           label: 'Business name',
           value: siteConfig.businessName,
           placeholder: 'BUSINESS NAME',
         })}
         ${detail({
-          iconName: 'phone',
           label: 'Phone',
           value: siteConfig.phone,
           href: phoneHref,
@@ -128,7 +124,6 @@ ${pageHead({
         ${
           siteConfig.phoneSecondary
             ? detail({
-                iconName: 'phone',
                 label: 'Alternate phone',
                 value: siteConfig.phoneSecondary,
                 href: telHref(siteConfig.phoneSecondary),
@@ -138,14 +133,12 @@ ${pageHead({
             : ''
         }
         ${detail({
-          iconName: 'whatsapp',
           label: 'WhatsApp',
           value: hasWhatsApp() ? `+${siteConfig.whatsappNumber}` : '',
           href: waHref,
           placeholder: 'WHATSAPP NUMBER',
         })}
         ${detail({
-          iconName: 'mail',
           label: 'Email',
           value: siteConfig.email,
           href: siteConfig.email ? `mailto:${siteConfig.email}` : '',
@@ -153,7 +146,6 @@ ${pageHead({
           trackAs: 'email',
         })}
         ${detail({
-          iconName: 'pin',
           label: 'Address',
           value: addressLine(),
           href: siteConfig.googleMapsLinkUrl,

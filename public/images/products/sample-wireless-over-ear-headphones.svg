@@ -1,20 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Sample Wireless Over-Ear Headphones — sample product image">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Headphones — sample product image">
   <rect width="800" height="800" fill="#000000"/>
-  <rect width="800" height="800" fill="#7C5CFF" fill-opacity=".10"/>
-  <rect y="0" width="800" height="10" fill="#7C5CFF"/>
-  <circle cx="400" cy="330" r="188" fill="#7C5CFF" fill-opacity=".16"/>
-  <circle cx="400" cy="330" r="188" fill="none" stroke="#7C5CFF" stroke-opacity=".55" stroke-width="3"/>
-  <circle cx="400" cy="330" r="150" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="2"
-          stroke-dasharray="10 14"/>
-  <g transform="translate(280 210) scale(10)" color="#ffffff"
-     stroke-width="1.35" opacity=".95"><path d="M4 14v-2a8 8 0 1 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 13.5h2.5a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-5ZM20 13.5h-2.5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1H19a1 1 0 0 0 1-1v-5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>
-  <g transform="translate(24 736) scale(0.34)" fill="#F3D74B" color="#F3D74B"><rect x="0" y="0" width="22" height="100"/><path d="M 70 38 L 40 70 L 70 100" fill="none"
-         stroke="currentColor" stroke-width="22"
-         stroke-linecap="butt" stroke-linejoin="miter"/></g>
-  <text x="70" y="768" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="19" letter-spacing="4" fill="#6E7687">SAMPLE IMAGE</text>
-  <g font-family="Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif"><text x="400" y="606" text-anchor="middle" font-size="33"
-       font-weight="700" fill="#fff">Sample Wireless</text><text x="400" y="650" text-anchor="middle" font-size="33"
-       font-weight="700" fill="#fff">Over-Ear</text><text x="400" y="694" text-anchor="middle" font-size="33"
-       font-weight="700" fill="#fff">Headphones</text></g>
+  <rect y="0" width="800" height="26" fill="#7C5CFF"/>
+  <text x="64" y="150" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="26" letter-spacing="8" fill="#7C5CFF">SAMPLEAUDIO</text>
+  <g font-family="Space Grotesk, Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif"><text x="64" y="300" font-size="92" font-weight="900"
+       letter-spacing="-3" fill="#fff">Headphones</text></g>
+  <text x="64" y="726" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-size="24" letter-spacing="6" fill="#74747E">SAMPLE IMAGE</text>
+  <rect x="64" y="748" width="150" height="10" fill="#7C5CFF"/>
 </svg>

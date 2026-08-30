@@ -21,17 +21,16 @@ function socialLinks() {
       .map(
         ([key, url]) =>
           `<a href="${esc(url)}" target="_blank" rel="noopener me"
-              aria-label="${esc(SOCIAL_LABELS[key] || key)}"
-              data-track-social="${esc(key)}">${icon(key, { size: 20 })}</a>`,
+              data-track-social="${esc(key)}">${esc(SOCIAL_LABELS[key] || key)}</a>`,
       )
       .join('')}
   </div>`;
 }
 
 /** A contact row that degrades to a visible placeholder when unconfigured. */
-function contactRow(iconName, value, label, href) {
+function contactRow(value, label, href) {
   const { text, isPlaceholder } = orPlaceholder(value, label);
-  const inner = `${icon(iconName, { size: 18 })}<span>${esc(text)}</span>`;
+  const inner = `<span>${esc(text)}</span>`;
   if (isPlaceholder || !href) {
     return `<li class="${isPlaceholder ? 'is-placeholder' : ''}">${inner}</li>`;
   }
@@ -76,9 +75,9 @@ export function footer() {
     <div class="footer__col footer__contact">
       <h2 class="footer__heading">Contact</h2>
       <ul>
-        ${contactRow('phone', siteConfig.phone, 'BUSINESS PHONE NUMBER', telHref(siteConfig.phone))}
-        ${contactRow('mail', siteConfig.email, 'BUSINESS EMAIL', siteConfig.email ? `mailto:${siteConfig.email}` : '')}
-        ${contactRow('pin', addr, 'BUSINESS ADDRESS', siteConfig.googleMapsLinkUrl)}
+        ${contactRow(siteConfig.phone, 'BUSINESS PHONE NUMBER', telHref(siteConfig.phone))}
+        ${contactRow(siteConfig.email, 'BUSINESS EMAIL', siteConfig.email ? `mailto:${siteConfig.email}` : '')}
+        ${contactRow(addr, 'BUSINESS ADDRESS', siteConfig.googleMapsLinkUrl)}
       </ul>
       <a class="btn btn--whatsapp btn--sm"
          href="${esc(whatsappUrl('general'))}"

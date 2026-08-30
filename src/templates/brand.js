@@ -42,8 +42,8 @@ const ASC = 0;      // ascender top
 const XTOP = 28;    // x-height top
 const BASE = 100;   // baseline
 const DESC = 128;   // descender bottom
-const STEM = 22;
-const TRACK = 8;    // letter spacing — tight, so the word reads as one block
+const STEM = 29;   // heavy cut — the mark is set at display weight
+const TRACK = 5;    // very tight, so the word reads as a single solid block
 
 const r = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`;
 const poly = (pts) => `<polygon points="${pts.map(([a, b]) => `${a},${b}`).join(' ')}"/>`;
@@ -53,61 +53,61 @@ const poly = (pts) => `<polygon points="${pts.map(([a, b]) => `${a},${b}`).join(
 const GLYPHS = {
   // stem drops to the descender; squared bowl sits on the baseline
   p: (x) => ({
-    w: 76,
+    w: 82,
     svg: [
       r(x, XTOP, STEM, DESC - XTOP),
-      r(x + 22, XTOP, 54, 22),        // bowl top
-      r(x + 54, 50, 22, 28),          // bowl right wall
-      r(x + 22, 78, 54, 22),          // bowl floor
+      r(x + 29, XTOP, 53, 29),        // bowl top
+      r(x + 53, 57, 29, 14),          // bowl right wall
+      r(x + 29, 71, 53, 29),          // bowl floor
     ].join(''),
   }),
 
   w: (x) => ({
-    w: 104,
+    w: 112,
     svg: poly([
-      [x, XTOP], [x + 24, XTOP], [x + 38, 74], [x + 48, 42], [x + 60, 42],
-      [x + 70, 74], [x + 84, XTOP], [x + 104, XTOP], [x + 86, BASE],
-      [x + 66, BASE], [x + 54, 64], [x + 40, BASE], [x + 20, BASE],
+      [x, XTOP], [x + 31, XTOP], [x + 42, 76], [x + 49, 44], [x + 63, 44],
+      [x + 70, 76], [x + 81, XTOP], [x + 112, XTOP], [x + 90, BASE],
+      [x + 64, BASE], [x + 56, 66], [x + 48, BASE], [x + 22, BASE],
     ]),
   }),
 
   r: (x) => ({
-    w: 54,
+    w: 58,
     svg: [
       r(x, XTOP, STEM, BASE - XTOP),
-      r(x + 22, XTOP, 32, 22),        // shoulder
+      r(x + 29, XTOP, 29, 29),        // shoulder
     ].join(''),
   }),
 
   // the signature glyph — full ascender, arms detached from the stem
   k: (x) => ({
-    w: 78,
+    w: 84,
     svg:
       r(x, ASC, STEM, BASE - ASC) +
-      `<path d="M ${x + 70} 38 L ${x + 40} 70 L ${x + 70} 100" fill="none"
+      `<path d="M ${x + 74} 40 L ${x + 46} 71 L ${x + 74} 100" fill="none"
          stroke="currentColor" stroke-width="${STEM}"
          stroke-linecap="butt" stroke-linejoin="miter"/>`,
   }),
 
   n: (x) => ({
-    w: 76,
+    w: 82,
     svg: [
       r(x, XTOP, STEM, BASE - XTOP),
-      r(x + 22, XTOP, 32, 22),        // shoulder
-      r(x + 54, XTOP, STEM, BASE - XTOP),
+      r(x + 29, XTOP, 24, 29),        // shoulder
+      r(x + 53, XTOP, STEM, BASE - XTOP),
     ].join(''),
   }),
 
   // single-storey g: bowl on the baseline, straight descender, tail to the left
   g: (x) => ({
-    w: 76,
+    w: 82,
     svg: [
-      r(x, XTOP, 76, 22),             // bowl top
-      r(x, 50, STEM, 18),             // bowl left wall
-      r(x + 54, 50, 22, 18),          // bowl right wall
-      r(x, 68, 76, 22),               // bowl floor
-      r(x + 54, 90, 22, 16),          // descender
-      r(x + 12, 106, 64, 22),         // tail
+      r(x, XTOP, 82, 29),             // bowl top
+      r(x, 57, STEM, 14),             // bowl left wall
+      r(x + 53, 57, 29, 14),          // bowl right wall
+      r(x, 71, 82, 29),               // bowl floor
+      r(x + 53, 100, 29, 6),          // descender
+      r(x + 10, 106, 72, 22),         // tail
     ].join(''),
   }),
 };

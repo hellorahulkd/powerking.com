@@ -1,6 +1,5 @@
 import { siteConfig } from '../config/site.config.js';
 import { esc, absoluteUrl } from '../lib/html.js';
-import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
 import {
   pageHead, whatsappButton, breadcrumbSchema, slugifyCategory, productCard,

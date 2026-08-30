@@ -10,8 +10,8 @@
  * Both families are variable fonts, so a single file covers every weight.
  * Latin + latin-ext subsets only — the site is in English.
  *
- * Fonts: Space Grotesk (headings) and Inter (body). Both are licensed under
- * the SIL Open Font License, which permits commercial use and embedding.
+ * Fonts: Archivo (headings, up to 900) and Inter (body). Both are licensed
+ * under the SIL Open Font License, which permits commercial use.
  *
  * Run:  node scripts/fetch-fonts.js     (only needed if changing typefaces)
  */
@@ -27,7 +27,9 @@ const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 const FAMILIES = [
-  { css: 'Space+Grotesk:wght@500..700', family: 'Space Grotesk', file: 'space-grotesk' },
+  // Archivo carries a true 900. Space Grotesk stops at 700, which is not
+  // heavy enough for the display sizes this brand runs at.
+  { css: 'Archivo:wght@600..900', family: 'Archivo', file: 'archivo' },
   { css: 'Inter:wght@400..700', family: 'Inter', file: 'inter' },
 ];
 
