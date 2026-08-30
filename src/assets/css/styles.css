@@ -170,6 +170,11 @@ code {
 .btn--ghost     { --btn-bg: var(--bg); --btn-bd: var(--border-strong); --btn-fg: var(--primary); }
 .btn--ghost:hover { --btn-bg: var(--bg-alt); --btn-bd: var(--primary-300); }
 .btn--sm  { padding: .5rem .85rem; font-size: var(--step--1); min-height: 40px; }
+/* Icon-only: square target, no label. Every one carries an aria-label. */
+.btn--icon {
+  padding: 0; min-height: 42px; min-width: 42px; width: 100%;
+  border-radius: 100px;
+}
 .btn--lg  { padding: 1.05rem 2rem; font-size: var(--step-1); min-height: 60px; font-weight: 900; }
 .btn__arrow { font-size: 1.1em; line-height: 1; }
 .btn--block { display: flex; width: 100%; }
@@ -193,16 +198,20 @@ code {
 .site-header.is-scrolled { border-bottom-color: var(--border-strong); }
 .site-header__inner { display: flex; align-items: center; gap: 1rem; min-height: var(--header-h); }
 
-.logo { display: grid; gap: 1px; text-decoration: none; margin-right: auto; }
-.logo__word { display: block; color: var(--ink); margin-left: -8px; }
+.logo { display: grid; gap: 2px; text-decoration: none; margin-right: auto; justify-items: start; }
+.logo__word { display: block; color: var(--ink); }
 .logo__word svg { display: block; }
+/* Same face as the wordmark, justified to its exact width so both lines end
+   flush. text-align-last does the spreading on a single line. */
 .logo__tag {
-  font-family: var(--font-mono);
-  font-size: .565rem; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--text-faint); white-space: nowrap;
+  display: block;
+  font-family: var(--font-display);
+  font-size: .5rem; font-weight: 700; line-height: 1;
+  text-transform: uppercase; color: var(--text-faint);
+  text-align: justify; text-align-last: justify;
+  -moz-text-align-last: justify;
+  white-space: nowrap; overflow: hidden;
 }
-.logo__tag-more { display: none; }
-@media (min-width: 560px) { .logo__tag-more { display: inline; } }
 
 .nav-desktop { display: none; }
 .nav-desktop ul { display: flex; gap: .4rem; }
@@ -619,8 +628,6 @@ code {
   display: grid; grid-template-columns: 1fr 1fr; gap: .5rem;
   padding: .7rem 1.15rem 1.15rem; position: relative; z-index: 1;
 }
-.card__actions .btn { padding-inline: .5rem; }
-@media (max-width: 400px) { .card__actions { grid-template-columns: 1fr; } }
 
 /* ---------------------------------------------------------- empty state -- */
 .empty {

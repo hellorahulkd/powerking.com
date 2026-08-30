@@ -13,10 +13,20 @@ const NAV = [
 ];
 
 export function logo() {
+  // The subline is set to the exact width of the wordmark's glyphs and
+  // justified to fill it, so the two lines align on both edges. The glitch
+  // svg carries padding for the displaced slices, so the visible mark is
+  // narrower than its box — these figures back that padding out.
+  const H = 26;                    // rendered wordmark height
+  const GLYPHS = 448;              // wordmark width in em units
+  const PAD = 30;                  // viewBox padding either side
+  const EM = 128;
+  const inner = Math.round((H * GLYPHS) / EM);
+  const offset = Math.round((H * PAD) / EM);
+
   return `<a class="logo" href="/" aria-label="${esc(siteConfig.businessName)} — home">
-  <span class="logo__word">${glitchWordmark({ height: 34, amount: 0.55, id: 'hw' })}</span>
-  <span class="logo__tag"><span class="logo__tag-name">PowerKing Nepal</span><span
-    class="logo__tag-more"> · ${esc(siteConfig.tagline)}</span></span>
+  <span class="logo__word">${glitchWordmark({ height: H, amount: 0.5, id: 'hw' })}</span>
+  <span class="logo__tag" style="width:${inner}px;margin-left:${offset}px">PowerKing Nepal</span>
 </a>`;
 }
 

@@ -103,11 +103,16 @@ export function productCard(product, { eager = false, location = 'product_card' 
     <p class="card__price">Contact us for wholesale pricing</p>
   </div>
   <div class="card__actions">
-    <a class="btn btn--ghost btn--sm" href="${esc(url)}">View Product</a>
-    <a class="btn btn--whatsapp btn--sm"
+    <a class="btn btn--ghost btn--icon" href="${esc(url)}"
+       aria-label="View ${esc(product.name)}" title="View product">
+      ${icon('arrow', { size: 19 })}
+    </a>
+    <a class="btn btn--whatsapp btn--icon"
        href="${esc(whatsappUrl('product', { product: product.name }))}"
-       ${waAttrs(location, product)}>
-      ${icon('whatsapp', { size: 16 })}<span>Enquire</span>
+       ${waAttrs(location, product)}
+       aria-label="Enquire about ${esc(product.name)} on WhatsApp"
+       title="Enquire on WhatsApp">
+      ${icon('whatsapp', { size: 19 })}
     </a>
   </div>
 </article>`;
