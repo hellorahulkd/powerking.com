@@ -134,7 +134,9 @@ ${pageHead({
         }
         ${detail({
           label: 'WhatsApp',
-          value: hasWhatsApp() ? `+${siteConfig.whatsappNumber}` : '',
+          value: hasWhatsApp()
+            ? `+${String(siteConfig.whatsappNumber).replace(/^(\d{3})(\d+)$/, '$1 $2')}`
+            : '',
           href: waHref,
           placeholder: 'WHATSAPP NUMBER',
         })}

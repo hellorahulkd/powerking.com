@@ -33,13 +33,13 @@ export const siteConfig = {
   whatsappNumber: '9779863215831',
 
   // --- Contact --------------------------------------------------------------
-  phone: '', // e.g. '+977 1 4XXXXXX'  — leave blank to show a placeholder
+  phone: '+977 9863215831',
   phoneSecondary: '',
-  email: '', // e.g. 'info@powerkingnepal.com'
+  email: 'businesskd@gmail.com',
   address: {
-    line1: '', // e.g. 'Shop 12, XYZ Market'
+    line1: 'Mahabaudha',
     line2: '',
-    city: '', // e.g. 'Kathmandu'
+    city: 'Kathmandu',
     district: '',
     country: 'Nepal',
   },

@@ -368,6 +368,44 @@ async function main() {
       return document.activeElement === el;
     `);
     check('search input is focusable', focus === true);
+
+    // A container that colours its links (the footer did) can outrank .btn, and
+    // an outline button inherits ink that vanishes on a dark panel. Both are
+    // invisible in the declarations, so measure the real computed colours —
+    // and do it on every page, since these bugs are container-specific.
+    const contrastEval = `
+      const lum = (c) => {
+        const [r, g, b] = c.match(/[\\d.]+/g).slice(0, 3).map(Number).map((v) => {
+          v /= 255;
+          return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const ratio = (a, b) => {
+        const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+        return (x + 0.05) / (y + 0.05);
+      };
+      const bad = [];
+      for (const el of document.querySelectorAll('.btn, .wa-float')) {
+        const cs = getComputedStyle(el);
+        let bg = cs.backgroundColor, node = el;
+        while (bg === 'rgba(0, 0, 0, 0)' && node.parentElement) {
+          node = node.parentElement;
+          bg = getComputedStyle(node).backgroundColor;
+        }
+        const r = ratio(cs.color, bg);
+        if (r < 4.5) bad.push((el.className || '') + ' ' + r.toFixed(2) + ':1');
+      }
+      return bad;
+    `;
+    const contrastIssues = [];
+    for (const url of PAGES) {
+      await page.goto(BASE + url);
+      const bad = await page.eval(contrastEval);
+      if (bad.length) contrastIssues.push(`${url}: ${bad.join(', ')}`);
+    }
+    check('every button label meets 4.5:1 against its own background, on every page',
+      contrastIssues.length === 0, contrastIssues.slice(0, 3).join(' | '));
     await page.close();
   }
 
