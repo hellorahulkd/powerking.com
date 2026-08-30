@@ -109,48 +109,8 @@ function intro() {
 </section>`;
 }
 
-function valueProps() {
-  const items = [
-    {
-      icon: 'truck',
-      title: 'Consistent stock',
-      body: 'The fast-moving lines — earbuds, cables, chargers — kept available carton after carton.',
-    },
-    {
-      icon: 'tag',
-      title: 'Trade pricing',
-      body: 'Rates quoted per carton or master box, so you can price your counter with confidence.',
-    },
-    {
-      icon: 'shield',
-      title: 'Checked before dispatch',
-      body: 'Stock arrives in sealed retail packaging, with any warranty terms confirmed up front.',
-    },
-    {
-      icon: 'handshake',
-      title: 'Long-term partners',
-      body: 'We would rather be the supplier a shop keeps returning to than a one-off sale.',
-    },
-  ];
-  return `<section class="section section--tight">
-  <div class="container">
-    <ul class="props">
-      ${items
-        .map(
-          (i, n) => `<li class="prop">
-        <span class="prop__num" aria-hidden="true">${String(n + 1).padStart(2, '0')}</span>
-        <h2 class="prop__title">${esc(i.title)}</h2>
-        <p class="prop__body">${esc(i.body)}</p>
-      </li>`,
-        )
-        .join('')}
-    </ul>
-  </div>
-</section>`;
-}
-
 function categorySection(categories, countsByCategory) {
-  return `<section class="section" id="categories">
+  return `<section class="section section--top" id="categories">
   <div class="container">
     <div class="section__head">
       <div>
@@ -226,10 +186,9 @@ export function homePage({ products, categories, countsByCategory }) {
   const body = [
     sampleNotice(),
     heroSlider(featured),
-    intro(),
-    valueProps(),
-    moreSection(rest),
     categorySection(categories, countsByCategory),
+    intro(),
+    moreSection(rest),
     ctaSection(),
   ].join('\n');
 

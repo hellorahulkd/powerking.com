@@ -393,6 +393,9 @@ code {
 .section--tight { padding: 2.25rem 0; }
 .section--alt { background: var(--bg-alt); }
 .section--top-0 { padding-top: 1.5rem; }
+/* Sits directly under the carousel, so it needs less lead-in above. */
+.section--top { padding-top: 3rem; }
+@media (min-width: 800px) { .section--top { padding-top: 4rem; } }
 @media (min-width: 800px) { .section { padding: 5.5rem 0; } }
 .section__head {
   display: flex; align-items: flex-end; justify-content: space-between;

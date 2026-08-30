@@ -26,20 +26,20 @@ export function aboutPage() {
 
   const focus = [
     {
-      title: 'Reliable supply',
-      body: 'Keeping the lines our customers depend on consistently available, order after order.',
+      title: 'Consistent stock',
+      body: 'The fast-moving lines — earbuds, cables, chargers — kept available carton after carton.',
     },
     {
-      title: 'Competitive wholesale pricing',
-      body: 'Trade rates quoted per carton or master box, so retailers can price with confidence.',
+      title: 'Trade pricing',
+      body: 'Rates quoted per carton or master box, so you can price your counter with confidence.',
     },
     {
-      title: 'Genuine, checked stock',
-      body: 'Products supplied in sealed retail packaging, with warranty terms confirmed before dispatch.',
+      title: 'Checked before dispatch',
+      body: 'Stock arrives in sealed retail packaging, with any warranty terms confirmed up front.',
     },
     {
-      title: 'Long-term relationships',
-      body: 'We would rather be a supplier a business keeps than one it uses once.',
+      title: 'Long-term partners',
+      body: 'We would rather be the supplier a shop keeps returning to than a one-off sale.',
     },
   ];
 
