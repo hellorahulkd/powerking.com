@@ -52,7 +52,7 @@ async function main() {
 
   /* --------------------------------------------------- required files -- */
   for (const f of ['sitemap.xml', 'robots.txt', '404.html', '.nojekyll', 'CNAME',
-                   'assets/styles.css', 'assets/app.js', 'assets/catalogue.js',
+                   'assets/styles.css', 'assets/app.js', 'assets/catalogue.js', 'assets/slider.js',
                    'images/brands/icon-192.png', 'site.webmanifest']) {
     assert(`dist/${f} exists`, existsSync(path.join(DIST, f)));
   }
@@ -197,8 +197,9 @@ async function main() {
   const appJs = await stat(path.join(DIST, 'assets/app.js'));
   const catJs = await stat(path.join(DIST, 'assets/catalogue.js'));
   assert('CSS stays under 60KB', css.size < 60 * 1024, `${(css.size / 1024).toFixed(1)}KB`);
-  assert('JS stays under 20KB total', appJs.size + catJs.size < 20 * 1024,
-    `${((appJs.size + catJs.size) / 1024).toFixed(1)}KB`);
+  const sliderJs = await stat(path.join(DIST, 'assets/slider.js'));
+  const jsTotal = appJs.size + catJs.size + sliderJs.size;
+  assert('JS stays under 24KB total', jsTotal < 24 * 1024, `${(jsTotal / 1024).toFixed(1)}KB`);
 
   const homeDoc = await html('/');
   assert('home page loads no third-party scripts when analytics is unset',

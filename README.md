@@ -379,6 +379,7 @@ real product photography:
 | `scripts/rasterize.js` | Converts SVG artwork to PNG (needs Chrome) |
 | `scripts/optimize-png.js` | Losslessly shrinks PNGs (typically 50–70%) |
 | `scripts/dev/qa.js` | Browser tests: layout, search, menu, WhatsApp, analytics |
+| `scripts/dev/slider-test.js` | Browser tests for the homepage product carousel |
 
 ---
 
@@ -519,7 +520,7 @@ powerking.com/
 
 | URL | Page |
 | --- | --- |
-| `/` | Homepage — hero, featured products, categories |
+| `/` | Homepage — product carousel, catalogue, categories |
 | `/products/` | Full catalogue with search and filters |
 | `/products/<category>/` | One page per category |
 | `/products/<product>/` | One page per product |

@@ -263,6 +263,7 @@ async function build() {
   await writeFile(path.join(DIST, 'assets/styles.css'), `${fontCss}\n${siteCss}`, 'utf8');
   await cp(path.join(ROOT, 'src/assets/js/app.js'), path.join(DIST, 'assets/app.js'));
   await cp(path.join(ROOT, 'src/assets/js/catalogue.js'), path.join(DIST, 'assets/catalogue.js'));
+  await cp(path.join(ROOT, 'src/assets/js/slider.js'), path.join(DIST, 'assets/slider.js'));
 
   // public/ is copied last so anything there (CNAME, favicon, images) wins.
   await copyDir(path.join(ROOT, 'public'), DIST);
