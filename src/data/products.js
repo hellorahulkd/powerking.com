@@ -13,6 +13,16 @@
  *  2. Copy one object below, paste it into the array and edit the fields.
  *  3. Commit and push to `main`. GitHub Actions rebuilds and deploys the site.
  *
+ *  ── OR, FOR A LARGE CATALOGUE ─────────────────────────────────────────────
+ *  Keeping hundreds of products in this file by hand is not practical. Put
+ *  them in a spreadsheet instead, export it to data/products.csv, and run:
+ *
+ *      node scripts/import-products.js && node build.js
+ *
+ *  That REPLACES this file with the spreadsheet's contents. See
+ *  data/products.example.csv for the format — it is this catalogue, exported.
+ *  Use one method or the other; do not edit both.
+ *
  *  ── FIELDS ────────────────────────────────────────────────────────────────
  *  id          number   Unique. Never reuse an id.
  *  name        string   Shown as the product H1 and in the WhatsApp message.

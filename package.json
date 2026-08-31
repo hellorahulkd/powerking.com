@@ -2,7 +2,7 @@
   "name": "powerking-nepal",
   "version": "1.0.0",
   "private": true,
-  "description": "PowerKing Nepal — wholesale product catalogue website. Static site, zero dependencies.",
+  "description": "PowerKing Nepal \u2014 wholesale product catalogue website. Static site, zero dependencies.",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -11,7 +11,8 @@
     "build": "node build.js",
     "dev": "node build.js && node serve.js",
     "serve": "node serve.js",
-    "check": "node build.js && node scripts/check.js"
+    "check": "node build.js && node scripts/check.js",
+    "import": "node scripts/import-products.js"
   },
   "keywords": [
     "wholesale",

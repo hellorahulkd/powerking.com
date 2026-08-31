@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { siteConfig } from '../src/config/site.config.js';
 import { products } from '../src/data/products.js';
 import { categories } from '../src/data/categories.js';
+import { PAGE_SIZE } from '../src/pages/catalogue.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
@@ -58,10 +59,22 @@ async function main() {
   }
 
   /* ---------------------------------------------------- page inventory -- */
+  // Listings past PAGE_SIZE products are split across /page/N/ — the path a
+  // crawler or a reader without JS follows through the catalogue.
+  const pagesFor = (count, base) => {
+    const out = [];
+    for (let n = 2; n <= Math.ceil(count / PAGE_SIZE); n++) out.push(`${base}page/${n}/`);
+    return out;
+  };
+
   const expected = [
     '/', '/products/', '/about/', '/contact/', '/privacy/',
     ...(siteConfig.features.showBrandsPage ? ['/brands/'] : []),
-    ...categories.map((c) => `/products/${c.slug}/`),
+    ...pagesFor(products.length, '/products/'),
+    ...categories.flatMap((c) => [
+      `/products/${c.slug}/`,
+      ...pagesFor(products.filter((p) => p.category === c.name).length, `/products/${c.slug}/`),
+    ]),
     ...products.map((p) => `/products/${p.slug}/`),
   ];
   for (const route of expected) {

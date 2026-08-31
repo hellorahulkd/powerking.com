@@ -197,11 +197,15 @@ ${toolbar(categories, brands, null)}
 </section>`;
 
   const suffix = page > 1 ? ` — Page ${page}` : '';
+  // Descriptions are capped at 158 characters, so what distinguishes one page
+  // from the next has to come first — a trailing "Page 2 of 17" gets cut off
+  // and every paginated page ends up with the same description.
+  const prefix = page > 1 ? `Page ${page} of ${totalPages}. ` : '';
 
   return layout({
     title: `Wholesale Product Catalogue${suffix}`,
     description:
-      `Browse the PowerKing Nepal wholesale catalogue — speakers, headphones, earbuds, chargers, data cables, multiplugs and mobile accessories. Search by product, brand or SKU and enquire on WhatsApp for pricing.${page > 1 ? ` Page ${page} of ${totalPages}.` : ''}`,
+      `${prefix}Browse the PowerKing Nepal wholesale catalogue — speakers, headphones, earbuds, chargers, data cables, multiplugs and mobile accessories. Search by product, brand or SKU and enquire on WhatsApp for pricing.`,
     path,
     activeNav: 'products',
     bodyClass: 'page-catalogue',
@@ -276,10 +280,12 @@ ${products.length ? toolbar(categories, brands, category.name) : ''}
 </section>`;
 
   const suffix = page > 1 ? ` — Page ${page}` : '';
+  // As above: the page marker leads, or truncation makes every page identical.
+  const prefix = page > 1 ? `Page ${page} of ${totalPages}. ` : '';
 
   return layout({
     title: `${category.name} — Wholesale Supply${suffix}`,
-    description: `${category.description} Browse PowerKing Nepal's wholesale ${category.name.toLowerCase()} range and enquire on WhatsApp for trade pricing, availability and minimum order quantities.${page > 1 ? ` Page ${page} of ${totalPages}.` : ''}`,
+    description: `${prefix}${category.description} Browse PowerKing Nepal's wholesale ${category.name.toLowerCase()} range and enquire on WhatsApp for trade pricing, availability and minimum order quantities.`,
     path,
     activeNav: 'products',
     bodyClass: 'page-category',

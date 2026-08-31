@@ -9,6 +9,7 @@
  * analytics events.
  */
 import { launch, newPage } from './cdp.js';
+import { products } from '../../src/data/products.js';
 
 const BASE = process.env.BASE || 'http://localhost:4321';
 const SHOTS = process.env.SHOTS || '';
@@ -100,8 +101,16 @@ async function main() {
     await page.setViewport(390, 844, true);
     await page.goto(`${BASE}/products/`);
 
-    const total = await page.eval(`return document.querySelectorAll('[data-product]').length;`);
-    check('all products render server-side', total === 15, `got ${total}`);
+    // Past the first screenful cards are deferred into an inert <template>,
+    // so "rendered" is the wrong test — what matters is that every product is
+    // in the served HTML, which is what a crawler and a reader without JS get.
+    const total = await page.eval(`
+      const t = document.getElementById('catalogue-tail');
+      return document.querySelectorAll('#product-grid [data-product]').length
+           + (t ? t.content.querySelectorAll('[data-product]').length : 0);
+    `);
+    check('every product is in the served HTML', total === products.length,
+      `got ${total} of ${products.length}`);
 
     const search = (term) => page.eval(`
       const i = document.getElementById('product-search');
