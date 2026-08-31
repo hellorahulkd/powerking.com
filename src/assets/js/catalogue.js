@@ -2,9 +2,16 @@
  * PowerKing Nepal — catalogue search & filtering.
  * Loaded only on /products/ and category pages.
  *
- * Every product card is already in the DOM (rendered at build time, so the
- * page works and indexes without JS). This script only shows/hides cards, so
- * search results appear instantly with no page reload and no network request.
+ * Cards are rendered at build time, never in JavaScript, so the page works
+ * and indexes without JS and there is only one card renderer in the codebase.
+ *
+ * Past the first screenful the build puts the remaining cards in an inert
+ * <template>: parsed, but with no render tree, no style resolution and no
+ * layout. This script reads their filter attributes straight out of that
+ * fragment — which is cheap, they are already parsed — and moves only the
+ * cards that actually match into the live grid. A search stays instant at any
+ * catalogue size because the DOM only ever holds a window of results, not the
+ * whole catalogue.
  */
 (function () {
   'use strict';
@@ -12,7 +19,9 @@
   var grid = document.getElementById('product-grid');
   if (!grid) return;
 
-  var cards = Array.prototype.slice.call(grid.querySelectorAll('[data-product]'));
+  var template = document.getElementById('catalogue-tail');
+  var moreBtn = document.getElementById('load-more');
+  var pagerEl = document.getElementById('pager');
   var input = document.getElementById('product-search');
   var clearBtn = document.getElementById('search-clear');
   var brandSelect = document.getElementById('brand-filter');
@@ -24,6 +33,35 @@
 
   // On a category page the category is fixed and the chips navigate away.
   var lockedCategory = window.PK_CATEGORY || '';
+
+  /**
+   * One entry per product, in catalogue order. `el` may still be sitting in
+   * the template fragment; `placed` says whether it has reached the grid.
+   */
+  var entries = [];
+  function collect(nodes, placed) {
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      entries.push({
+        el: el,
+        placed: placed,
+        hay: el.getAttribute('data-search') || '',
+        cat: el.getAttribute('data-category') || '',
+        brand: el.getAttribute('data-brand') || '',
+      });
+    }
+  }
+  collect(grid.querySelectorAll('[data-product]'), true);
+  if (template) collect(template.content.querySelectorAll('[data-product]'), false);
+
+  // Cards arrive in the grid in match order, not catalogue order, so pin each
+  // one's position explicitly. CSS Grid honours `order`, so the listing always
+  // reads in the order the build laid it out.
+  for (var e = 0; e < entries.length; e++) entries[e].el.style.order = e;
+
+  // Windowed listing: how many matching cards are allowed in the DOM at once.
+  var STEP = grid.querySelectorAll('[data-product]').length || 48;
+  var shown = STEP;
 
   var state = { q: '', category: '', brand: '' };
   var searchTimer = null;
@@ -53,25 +91,38 @@
   function apply() {
     var q = normalise(state.q);
     var terms = q ? q.split(' ') : [];
-    var visible = 0;
+    var total = 0;
 
-    for (var i = 0; i < cards.length; i++) {
-      var card = cards[i];
-      var hay = card.getAttribute('data-search') || '';
+    for (var i = 0; i < entries.length; i++) {
+      var entry = entries[i];
       // Every term must match — so "coca cola" narrows rather than widens.
-      var matchesQuery = true;
+      var ok = true;
       for (var t = 0; t < terms.length; t++) {
-        if (!matches(hay, terms[t])) { matchesQuery = false; break; }
+        if (!matches(entry.hay, terms[t])) { ok = false; break; }
       }
-      var matchesCat = !state.category || card.getAttribute('data-category') === state.category;
-      var matchesBrand = !state.brand || card.getAttribute('data-brand') === state.brand;
-      var show = matchesQuery && matchesCat && matchesBrand;
-      card.hidden = !show;
-      if (show) visible++;
+      if (ok && state.category && entry.cat !== state.category) ok = false;
+      if (ok && state.brand && entry.brand !== state.brand) ok = false;
+
+      if (ok) {
+        total++;
+        if (total <= shown) {
+          if (!entry.placed) { grid.appendChild(entry.el); entry.placed = true; }
+          entry.el.hidden = false;
+          continue;
+        }
+      }
+      // Non-matching, or past the window. Cards still in the template cost
+      // nothing to leave there; ones already placed just get hidden.
+      if (entry.placed) entry.el.hidden = true;
     }
 
-    if (noResults) noResults.hidden = visible !== 0;
-    grid.hidden = visible === 0;
+    if (noResults) noResults.hidden = total !== 0;
+    grid.hidden = total === 0;
+
+    if (moreBtn) {
+      moreBtn.hidden = total <= shown;
+      moreBtn.textContent = 'Show more products (' + (total - shown) + ' left)';
+    }
 
     if (statusEl) {
       if (!q && !state.category && !state.brand) {
@@ -82,12 +133,34 @@
         if (state.category) bits.push('in ' + state.category);
         if (state.brand) bits.push('by ' + state.brand);
         statusEl.textContent =
-          visible + (visible === 1 ? ' product' : ' products') +
+          total + (total === 1 ? ' product' : ' products') +
           (bits.length ? ' for ' + bits.join(' ') : '');
       }
     }
     if (clearBtn) clearBtn.hidden = !state.q;
-    return visible;
+    return total;
+  }
+
+  /** Any change to the filters starts the listing again from the top. */
+  function refilter() {
+    shown = STEP;
+    return apply();
+  }
+
+  /* --------------------------------------------------------- show more -- */
+  if (moreBtn) {
+    // The button is a real link to the next paginated page for anyone without
+    // JS. Here it expands the listing in place instead — but only on a plain
+    // click, so opening it in a new tab still works.
+    moreBtn.addEventListener('click', function (ev) {
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) return;
+      ev.preventDefault();
+      shown += STEP;
+      apply();
+      track('catalogue_load_more', { shown: shown, page: window.location.pathname });
+    });
+    // With JS the listing is one continuous page, so the pager is redundant.
+    if (pagerEl && template) pagerEl.hidden = true;
   }
 
   /* ------------------------------------------------------------ search -- */
@@ -100,7 +173,7 @@
 
     input.addEventListener('input', function () {
       state.q = input.value;
-      apply();
+      refilter();
       // Debounce the analytics event so we log finished searches, not keystrokes.
       window.clearTimeout(searchTimer);
       searchTimer = window.setTimeout(function () {
@@ -128,7 +201,7 @@
     clearBtn.addEventListener('click', function () {
       input.value = '';
       state.q = '';
-      apply();
+      refilter();
       input.focus();
     });
   }
@@ -150,7 +223,7 @@
         c.classList.toggle('is-active', active);
         c.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
-      apply();
+      refilter();
       if (value) track('category_filter', { category: value, page: window.location.pathname });
     });
   });
@@ -159,7 +232,7 @@
   if (brandSelect) {
     brandSelect.addEventListener('change', function () {
       state.brand = brandSelect.value;
-      apply();
+      refilter();
       if (state.brand) track('brand_filter', { brand: state.brand, page: window.location.pathname });
     });
   }
@@ -176,7 +249,7 @@
         c.classList.toggle('is-active', active);
         c.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
-      apply();
+      refilter();
       if (input) input.focus();
     });
   }

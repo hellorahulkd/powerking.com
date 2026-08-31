@@ -3,6 +3,7 @@ import { esc, absoluteUrl, metaDescription, jsonForScript } from '../lib/html.js
 import { header } from './header.js';
 import { footer } from './footer.js';
 import { floatingWhatsApp } from './components.js';
+import { iconSprite } from './icons.js';
 
 /**
  * Google Analytics 4 snippet. Injected only when a measurement ID is set, so
@@ -127,6 +128,7 @@ ${headExtra}
 ${analytics()}
 </head>
 <body class="${esc(bodyClass)}">
+${iconSprite()}
 <a class="skip-link" href="#main">Skip to main content</a>
 ${header(activeNav)}
 <main id="main">

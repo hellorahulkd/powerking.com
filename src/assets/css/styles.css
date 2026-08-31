@@ -160,6 +160,20 @@ code {
 }
 .btn:hover { color: var(--btn-fg); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
 .btn:active { transform: translateY(0); }
+/* --- listing controls: "Show more" and the no-JS pager ------------------- */
+.grid-more { display: flex; justify-content: center; margin-top: 32px; }
+.pager {
+  display: flex; align-items: center; justify-content: center;
+  gap: 20px; margin-top: 32px; font-weight: 700; font-size: .95rem;
+}
+.pager__link { color: var(--ink); text-decoration: none; padding: 8px 4px; }
+.pager__link:hover { text-decoration: underline; }
+.pager__link.is-disabled { opacity: .35; }
+.pager__count { color: var(--text-muted); font-weight: 600; }
+
+/* One <symbol> sprite per page feeds every <use>; it must occupy no space. */
+.icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
 .btn .icon { flex: none; }
 .btn--primary   { --btn-bg: var(--cta); --btn-bd: var(--cta); --btn-fg: var(--cta-ink); }
 .btn--primary:hover { --btn-bg: var(--cta-600); --btn-bd: var(--cta-600); }

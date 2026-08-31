@@ -24,7 +24,7 @@ import { products as rawProducts } from './src/data/products.js';
 import { categories } from './src/data/categories.js';
 import { slugifyCategory } from './src/templates/components.js';
 import { homePage } from './src/pages/home.js';
-import { cataloguePage, categoryPage } from './src/pages/catalogue.js';
+import { cataloguePage, categoryPage, PAGE_SIZE } from './src/pages/catalogue.js';
 import { productPage } from './src/pages/product.js';
 import { aboutPage } from './src/pages/about.js';
 import { contactPage } from './src/pages/contact.js';
@@ -215,6 +215,13 @@ async function build() {
   await emit('/products/', cataloguePage({ products, categories, brands }));
   add('/products/', '0.9', 'weekly');
 
+  // Pages 2..N exist for crawlers and for readers without JavaScript. With JS
+  // the listing never leaves page one — "Show more" expands it in place.
+  for (let page = 2; page <= Math.ceil(products.length / PAGE_SIZE); page++) {
+    await emit(`/products/page/${page}/`, cataloguePage({ products, categories, brands, page }));
+    add(`/products/page/${page}/`, '0.4', 'weekly');
+  }
+
   await emit('/about/', aboutPage());
   add('/about/', '0.6');
 
@@ -240,6 +247,13 @@ async function build() {
       categoryPage({ category, products: inCategory, categories, brands }),
     );
     add(`/products/${category.slug}/`, '0.7', 'weekly');
+    for (let page = 2; page <= Math.ceil(inCategory.length / PAGE_SIZE); page++) {
+      await emit(
+        `/products/${category.slug}/page/${page}/`,
+        categoryPage({ category, products: inCategory, categories, brands, page }),
+      );
+      add(`/products/${category.slug}/page/${page}/`, '0.3', 'weekly');
+    }
     if (!inCategory.length) {
       warnings.push(`category "${category.name}" has no products — its page shows an empty state`);
     }

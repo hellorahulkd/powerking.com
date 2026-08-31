@@ -8,6 +8,7 @@
  */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
+import { gzipSync } from 'node:zlib';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,11 +57,22 @@ createServer(async (req, res) => {
   }
 
   try {
-    const body = await readFile(file);
-    res.writeHead(status, {
-      'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream',
-      'Cache-Control': 'no-cache',
-    });
+    let body = await readFile(file);
+    const type = TYPES[path.extname(file)] || 'application/octet-stream';
+    const headers = { 'Content-Type': type, 'Cache-Control': 'no-cache' };
+
+    // GitHub Pages compresses text responses. Mirroring that here keeps local
+    // performance measurements honest — without it an HTML-heavy page looks
+    // an order of magnitude more expensive than it is in production.
+    const compressible = /^(text\/|application\/(json|xml|manifest|javascript))/.test(type);
+    if (compressible && /\bgzip\b/.test(req.headers['accept-encoding'] || '')) {
+      body = gzipSync(body);
+      headers['Content-Encoding'] = 'gzip';
+      headers.Vary = 'Accept-Encoding';
+    }
+    headers['Content-Length'] = body.length;
+
+    res.writeHead(status, headers);
     res.end(body);
   } catch {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
