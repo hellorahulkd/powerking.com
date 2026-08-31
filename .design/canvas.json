@@ -1,0 +1,23 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html",           "x": 0,    "y": 0,    "w": 880,  "h": 560, "title": "01 · Recommended — ink swivel" },
+    { "file": "LockupBlue.dc.html",     "x": 960,  "y": 0,    "w": 880,  "h": 560, "title": "02 · Packaging blue" },
+    { "file": "LockupGlitched.dc.html", "x": 1920, "y": 0,    "w": 880,  "h": 560, "title": "03 · Swivel torn to match" },
+    { "file": "LockupStacked.dc.html",  "x": 2880, "y": 0,    "w": 560,  "h": 560, "title": "Stacked / square" },
+    { "file": "Usage.dc.html",          "x": 0,    "y": 700,  "w": 880,  "h": 640, "title": "Where it has to hold up" },
+    { "file": "Products.dc.html",       "x": 960,  "y": 700,  "w": 1120, "h": 780, "title": "The four products you sent" }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": 0, "y": -170, "w": 620,
+      "text": "PWRKNG × the PowerKing swivel\n\nThree ways the torn wordmark and the packaging icon lock up. 01 is the one I'd ship. The swivel is REDRAWN from your charger photos — send the original vector and every board updates from it."
+    },
+    {
+      "id": "competitor",
+      "x": 2180, "y": 700, "w": 300,
+      "text": "ultima.com.np is blocked by this environment's proxy — I could not open it, so there is no competitor read here. Paste screenshots and I'll do that pass."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}
