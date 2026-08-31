@@ -171,7 +171,8 @@ async function main() {
       document.getElementById('reset-filters').click();
       return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
     `);
-    check('clear filters restores all products', reset === 15, `got ${reset}`);
+    check('clear filters restores all products',
+      reset === products.length, `got ${reset} of ${products.length}`);
 
     const status = await page.eval(`
       const i = document.getElementById('product-search');
@@ -434,7 +435,8 @@ async function main() {
     const res = await fetch(`${BASE}/products/`);
     const body = await res.text();
     const count = (body.match(/data-product/g) || []).length;
-    check('catalogue HTML contains every product without JS', count === 15, `found ${count}`);
+    check('catalogue HTML contains every product without JS',
+      count === products.length, `found ${count} of ${products.length}`);
     check('search form falls back to a GET submit',
       /<form[^>]+action="\/products\/"[^>]+method="get"/.test(body) || /action="\/products\/"/.test(body));
     await page.close();

@@ -14,6 +14,7 @@
  * Delete this script once every product has a real photograph.
  */
 import { writeFile, mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { products } from '../src/data/products.js';
@@ -157,11 +158,16 @@ async function main() {
 
   let n = 0;
   for (const p of products) {
-    if (!p.sample) continue; // never overwrite a real product photo
     // Products point at the rasterised .png (an <img>-loaded SVG cannot pull
     // in a webfont); the .svg beside it is the source rasterize.js converts.
+    // That .svg is therefore the marker of a GENERATED tile: a real photograph
+    // is a .png with no .svg next to it, and is never overwritten. Drop a photo
+    // in and delete the .svg and this stops regenerating for that product.
     const svgPath = p.image.replace(/\.(png|jpe?g|webp)$/i, '.svg');
     if (!svgPath.endsWith('.svg')) continue;
+    if (!p.sample
+        && existsSync(path.join(ROOT, 'public', p.image))
+        && !existsSync(path.join(ROOT, 'public', svgPath))) continue;
     await writeFile(path.join(ROOT, 'public', svgPath), productTile(p), 'utf8');
     n++;
   }

@@ -100,10 +100,11 @@ async function main() {
     [path.join(ROOT, 'public/favicon.svg'), img('brands/favicon-48.png'), 48, 48],
   ];
 
-  // A PNG for each sample product tile: an <img>-loaded SVG cannot pull in a
-  // webfont, so the raster is what the site actually displays.
+  // A PNG for each generated product tile: an <img>-loaded SVG cannot pull in
+  // a webfont, so the raster is what the site actually displays. The .svg is
+  // only present for generated tiles, so a real photograph is never rasterised
+  // over — see the matching note in gen-images.js.
   for (const p of products) {
-    if (!p.sample) continue;
     const svg = path.join(ROOT, 'public', p.image.replace(/\.(png|jpe?g|webp)$/i, '.svg'));
     if (!existsSync(svg)) continue;
     jobs.push([svg, svg.replace(/\.svg$/, '.png'), 600, 600]);

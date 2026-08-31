@@ -62,7 +62,19 @@ export const categories = [
     name: 'Mobile Accessories',
     slug: 'mobile-accessories',
     description:
-      'Holders, power banks, screen protectors, cases and everyday phone add-ons.',
+      'Holders, stands, tripods, power banks, cases and everyday phone add-ons.',
+  },
+  {
+    name: 'Grooming',
+    slug: 'grooming',
+    description:
+      'Hair trimmers, clippers and grooming kits — cord and cordless, USB charged.',
+  },
+  {
+    name: 'Networking',
+    slug: 'networking',
+    description:
+      'Wi-Fi repeaters, range extenders and access points for home and shop coverage.',
   },
 ];
 

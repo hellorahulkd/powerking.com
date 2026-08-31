@@ -45,6 +45,195 @@
  */
 
 export const products = [
+  /* ==========================================================================
+   *  REAL CATALOGUE — transcribed from the product photographs supplied.
+   *
+   *  Every value below is read off the packaging. Where a box does not state
+   *  something, the field is left empty or carries a [BRACKETED] placeholder
+   *  rather than a plausible-looking guess — pack size and MOQ in particular
+   *  appear on no box and are the numbers a wholesale buyer actually asks for.
+   *
+   *  `image` points at the filename each photo should be saved as. Until the
+   *  file exists the card shows "Image coming soon" and the build warns.
+   * ======================================================================== */
+
+  /* --------------------------------------------- Chargers & Adapters -- */
+  {
+    id: 101,
+    name: 'PowerKing Turbo Power PK-60 120W Fast Charger',
+    slug: 'powerking-turbo-power-pk-60-120w',
+    brand: 'PowerKing',
+    category: 'Chargers & Adapters',
+    description:
+      'All-protocol 120W wall charger with a single USB-A port, supplied with a 100cm USB-A to Type-C cable. Input 110-220V; output 5V/3A, 9V/2.77A or 12V/2.08A. Carries overcurrent, overvoltage, short-circuit and temperature protection, and supports Turbo Charge, Super Fast, Dash, Flash Charge, Warp, SuperVOOC and Quick Charge 4.0 handsets.',
+    image: '/images/products/powerking-turbo-power-pk-60-120w.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: 'PK-60',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['fast charger', '120w', 'usb a', 'type c', 'turbo', 'quick charge', 'all protocol', '6938473487001'],
+  },
+  {
+    id: 102,
+    name: 'PowerKing 1USB Multi Protocol Fast Charger 120W',
+    slug: 'powerking-1usb-multi-protocol-fast-charger-120w',
+    brand: 'PowerKing',
+    category: 'Chargers & Adapters',
+    description:
+      'Single-port 120W multi-protocol fast charger sold as a 2-in-1 pack with a USB data cable, combining data transfer and high-speed charging. Full output table is not printed on the box face photographed.',
+    image: '/images/products/powerking-1usb-multi-protocol-fast-charger-120w.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: '',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['fast charger', '120w', 'multi protocol', '2 in 1', 'data cable'],
+  },
+
+  /* ------------------------------------------------------- Grooming -- */
+  {
+    id: 103,
+    name: 'VGR V-091 Professional Hair Trimmer',
+    slug: 'vgr-v-091-professional-hair-trimmer',
+    brand: 'VGR',
+    category: 'Grooming',
+    description:
+      'Metal-bodied professional T-blade trimmer with an LED charge display and a 600mAh battery, usable corded or cordless and charged over USB. Supplied with guide combs, a cleaning brush, blade oil, a charging cable and a manual.',
+    image: '/images/products/vgr-v-091-professional-hair-trimmer.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: 'V-091',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['hair trimmer', 'clipper', 'vgr', 'voyager', 'led display', '600mah', 'cordless', 'usb charging', 't blade'],
+  },
+  {
+    id: 104,
+    name: 'VGR V-071 Professional Hair Trimmer',
+    slug: 'vgr-v-071-professional-hair-trimmer',
+    brand: 'VGR',
+    category: 'Grooming',
+    description:
+      'Chrome-finish professional hair trimmer for corded or cordless use, charged over USB at 5V/1A. Supplied with 1mm, 2mm and 3mm guide combs, a cleaning brush, blade oil, a USB-C cable and a storage pouch.',
+    image: '/images/products/vgr-v-071-professional-hair-trimmer.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: 'V-071',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['hair trimmer', 'clipper', 'vgr', 'voyager', 'cordless', 'usb charging', '8973224080711'],
+  },
+  {
+    id: 105,
+    name: 'VGR Super Trim 14-in-1 Grooming Kit',
+    slug: 'vgr-super-trim-14-in-1-grooming-kit',
+    brand: 'VGR',
+    category: 'Grooming',
+    description:
+      'Fourteen-piece grooming set built around a rechargeable trimmer with an LED display, rated IPX6 for washing. Includes clipper, nose-trimmer and shaver heads, four guide combs, a charging dock, a USB cable and a cleaning brush. [CONFIRM MODEL NUMBER — not legible in the photograph]',
+    image: '/images/products/vgr-super-trim-14-in-1-grooming-kit.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: '',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['grooming kit', 'trimmer', 'shaver', 'nose trimmer', 'vgr', '14 in 1', 'ipx6', 'led display', 'charging dock'],
+  },
+
+  /* --------------------------------------------- Mobile Accessories -- */
+  {
+    id: 106,
+    name: 'NeePho NP-888 2-in-1 Phone Tripod',
+    slug: 'neepho-np-888-phone-tripod',
+    brand: 'NeePho',
+    category: 'Mobile Accessories',
+    description:
+      'Extendable aluminium tripod with a spring phone clamp, sold as a 2-in-1 that converts between tripod and handheld use. Folding legs with flip locks and a rotating head for portrait or landscape.',
+    image: '/images/products/neepho-np-888-phone-tripod.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: 'NP-888',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['tripod', 'phone stand', 'neepho', '2 in 1', 'aluminium', 'extendable', 'content creation'],
+  },
+  {
+    id: 107,
+    name: 'Foldable Metal Tablet Holder with 360° Base',
+    slug: 'foldable-metal-tablet-holder-360',
+    brand: '[CONFIRM BRAND]',
+    category: 'Mobile Accessories',
+    description:
+      'One-piece all-metal folding stand with a 360-degree rotating base, stated on the box to suit tablets from 4 to 16 inches. Folds flat to carry and opens without assembly.',
+    image: '/images/products/foldable-metal-tablet-holder-360.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: '',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['tablet stand', 'holder', 'foldable', 'metal', '360 rotating', 'desk stand', 'ipad'],
+  },
+  {
+    id: 108,
+    name: 'K007 Pro Vacuum Suction Magnetic Phone Mount',
+    slug: 'k007-pro-magnetic-suction-phone-mount',
+    brand: 'Kathmandu Peripherals',
+    category: 'Mobile Accessories',
+    description:
+      'Aluminium-alloy magnetic phone mount on a vacuum suction base, for one-handed docking and full multi-angle adjustment. Holds on smooth surfaces such as glass, dashboards and desks.',
+    image: '/images/products/k007-pro-magnetic-suction-phone-mount.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: 'K007',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['phone mount', 'magnetic', 'suction', 'car mount', 'desk mount', 'aluminium', 'magsafe'],
+  },
+
+  /* ----------------------------------------------------- Networking -- */
+  {
+    id: 109,
+    name: '300Mbps Wi-Fi Repeater, Access Point and Router',
+    slug: 'wifi-repeater-300mbps',
+    brand: '[CONFIRM BRAND]',
+    category: 'Networking',
+    description:
+      'Wall-plug 300Mbps wireless range extender that also runs as an access point or a router, with WPS pairing, external antennas and a status LED array. An Ethernet cable is included in the box.',
+    image: '/images/products/wifi-repeater-300mbps.png',
+    gallery: [],
+    packSize: '',
+    unit: '',
+    sku: '',
+    featured: true,
+    available: true,
+    sample: false,
+    tags: ['wifi repeater', 'range extender', 'access point', 'router', '300mbps', 'wps', 'wireless', 'networking'],
+  },
+
+  /* ==========================================================================
+   *  SAMPLE PLACEHOLDERS — delete this whole block once the real catalogue
+   *  covers enough of the range. They exist only so the site could be
+   *  reviewed before real product data arrived, and every one carries a
+   *  "Sample" badge on the card.
+   * ======================================================================== */
+
   /* ------------------------------------------------------------ Speakers -- */
   {
     id: 1,
@@ -59,7 +248,7 @@ export const products = [
     packSize: '20 pcs per carton',
     unit: 'Per carton',
     sku: 'PK-SPK-001',
-    featured: true,
+    featured: false,
     available: true,
     sample: true,
     tags: ['bluetooth', 'speaker', 'portable', 'tws', 'wireless'],
@@ -97,7 +286,7 @@ export const products = [
     packSize: '30 pcs per carton',
     unit: 'Per carton',
     sku: 'PK-HP-001',
-    featured: true,
+    featured: false,
     available: true,
     sample: true,
     tags: ['headphones', 'over ear', 'bluetooth', 'wireless', 'foldable'],
@@ -135,7 +324,7 @@ export const products = [
     packSize: '50 pcs per carton',
     unit: 'Per carton',
     sku: 'PK-EAR-001',
-    featured: true,
+    featured: false,
     available: true,
     sample: true,
     tags: ['tws', 'earbuds', 'wireless', 'bluetooth', 'charging case'],
@@ -173,7 +362,7 @@ export const products = [
     packSize: '100 pcs per carton',
     unit: 'Per carton',
     sku: 'PK-CHG-001',
-    featured: true,
+    featured: false,
     available: true,
     sample: true,
     tags: ['charger', 'usb-c', 'fast charging', 'pd', '20w', 'adapter'],
@@ -211,7 +400,7 @@ export const products = [
     packSize: '200 pcs per carton',
     unit: 'Per carton',
     sku: 'PK-CBL-001',
-    featured: true,
+    featured: false,
     available: true,
     sample: true,
     tags: ['cable', 'usb-c', 'type c', 'braided', 'fast charging', 'data'],
@@ -249,7 +438,7 @@ export const products = [
     packSize: '30 pcs per carton',
     unit: 'Per carton',
     sku: 'PK-PWR-001',
-    featured: true,
+    featured: false,
     available: true,
     sample: true,
     tags: ['multiplug', 'extension', 'socket', 'usb', 'power strip'],
@@ -287,7 +476,7 @@ export const products = [
     packSize: '40 pcs per carton',
     unit: 'Per carton',
     sku: 'PK-COOL-001',
-    featured: true,
+    featured: false,
     available: true,
     sample: true,
     tags: ['phone cooler', 'cooling fan', 'gaming', 'magnetic', 'radiator'],
@@ -307,7 +496,7 @@ export const products = [
     packSize: '40 pcs per carton',
     unit: 'Per carton',
     sku: 'PK-ACC-001',
-    featured: true,
+    featured: false,
     available: true,
     sample: true,
     tags: ['power bank', 'powerbank', '10000mah', 'portable charger', 'battery'],

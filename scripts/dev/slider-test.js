@@ -1,4 +1,5 @@
 import { launch, newPage } from './cdp.js';
+import { products } from '../../src/data/products.js';
 
 const BASE = 'http://localhost:4321';
 let pass = 0;
@@ -79,12 +80,18 @@ const { proc, port } = await launch();
   check('page still has exactly one h1 naming the business',
     a11y.h1 === 1 && /PowerKing Nepal/.test(a11y.h1Text), JSON.stringify(a11y));
 
+  // Whichever product leads the carousel, its CTA must carry that product —
+  // not a hard-coded name, which only tracked whatever the data happened to be.
+  const firstFeatured = products.filter((x) => x.featured)[0];
   const wa = await page.eval(`
     const l = document.querySelector('.slide [data-wa-location="hero_slider"]');
     return { href: l && l.getAttribute('href'), product: l && l.getAttribute('data-wa-product') };
   `);
   check('slide WhatsApp CTA is per-product',
-    /wa\.me\/9779863215831/.test(wa.href || '') && /Speaker/.test(wa.product || ''), JSON.stringify(wa));
+    /wa\.me\/9779863215831/.test(wa.href || '')
+      && wa.product === firstFeatured.name
+      && decodeURIComponent(wa.href || '').includes(firstFeatured.name),
+    JSON.stringify(wa));
 
   await page.close();
 }

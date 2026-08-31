@@ -47,6 +47,14 @@ function grille(x, y, w, h, gap = 22, dot = 4.5, fill = DARK) {
   return `<g opacity=".55">${out}</g>`;
 }
 
+/** Clipper blade teeth: a row of fine metal fingers. */
+function teeth(x, y, w, n = 11, h = 14, fill = METAL) {
+  let out = '';
+  const step = w / n;
+  for (let i = 0; i < n; i += 1) out += r(x + i * step + 1, y, Math.max(2, step - 3), h, 1, fill);
+  return out;
+}
+
 export const ART = {
   /* ------------------------------------------------------------ speakers -- */
   'portable-speaker': () => `
@@ -236,6 +244,92 @@ export const ART = {
     ${r(300, 536, 200, 30, 15, BODY)}
     ${r(250, 560, 300, 26, 13, LIGHT)}
     ${r(376, 178, 48, 14, 7, LIGHT)}`,
+
+  /* ------------------------------------------------------------ grooming -- */
+  'hair-trimmer': () => `
+    ${shadow(400, 646, 118, 15)}
+    ${teeth(354, 158, 92, 11, 20)}
+    ${r(350, 176, 100, 28, 6, METAL)}
+    ${r(358, 204, 84, 26, 8, LIGHT)}
+    ${r(342, 230, 116, 396, 26, BODY)}
+    ${r(342, 230, 116, 34, 17, LIGHT)}
+    ${r(370, 300, 60, 46, 8, DARK)}
+    ${r(380, 316, 40, 15, 3, ACCENT)}
+    ${c(400, 404, 23, LIGHT)}
+    ${c(400, 404, 13, DARK)}
+    ${r(342, 474, 116, 9, 4, LIGHT)}
+    ${r(342, 498, 116, 9, 4, LIGHT)}
+    ${r(342, 522, 116, 9, 4, LIGHT)}
+    ${r(352, 598, 96, 28, 10, DARK)}`,
+
+  'grooming-kit': () => `
+    ${shadow(400, 644, 205, 17)}
+    ${path('M262 628 L292 546 H508 L538 628 Z', DARK)}
+    ${r(256, 612, 288, 22, 10, LIGHT)}
+    ${r(368, 258, 66, 300, 20, BODY)}
+    ${r(368, 258, 66, 24, 12, LIGHT)}
+    ${teeth(374, 236, 54, 8, 22)}
+    ${r(384, 306, 34, 32, 6, DARK)}
+    ${r(391, 318, 20, 11, 3, ACCENT)}
+    ${c(401, 390, 16, LIGHT)}
+    ${r(190, 486, 76, 62, 10, DARK)}
+    ${teeth(196, 466, 64, 7, 20)}
+    ${r(536, 486, 76, 62, 10, DARK)}
+    ${teeth(542, 466, 64, 7, 20)}`,
+
+  /* -------------------------------------------------- mobile accessories -- */
+  'phone-tripod': () => `
+    ${shadow(400, 654, 205, 16)}
+    ${stroke('M400 474 L254 640', BODY, 19)}
+    ${stroke('M400 474 L546 640', BODY, 19)}
+    ${stroke('M400 474 L400 634', LIGHT, 16)}
+    ${c(254, 644, 15, DARK)}${c(546, 644, 15, DARK)}${c(400, 638, 15, DARK)}
+    ${r(376, 452, 48, 36, 12, DARK)}
+    ${r(386, 300, 28, 168, 10, LIGHT)}
+    ${r(392, 262, 16, 46, 6, DARK)}
+    ${r(328, 146, 144, 122, 12, DARK)}
+    ${r(340, 158, 120, 98, 8, GLASS)}
+    ${r(328, 132, 144, 16, 6, LIGHT)}`,
+
+  'tablet-stand': () => `
+    ${shadow(400, 644, 176, 16)}
+    ${e(400, 616, 152, 34, DARK)}
+    ${e(400, 602, 152, 34, LIGHT)}
+    ${e(400, 600, 56, 13, DARK)}
+    ${r(378, 466, 44, 142, 10, METAL)}
+    ${c(400, 466, 17, LIGHT)}
+    ${r(384, 372, 32, 102, 8, METAL)}
+    ${c(400, 372, 15, LIGHT)}
+    ${r(244, 168, 312, 216, 14, DARK)}
+    ${r(260, 184, 280, 184, 8, GLASS)}`,
+
+  'magnetic-mount': () => `
+    ${shadow(400, 642, 126, 15)}
+    ${e(400, 612, 114, 30, DARK)}
+    ${r(286, 574, 228, 38, 0, LIGHT)}
+    ${e(400, 574, 114, 30, BODY)}
+    ${r(384, 442, 32, 136, 12, METAL)}
+    ${c(400, 442, 21, LIGHT)}
+    ${c(400, 330, 118, LIGHT)}
+    ${c(400, 330, 100, BODY)}
+    ${c(400, 330, 58, GLASS)}
+    ${c(400, 330, 46, '#FFFFFF')}`,
+
+  /* ---------------------------------------------------------- networking -- */
+  'wifi-repeater': () => `
+    ${shadow(400, 624, 138, 17)}
+    ${stroke('M320 322 L266 172', METAL, 18)}
+    ${stroke('M366 308 L346 154', METAL, 18)}
+    ${stroke('M434 308 L454 154', METAL, 18)}
+    ${stroke('M480 322 L534 172', METAL, 18)}
+    ${r(284, 300, 232, 306, 28, METAL)}
+    ${r(292, 308, 216, 290, 22, PALE)}
+    ${stroke('M352 402 a68 68 0 0 1 96 0', LIGHT, 16)}
+    ${stroke('M376 430 a34 34 0 0 1 48 0', LIGHT, 16)}
+    ${c(400, 464, 11, LIGHT)}
+    ${r(338, 512, 124, 36, 18, '#FFFFFF')}
+    ${c(360, 530, 7, ACCENT)}${c(384, 530, 7, LIGHT)}
+    ${c(416, 530, 7, LIGHT)}${c(440, 530, 7, LIGHT)}`,
 };
 
 /** Which drawing each sample product uses. */
@@ -255,6 +349,15 @@ export const ART_BY_SLUG = {
   'sample-magnetic-phone-cooling-fan': 'phone-cooler',
   'sample-10000mah-power-bank': 'power-bank',
   'sample-adjustable-phone-holder': 'phone-holder',
+
+  /* Real catalogue — stand-in drawings until the photographs are supplied. */
+  'vgr-v-091-professional-hair-trimmer': 'hair-trimmer',
+  'vgr-v-071-professional-hair-trimmer': 'hair-trimmer',
+  'vgr-super-trim-14-in-1-grooming-kit': 'grooming-kit',
+  'neepho-np-888-phone-tripod': 'phone-tripod',
+  'foldable-metal-tablet-holder-360': 'tablet-stand',
+  'k007-pro-magnetic-suction-phone-mount': 'magnetic-mount',
+  'wifi-repeater-300mbps': 'wifi-repeater',
 };
 
 /** Fallback by category, so a new sample product still gets a drawing. */
@@ -267,6 +370,8 @@ export const ART_BY_CATEGORY = {
   'Power & Multiplugs': 'multiplug',
   'Phone Coolers': 'phone-cooler',
   'Mobile Accessories': 'power-bank',
+  Grooming: 'hair-trimmer',
+  Networking: 'wifi-repeater',
 };
 
 export function artFor(product) {

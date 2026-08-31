@@ -171,10 +171,14 @@ export function pageHead({ eyebrow = '', title, lead = '', crumbs = [] } = {}) {
 /** Notice shown while the catalogue still contains sample products. */
 export function sampleNotice() {
   if (!siteConfig.features.showSampleDataNotice) return '';
+  // The catalogue is now part real, part placeholder, so the banner must not
+  // claim everything is a demo — that would make a buyer distrust the real
+  // products too. Placeholders carry a "Sample" badge on their own card.
   return `<div class="notice" role="note">
   <div class="container">
-    <strong>Sample catalogue.</strong> The products shown are placeholders used
-    to demonstrate the website. Real PowerKing Nepal products will replace them.
+    <strong>We are still adding products.</strong> Items marked
+    <em>Sample</em> are placeholders used to build the site — everything else
+    is a line we supply. Message us on WhatsApp for anything you cannot find.
   </div>
 </div>`;
 }

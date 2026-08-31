@@ -6,6 +6,7 @@
  *   node scripts/dev/compare-test.js
  */
 import { launch, newPage } from './cdp.js';
+import { products } from '../../src/data/products.js';
 
 const BASE = process.env.BASE || 'http://localhost:4321';
 let pass = 0;
@@ -98,20 +99,26 @@ check('a product with no siblings shows no comparison table', lone === false);
 
 // Cards should now be lean.
 await page.goto(`${BASE}/products/`);
+// Pack size is optional — several real products ship on boxes that do not
+// state one — so check the card of a product that actually has one.
+const packed = products.find((p) => p.packSize);
 const card = await page.eval(`
   const c = document.querySelector('[data-product]');
+  const withPack = document.querySelector('a[href="/products/${packed.slug}/"]').closest('[data-product]');
   return {
     desc: !!c.querySelector('.card__desc'),
     price: !!c.querySelector('.card__price'),
     sku: /SKU/.test(c.textContent),
     title: !!c.querySelector('.card__title'),
-    meta: (c.querySelector('.card__meta') || {}).textContent || '',
+    meta: (withPack.querySelector('.card__meta') || {}).textContent.trim(),
   };
 `);
 check('card no longer repeats the description', card.desc === false);
 check('card no longer repeats the pricing line', card.price === false);
 check('card no longer shows the SKU', card.sku === false);
-check('card keeps name and pack size', card.title === true && /carton|x /.test(card.meta), JSON.stringify(card));
+check('card keeps the name, and the pack size when there is one',
+  card.title === true && card.meta === packed.packSize,
+  JSON.stringify({ ...card, expected: packed.packSize }));
 
 console.log('\n' + '-'.repeat(56));
 console.log(fails.length ? `  ${pass} passed, ${fails.length} FAILED` : `  All ${pass} compare checks passed`);

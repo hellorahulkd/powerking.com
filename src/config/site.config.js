@@ -78,8 +78,8 @@ export const siteConfig = {
   features: {
     showBrandsPage: true,
     showFloatingWhatsApp: true,
-    // Show the "sample data" notice banner. Set to false once you have
-    // replaced the sample products with your real catalogue.
+    // Show the "still adding products" notice banner. Set to false once the
+    // sample placeholders are deleted and the catalogue is entirely real.
     showSampleDataNotice: true,
   },
 };
