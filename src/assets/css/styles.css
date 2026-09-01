@@ -11,15 +11,15 @@
      the primary buttons, so it still means something when it does.
      There is no per-category colour: category is communicated by the word.
      --------------------------------------------------------------------- */
-  --volt:           #F3D74B;   /* the brand yellow — primary buttons only    */
-  --volt-600:       #E4C633;
-  --volt-100:       #FDF7DF;
-  --volt-ink:       #1A1A1C;   /* type on the yellow                         */
+  --volt:           #F4C400;   /* Safety Yellow — the brand system's one hue */
+  --volt-600:       #DDB200;
+  --volt-100:       #FDF4D2;
+  --volt-ink:       #101010;   /* type on the yellow                         */
 
-  --ink:            #1A1A1C;   /* near-black. Type and the wordmark.         */
-  --ink-800:        #2B2B2F;
-  --ink-600:        #4A4A50;
-  --ink-300:        #86868B;
+  --ink:            #101010;   /* Ink. Type, plates and the wordmark.        */
+  --ink-800:        #232326;
+  --ink-600:        #45454B;
+  --ink-300:        #83838A;
 
   --whatsapp:       #25D366;   /* WhatsApp brand green, with ink labels: the
                                   green cannot carry white type at 4.5:1     */
@@ -30,7 +30,7 @@
   --bg-alt:         #F5F5F7;
   --bg-sunken:      #EDEDF0;
   --surface:        #FFFFFF;
-  --text:           #1A1A1C;
+  --text:           #101010;
   --text-muted:     #565660;
   --text-faint:     #86868B;
   --border:         #E3E3E7;
@@ -73,15 +73,22 @@
 
   /* Space & shape — softer corners, lighter rules. */
   --gap: 1.25rem;
-  --radius-sm: 8px;
-  --radius: 14px;
-  --radius-lg: 20px;
+  /* The system is a cut-corner plate, not a rounded box: two opposite
+     corners are chamfered and every other corner stays square. --cut-* are
+     the chamfer depths; the --radius-* names are kept at 0 so any rule still
+     asking for a radius gets the system's answer instead of a stale pill. */
+  --radius-sm: 0px;
+  --radius: 0px;
+  --radius-lg: 0px;
+  --cut-sm: 8px;
+  --cut: 12px;
+  --cut-lg: 18px;
   --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
   --shadow-md: 0 2px 8px rgba(0,0,0,.05), 0 12px 28px rgba(0,0,0,.06);
   --shadow-lg: 0 18px 45px rgba(0,0,0,.10);
   --container: 1180px;
   --header-h: 66px;
-  --ring: 0 0 0 3px rgba(243, 215, 75, .55);
+  --ring: 0 0 0 3px rgba(244, 196, 0, .55);
 }
 
 /* --------------------------------------------------------------- reset -- */
@@ -130,7 +137,18 @@ code {
   font-size: .88em; background: var(--bg-sunken);
   padding: .12em .38em; border-radius: 4px;
 }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* A clip-path cuts the chamfer — and takes any outline with it. Anything
+   wearing the plate shape therefore draws its focus ring INSIDE, where the
+   clip cannot reach, so keyboard focus stays visible on every button. */
+.btn:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 6px var(--accent);
+}
+.btn--primary:focus-visible, .btn--whatsapp:focus-visible {
+  box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 6px #fff;
+}
 
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -151,7 +169,10 @@ code {
   --btn-bg: var(--primary); --btn-fg: #fff; --btn-bd: var(--primary);
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
   background: var(--btn-bg); color: var(--btn-fg);
-  border: 1.5px solid var(--btn-bd); border-radius: 100px;
+  border: 1.5px solid var(--btn-bd);
+  /* The plate's chamfer, at the button scale the brand canvas specifies. */
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut),
+                     100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
   padding: .8rem 1.4rem; font-size: var(--step-0); font-weight: 800;
   letter-spacing: -.005em;
   line-height: 1.2; text-decoration: none; cursor: pointer;
@@ -212,19 +233,23 @@ code {
 .site-header.is-scrolled { border-bottom-color: var(--border-strong); }
 .site-header__inner { display: flex; align-items: center; gap: 1rem; min-height: var(--header-h); }
 
-.logo { display: grid; gap: 2px; text-decoration: none; margin-right: auto; justify-items: start; }
-.logo__word { display: block; color: var(--ink); }
-.logo__word svg { display: block; }
-/* Same face as the wordmark, justified to its exact width so both lines end
-   flush. text-align-last does the spreading on a single line. */
-.logo__tag {
-  display: block;
+.logo { display: inline-flex; text-decoration: none; margin-right: auto; }
+
+/* The mark: a cut-corner plate holding the grille and the wordmark. The plate
+   is clipped rather than drawn, so it sizes itself to whatever the word is. */
+.mark { display: inline-flex; align-items: center; }
+.mark__grille { display: block; flex: none; }
+.mark__word {
   font-family: var(--font-display);
-  font-size: .5rem; font-weight: 700; line-height: 1;
-  text-transform: uppercase; color: var(--text-faint);
-  text-align: justify; text-align-last: justify;
-  -moz-text-align-last: justify;
-  white-space: nowrap; overflow: hidden;
+  font-weight: 800; letter-spacing: -.02em; line-height: .8;
+}
+
+/* The caution stripe is the site's only decoration: one band under the header
+   and one above the footer. Nowhere else. */
+.stripe {
+  height: 6px;
+  background: repeating-linear-gradient(45deg,
+    var(--volt) 0 16px, var(--ink) 16px 32px);
 }
 
 .nav-desktop { display: none; }

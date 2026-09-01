@@ -1,5 +1,9 @@
 # Design canvas — PWRKNG × the PowerKing swivel
 
+> **Superseded.** The brand that ships is the cut-corner plate system supplied
+> later as a Claude Design export — see `src/templates/brand.js`. Neither the
+> swivel nor the glitch wordmark explored here is in use. Kept for the record.
+
 Working sources for the published canvas:
 <https://claude.ai/code/artifact/d5d431ac-5880-45ff-bc50-9c1b90aebd52>
 

@@ -19,7 +19,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { products } from '../src/data/products.js';
 import { categories } from '../src/data/categories.js';
-import { wordmarkGeometry, glitchGeometry } from '../src/templates/brand.js';
+import { BRAND, icon as brandIcon, grille, platePath } from '../src/templates/brand.js';
 import { artFor } from './product-art.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -94,59 +94,60 @@ function productTile(product) {
 }
 
 /* -------------------------------------------------------------- brand ----- */
-const WORD = wordmarkGeometry();
-const GLITCH = glitchGeometry({ amount: 1, id: 'lg' });
-const GLITCH_OG = glitchGeometry({ amount: 1, id: 'og' });
+
 /**
- * Favicon and app icon: the "p" cut from the wordmark itself. A full
- * "pwrkng" is illegible at 32px, so the logotype's initial stands in — the
- * standard way a wordmark-only brand gets a square mark. No symbol invented.
+ * The brand system's icon is the plate and the grille — no letters at all —
+ * so the favicon no longer has to fall back to a cut-down initial. At 32px
+ * and under the fine 3x3 grid silts up into a grey square, which is exactly
+ * what the "Coarse" state in the brand canvas exists for.
  */
-const P = wordmarkGeometry('p');
-const faviconSvg = (() => {
-  const box = 140;
-  const scale = 116 / 128;
-  const gx = (box - P.width * scale) / 2;
-  const gy = (box - 128 * scale) / 2 - 6;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${box} ${box}" width="${box}" height="${box}">
-  <rect width="${box}" height="${box}" fill="${VOLT}"/>
-  <g transform="translate(${gx} ${gy}) scale(${scale})" fill="${INK}" color="${INK}">${P.svg}</g>
-</svg>
-`;
-})();
+const faviconSvg = brandIcon({ size: 140, variant: 'coarse' }) + '\n';
+const appIconSvg = brandIcon({ size: 512, variant: 'primary' }) + '\n';
 
 /** Horizontal lockup for letterheads, invoices and packaging. */
 const logoSvg = (() => {
-  const scale = 62 / GLITCH.height;
-  const width = Math.round(GLITCH.width * scale + 150);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} 150" width="${width}" height="150" role="img" aria-label="PowerKing Nepal logo">
-  <rect width="${width}" height="150" fill="${INK}"/>
-  <g transform="translate(75 34) scale(${scale})" fill="${INK}" color="${INK}">${GLITCH.svg}</g>
-  <text x="76" y="126" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="11" letter-spacing="3.6" fill="${MUTED}">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+  const H = 150, plateH = 104, cut = Math.round(plateH * (22 / 130));
+  const g = 44, padX = 34, gap = 22;
+  const wordW = 250;                       // Archivo 800 "pwrkng" at 46px
+  const plateW = padX * 2 + g + gap + wordW;
+  const width = plateW + 76;
+  const y = (H - plateH) / 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${H}" width="${width}" height="${H}" role="img" aria-label="PowerKing Nepal logo">
+  <rect width="${width}" height="${H}" fill="${BRAND.paper}"/>
+  <g transform="translate(38 ${y})">
+    <path d="${platePath(plateW, plateH, cut)}" fill="${BRAND.ink}"/>
+    ${grille({ size: g, cell: BRAND.paper, live: BRAND.yellow, x: padX, y: (plateH - g) / 2 })}
+    <text x="${padX + g + gap}" y="${plateH / 2 + 16}" font-family="Archivo, Inter, Arial, sans-serif"
+          font-size="46" font-weight="800" letter-spacing="-0.92" fill="${BRAND.paper}">pwrkng</text>
+  </g>
 </svg>
 `;
 })();
 
 /** Open Graph card — what a shared link looks like on WhatsApp and Facebook. */
 const ogSvg = (() => {
-  const scale = 168 / GLITCH_OG.height;
+  const plateW = 620, plateH = 150, cut = Math.round(plateH * (22 / 130));
+  const g = 64, padX = 48, gap = 30;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="${BRAND.paper}"/>
+  <g transform="translate(98 150)">
+    <path d="${platePath(plateW, plateH, cut)}" fill="${BRAND.ink}"/>
+    ${grille({ size: g, cell: BRAND.paper, live: BRAND.yellow, x: padX, y: (plateH - g) / 2 })}
+    <text x="${padX + g + gap}" y="${plateH / 2 + 24}" font-family="Archivo, Inter, Arial, sans-serif"
+          font-size="68" font-weight="800" letter-spacing="-1.36" fill="${BRAND.paper}">pwrkng</text>
+  </g>
+  <text x="98" y="392" font-family="Archivo, Inter, Arial, sans-serif"
+        font-size="23" font-weight="800" letter-spacing="4" fill="${BRAND.ink}">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+  <text x="98" y="452" font-family="Archivo, Inter, Arial, sans-serif"
+        font-size="29" fill="#45454B">Speakers · Earbuds · Chargers · Cables · Multiplugs · Grooming</text>
+  <rect y="0" width="1200" height="12"
+        fill="url(#haz)"/>
   <defs>
-    <radialGradient id="glow" cx=".84" cy="-.05" r=".7">
-      <stop offset="0" stop-color="${VOLT}" stop-opacity=".38"/>
-      <stop offset="1" stop-color="${VOLT}" stop-opacity="0"/>
-    </radialGradient>
+    <pattern id="haz" width="45.25" height="45.25" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="22.6" height="45.25" fill="${BRAND.yellow}"/>
+      <rect x="22.6" width="22.6" height="45.25" fill="${BRAND.ink}"/>
+    </pattern>
   </defs>
-  <rect width="1200" height="630" fill="#FFFFFF"/>
-  <rect x="0" y="0" width="1200" height="630" fill="url(#glow)"/>
-  <g transform="translate(132 176) scale(${scale})" fill="${INK}" color="${INK}">${GLITCH_OG.svg}</g>
-  <text x="98" y="446" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="7" fill="${MUTED}">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
-  <text x="98" y="508" font-family="Archivo, Inter, Arial, sans-serif"
-        font-size="29" fill="#565660">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
-  <rect x="98" y="546" width="230" height="8" fill="${VOLT}"/>
-  <rect y="0" width="1200" height="6" fill="${VOLT}"/>
 </svg>
 `;
 })();
@@ -175,6 +176,7 @@ async function main() {
   await writeFile(path.join(OUT, 'hero/og-default.svg'), ogSvg, 'utf8');
   await writeFile(path.join(OUT, 'brands/powerking-nepal-logo.svg'), logoSvg, 'utf8');
   await writeFile(path.join(ROOT, 'public/favicon.svg'), faviconSvg, 'utf8');
+  await writeFile(path.join(ROOT, 'public/app-icon.svg'), appIconSvg, 'utf8');
 
   process.stdout.write(`  ✓ ${n} product tiles + hero, logo, OG card, favicon\n`);
 }

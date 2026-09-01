@@ -2,141 +2,152 @@
  * ============================================================================
  *  POWERKING NEPAL — BRAND MARK
  * ============================================================================
+ *  Implements the brand system supplied as a Claude Design canvas
+ *  ("Powerking Nepal — Brand system: One plate, one mark"):
  *
- *  The mark is the lowercase wordmark "pwrkng", set solid and heavy, with a
- *  horizontal static tear across it.
+ *    The whole identity is a six-sided cut-corner plate holding a perforated
+ *    faceplate grille and the wordmark. Nothing else — no tagline, no rule,
+ *    no seal.
  *
- *  It is SET IN TYPE, not drawn as polygons. An earlier pass constructed the
- *  letters from rectangles, which produced squared, modular forms — a
- *  different typeface to the reference, which has round bowls on the p and g
- *  and an arched shoulder on the n. Setting it in a heavy geometric grotesque
- *  matches the reference far more closely.
+ *  Every figure below is taken from that canvas rather than re-invented.
  *
- *  Face: Archivo 900, self-hosted (see scripts/fetch-fonts.js), SIL Open Font
- *  Licence, so commercial use and embedding are covered.
+ *  ── THE PLATE ─────────────────────────────────────────────────────────────
+ *  A rectangle with two opposite corners chamfered — top-right and
+ *  bottom-left. The canvas expresses it as a clip-path; the same six points
+ *  drive the SVG version here, so the CSS lockup and the rasterised icons cut
+ *  identically.
  *
- *  ── THE STATIC ────────────────────────────────────────────────────────────
- *  The word is sliced into horizontal bands which are displaced sideways, with
- *  torn streaks thrown clear of the letters.
+ *  ── THE GRILLE ────────────────────────────────────────────────────────────
+ *  A 3x3 grid of square cells. The canvas gives three sizes — cell/gap of
+ *  11/5, 16/7 and 26/12 — and in all three the lit cell sits in row 2,
+ *  column 3. That is the whole rule: the grille is not decorative noise, it
+ *  is a faceplate with one indicator live.
  *
- *  The displacement table is HARD-CODED, never random. A logo that reshuffles
- *  itself on every build is not a logo — this way the mark is byte-identical
- *  in every render, print file and cached asset.
- *
- *  `amount` scales it from 0 (clean) to 1 (full). Below roughly 20px tall the
- *  slices read as blur rather than as an effect, so small sizes run reduced.
- * ============================================================================
- */
+ *  ── COLOUR ────────────────────────────────────────────────────────────────
+ *  Safety Yellow #F4C400, Ink #101010, White #FFFFFF. Three, no more.
+ * ==========================================================================*/
 
-/** The em box the mark is composed in. */
-const BOX_H = 128;
-const FONT_SIZE = 116;      // cap-to-descender fills the box
-const BASELINE = 102;      // measured: puts the ascender top at y=0
-const TRACKING = -7;        // tight, so the word reads as one solid block
-const FACE = "'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif";
+export const BRAND = {
+  yellow: '#F4C400',
+  ink: '#101010',
+  paper: '#FFFFFF',
+};
+
+/** The plate's chamfer as a fraction of its shorter side. */
+const CUT_RATIO = 22 / 130;   // measured from the canvas icon plate
+
+/** Cell-to-gap ratio of the grille, from the canvas (11/5, 16/7, 26/12). */
+const GAP_RATIO = 7 / 16;
 
 /**
- * Advance widths measured in the browser at FONT_SIZE with TRACKING applied
- * (scripts/dev/ measurement, Archivo 900). Re-measure if the face changes.
+ * The six points of the cut-corner plate, as an SVG path.
+ * Cuts the top-right and bottom-left corners, matching the canvas clip-path.
  */
-const WIDTHS = { pwrkng: 448, p: 76 };  // measured in-browser, Archivo 900
+export function platePath(w, h, cut) {
+  return `M0 0 H${w - cut} L${w} ${cut} V${h} H${cut} L0 ${h - cut} Z`;
+}
 
-/** The word as a single <text> run. */
-function textRun(letters, { x = 0 } = {}) {
-  // Archivo 900 is the heaviest weight available; the stroke fattens it a
-  // further ~3 units per side and tightens the counters, which is what makes
-  // it read as solid at display size. paint-order keeps the fill crisp.
-  return `<text x="${x}" y="${BASELINE}" font-family="${FACE}" font-size="${FONT_SIZE}"
-     font-weight="900" letter-spacing="${TRACKING}"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">${letters}</text>`;
+/** CSS clip-path for the same shape, for elements that must size to content. */
+export function plateClip(cut) {
+  return `polygon(0 0, calc(100% - ${cut}px) 0, 100% ${cut}px, `
+       + `100% 100%, ${cut}px 100%, 0 calc(100% - ${cut}px))`;
 }
 
 /**
- * Undistorted wordmark.
- * @returns {{ width, height, svg }} filled with `currentColor`.
- */
-export function wordmarkGeometry(letters = 'pwrkng') {
-  return {
-    width: WIDTHS[letters] ?? WIDTHS.pwrkng,
-    height: BOX_H,
-    svg: textRun(letters),
-  };
-}
-
-/* --------------------------------------------------------------- static -- */
-
-/** Fixed slice table: [yTop, height, dx] against the 128-unit box. */
-const SLICES = [
-  [0, 22, 0], [22, 6, 6], [28, 18, -2], [46, 5, 7], [51, 22, 0],
-  [73, 5, -5], [78, 16, 3], [94, 5, 6], [99, 18, -1], [117, 6, -6],
-  [123, 5, 4],
-];
-
-/** Torn streaks thrown clear of the letters: [x, y, w, h, opacity]. */
-const STREAKS = [
-  [-24, 24, 28, 5, 0.85], [430, 50, 34, 5, 0.7], [-14, 76, 17, 4, 0.55],
-  [438, 96, 24, 5, 0.8], [404, 17, 20, 4, 0.45], [-19, 116, 21, 4, 0.5],
-];
-
-/**
- * The wordmark with the static applied.
+ * The perforated faceplate grille: 3x3 cells, the middle-right one live.
+ *
  * @param {object} o
- * @param {number} o.amount  0 = clean, 1 = full.
- * @param {string} o.id      unique — two marks on a page must not share clip ids.
+ *   size  overall square size in user units
+ *   cell  colour of the nine cells (the holes)
+ *   live  colour of the single lit cell
+ *   x, y  top-left placement
  */
-export function glitchGeometry({ amount = 1, id = 'g', letters = 'pwrkng' } = {}) {
-  const base = wordmarkGeometry(letters);
-  if (amount <= 0) return base;
+export function grille({ size, cell, live, x = 0, y = 0 }) {
+  // size = 3*sq + 2*gap, with gap = GAP_RATIO * sq
+  const sq = size / (3 + 2 * GAP_RATIO);
+  const gap = sq * GAP_RATIO;
+  const step = sq + gap;
 
-  const clips = SLICES.map(
-    ([y, h], i) =>
-      `<clipPath id="${id}s${i}"><rect x="-90" y="${y}" width="${
-        base.width + 180
-      }" height="${h}"/></clipPath>`,
-  ).join('');
-
-  const bands = SLICES.map(
-    ([, , dx], i) =>
-      `<g clip-path="url(#${id}s${i})" transform="translate(${(dx * amount).toFixed(
-        2,
-      )} 0)">${base.svg}</g>`,
-  ).join('');
-
-  const streaks = STREAKS.map(
-    ([x, y, w, h, o]) =>
-      `<rect x="${x}" y="${y}" width="${(w * amount).toFixed(1)}" height="${h}"
-       opacity="${(o * amount).toFixed(2)}"/>`,
-  ).join('');
-
-  return {
-    width: base.width,
-    height: base.height,
-    svg: `<defs>${clips}</defs>${bands}${streaks}`,
-  };
+  let out = '';
+  for (let row = 0; row < 3; row += 1) {
+    for (let col = 0; col < 3; col += 1) {
+      // Row 2, column 3 is the live indicator — the one constant across
+      // every size in the brand canvas.
+      const isLive = row === 1 && col === 2;
+      out += `<rect x="${(x + col * step).toFixed(2)}" y="${(y + row * step).toFixed(2)}" `
+           + `width="${sq.toFixed(2)}" height="${sq.toFixed(2)}" `
+           + `fill="${isLive ? live : cell}"/>`;
+    }
+  }
+  return out;
 }
 
-/* ------------------------------------------------------------ renderers -- */
+/**
+ * The square icon: plate + grille, nothing else. This is what becomes the
+ * favicon, the app icons and any square format.
+ *
+ * @param {object} o
+ *   size     rendered px
+ *   variant  'primary'  ink plate, white cells, yellow live cell
+ *            'reversed' yellow plate, ink cells, white live cell
+ *            'coarse'   as primary but a larger grille — for 32px and under,
+ *                       where the fine grid silts up into a grey square
+ */
+export function icon({ size = 130, variant = 'primary' } = {}) {
+  const box = 130;                      // the canvas draws the icon at 130
+  const cut = box * CUT_RATIO;
+  const coarse = variant === 'coarse';
+  const g = coarse ? 102 : 62;          // grille size, from the canvas
+  const inset = (box - g) / 2;
 
-/** Clean wordmark as a complete <svg>. */
-export function wordmark({ height = 28, color = 'currentColor', letters = 'pwrkng' } = {}) {
-  const g = wordmarkGeometry(letters);
-  return `<svg viewBox="0 0 ${g.width} ${g.height}"
-   width="${Math.round((height * g.width) / g.height)}" height="${height}"
-   fill="${color}" color="${color}" aria-hidden="true">${g.svg}</svg>`;
+  const reversed = variant === 'reversed';
+  const plate = reversed ? BRAND.yellow : BRAND.ink;
+  const cell = reversed ? BRAND.ink : BRAND.paper;
+  const live = reversed ? BRAND.paper : BRAND.yellow;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"
+     viewBox="0 0 ${box} ${box}" role="img" aria-label="PowerKing Nepal">
+  <path d="${platePath(box, box, cut)}" fill="${plate}"/>
+  ${grille({ size: g, cell, live, x: inset, y: inset })}
+</svg>`;
 }
 
-/** Wordmark with the static, as a complete <svg>. Padded so nothing clips. */
-export function glitchWordmark({
-  height = 40, color = 'currentColor', amount = 1, id = 'gw', letters = 'pwrkng',
-} = {}) {
-  const g = glitchGeometry({ amount, id, letters });
-  const padX = 30;
-  const vbW = g.width + padX * 2;
-  return `<svg viewBox="${-padX} 0 ${vbW} ${g.height}"
-   width="${Math.round((height * vbW) / g.height)}" height="${height}"
-   fill="${color}" color="${color}" aria-hidden="true">${g.svg}</svg>`;
+/**
+ * The horizontal lockup as HTML — plate, grille, wordmark.
+ *
+ * HTML rather than SVG because the plate has to size itself to the width of
+ * the word, and the word is live text in the site's own Archivo. An SVG would
+ * need the advance widths measured and hard-coded, which is what the previous
+ * mark did and what broke whenever the face changed.
+ *
+ * @param {object} o
+ *   height   wordmark cap height in px; everything else scales from it
+ *   variant  'primary' | 'reversed'
+ *   word     'pwrkng' (default) or 'powerking' — the canvas's signage alternate
+ */
+export function lockup({ height = 26, variant = 'primary', word = 'pwrkng' } = {}) {
+  // Proportions from the canvas: a 40px wordmark sits on a plate padded
+  // 26/34 with a 43px grille and a 22px gap.
+  const s = height / 40;
+  const padY = Math.round(26 * s);
+  const padX = Math.round(34 * s);
+  const gap = Math.round(22 * s);
+  const g = Math.round(43 * s);
+  const cut = Math.round(18 * s);
+
+  const reversed = variant === 'reversed';
+  const plate = reversed ? BRAND.yellow : BRAND.ink;
+  const cell = reversed ? BRAND.ink : BRAND.paper;
+  const live = reversed ? BRAND.paper : BRAND.yellow;
+  const type = reversed ? BRAND.ink : BRAND.paper;
+
+  return `<span class="mark" style="background:${plate};padding:${padY}px ${padX}px;gap:${gap}px;`
+    + `clip-path:${plateClip(cut)}">`
+    + `<svg class="mark__grille" width="${g}" height="${g}" viewBox="0 0 ${g} ${g}"`
+    + ` aria-hidden="true" focusable="false">`
+    + `${grille({ size: g, cell, live })}</svg>`
+    + `<span class="mark__word" style="color:${type};font-size:${height}px">${word}</span>`
+    + `</span>`;
 }
 
-export const BRAND = { BOX_H, FONT_SIZE, BASELINE, TRACKING, FACE };
+export default { BRAND, icon, lockup, grille, platePath, plateClip };

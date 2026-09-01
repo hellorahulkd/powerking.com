@@ -47,6 +47,7 @@ export function footer() {
     .join('');
 
   return `<footer class="site-footer">
+  <div class="stripe" aria-hidden="true"></div>
   <div class="container footer__grid">
 
     <div class="footer__brand">

@@ -94,9 +94,12 @@ async function main() {
     // Brand lockup for letterheads, invoices and packaging.
     [img('brands/powerking-nepal-logo.svg'), img('brands/powerking-nepal-logo.png'), 900, 300],
     // PWA + Apple touch icons + favicon.
-    [path.join(ROOT, 'public/favicon.svg'), img('brands/icon-192.png'), 192, 192],
-    [path.join(ROOT, 'public/favicon.svg'), img('brands/icon-512.png'), 512, 512],
-    [path.join(ROOT, 'public/favicon.svg'), img('brands/apple-touch-icon.png'), 180, 180],
+    // The brand system reserves the coarse grille for 32px and under, where
+    // the fine 3x3 grid silts up into a grey square. Anything larger takes
+    // the primary icon.
+    [path.join(ROOT, 'public/app-icon.svg'), img('brands/icon-192.png'), 192, 192],
+    [path.join(ROOT, 'public/app-icon.svg'), img('brands/icon-512.png'), 512, 512],
+    [path.join(ROOT, 'public/app-icon.svg'), img('brands/apple-touch-icon.png'), 180, 180],
     [path.join(ROOT, 'public/favicon.svg'), img('brands/favicon-48.png'), 48, 48],
   ];
 

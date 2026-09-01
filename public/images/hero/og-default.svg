@@ -1,67 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <defs>
-    <radialGradient id="glow" cx=".84" cy="-.05" r=".7">
-      <stop offset="0" stop-color="#F3D74B" stop-opacity=".38"/>
-      <stop offset="1" stop-color="#F3D74B" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
   <rect width="1200" height="630" fill="#FFFFFF"/>
-  <rect x="0" y="0" width="1200" height="630" fill="url(#glow)"/>
-  <g transform="translate(132 176) scale(1.3125)" fill="#1A1A1C" color="#1A1A1C"><defs><clipPath id="ogs0"><rect x="-90" y="0" width="628" height="22"/></clipPath><clipPath id="ogs1"><rect x="-90" y="22" width="628" height="6"/></clipPath><clipPath id="ogs2"><rect x="-90" y="28" width="628" height="18"/></clipPath><clipPath id="ogs3"><rect x="-90" y="46" width="628" height="5"/></clipPath><clipPath id="ogs4"><rect x="-90" y="51" width="628" height="22"/></clipPath><clipPath id="ogs5"><rect x="-90" y="73" width="628" height="5"/></clipPath><clipPath id="ogs6"><rect x="-90" y="78" width="628" height="16"/></clipPath><clipPath id="ogs7"><rect x="-90" y="94" width="628" height="5"/></clipPath><clipPath id="ogs8"><rect x="-90" y="99" width="628" height="18"/></clipPath><clipPath id="ogs9"><rect x="-90" y="117" width="628" height="6"/></clipPath><clipPath id="ogs10"><rect x="-90" y="123" width="628" height="5"/></clipPath></defs><g clip-path="url(#ogs0)" transform="translate(0.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs1)" transform="translate(6.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs2)" transform="translate(-2.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs3)" transform="translate(7.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs4)" transform="translate(0.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs5)" transform="translate(-5.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs6)" transform="translate(3.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs7)" transform="translate(6.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs8)" transform="translate(-1.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs9)" transform="translate(-6.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><g clip-path="url(#ogs10)" transform="translate(4.00 0)"><text x="0" y="102" font-family="'Archivo', 'Archivo Black', 'Inter', Helvetica, Arial, sans-serif" font-size="116"
-     font-weight="900" letter-spacing="-7"
-     fill="currentColor" stroke="currentColor" stroke-width="6"
-     stroke-linejoin="round" paint-order="stroke"
-     xml:space="preserve">pwrkng</text></g><rect x="-24" y="24" width="28.0" height="5"
-       opacity="0.85"/><rect x="430" y="50" width="34.0" height="5"
-       opacity="0.70"/><rect x="-14" y="76" width="17.0" height="4"
-       opacity="0.55"/><rect x="438" y="96" width="24.0" height="5"
-       opacity="0.80"/><rect x="404" y="17" width="20.0" height="4"
-       opacity="0.45"/><rect x="-19" y="116" width="21.0" height="4"
-       opacity="0.50"/></g>
-  <text x="98" y="446" font-family="ui-monospace, SFMono-Regular, Menlo, monospace"
-        font-size="23" letter-spacing="7" fill="#86868B">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
-  <text x="98" y="508" font-family="Archivo, Inter, Arial, sans-serif"
-        font-size="29" fill="#565660">Speakers · Earbuds · Chargers · Cables · Multiplugs</text>
-  <rect x="98" y="546" width="230" height="8" fill="#F3D74B"/>
-  <rect y="0" width="1200" height="6" fill="#F3D74B"/>
+  <g transform="translate(98 150)">
+    <path d="M0 0 H595 L620 25 V150 H25 L0 125 Z" fill="#101010"/>
+    <rect x="48.00" y="43.00" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="71.74" y="43.00" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="95.48" y="43.00" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="48.00" y="66.74" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="71.74" y="66.74" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="95.48" y="66.74" width="16.52" height="16.52" fill="#F4C400"/><rect x="48.00" y="90.48" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="71.74" y="90.48" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="95.48" y="90.48" width="16.52" height="16.52" fill="#FFFFFF"/>
+    <text x="142" y="99" font-family="Archivo, Inter, Arial, sans-serif"
+          font-size="68" font-weight="800" letter-spacing="-1.36" fill="#FFFFFF">pwrkng</text>
+  </g>
+  <text x="98" y="392" font-family="Archivo, Inter, Arial, sans-serif"
+        font-size="23" font-weight="800" letter-spacing="4" fill="#101010">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
+  <text x="98" y="452" font-family="Archivo, Inter, Arial, sans-serif"
+        font-size="29" fill="#45454B">Speakers · Earbuds · Chargers · Cables · Multiplugs · Grooming</text>
+  <rect y="0" width="1200" height="12"
+        fill="url(#haz)"/>
+  <defs>
+    <pattern id="haz" width="45.25" height="45.25" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="22.6" height="45.25" fill="#F4C400"/>
+      <rect x="22.6" width="22.6" height="45.25" fill="#101010"/>
+    </pattern>
+  </defs>
 </svg>
