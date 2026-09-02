@@ -1,9 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 150" width="460" height="150" role="img" aria-label="PowerKing Nepal logo">
-  <rect width="460" height="150" fill="#FFFFFF"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 446 150" width="446" height="150" role="img" aria-label="PowerKing Nepal logo">
+  <rect width="446" height="150" fill="#FFFFFF"/>
   <g transform="translate(38 23)">
-    <path d="M0 0 H366 L384 18 V104 H18 L0 86 Z" fill="#101010"/>
+    <path d="M0 0 H352 L370 18 V104 H18 L0 86 Z" fill="#101010"/>
     <rect x="34.00" y="30.00" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="50.32" y="30.00" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="66.65" y="30.00" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="34.00" y="46.32" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="50.32" y="46.32" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="66.65" y="46.32" width="11.35" height="11.35" fill="#F4C400"/><rect x="34.00" y="62.65" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="50.32" y="62.65" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="66.65" y="62.65" width="11.35" height="11.35" fill="#FFFFFF"/>
     <text x="100" y="68" font-family="Archivo, Inter, Arial, sans-serif"
-          font-size="46" font-weight="800" letter-spacing="-0.92" fill="#FFFFFF">pwrkng</text>
+          font-size="46" font-weight="800" letter-spacing="-0.92"
+          fill="#FFFFFF">powerking</text>
   </g>
 </svg>

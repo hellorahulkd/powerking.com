@@ -19,7 +19,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { products } from '../src/data/products.js';
 import { categories } from '../src/data/categories.js';
-import { BRAND, icon as brandIcon, grille, platePath } from '../src/templates/brand.js';
+import { BRAND, icon as brandIcon, grille, platePath, wordWidth } from '../src/templates/brand.js';
 import { artFor } from './product-art.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -95,6 +95,9 @@ function productTile(product) {
 
 /* -------------------------------------------------------------- brand ----- */
 
+/** The wordmark setting these lockups are cut at. */
+const WORD = 'powerking';
+
 /**
  * The brand system's icon is the plate and the grille — no letters at all —
  * so the favicon no longer has to fall back to a cut-down initial. At 32px
@@ -107,9 +110,8 @@ const appIconSvg = brandIcon({ size: 512, variant: 'primary' }) + '\n';
 /** Horizontal lockup for letterheads, invoices and packaging. */
 const logoSvg = (() => {
   const H = 150, plateH = 104, cut = Math.round(plateH * (22 / 130));
-  const g = 44, padX = 34, gap = 22;
-  const wordW = 250;                       // Archivo 800 "pwrkng" at 46px
-  const plateW = padX * 2 + g + gap + wordW;
+  const g = 44, padX = 34, gap = 22, fontSize = 46;
+  const plateW = padX * 2 + g + gap + Math.round(wordWidth(WORD, fontSize));
   const width = plateW + 76;
   const y = (H - plateH) / 2;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${H}" width="${width}" height="${H}" role="img" aria-label="PowerKing Nepal logo">
@@ -118,7 +120,8 @@ const logoSvg = (() => {
     <path d="${platePath(plateW, plateH, cut)}" fill="${BRAND.ink}"/>
     ${grille({ size: g, cell: BRAND.paper, live: BRAND.yellow, x: padX, y: (plateH - g) / 2 })}
     <text x="${padX + g + gap}" y="${plateH / 2 + 16}" font-family="Archivo, Inter, Arial, sans-serif"
-          font-size="46" font-weight="800" letter-spacing="-0.92" fill="${BRAND.paper}">pwrkng</text>
+          font-size="${fontSize}" font-weight="800" letter-spacing="${-0.02 * fontSize}"
+          fill="${BRAND.paper}">${WORD}</text>
   </g>
 </svg>
 `;
@@ -126,15 +129,17 @@ const logoSvg = (() => {
 
 /** Open Graph card — what a shared link looks like on WhatsApp and Facebook. */
 const ogSvg = (() => {
-  const plateW = 620, plateH = 150, cut = Math.round(plateH * (22 / 130));
-  const g = 64, padX = 48, gap = 30;
+  const plateH = 150, cut = Math.round(plateH * (22 / 130));
+  const g = 64, padX = 48, gap = 30, fontSize = 68;
+  const plateW = padX * 2 + g + gap + Math.round(wordWidth(WORD, fontSize));
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <rect width="1200" height="630" fill="${BRAND.paper}"/>
   <g transform="translate(98 150)">
     <path d="${platePath(plateW, plateH, cut)}" fill="${BRAND.ink}"/>
     ${grille({ size: g, cell: BRAND.paper, live: BRAND.yellow, x: padX, y: (plateH - g) / 2 })}
     <text x="${padX + g + gap}" y="${plateH / 2 + 24}" font-family="Archivo, Inter, Arial, sans-serif"
-          font-size="68" font-weight="800" letter-spacing="-1.36" fill="${BRAND.paper}">pwrkng</text>
+          font-size="${fontSize}" font-weight="800" letter-spacing="${-0.02 * fontSize}"
+          fill="${BRAND.paper}">${WORD}</text>
   </g>
   <text x="98" y="392" font-family="Archivo, Inter, Arial, sans-serif"
         font-size="23" font-weight="800" letter-spacing="4" fill="${BRAND.ink}">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>

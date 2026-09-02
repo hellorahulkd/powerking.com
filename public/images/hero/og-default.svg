@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <rect width="1200" height="630" fill="#FFFFFF"/>
   <g transform="translate(98 150)">
-    <path d="M0 0 H595 L620 25 V150 H25 L0 125 Z" fill="#101010"/>
+    <path d="M0 0 H514 L539 25 V150 H25 L0 125 Z" fill="#101010"/>
     <rect x="48.00" y="43.00" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="71.74" y="43.00" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="95.48" y="43.00" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="48.00" y="66.74" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="71.74" y="66.74" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="95.48" y="66.74" width="16.52" height="16.52" fill="#F4C400"/><rect x="48.00" y="90.48" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="71.74" y="90.48" width="16.52" height="16.52" fill="#FFFFFF"/><rect x="95.48" y="90.48" width="16.52" height="16.52" fill="#FFFFFF"/>
     <text x="142" y="99" font-family="Archivo, Inter, Arial, sans-serif"
-          font-size="68" font-weight="800" letter-spacing="-1.36" fill="#FFFFFF">pwrkng</text>
+          font-size="68" font-weight="800" letter-spacing="-1.36"
+          fill="#FFFFFF">powerking</text>
   </g>
   <text x="98" y="392" font-family="Archivo, Inter, Arial, sans-serif"
         font-size="23" font-weight="800" letter-spacing="4" fill="#101010">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>

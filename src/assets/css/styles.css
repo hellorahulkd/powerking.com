@@ -237,12 +237,25 @@ code {
 
 /* The mark: a cut-corner plate holding the grille and the wordmark. The plate
    is clipped rather than drawn, so it sizes itself to whatever the word is. */
-.mark { display: inline-flex; align-items: center; }
-.mark__grille { display: block; flex: none; }
+.mark {
+  display: inline-flex; align-items: center;
+  /* The plate's font-size IS the wordmark height, so every em below scales
+     with it and the whole lockup resizes from --mark-h alone. */
+  /* --mark-h is set inline by the template, so a media query cannot override
+     it directly — inline styles win. --mark-cap is not set inline, so CSS
+     owns it, and min() lets a narrow viewport pull the whole lockup down. */
+  font-size: min(var(--mark-h, 22px), var(--mark-cap, 999px));
+  padding: .65em .85em;   /* 26/40, 34/40 in the brand canvas */
+  gap: .55em;             /* 22/40 */
+}
+.mark__grille { display: block; flex: none; width: 1.075em; height: 1.075em; } /* 43/40 */
 .mark__word {
   font-family: var(--font-display);
-  font-weight: 800; letter-spacing: -.02em; line-height: .8;
+  font-size: 1em; font-weight: 800; letter-spacing: -.02em; line-height: .8;
 }
+/* The full name is a wide mark. Below 360px it is stepped down so the header
+   still fits a 320px phone. */
+@media (max-width: 359px) { .mark { --mark-cap: 16px; } }
 
 /* The caution stripe is the site's only decoration: one band under the header
    and one above the footer. Nowhere else. */
@@ -481,10 +494,18 @@ code {
 
 /* ----------------------------------------------------------- categories -- */
 .cat-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, 1fr); }
+/* The <li> is the grid item, and it defaults to min-width:auto — so the
+   longest category name set a floor the 1fr track could not go below, and
+   the two-up row ran past a 320px viewport. */
+.cat-grid > li { min-width: 0; }
 @media (min-width: 640px) { .cat-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 980px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
 .cat-tile {
   position: relative; display: grid; align-content: start;
+  /* A grid item defaults to min-width:auto, so the longest category name
+     ("Accessories", "Multiplugs") sets a floor the 1fr track cannot go
+     below — which pushed the two-up row past a 320px viewport. */
+  min-width: 0;
   padding: 1.5rem 1.35rem 1.35rem; min-height: 9.5rem; overflow: hidden;
   background: var(--bg-alt); border: 1px solid transparent;
   border-radius: var(--radius); text-decoration: none; color: var(--ink);
@@ -497,7 +518,7 @@ code {
 .cat-tile__name {
   font-family: var(--font-display); font-weight: 900;
   font-size: var(--step-1); color: var(--ink); letter-spacing: -.03em;
-  line-height: 1.05; margin-bottom: .35rem;
+  line-height: 1.05; margin-bottom: .35rem; overflow-wrap: break-word;
 }
 .cat-tile__count {
   font-family: var(--font-mono); font-size: .7rem; letter-spacing: .1em;

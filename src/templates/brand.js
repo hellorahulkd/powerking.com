@@ -40,6 +40,23 @@ const CUT_RATIO = 22 / 130;   // measured from the canvas icon plate
 const GAP_RATIO = 7 / 16;
 
 /**
+ * Advance width of each setting as a multiple of the font size, measured
+ * in-browser in Archivo 800 at -0.02em tracking — the exact setting the
+ * lockup renders at. Guessing these is what made the previous mark drift, so
+ * re-measure (scripts/dev, render the word and read getBoundingClientRect)
+ * rather than adjusting by eye if the face or tracking ever changes.
+ */
+const ADVANCE = {
+  powerking: 5.132,
+  pwrkng: 3.650,
+};
+
+/** Rendered width of a wordmark setting at a given font size, in px. */
+export function wordWidth(word, fontSize) {
+  return (ADVANCE[word] || ADVANCE.powerking) * fontSize;
+}
+
+/**
  * The six points of the cut-corner plate, as an SVG path.
  * Cuts the top-right and bottom-left corners, matching the canvas clip-path.
  */
@@ -47,10 +64,15 @@ export function platePath(w, h, cut) {
   return `M0 0 H${w - cut} L${w} ${cut} V${h} H${cut} L0 ${h - cut} Z`;
 }
 
-/** CSS clip-path for the same shape, for elements that must size to content. */
+/**
+ * CSS clip-path for the same shape, for elements that must size to content.
+ * `cut` is any CSS length — px for fixed chrome, em where the whole plate
+ * scales from one custom property.
+ */
 export function plateClip(cut) {
-  return `polygon(0 0, calc(100% - ${cut}px) 0, 100% ${cut}px, `
-       + `100% 100%, ${cut}px 100%, 0 calc(100% - ${cut}px))`;
+  const c = typeof cut === 'number' ? `${cut}px` : cut;
+  return `polygon(0 0, calc(100% - ${c}) 0, 100% ${c}, `
+       + `100% 100%, ${c} 100%, 0 calc(100% - ${c}))`;
 }
 
 /**
@@ -123,30 +145,29 @@ export function icon({ size = 130, variant = 'primary' } = {}) {
  * @param {object} o
  *   height   wordmark cap height in px; everything else scales from it
  *   variant  'primary' | 'reversed'
- *   word     'pwrkng' (default) or 'powerking' — the canvas's signage alternate
+ *   word     'powerking' (default) or 'pwrkng' — both are settings of the
+ *            same plate in the brand canvas; only the lettering changes
  */
-export function lockup({ height = 26, variant = 'primary', word = 'pwrkng' } = {}) {
-  // Proportions from the canvas: a 40px wordmark sits on a plate padded
-  // 26/34 with a 43px grille and a 22px gap.
-  const s = height / 40;
-  const padY = Math.round(26 * s);
-  const padX = Math.round(34 * s);
-  const gap = Math.round(22 * s);
-  const g = Math.round(43 * s);
-  const cut = Math.round(18 * s);
-
+export function lockup({ height = 26, variant = 'primary', word = 'powerking' } = {}) {
+  // Every dimension is a ratio of the wordmark height, expressed in `em`
+  // against the plate's own font-size, so the whole lockup rescales from the
+  // single --mark-h custom property. That is what lets a media query shrink
+  // it on a narrow phone: sizing each part in px instead left the mark a
+  // fixed 187px wide, which overflowed a 320px viewport.
+  // Ratios are the brand canvas's own figures over its 40px wordmark.
   const reversed = variant === 'reversed';
   const plate = reversed ? BRAND.yellow : BRAND.ink;
   const cell = reversed ? BRAND.ink : BRAND.paper;
   const live = reversed ? BRAND.paper : BRAND.yellow;
   const type = reversed ? BRAND.ink : BRAND.paper;
 
-  return `<span class="mark" style="background:${plate};padding:${padY}px ${padX}px;gap:${gap}px;`
-    + `clip-path:${plateClip(cut)}">`
-    + `<svg class="mark__grille" width="${g}" height="${g}" viewBox="0 0 ${g} ${g}"`
-    + ` aria-hidden="true" focusable="false">`
+  const g = 43;   // grille viewBox; the SVG scales to its em width
+
+  return `<span class="mark" style="--mark-h:${height}px;background:${plate};`
+    + `clip-path:${plateClip('0.45em')}">`
+    + `<svg class="mark__grille" viewBox="0 0 ${g} ${g}" aria-hidden="true" focusable="false">`
     + `${grille({ size: g, cell, live })}</svg>`
-    + `<span class="mark__word" style="color:${type};font-size:${height}px">${word}</span>`
+    + `<span class="mark__word" style="color:${type}">${word}</span>`
     + `</span>`;
 }
 

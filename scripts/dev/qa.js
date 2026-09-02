@@ -23,6 +23,9 @@ function check(name, condition, detail = '') {
 }
 
 const VIEWPORTS = [
+  // 320 is the narrowest phone still in use (iPhone SE 1st gen, iPhone 5).
+  // The suite started at 375 and so missed a real overflow there.
+  { name: 'Small phone', w: 320, h: 568,  mobile: true },
   { name: 'iPhone SE',  w: 375,  h: 667,  mobile: true },
   { name: 'iPhone 14',  w: 390,  h: 844,  mobile: true },
   { name: 'Android',    w: 360,  h: 800,  mobile: true },
