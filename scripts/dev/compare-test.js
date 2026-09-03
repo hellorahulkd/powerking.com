@@ -104,7 +104,12 @@ await page.goto(`${BASE}/products/`);
 const packed = products.find((p) => p.packSize);
 const card = await page.eval(`
   const c = document.querySelector('[data-product]');
-  const withPack = document.querySelector('a[href="/products/${packed.slug}/"]').closest('[data-product]');
+  // Past the first page the cards sit inside an inert <template>, which
+  // document.querySelector does not descend into — look in both.
+  const t = document.getElementById('catalogue-tail');
+  const sel = 'a[href="/products/${packed.slug}/"]';
+  const link = document.querySelector(sel) || (t && t.content.querySelector(sel));
+  const withPack = link.closest('[data-product]');
   return {
     desc: !!c.querySelector('.card__desc'),
     price: !!c.querySelector('.card__price'),

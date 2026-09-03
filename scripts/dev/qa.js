@@ -10,6 +10,7 @@
  */
 import { launch, newPage } from './cdp.js';
 import { products } from '../../src/data/products.js';
+import { PAGE_SIZE } from '../../src/pages/catalogue.js';
 
 const BASE = process.env.BASE || 'http://localhost:4321';
 const SHOTS = process.env.SHOTS || '';
@@ -170,12 +171,25 @@ async function main() {
     `);
     check('no-results empty state appears', empty.emptyShown && empty.hiddenGrid, JSON.stringify(empty));
 
+    // Clearing filters restores the listing, but the listing is windowed: it
+    // shows one page worth and offers "show more" for the rest. Assert both
+    // halves, so a broken window can't pass as a full restore.
     const reset = await page.eval(`
       document.getElementById('reset-filters').click();
-      return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
+      const more = document.getElementById('load-more');
+      const visible = () =>
+        [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
+      const first = visible();
+      let clicks = 0;
+      while (more && !more.hidden && clicks < 20) { more.click(); clicks++; }
+      return { first, all: visible(), moreHidden: !more || more.hidden };
     `);
-    check('clear filters restores all products',
-      reset === products.length, `got ${reset} of ${products.length}`);
+    check('clear filters restores the first page of products',
+      reset.first === Math.min(PAGE_SIZE, products.length),
+      `got ${reset.first}, expected ${Math.min(PAGE_SIZE, products.length)}`);
+    check('"show more" reveals the rest of the catalogue',
+      reset.all === products.length && reset.moreHidden,
+      `got ${reset.all} of ${products.length}`);
 
     const status = await page.eval(`
       const i = document.getElementById('product-search');
