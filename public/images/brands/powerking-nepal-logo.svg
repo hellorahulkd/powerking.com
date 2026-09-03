@@ -1,10 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 446 150" width="446" height="150" role="img" aria-label="PowerKing Nepal logo">
-  <rect width="446" height="150" fill="#FFFFFF"/>
-  <g transform="translate(38 23)">
-    <path d="M0 0 H352 L370 18 V104 H18 L0 86 Z" fill="#101010"/>
-    <rect x="34.00" y="30.00" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="50.32" y="30.00" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="66.65" y="30.00" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="34.00" y="46.32" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="50.32" y="46.32" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="66.65" y="46.32" width="11.35" height="11.35" fill="#F4C400"/><rect x="34.00" y="62.65" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="50.32" y="62.65" width="11.35" height="11.35" fill="#FFFFFF"/><rect x="66.65" y="62.65" width="11.35" height="11.35" fill="#FFFFFF"/>
-    <text x="100" y="68" font-family="Archivo, Inter, Arial, sans-serif"
-          font-size="46" font-weight="800" letter-spacing="-0.92"
-          fill="#FFFFFF">powerking</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 537 199"
+     width="537" height="199" role="img" aria-label="PowerKing Electronics logo">
+  <rect width="537" height="199" fill="#FFFFFF"/>
+  <g transform="translate(38 38)">
+    <path d="M0 0 H440.4284005538462 L461.258976 20.830575446153848 V123.089764 H20.830575446153848 L0 102.25918855384616 Z" fill="#101010"/>
+    <rect x="37.72" y="34.16" width="16.61" height="16.61" fill="#FFFFFF"/><rect x="61.38" y="34.16" width="16.61" height="16.61" fill="#FFFFFF"/><rect x="85.03" y="34.16" width="16.61" height="16.61" fill="#FFFFFF"/><rect x="37.72" y="57.82" width="16.61" height="16.61" fill="#FFFFFF"/><rect x="61.38" y="57.82" width="16.61" height="16.61" fill="#FFFFFF"/><rect x="37.72" y="81.47" width="16.61" height="7.46" fill="#FFFFFF"/><rect x="61.38" y="81.47" width="16.61" height="7.46" fill="#FFFFFF"/><rect x="85.03" y="81.47" width="16.61" height="7.46" fill="#FFFFFF"/><rect x="85.03" y="42.50" width="16.61" height="31.96" fill="#F4C400"/>
+    <text x="126.8" y="67.6"
+          font-family="Archivo, Inter, Arial, sans-serif" font-size="40" font-weight="800"
+          letter-spacing="4.00" fill="#FFFFFF">POWERKING</text>
+    <text x="126.8" y="84.3" textLength="296.8"
+          lengthAdjust="spacing"
+          font-family="Archivo, Inter, Arial, sans-serif" font-size="13.1"
+          font-weight="800" fill="#FFFFFF">ELECTRONICS</text>
   </g>
 </svg>

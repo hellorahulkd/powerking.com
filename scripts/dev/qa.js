@@ -201,7 +201,13 @@ async function main() {
         pressed: chip.getAttribute('aria-pressed'),
       };
     `);
-    check('category chip filters to 2 speakers', filtered.visible === 2, JSON.stringify(filtered));
+    // Read the expected count from the data, not from one snapshot of it —
+    // the catalogue grows, and a hard-coded number just fails on the next
+    // product added. The window caps at PAGE_SIZE once a listing paginates.
+    const speakers = products.filter((p) => p.category === 'Speakers').length;
+    check('category chip filters to exactly the speakers',
+      filtered.visible === Math.min(speakers, 48),
+      JSON.stringify({ ...filtered, expected: speakers }));
     check('active chip sets aria-pressed', filtered.pressed === 'true');
 
     const brand = await page.eval(`

@@ -19,7 +19,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { products } from '../src/data/products.js';
 import { categories } from '../src/data/categories.js';
-import { BRAND, icon as brandIcon, grille, platePath, wordWidth } from '../src/templates/brand.js';
+import { BRAND, icon as brandIcon, grille, platePath, LOCKUP, GRILLE_BOX }
+  from '../src/templates/brand.js';
 import { artFor } from './product-art.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -95,64 +96,84 @@ function productTile(product) {
 
 /* -------------------------------------------------------------- brand ----- */
 
-/** The wordmark setting these lockups are cut at. */
-const WORD = 'powerking';
-
 /**
- * The brand system's icon is the plate and the grille — no letters at all —
- * so the favicon no longer has to fall back to a cut-down initial. At 32px
- * and under the fine 3x3 grid silts up into a grey square, which is exactly
- * what the "Coarse" state in the brand canvas exists for.
+ * The horizontal lockup in SVG, for the letterhead and the social card.
+ * Every offset is one of the brand deck's ratios against the POWERKING size,
+ * so this cut and the CSS one in brand.js stay in step by construction.
+ *
+ * ELECTRONICS uses textLength/lengthAdjust to spread its letters to exactly
+ * POWERKING's width — the SVG equivalent of the deck placing each letter by
+ * hand, and of the justified run in the HTML lockup.
  */
+function lockupSvg(F, { pad = 0 } = {}) {
+  const L = LOCKUP;
+  const unit = L.cellToFont * F;
+  const gw = GRILLE_BOX.w * unit;
+  const gh = GRILLE_BOX.h * unit;
+  const wordW = L.wordToFont * F;
+  const padX = L.padX * F;
+  const padY = L.padY * F;
+
+  const plateW = padX * 2 + gw + L.gap * F + wordW;
+  const plateH = padY * 2 + gh;
+  const cut = plateH * (22 / 130);
+
+  const textX = padX + gw + L.gap * F;
+  const sub = L.subScale * F;
+  // Cap height of Archivo is ~0.72em; the two lines are centred on the grille.
+  const blockH = 0.72 * F + 0.55 * sub + 0.72 * sub;
+  const top = padY + (gh - blockH) / 2;
+  const wordBase = top + 0.72 * F;
+  const subBase = wordBase + 0.55 * sub + 0.72 * sub;
+
+  return {
+    w: plateW + pad * 2,
+    h: plateH + pad * 2,
+    svg: `<g transform="translate(${pad} ${pad})">
+    <path d="${platePath(plateW, plateH, cut)}" fill="${BRAND.ink}"/>
+    ${grille({ unit, cell: BRAND.paper, live: BRAND.yellow, x: padX, y: padY })}
+    <text x="${textX.toFixed(1)}" y="${wordBase.toFixed(1)}"
+          font-family="Archivo, Inter, Arial, sans-serif" font-size="${F}" font-weight="800"
+          letter-spacing="${(L.tracking * F).toFixed(2)}" fill="${BRAND.paper}">POWERKING</text>
+    <text x="${textX.toFixed(1)}" y="${subBase.toFixed(1)}" textLength="${wordW.toFixed(1)}"
+          lengthAdjust="spacing"
+          font-family="Archivo, Inter, Arial, sans-serif" font-size="${sub.toFixed(1)}"
+          font-weight="800" fill="${BRAND.paper}">ELECTRONICS</text>
+  </g>`,
+  };
+}
+
 const faviconSvg = brandIcon({ size: 140, variant: 'coarse' }) + '\n';
 const appIconSvg = brandIcon({ size: 512, variant: 'primary' }) + '\n';
 
 /** Horizontal lockup for letterheads, invoices and packaging. */
 const logoSvg = (() => {
-  const H = 150, plateH = 104, cut = Math.round(plateH * (22 / 130));
-  const g = 44, padX = 34, gap = 22, fontSize = 46;
-  const plateW = padX * 2 + g + gap + Math.round(wordWidth(WORD, fontSize));
-  const width = plateW + 76;
-  const y = (H - plateH) / 2;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${H}" width="${width}" height="${H}" role="img" aria-label="PowerKing Nepal logo">
-  <rect width="${width}" height="${H}" fill="${BRAND.paper}"/>
-  <g transform="translate(38 ${y})">
-    <path d="${platePath(plateW, plateH, cut)}" fill="${BRAND.ink}"/>
-    ${grille({ size: g, cell: BRAND.paper, live: BRAND.yellow, x: padX, y: (plateH - g) / 2 })}
-    <text x="${padX + g + gap}" y="${plateH / 2 + 16}" font-family="Archivo, Inter, Arial, sans-serif"
-          font-size="${fontSize}" font-weight="800" letter-spacing="${-0.02 * fontSize}"
-          fill="${BRAND.paper}">${WORD}</text>
-  </g>
+  const l = lockupSvg(40, { pad: 38 });
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${l.w.toFixed(0)} ${l.h.toFixed(0)}"
+     width="${l.w.toFixed(0)}" height="${l.h.toFixed(0)}" role="img" aria-label="PowerKing Electronics logo">
+  <rect width="${l.w.toFixed(0)}" height="${l.h.toFixed(0)}" fill="${BRAND.paper}"/>
+  ${l.svg}
 </svg>
 `;
 })();
 
 /** Open Graph card — what a shared link looks like on WhatsApp and Facebook. */
 const ogSvg = (() => {
-  const plateH = 150, cut = Math.round(plateH * (22 / 130));
-  const g = 64, padX = 48, gap = 30, fontSize = 68;
-  const plateW = padX * 2 + g + gap + Math.round(wordWidth(WORD, fontSize));
+  const l = lockupSvg(54);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <rect width="1200" height="630" fill="${BRAND.paper}"/>
-  <g transform="translate(98 150)">
-    <path d="${platePath(plateW, plateH, cut)}" fill="${BRAND.ink}"/>
-    ${grille({ size: g, cell: BRAND.paper, live: BRAND.yellow, x: padX, y: (plateH - g) / 2 })}
-    <text x="${padX + g + gap}" y="${plateH / 2 + 24}" font-family="Archivo, Inter, Arial, sans-serif"
-          font-size="${fontSize}" font-weight="800" letter-spacing="${-0.02 * fontSize}"
-          fill="${BRAND.paper}">${WORD}</text>
-  </g>
-  <text x="98" y="392" font-family="Archivo, Inter, Arial, sans-serif"
-        font-size="23" font-weight="800" letter-spacing="4" fill="${BRAND.ink}">POWERKING NEPAL · ELECTRONICS WHOLESALE</text>
-  <text x="98" y="452" font-family="Archivo, Inter, Arial, sans-serif"
-        font-size="29" fill="#45454B">Speakers · Earbuds · Chargers · Cables · Multiplugs · Grooming</text>
-  <rect y="0" width="1200" height="12"
-        fill="url(#haz)"/>
   <defs>
     <pattern id="haz" width="45.25" height="45.25" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
       <rect width="22.6" height="45.25" fill="${BRAND.yellow}"/>
       <rect x="22.6" width="22.6" height="45.25" fill="${BRAND.ink}"/>
     </pattern>
   </defs>
+  <rect width="1200" height="630" fill="${BRAND.paper}"/>
+  <g transform="translate(98 ${(178).toFixed(0)})">${l.svg}</g>
+  <text x="98" y="392" font-family="Archivo, Inter, Arial, sans-serif"
+        font-size="24" font-weight="800" letter-spacing="4" fill="${BRAND.ink}">WHOLESALE · KATHMANDU, NEPAL</text>
+  <text x="98" y="446" font-family="Archivo, Inter, Arial, sans-serif"
+        font-size="29" fill="#45454B">Speakers · Earbuds · Chargers · Cables · Multiplugs · Grooming</text>
+  <rect y="0" width="1200" height="12" fill="url(#haz)"/>
 </svg>
 `;
 })();

@@ -239,23 +239,36 @@ code {
    is clipped rather than drawn, so it sizes itself to whatever the word is. */
 .mark {
   display: inline-flex; align-items: center;
-  /* The plate's font-size IS the wordmark height, so every em below scales
-     with it and the whole lockup resizes from --mark-h alone. */
-  /* --mark-h is set inline by the template, so a media query cannot override
-     it directly — inline styles win. --mark-cap is not set inline, so CSS
-     owns it, and min() lets a narrow viewport pull the whole lockup down. */
+  /* The plate's font-size IS the POWERKING size, so every em below is one of
+     the brand deck's ratios and the whole lockup rescales from --mark-h.
+     --mark-h is set inline by the template, which no media query can beat, so
+     CSS owns --mark-cap and min() lets a narrow viewport pull it down. */
   font-size: min(var(--mark-h, 22px), var(--mark-cap, 999px));
-  padding: .65em .85em;   /* 26/40, 34/40 in the brand canvas */
-  gap: .55em;             /* 22/40 */
+  padding: .854em .943em;
+  gap: .628em;
 }
-.mark__grille { display: block; flex: none; width: 1.075em; height: 1.075em; } /* 43/40 */
+.mark__grille { display: block; flex: none; width: 1.598em; height: 1.371em; }
+.mark__type { display: flex; flex-direction: column; align-items: stretch; }
 .mark__word {
   font-family: var(--font-display);
-  font-size: 1em; font-weight: 800; letter-spacing: -.02em; line-height: .8;
+  font-size: 1em; font-weight: 800; line-height: 1;
+  letter-spacing: .1em;
+  /* letter-spacing also pads after the final glyph; the mark ends at the
+     last stem, so take that back or the plate sits off-centre. */
+  margin-right: -.1em;
 }
-/* The full name is a wide mark. Below 360px it is stepped down so the header
+.mark__sub {
+  font-family: var(--font-display);
+  font-size: .3286em; font-weight: 800; line-height: 1;
+  margin-top: .55em;
+  /* Justified across POWERKING's width. The letters are emitted with real
+     spaces between them because `justify` only stretches word gaps. */
+  text-align: justify; text-align-last: justify;
+  -moz-text-align-last: justify;
+}
+/* POWERKING in caps is a wide mark. Below 360px it steps down so the header
    still fits a 320px phone. */
-@media (max-width: 359px) { .mark { --mark-cap: 16px; } }
+@media (max-width: 359px) { .mark { --mark-cap: 15px; } }
 
 /* The caution stripe is the site's only decoration: one band under the header
    and one above the footer. Nowhere else. */
