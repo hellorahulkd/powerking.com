@@ -83,6 +83,43 @@ async function main() {
     await page.close();
   }
 
+  /* --------------------------------------------------- 1b. stripe clearance -- */
+  // The caution stripe is a solid band. Anything flush against it merges into
+  // it, and --header-h has to stay the header's real height or every sticky
+  // offset that reads it lands under the header.
+  process.stdout.write('\nCaution stripe\n');
+  {
+    const page = await newPage(port);
+    for (const vp of VIEWPORTS) {
+      await page.setViewport(vp.w, vp.h, vp.mobile);
+      await page.goto(`${BASE}/products/`);
+      const r = await page.eval(`
+        const y = el => { const b = el.getBoundingClientRect(); return { t: b.top + scrollY, b: b.bottom + scrollY }; };
+        const header = document.querySelector('.site-header');
+        const [headStripe, footStripe] = document.querySelectorAll('.stripe');
+        const mark = document.querySelector('.site-header .mark');
+        const footer = document.querySelector('.site-footer');
+        // --header-h is a calc(), so resolve it by measuring a probe.
+        const probe = document.createElement('div');
+        probe.style.cssText = 'position:absolute;visibility:hidden;height:var(--header-h)';
+        document.body.appendChild(probe);
+        const declared = probe.getBoundingClientRect().height;
+        probe.remove();
+        return {
+          headerH: +header.getBoundingClientRect().height.toFixed(1),
+          declared: +declared.toFixed(1),
+          above: +(y(mark).t - y(header).t).toFixed(1),
+          below: +(y(headStripe).t - y(mark).b).toFixed(1),
+          footGap: +(y(footer.querySelector('.container')).t - y(footStripe).b).toFixed(1),
+        };
+      `);
+      check(`${vp.name} (${vp.w}px) — logo clears the stripe, --header-h is the real height`,
+        r.above >= 6 && r.below >= 6 && Math.abs(r.headerH - r.declared) <= 1 && r.footGap >= 24,
+        JSON.stringify(r));
+    }
+    await page.close();
+  }
+
   /* ----------------------------------------------- 2. console cleanliness -- */
   process.stdout.write('\nRuntime errors\n');
   {

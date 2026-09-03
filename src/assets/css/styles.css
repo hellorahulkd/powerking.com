@@ -87,7 +87,13 @@
   --shadow-md: 0 2px 8px rgba(0,0,0,.05), 0 12px 28px rgba(0,0,0,.06);
   --shadow-lg: 0 18px 45px rgba(0,0,0,.10);
   --container: 1180px;
-  --header-h: 66px;
+  /* The stripe is a hard band edge, so the header is measured in three parts:
+     the bar the logo sits in, the stripe, and the 1px border under it.
+     --header-h is what every sticky offset and scroll-margin uses, so it has
+     to stay the real rendered height — qa.js asserts that it does. */
+  --stripe-h: 6px;
+  --header-bar-h: 82px;
+  --header-h: calc(var(--header-bar-h) + var(--stripe-h) + 1px);
   --ring: 0 0 0 3px rgba(244, 196, 0, .55);
 }
 
@@ -225,13 +231,22 @@ code {
 /* --------------------------------------------------------------- header -- */
 .site-header {
   position: sticky; top: 0; z-index: 60;
-  background: rgba(255,255,255,.82);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  /* Opaque, not frosted. A translucent sticky header fails open: wherever the
+     backdrop blur is not applied, the page scrolls visibly through the bar and
+     the stripe reads as a line drawn across the content behind it. The brand
+     system is flat and solid anyway. */
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
 .site-header.is-scrolled { border-bottom-color: var(--border-strong); }
-.site-header__inner { display: flex; align-items: center; gap: 1rem; min-height: var(--header-h); }
+.site-header__inner {
+  display: flex; align-items: center; gap: 1rem;
+  min-height: var(--header-bar-h);
+  /* The plate is a solid black shape and the stripe is a solid band. Flush
+     against each other they read as one object, so the bar keeps the logo
+     clear of both its own edges. */
+  padding-block: .5rem;
+}
 
 .logo { display: inline-flex; text-decoration: none; margin-right: auto; }
 
@@ -268,12 +283,17 @@ code {
 }
 /* POWERKING in caps is a wide mark. Below 360px it steps down so the header
    still fits a 320px phone. */
-@media (max-width: 359px) { .mark { --mark-cap: 15px; } }
+@media (max-width: 359px) {
+  .mark { --mark-cap: 15px; }
+  /* A smaller plate needs a smaller bar, or the sticky header eats the screen.
+     --header-h follows --header-bar-h, so every offset tracks it. */
+  :root { --header-bar-h: 66px; }
+}
 
 /* The caution stripe is the site's only decoration: one band under the header
    and one above the footer. Nowhere else. */
 .stripe {
-  height: 6px;
+  height: var(--stripe-h);
   background: repeating-linear-gradient(45deg,
     var(--volt) 0 16px, var(--ink) 16px 32px);
 }
@@ -338,7 +358,7 @@ code {
 /* --------------------------------------------------------------- notice -- */
 .notice {
   background: var(--volt-100); border-bottom: 1px solid #EFE4B8;
-  color: #6B5A00; font-size: var(--step--1); padding: .55rem 0;
+  color: #6B5A00; font-size: var(--step--1); padding: .75rem 0;
 }
 .notice strong { color: #4E4200; font-weight: 700; }
 
@@ -557,9 +577,9 @@ code {
 /* -------------------------------------------------------------- toolbar -- */
 .toolbar {
   position: sticky; top: var(--header-h); z-index: 40;
-  background: rgba(255,255,255,.88);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  /* Opaque for the same reason as the header: this bar sits over the moving
+     catalogue, and a frosted panel that does not frost is a transparent one. */
+  background: var(--bg);
   border-bottom: 1px solid var(--border); padding: .9rem 0;
 }
 .toolbar__search { position: relative; display: flex; align-items: center; gap: .5rem; }
@@ -886,8 +906,11 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
 .site-footer {
   background: var(--bg-alt); color: var(--text-muted);
   border-top: 1px solid var(--border);
-  padding: 3rem 0 1.5rem; margin-top: auto;
+  /* No top padding: the stripe is the footer's own top edge, matching the way
+     it closes the header. The clearance below it belongs to the stripe. */
+  padding: 0 0 1.5rem; margin-top: auto;
 }
+.site-footer > .stripe { margin-bottom: 3rem; }
 .footer__grid { display: grid; gap: 2rem; }
 @media (min-width: 700px) { .footer__grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1000px) { .footer__grid { grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 2.5rem; } }

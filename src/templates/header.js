@@ -18,7 +18,7 @@ export function logo() {
   // tagline placements are all specified at 24px and up, which a header lockup
   // is not.
   return `<a class="logo" href="/" aria-label="${esc(siteConfig.businessName)} — home">
-  ${lockup({ height: 22 })}
+  ${lockup({ height: 20 })}
 </a>`;
 }
 
