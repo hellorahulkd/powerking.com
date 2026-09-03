@@ -608,16 +608,24 @@ code {
 .toolbar__filters {
   display: flex; align-items: center; gap: .6rem; margin-top: .65rem;
 }
+/* With the chips hidden the two selects are the whole row, so let them share
+   it evenly instead of both shrinking to their longest option. */
+.toolbar__select { flex: 1; min-width: 0; }
+@media (min-width: 900px) { .toolbar__select { flex: none; } }
+.toolbar__select select { width: 100%; }
 .chips {
   display: flex; gap: .4rem; overflow-x: auto; flex: 1;
   scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px;
 }
 .chips::-webkit-scrollbar { display: none; }
-/* With eight categories the row runs past the viewport on a laptop and
-   truncates a chip mid-word. There is room to wrap there; keep the
-   horizontal swipe only where width is genuinely tight. */
+/* Below 900px the chip row is a swipe with most of the categories off the
+   edge and nothing on screen saying so, so the category select stands in
+   for it there. Above 900px the chips wrap and are the faster control. */
+.toolbar .chips { display: none; }
+.toolbar__cat { display: block; }
 @media (min-width: 900px) {
-  .chips { flex-wrap: wrap; overflow-x: visible; row-gap: .4rem; }
+  .toolbar .chips { display: flex; flex-wrap: wrap; overflow-x: visible; row-gap: .4rem; }
+  .toolbar__cat { display: none; }
 }
 /* Grouped on a light track, the way a segmented control reads. */
 .toolbar .chips {
@@ -636,7 +644,7 @@ code {
 .chip.is-active {
   background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600;
 }
-.toolbar__brand select {
+.toolbar__select select {
   padding: .45rem 2rem .45rem .7rem; font: inherit; font-size: var(--step--1);
   font-weight: 600; color: var(--text); background: var(--bg-alt);
   border: 1px solid var(--border); border-radius: 100px; min-height: 38px;
@@ -644,12 +652,12 @@ code {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235B6A7E' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right .6rem center;
 }
-.toolbar__brand select:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+.toolbar__select select:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
 .toolbar__status { margin: .55rem 0 0; font-size: var(--step--1); color: var(--text-muted); min-height: 1.2em; }
 .toolbar__status:empty { display: none; }
 @media (max-width: 560px) {
   .toolbar__filters { flex-direction: column; align-items: stretch; }
-  .toolbar__brand select { width: 100%; border-radius: var(--radius-sm); }
+  .toolbar__select select { width: 100%; border-radius: var(--radius-sm); }
 }
 
 /* ------------------------------------------------------------------ grid -- */

@@ -23,6 +23,18 @@ function toolbar(categories, brands, activeCategory) {
     ),
   ].join('');
 
+  // The same category filter as the chips, as a select. The chip row can only
+  // be swiped on a narrow screen, which leaves most of the categories off the
+  // edge with nothing to say they are there; below 900px the select replaces
+  // it. Both drive the same state, so either control works wherever it shows.
+  const catOptions = categories
+    .map(
+      (c) => `<option value="${esc(c.name)}"${
+        activeCategory === c.name ? ' selected' : ''
+      }>${esc(c.name)}</option>`,
+    )
+    .join('');
+
   const brandOptions = brands
     .map((b) => `<option value="${esc(b)}">${esc(b)}</option>`)
     .join('');
@@ -40,7 +52,14 @@ function toolbar(categories, brands, activeCategory) {
 
     <div class="toolbar__filters">
       <div class="chips" role="group" aria-label="Filter by category">${catChips}</div>
-      <div class="toolbar__brand">
+      <div class="toolbar__select toolbar__cat">
+        <label class="sr-only" for="category-filter">Filter by category</label>
+        <select id="category-filter">
+          <option value=""${activeCategory ? '' : ' selected'}>All categories</option>
+          ${catOptions}
+        </select>
+      </div>
+      <div class="toolbar__select toolbar__brand">
         <label class="sr-only" for="brand-filter">Filter by brand</label>
         <select id="brand-filter">
           <option value="">All brands</option>

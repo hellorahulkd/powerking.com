@@ -250,6 +250,7 @@ async function main() {
       return {
         visible: [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length,
         pressed: chip.getAttribute('aria-pressed'),
+        selectValue: document.getElementById('category-filter').value,
       };
     `);
     // Read the expected count from the data, not from one snapshot of it —
@@ -260,6 +261,31 @@ async function main() {
       filtered.visible === Math.min(speakers, 48),
       JSON.stringify({ ...filtered, expected: speakers }));
     check('active chip sets aria-pressed', filtered.pressed === 'true');
+
+    // The select is the category control below 900px, where the chip row can
+    // only be swiped. It must filter identically and stay in step with the
+    // chips, since a reader can meet either one.
+    check('the chip selection is mirrored on the category select',
+      filtered.selectValue === 'Speakers', filtered.selectValue);
+
+    const viaSelect = await page.eval(`
+      document.querySelector('[data-filter-cat=""]').click();
+      const s = document.getElementById('category-filter');
+      s.value = 'Speakers';
+      s.dispatchEvent(new Event('change', { bubbles: true }));
+      const chip = document.querySelector('[data-filter-cat="Speakers"]');
+      return {
+        visible: [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length,
+        chipPressed: chip.getAttribute('aria-pressed'),
+        allChip: [...document.querySelector('[data-filter-cat=""]').classList].includes('is-active'),
+      };
+    `);
+    check('category select filters to exactly the speakers',
+      viaSelect.visible === Math.min(speakers, PAGE_SIZE),
+      JSON.stringify({ ...viaSelect, expected: speakers }));
+    check('choosing on the select moves the active chip with it',
+      viaSelect.chipPressed === 'true' && viaSelect.allChip === false,
+      JSON.stringify(viaSelect));
 
     const brand = await page.eval(`
       document.querySelector('[data-filter-cat=""]').click();
@@ -277,6 +303,37 @@ async function main() {
       return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
     `);
     check('search + brand filter combine', combined === 1, `got ${combined}`);
+
+    // Exactly one category control is on screen at any width — the chips where
+    // they can wrap, the select where they would be a blind swipe. Two at once
+    // is clutter; none at all strands the reader in one category.
+    for (const vp of VIEWPORTS) {
+      await page.setViewport(vp.w, vp.h, vp.mobile);
+      await page.goto(`${BASE}/products/`);
+      const shown = await page.eval(`
+        const seen = el => el.getBoundingClientRect().height > 0;
+        return {
+          chips: seen(document.querySelector('.toolbar .chips')),
+          select: seen(document.getElementById('category-filter')),
+        };
+      `);
+      check(`${vp.name} (${vp.w}px) — one category control, not two`,
+        shown.chips !== shown.select, JSON.stringify(shown));
+    }
+
+    // On a category page the category is fixed, so picking another one has to
+    // navigate rather than filter an already-narrowed list down to nothing.
+    await page.setViewport(390, 844, true);
+    await page.goto(`${BASE}/products/speakers/`);
+    await page.eval(`
+      const s = document.getElementById('category-filter');
+      s.value = 'Grooming';
+      s.dispatchEvent(new Event('change', { bubbles: true }));
+      return 1;
+    `);
+    const landed = await page.eval(`return location.pathname;`);
+    check('on a category page the select navigates to the category',
+      landed === '/products/grooming/', landed);
     await page.close();
   }
 

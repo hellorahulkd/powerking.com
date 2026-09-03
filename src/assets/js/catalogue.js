@@ -25,6 +25,7 @@
   var input = document.getElementById('product-search');
   var clearBtn = document.getElementById('search-clear');
   var brandSelect = document.getElementById('brand-filter');
+  var catSelect = document.getElementById('category-filter');
   var chips = Array.prototype.slice.call(document.querySelectorAll('[data-filter-cat]'));
   var statusEl = document.getElementById('search-status');
   var noResults = document.getElementById('no-results');
@@ -207,26 +208,41 @@
   }
 
   /* ------------------------------------------------- category filtering -- */
+  // Two controls, one state: the chips wrap on a wide screen, the select
+  // stands in below 900px. Whichever one the reader used, the other has to
+  // agree with it — so both go through here.
+  function setCategory(value) {
+    // On a category page, switching category means going to that page.
+    if (lockedCategory) {
+      window.location.href = value ? '/products/' + slugify(value) + '/' : '/products/';
+      return;
+    }
+    state.category = value;
+    syncCategoryControls();
+    refilter();
+    if (value) track('category_filter', { category: value, page: window.location.pathname });
+  }
+
+  function syncCategoryControls() {
+    chips.forEach(function (c) {
+      var active = c.getAttribute('data-filter-cat') === state.category;
+      c.classList.toggle('is-active', active);
+      c.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    if (catSelect && catSelect.value !== state.category) catSelect.value = state.category;
+  }
+
   chips.forEach(function (chip) {
     chip.addEventListener('click', function () {
-      var value = chip.getAttribute('data-filter-cat');
-      // On a category page, switching category means going to that page.
-      if (lockedCategory) {
-        window.location.href = value
-          ? '/products/' + slugify(value) + '/'
-          : '/products/';
-        return;
-      }
-      state.category = value;
-      chips.forEach(function (c) {
-        var active = c === chip;
-        c.classList.toggle('is-active', active);
-        c.setAttribute('aria-pressed', active ? 'true' : 'false');
-      });
-      refilter();
-      if (value) track('category_filter', { category: value, page: window.location.pathname });
+      setCategory(chip.getAttribute('data-filter-cat'));
     });
   });
+
+  if (catSelect) {
+    catSelect.addEventListener('change', function () {
+      setCategory(catSelect.value);
+    });
+  }
 
   /* ---------------------------------------------------- brand filtering -- */
   if (brandSelect) {
@@ -244,11 +260,7 @@
       if (!lockedCategory) state.category = '';
       if (input) input.value = '';
       if (brandSelect) brandSelect.value = '';
-      chips.forEach(function (c) {
-        var active = c.getAttribute('data-filter-cat') === state.category;
-        c.classList.toggle('is-active', active);
-        c.setAttribute('aria-pressed', active ? 'true' : 'false');
-      });
+      syncCategoryControls();
       refilter();
       if (input) input.focus();
     });
