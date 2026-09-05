@@ -1060,3 +1060,144 @@ body.menu-open .wa-float {
 }
 /* A column hidden by its chip. */
 .compare [data-compare-col].is-hidden { display: none; }
+
+/* ================================================================= admin ==
+   The catalogue editor at /admin/. It is a tool, not a page of the site: no
+   nav, no footer, denser than the marketing pages, and it borrows only the
+   design tokens so it still looks like PowerKing.
+   ======================================================================== */
+.page-admin { background: var(--bg-alt); }
+.admin { max-width: 900px; margin-inline: auto; padding: 0 1.15rem 4rem; }
+.admin__bar {
+  display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
+  padding: 1rem 0 1.25rem;
+}
+.admin__brand { display: inline-flex; }
+.admin__title {
+  font-family: var(--font-mono); font-size: .7rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint);
+}
+.admin__who {
+  display: flex; align-items: center; gap: .6rem; margin-left: auto;
+  font-size: var(--step--1); color: var(--text-muted);
+}
+.admin__narrow { max-width: 620px; }
+.admin h1 { font-size: var(--step-2); margin-bottom: .5rem; }
+.admin__lead { color: var(--text-muted); font-size: var(--step--1); }
+.admin code {
+  font-size: .85em; background: var(--bg-sunken); padding: .1em .35em;
+}
+.admin__steps {
+  margin: 1.25rem 0; padding-left: 1.2rem; color: var(--text-muted);
+  font-size: var(--step--1); line-height: 1.7;
+}
+.admin__steps li { list-style: decimal; margin-bottom: .35rem; }
+.admin__note {
+  margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+  font-size: var(--step--1); color: var(--text-faint);
+}
+
+/* Panels sit on white so the form reads as a sheet on the grey page. */
+.admin__pane { background: var(--bg); padding: 1.5rem; border: 1px solid var(--border); }
+.admin__auth { display: grid; gap: .75rem; max-width: 420px; }
+
+/* --- fields --- */
+.af { margin-bottom: 1.35rem; }
+.af__label {
+  display: block; margin-bottom: .3rem;
+  font-family: var(--font-display); font-weight: 800; font-size: var(--step--1);
+  letter-spacing: -.01em; color: var(--ink);
+}
+.af__input {
+  width: 100%; padding: .6rem .75rem; font: inherit; font-size: var(--step--1);
+  color: var(--text); background: var(--bg);
+  border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm);
+}
+.af__input:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+textarea.af__input { line-height: 1.55; resize: vertical; }
+.af__hint { margin: .3rem 0 0; font-size: .78rem; color: var(--text-faint); line-height: 1.5; }
+.af__hint code { font-size: .95em; }
+.af__file { display: block; margin-top: .6rem; font-size: var(--step--1); }
+.af__check {
+  display: flex; gap: .55rem; align-items: flex-start; margin-bottom: .7rem;
+  font-size: var(--step--1); color: var(--text-muted); cursor: pointer;
+}
+.af__check input { margin-top: .25rem; flex: none; }
+.af__check strong { color: var(--ink); font-weight: 600; }
+
+.admin__photo {
+  width: 150px; height: 150px; display: grid; place-items: center;
+  background: var(--bg-alt); border: 1px solid var(--border);
+}
+.admin__photo img { width: 100%; height: 100%; object-fit: contain; }
+.admin__photo-empty { font-size: .78rem; color: var(--text-faint); }
+
+/* --- tabs, list, rows --- */
+.admin__tabs { display: flex; gap: .3rem; margin-bottom: 1.25rem; }
+.admin__tab {
+  padding: .5rem 1rem; background: transparent; border: 0; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-display); font-weight: 800; font-size: var(--step--1);
+  color: var(--text-faint);
+}
+.admin__tab.is-active { color: var(--ink); border-bottom-color: var(--volt); }
+.admin__toolbar { display: flex; gap: .6rem; align-items: center; }
+.admin__toolbar .af__input { flex: 1; }
+.admin__count {
+  margin: .9rem 0 .4rem; font-family: var(--font-mono);
+  font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.admin__list { display: grid; gap: .4rem; }
+.admin__row {
+  display: flex; align-items: center; gap: .8rem; padding: .6rem;
+  background: var(--bg-alt); border: 1px solid transparent;
+}
+.admin__row:hover { border-color: var(--border-strong); }
+.admin__thumb {
+  width: 46px; height: 46px; flex: none; object-fit: contain;
+  background: var(--bg); border: 1px solid var(--border);
+}
+.admin__row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .1rem; }
+.admin__row-name {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--step--1);
+  color: var(--ink); line-height: 1.25;
+}
+.admin__row-meta { font-size: .76rem; color: var(--text-faint); }
+/* Their own row: as direct flex children of a column they would each stretch
+   to the full width of the card. */
+.admin__badges { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .3rem; }
+.admin__badge {
+  padding: .1rem .4rem;
+  background: var(--ink); color: #fff;
+  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.admin__badge--warn { background: var(--volt); color: var(--ink); }
+
+.admin__back {
+  display: inline-flex; align-items: center; gap: .4rem; margin-bottom: 1rem;
+  padding: 0; background: none; border: 0; cursor: pointer;
+  font-size: var(--step--1); font-weight: 600; color: var(--text-muted);
+}
+.admin__back:hover { color: var(--ink); }
+.admin__back-icon { transform: rotate(180deg); }
+.admin__actions {
+  display: flex; gap: .6rem; flex-wrap: wrap;
+  margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+}
+
+/* --- messages --- */
+.admin__msg { margin: .6rem 0 0; font-size: var(--step--1); color: var(--text-muted); }
+.admin__msg:empty { display: none; }
+.admin__msg--sticky { margin: 0 0 1rem; }
+.admin__msg--ok { color: #1F6F3F; font-weight: 600; }
+.admin__msg--warn {
+  color: #7A2E1B; font-weight: 600; background: #FDEDE8;
+  border-left: 3px solid var(--danger); padding: .6rem .75rem;
+}
+@media (max-width: 560px) {
+  .admin__pane { padding: 1.1rem; }
+  .admin__toolbar { flex-direction: column; align-items: stretch; }
+  .admin__row { flex-wrap: wrap; }
+}

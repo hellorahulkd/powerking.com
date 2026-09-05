@@ -95,6 +95,16 @@ export async function newPage(port = 9222) {
       }
     },
 
+    /**
+     * Run a script in every document this page loads, before any of the page's
+     * own scripts. The only way to install a stub — window.fetch, a clock —
+     * that a deferred script will then use.
+     */
+    async preload(source) {
+      await send('Page.enable');
+      await send('Page.addScriptToEvaluateOnNewDocument', { source });
+    },
+
     async goto(url) {
       await send('Page.enable');
       await send('Runtime.enable');

@@ -79,6 +79,10 @@ export function layout(o) {
     scripts = '',
     activeNav = '',
     noindex = false,
+    // The admin panel is a tool, not a page of the site: it wants the design
+    // tokens and nothing else — no nav, no footer, no WhatsApp button, no
+    // marketing analytics, and no social preview for a page nobody shares.
+    chrome = true,
   } = o;
 
   const fullTitle =
@@ -129,14 +133,13 @@ ${analytics()}
 </head>
 <body class="${esc(bodyClass)}">
 ${iconSprite()}
-<a class="skip-link" href="#main">Skip to main content</a>
-${header(activeNav)}
+${chrome ? '<a class="skip-link" href="#main">Skip to main content</a>\n' + header(activeNav) : ''}
 <main id="main">
 ${body}
 </main>
-${footer()}
-${siteConfig.features.showFloatingWhatsApp ? floatingWhatsApp() : ''}
-<script src="/assets/app.js" defer></script>
+${chrome ? footer() : ''}
+${chrome && siteConfig.features.showFloatingWhatsApp ? floatingWhatsApp() : ''}
+${chrome ? '<script src="/assets/app.js" defer></script>' : ''}
 ${scripts}
 </body>
 </html>

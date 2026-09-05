@@ -25,6 +25,19 @@ export const siteConfig = {
   // Used for canonical URLs, Open Graph URLs and sitemap.xml. No trailing slash.
   domain: 'https://powerkingnepal.com',
 
+  // --- Repository -----------------------------------------------------------
+  // Where the catalogue lives. The admin panel at /admin/ reads and writes
+  // these files through the GitHub API, so it needs to know the repository.
+  // None of this is secret — it is the same address anyone can see in the
+  // repository URL. The credential that authorises a write is the access
+  // token each editor holds in their own browser; it is never stored here,
+  // and nothing in this repository can write to it.
+  repo: {
+    owner: 'hellorahulkd',
+    name: 'powerking.com',
+    branch: 'main',
+  },
+
   // --- WhatsApp -------------------------------------------------------------
   // International format, digits ONLY. No "+", no spaces, no dashes.
   // Nepal country code is 977. Example: a number 98XXXXXXXX becomes 97798XXXXXXXX

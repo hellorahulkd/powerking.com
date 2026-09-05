@@ -17,12 +17,12 @@ WhatsApp, where pricing and minimum order quantities are agreed.
 
 | I want to… | Do this |
 | --- | --- |
-| Add a product | Add one object to [`src/data/products.js`](src/data/products.js) + upload an image |
+| **Add a product or a category** | **Open [powerkingnepal.com/admin/](https://powerkingnepal.com/admin/), sign in, fill in the form** |
+| Add many products at once | A spreadsheet — see [§1](#1-how-to-add-a-product) |
 | Change the WhatsApp number | `whatsappNumber` in [`src/config/site.config.js`](src/config/site.config.js) |
 | Add Google Analytics | `googleAnalyticsId` in the same config file |
 | Change phone/email/address | Same config file |
-| Add a category | Add an object to [`src/data/categories.js`](src/data/categories.js) |
-| Publish changes | `git push` to `main` — GitHub Actions does the rest |
+| Publish changes | The admin panel does it for you. Otherwise `git push` to `main` |
 
 Everything about the business lives in **one config file**. You never need to
 edit HTML.
@@ -31,6 +31,7 @@ edit HTML.
 
 ## Contents
 
+0. [The admin panel](#0-the-admin-panel)
 1. [How to add a product](#1-how-to-add-a-product)
 2. [Product images](#2-product-images)
 3. [Configuring WhatsApp](#3-configuring-whatsapp)
@@ -47,6 +48,75 @@ edit HTML.
 
 ---
 
+## 0. The admin panel
+
+**[powerkingnepal.com/admin/](https://powerkingnepal.com/admin/)** — sign in and
+edit the catalogue from any browser, including a phone. Add and edit products,
+upload photos, and add, rename or remove categories. Saving commits the change
+to this repository; the site rebuilds and is live in about a minute.
+
+### How the login works, and what it does not do
+
+There is no server behind this website — GitHub Pages serves files and nothing
+else. So the panel does not check a password of its own. **GitHub does the
+checking.** You paste a GitHub access token once; your browser keeps it, and it
+travels only to `api.github.com`. Every save is authorised there against that
+token's permissions.
+
+That matters for two reasons:
+
+- **Nothing secret is in this repository or on the website.** A password
+  compared in the page's JavaScript would have to be shipped to every visitor,
+  who could read it in two clicks. There is nothing here to find.
+- **The page itself is not a lock.** Anyone can open `/admin/` — it is a static
+  file like every other page. Without a token GitHub accepts, it can change
+  nothing at all. Do not think of the page as private; think of the token as
+  the key.
+
+### Getting your token
+
+1. Go to **[github.com/settings/personal-access-tokens/new](https://github.com/settings/personal-access-tokens/new)**.
+2. **Repository access** → *Only select repositories* → pick this repository.
+3. **Permissions → Repository permissions** → set **Contents** to
+   *Read and write*. Nothing else is needed.
+4. Choose an expiry, generate it, and copy the token — GitHub shows it once.
+5. Open `/admin/`, paste it, sign in.
+
+Tick *Stay signed in on this device* and you will not be asked again on that
+browser until the token expires.
+
+### Adding someone else
+
+Add them as a collaborator on the repository in GitHub, then have them make
+their **own** token by the steps above. Never share a token — one each means
+you can see who changed what in the commit history, and you can revoke one
+person without disturbing anyone else.
+
+To remove someone: delete the token at
+[github.com/settings/tokens](https://github.com/settings/tokens) (they do this,
+or you remove their repository access), and remove them as a collaborator.
+
+### Things worth knowing
+
+- **Photos are resized for you.** A picture straight off a phone is redrawn as
+  a 600 × 600 tile on white, to match the rest of the catalogue. It uploads
+  when you save, not when you choose it.
+- **Two people editing at once is safe.** Each save carries the version it
+  started from. If someone else saved first, GitHub refuses the write and the
+  panel reloads and tells you, rather than quietly overwriting them.
+- **Deleting a product** removes its page and its links. The photo file stays
+  in the repository.
+- **Renaming a category** moves every product in it at the same time, so
+  nothing is left pointing at a category that no longer exists. A category
+  still holding products cannot be deleted.
+- **Extra gallery photos** are not editable in the panel yet — they are kept as
+  they are. Add them in `data/products.json` if you need them.
+- **The catalogue lives in [`data/products.json`](data/products.json)** and the
+  categories in [`data/categories.json`](data/categories.json). The panel, the
+  spreadsheet importer and hand-editing all write those same two files.
+
+---
+
 ## 1. How to add a product
 
 **Step 1 — Add the photo.** Put the image in `public/images/products/`.
@@ -56,27 +126,36 @@ Name it after the product, in lowercase with hyphens:
 public/images/products/coca-cola-500ml.jpg
 ```
 
-**Step 2 — Add the product.** Open `src/data/products.js` and add one object
+> Most of the time you want **[the admin panel](#0-the-admin-panel)** instead —
+> it does both steps below for you, from a browser, with no code. What follows
+> is for adding products by hand or in bulk.
+
+**Step 2 — Add the product.** Open `data/products.json` and add one entry
 to the list:
 
-```js
+```json
 {
-  id: 16,                                     // must be unique, never reuse
-  name: 'Wireless Earbuds Pro',
-  slug: 'wireless-earbuds-pro',               // → /products/wireless-earbuds-pro/
-  brand: 'Your Brand',
-  category: 'Earbuds',                        // must match a category name
-  description: 'TWS earbuds with charging case, touch controls and 24h playback.',
-  image: '/images/products/wireless-earbuds-pro.jpg',
-  gallery: [],                                // optional extra images
-  packSize: '50 pcs per carton',
-  unit: 'Per carton',                         // optional
-  sku: 'PK-EAR-010',                          // optional, searchable
-  featured: true,                             // shows on the homepage
-  available: true,
-  tags: ['tws', 'bluetooth', 'earphones'],    // optional extra search keywords
-},
+  "id": 300,
+  "name": "Wireless Earbuds Pro",
+  "slug": "wireless-earbuds-pro",
+  "brand": "Your Brand",
+  "category": "Earbuds",
+  "description": "TWS earbuds with charging case, touch controls and 24h playback.",
+  "image": "/images/products/wireless-earbuds-pro.jpg",
+  "gallery": [],
+  "packSize": "50 pcs per carton",
+  "unit": "Per carton",
+  "sku": "PK-EAR-010",
+  "featured": true,
+  "available": true,
+  "sample": false,
+  "tags": ["tws", "bluetooth", "earphones"]
+}
 ```
+
+`id` must be unique and is never reused. `category` must match a name in
+`data/categories.json` exactly, or the build stops. `slug` becomes the page
+address, `/products/wireless-earbuds-pro/`.
 
 **Step 3 — Publish.**
 
@@ -339,27 +418,33 @@ Change these and the entire site re-skins.
 
 ## 6. Categories
 
-Edit `src/data/categories.js`:
+The quickest way is the **Categories** tab in
+[the admin panel](#0-the-admin-panel), which also moves the products across
+when you rename one.
 
-```js
+By hand, edit `data/categories.json`:
+
+```json
 {
-  name: 'Smart Watches',      // must match the `category` on your products
-  slug: 'smart-watches',      // becomes /products/smart-watches/
-  icon: 'mobile',             // a key from src/templates/icons.js
-  color: '#00D68F',           // tints the tile and the placeholder artwork
-  description: 'Smart watches and fitness bands supplied by the carton.',
-},
+  "name": "Smart Watches",
+  "slug": "smart-watches",
+  "description": "Smart watches and fitness bands supplied by the carton."
+}
 ```
 
+- `name` is what products refer to. It must match their `category` exactly.
+- `slug` becomes the page address, `/products/smart-watches/`.
+- `description` is shown on the category page and used as its description in
+  search results, so write a real sentence rather than a label.
+
 Adding a category automatically creates its page, its homepage tile, its filter
-chip and its sitemap entry.
+entry and its sitemap entry.
 
-Available icons: `speaker`, `headphone`, `earbuds`, `charger`, `cable`, `plug`,
-`cooler`, `mobile`, `bolt`, `truck`, `shield`, `tag`, `handshake`.
-
-**`color` is what makes the homepage colourful** — each category tile is tinted
-with it, and the placeholder product artwork is generated from it. Keep the
-colours bright and clearly distinct from one another.
+Categories carry no colour or icon of their own. The brand system has one
+accent, used on primary buttons; a category is communicated by its word, not by
+a hue. Renaming one by hand means updating every product that names it in the
+same commit, or the build stops — which is exactly what the admin panel does
+for you.
 
 ---
 
@@ -392,6 +477,8 @@ real product photography:
 | `scripts/dev/qa.js` | Browser tests: layout, search, menu, WhatsApp, analytics |
 | `scripts/dev/slider-test.js` | Browser tests for the homepage product carousel |
 | `scripts/dev/compare-test.js` | Browser tests for the product comparison table |
+| `scripts/dev/catalogue-test.js` | Browser tests for pagination, deferred cards and the icon sprite |
+| `scripts/dev/admin-test.js` | Browser tests for /admin/, against a stubbed GitHub — no token needed |
 
 ---
 
@@ -498,19 +585,23 @@ powerking.com/
 ├── serve.js                     ← local preview server
 ├── package.json
 │
+├── data/
+│   ├── products.json            ← ★ ALL products live here
+│   ├── categories.json          ← ★ ALL categories live here
+│   └── products.example.csv     ← the spreadsheet format
+│
 ├── src/
 │   ├── config/site.config.js    ← ★ ALL business details live here
-│   ├── data/
-│   │   ├── products.js          ← ★ ALL products live here
-│   │   └── categories.js        ← ★ ALL categories live here
+│   ├── data/                    ← thin loaders over the two JSON files
 │   ├── lib/html.js              ← escaping, WhatsApp URLs, helpers
 │   ├── templates/               ← layout, header, footer, cards, icons
-│   ├── pages/                   ← one module per page type
+│   ├── pages/                   ← one module per page type, incl. admin.js
 │   └── assets/
 │       ├── css/styles.css       ← design system (CSS variables at the top)
 │       └── js/
 │           ├── app.js           ← nav, analytics events
-│           └── catalogue.js     ← instant search & filtering
+│           ├── catalogue.js     ← instant search & filtering
+│           └── admin.js         ← the /admin/ editor
 │
 ├── public/                      ← copied verbatim to the site root
 │   ├── images/{products,brands,hero}/
@@ -577,7 +668,7 @@ badge plus a notice banner.
 
 To replace them:
 
-1. Delete the sample objects from `src/data/products.js` and add your real ones.
+1. Delete the sample objects from `data/products.json` and add your real ones.
 2. Delete the placeholder images: `rm public/images/products/sample-*`
 3. Turn off the notice banner in `src/config/site.config.js`:
    ```js

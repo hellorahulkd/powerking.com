@@ -29,6 +29,7 @@ import { productPage } from './src/pages/product.js';
 import { aboutPage } from './src/pages/about.js';
 import { contactPage } from './src/pages/contact.js';
 import { brandsPage, privacyPage, notFoundPage } from './src/pages/misc.js';
+import { adminPage } from './src/pages/admin.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(ROOT, 'dist');
@@ -236,6 +237,12 @@ async function build() {
     add('/brands/', '0.6');
   }
 
+  // The catalogue editor. Deliberately not passed to add(): it is a tool for
+  // the people who run the shop, so it stays out of the sitemap and carries a
+  // noindex. It is not hidden — a static host cannot hide a file — and it does
+  // not need to be, because GitHub authorises every write, not this page.
+  await emit('/admin/', adminPage());
+
   // 404.html is served by GitHub Pages for any unknown path.
   await emit('/404.html', notFoundPage());
 
@@ -278,6 +285,7 @@ async function build() {
   await cp(path.join(ROOT, 'src/assets/js/app.js'), path.join(DIST, 'assets/app.js'));
   await cp(path.join(ROOT, 'src/assets/js/catalogue.js'), path.join(DIST, 'assets/catalogue.js'));
   await cp(path.join(ROOT, 'src/assets/js/slider.js'), path.join(DIST, 'assets/slider.js'));
+  await cp(path.join(ROOT, 'src/assets/js/admin.js'), path.join(DIST, 'assets/admin.js'));
 
   // public/ is copied last so anything there (CNAME, favicon, images) wins.
   await copyDir(path.join(ROOT, 'public'), DIST);

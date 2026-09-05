@@ -3,7 +3,7 @@
  * ============================================================================
  *  POWERKING NEPAL — BULK PRODUCT IMPORT
  * ============================================================================
- *  Turns a spreadsheet into src/data/products.js, so a catalogue of hundreds
+ *  Turns a spreadsheet into data/products.json, so a catalogue of hundreds
  *  of lines can be maintained in Excel or Google Sheets instead of by editing
  *  JavaScript objects by hand.
  *
@@ -32,7 +32,7 @@ import { categories } from '../src/data/categories.js';
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 // resolve, not join: an absolute path passed on the command line must win.
 const CSV = path.resolve(ROOT, process.argv.find((a) => a.endsWith('.csv')) || 'data/products.csv');
-const OUT = path.join(ROOT, 'src/data/products.js');
+const OUT = path.join(ROOT, 'data/products.json');
 const DRY = process.argv.includes('--dry-run');
 
 /** Paths outside the project read better absolute than as a pile of "../". */
@@ -47,7 +47,7 @@ const COLUMNS = {
   name: 'REQUIRED',
   slug: 'auto — from name, if blank',
   brand: "''",
-  category: 'REQUIRED — must match src/data/categories.js',
+  category: 'REQUIRED — must match data/categories.json',
   description: "''",
   image: 'auto — /images/products/<slug>.jpg, if blank',
   gallery: 'empty — separate several paths with |',
@@ -120,66 +120,31 @@ const list = (value) =>
 /* ------------------------------------------------------------- rendering -- */
 
 /** JS string literal, single-quoted, safe for anything a spreadsheet holds. */
-const str = (s) =>
-  `'${String(s ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ').trim()}'`;
-
-const arr = (items) => (items.length ? `[${items.map(str).join(', ')}]` : '[]');
-
-function render(products, source) {
-  const byCategory = new Map();
-  for (const p of products) {
-    if (!byCategory.has(p.category)) byCategory.set(p.category, []);
-    byCategory.get(p.category).push(p);
-  }
-
-  const blocks = [];
-  for (const [category, items] of byCategory) {
-    const rule = `  /* ${'-'.repeat(Math.max(2, 62 - category.length))} ${category} -- */`;
-    blocks.push(rule);
-    for (const p of items) {
-      blocks.push(`  {
-    id: ${p.id},
-    name: ${str(p.name)},
-    slug: ${str(p.slug)},
-    brand: ${str(p.brand)},
-    category: ${str(p.category)},
-    description:
-      ${str(p.description)},
-    image: ${str(p.image)},
-    gallery: ${arr(p.gallery)},
-    packSize: ${str(p.packSize)},
-    unit: ${str(p.unit)},
-    sku: ${str(p.sku)},
-    featured: ${p.featured},
-    available: ${p.available},
-    sample: ${p.sample},
-    tags: ${arr(p.tags)},
-  },`);
-    }
-  }
-
-  return `/**
- * ============================================================================
- *  POWERKING NEPAL — PRODUCT CATALOGUE DATA
- * ============================================================================
- *
- *  ⚠️  GENERATED FILE — DO NOT EDIT BY HAND.
- *
- *  Written by scripts/import-products.js from ${source}.
- *  Edit the spreadsheet, then run:
- *
- *      node scripts/import-products.js && node build.js
- *
- *  Anything you type in here will be overwritten on the next import.
- * ============================================================================
+/**
+ * The catalogue is written as JSON so that the admin panel at /admin/ and this
+ * importer are reading and writing the same file in the same shape. Field
+ * order is fixed rather than whatever the spreadsheet happened to use, so a
+ * re-import produces a clean diff instead of a reshuffle.
  */
-
-export const products = [
-${blocks.join('\n')}
-];
-
-export default products;
-`;
+function render(products) {
+  const ordered = products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    brand: p.brand,
+    category: p.category,
+    description: p.description,
+    image: p.image,
+    gallery: p.gallery,
+    packSize: p.packSize,
+    unit: p.unit,
+    sku: p.sku,
+    featured: p.featured,
+    available: p.available,
+    sample: p.sample,
+    tags: p.tags,
+  }));
+  return JSON.stringify(ordered, null, 2) + '\n';
 }
 
 /* ----------------------------------------------------------------- main -- */
@@ -231,7 +196,7 @@ if (!errors.length) {
     const rawCategory = cell('category');
     const category = categoryByLower.get(rawCategory.toLowerCase());
     if (!category) {
-      at(`category "${rawCategory}" is not in src/data/categories.js `
+      at(`category "${rawCategory}" is not in data/categories.json `
         + `(known: ${[...categoryNames].join(', ')})`);
       return;
     }
@@ -306,11 +271,11 @@ if (DRY) {
   process.exit(0);
 }
 
-await writeFile(OUT, render(products, show(CSV)), 'utf8');
+await writeFile(OUT, render(products), 'utf8');
 
 const counts = {};
 for (const p of products) counts[p.category] = (counts[p.category] || 0) + 1;
-console.log(`  ✓ wrote ${products.length} products to src/data/products.js`);
+console.log(`  ✓ wrote ${products.length} products to data/products.json`);
 console.log(`      ${Object.entries(counts).map(([c, n]) => `${c} ${n}`).join(' · ')}`);
 console.log(`      ${featured} featured · ${products.filter((p) => !p.available).length} unavailable\n`);
 console.log('  Next: node build.js\n');

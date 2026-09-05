@@ -67,8 +67,15 @@ async function main() {
     return out;
   };
 
+  // Pages that are built but must never be advertised: a tool for the people
+  // who run the shop, not content for a search engine.
+  const NOT_INDEXED = ['/admin/'];
+
   const expected = [
-    '/', '/products/', '/about/', '/contact/', '/privacy/',
+    // /admin/ is emitted but deliberately kept out of the sitemap, so it is
+    // listed here or the file count reports it as a stray. NOT_INDEXED below
+    // is what keeps the two facts from drifting apart.
+    '/', '/products/', '/about/', '/contact/', '/privacy/', ...NOT_INDEXED,
     ...(siteConfig.features.showBrandsPage ? ['/brands/'] : []),
     ...pagesFor(products.length, '/products/'),
     ...categories.flatMap((c) => [
@@ -144,7 +151,14 @@ async function main() {
   }
   assert('sitemap excludes the 404 page', !sitemap.includes('404.html'));
   const locCount = (sitemap.match(/<loc>/g) || []).length;
-  assert('sitemap covers every indexable page', locCount === expected.length, `${locCount} entries`);
+  assert('sitemap covers every indexable page',
+    locCount === expected.length - NOT_INDEXED.length, `${locCount} entries`);
+  for (const route of NOT_INDEXED) {
+    assert(`sitemap excludes ${route}`, !sitemap.includes(`${base}${route}`));
+    const html = await readFile(path.join(DIST, route, 'index.html'), 'utf8');
+    assert(`${route} tells search engines not to index it`,
+      /<meta name="robots" content="noindex/.test(html));
+  }
 
   const robots = await readFile(path.join(DIST, 'robots.txt'), 'utf8');
   assert('robots.txt points at the sitemap', robots.includes(`${base}/sitemap.xml`));
