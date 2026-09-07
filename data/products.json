@@ -1713,5 +1713,22 @@
     "tags": [
       "Portable speaker"
     ]
+  },
+  {
+    "id": 270,
+    "name": "Kisonli K27 Portable Wireless Bluetooth Speaker",
+    "slug": "kisonli-k27-portable-wireless-bluetooth-speaker",
+    "brand": "Kisonli K27",
+    "category": "Speakers",
+    "description": "Kisonli K27 Portable Wireless Bluetooth Speaker\n\nProduct Description:\nThe Kisonli K27 Portable Wireless Speaker is a stylish and powerful speaker designed for an enhanced music experience. Its compact cylindrical design makes it easy to place and carry, while the built-in handle provides added portability. The speaker features an attractive modern design with colorful lighting effects, making it suitable for both indoor and outdoor entertainment.\n\nWith its wireless connectivity and easy-to-use control buttons, the K27 is ideal for enjoying music at home, during parties, gatherings, and outdoor activities.\n\nKey Features:\n\n* Portable and stylish design\n* Wireless connectivity\n* Powerful sound and bass performance\n* RGB-style colorful lighting effect\n* Easy-access control buttons\n* Built-in carrying handle\n* Suitable for home, parties, travel, and outdoor use\n\nApproximate Product Dimensions:\n\n* Length: 14 cm\n* Width: 14 cm\n* Height: 20 cm",
+    "image": "/images/products/kisonli-k27-portable-wireless-bluetooth-speaker.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 990,
+    "pricePiece": 1000,
+    "sku": "Kisonli K27 Portable Wireless Bluetooth Speaker",
+    "featured": false,
+    "available": true,
+    "tags": []
   }
 ]
