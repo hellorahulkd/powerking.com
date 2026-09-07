@@ -1417,5 +1417,22 @@
     "tags": [
       "speaker"
     ]
+  },
+  {
+    "id": 249,
+    "name": "Sing-e ZQS-L28 Boombox",
+    "slug": "sing-e-zqs-l28-boombox",
+    "brand": "Sing-e ZQS-L28 Boombox",
+    "category": "Speakers",
+    "description": "The Sing-e ZQS-L28 Boombox is a heavy-duty, outdoor portable wireless speaker with built-in dynamic RGB lighting.\nKey Features & Audio\n Audio Power: Dual-speaker setup delivering a total output of 50W (25W × 2) with deep bass.\n Water Resistance: IPX6 rated dustproof and waterproof design built for outdoor use.\n Lighting Effects: Features transformable colorful RGB light rings around the dual speaker drivers.\n Functions: Supports Bluetooth streaming, True Wireless Stereo (TWS) pairing to sync two speakers, and multiple input options.\n Carrying Strap: Includes built-in side hooks and a detachable shoulder strap for hands-free transport.\nBattery Specifications\n Voltage & Capacity: 7.4V / 3000mAh rechargeable lithium battery.\nDimensions & Weight\n Length: ~28 cm – 30 cm\n Diameter/Width: ~12 cm\n Height: ~12 cm\n Weight: ~1.4 kg – 1.6 kg",
+    "image": "/images/products/sing-e-zqs-l28-boombox.jpg",
+    "gallery": [],
+    "packSize": "20",
+    "priceCarton": 2400,
+    "pricePiece": 2450,
+    "sku": "Sing-e ZQS-L28 Boombox",
+    "featured": false,
+    "available": true,
+    "tags": []
   }
 ]
