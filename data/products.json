@@ -1580,5 +1580,24 @@
     "tags": [
       "speakers"
     ]
+  },
+  {
+    "id": 258,
+    "name": "LP V116 Portable Wireless Speaker",
+    "slug": "lp-v116-portable-wireless-speaker",
+    "brand": "LP V116",
+    "category": "Speakers",
+    "description": "LP V116 Portable Wireless Speaker\n Design & Features: Compact matte-black body with dynamic multi-color RGB LED lighting grill ring, extended telescopic FM radio antenna, top-mounted physical control buttons, digital LED display screen, and a top groove designed to serve as a smartphone stand.\n Audio Performance: Loud 10W stereo power output optimized for clear voice clarity and deep bass response (\"Good Bass\").\n Connectivity Options: Bluetooth wireless connection, FM Radio, USB flash drive input, MicroSD/TF card playback, and AUX line-in.\n Portability: Includes a durable wrist lanyard/carrying strap for effortless portability on the go.\n Battery: Rechargeable 1200mAh lithium battery providing 3–5 hours of continuous music playback.\nDimensions & Weight\n Height: 14.5 cm (with antenna down)\n Width: 11.0 cm\n Depth/Thickness: 7.5 cm\n Weight: ~380 grams (0.38 kg)",
+    "image": "/images/products/lp-v116-portable-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 575,
+    "pricePiece": 600,
+    "sku": "LP V116 Portable Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Portable speaker"
+    ]
   }
 ]
