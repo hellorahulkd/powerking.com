@@ -4,7 +4,7 @@ import {
 } from '../lib/html.js';
 import { layout } from '../templates/layout.js';
 import {
-  whatsappButton, breadcrumbSchema, slugifyCategory,
+  whatsappButton, breadcrumbSchema, slugifyCategory, enquiryAdd,
 } from '../templates/components.js';
 
 function specRow(label, value) {
@@ -57,7 +57,6 @@ function compareSection(product, siblings) {
   const rows = [
     ['Brand', (p) => p.brand],
     ['Pack size', (p) => p.packSize],
-    ['Sold as', (p) => p.unit],
     ['SKU', (p) => p.sku],
     ['Availability', (p) => (p.available === false ? 'Currently unavailable' : 'Available')],
   ];
@@ -195,7 +194,6 @@ export function productPage({ product, related }) {
           ${specRow('Brand', product.brand)}
           ${specRow('Category', product.category)}
           ${specRow('Pack Size', product.packSize)}
-          ${specRow('Sold As', product.unit)}
           ${specRow('SKU', product.sku)}
         </dl>
 
@@ -208,9 +206,9 @@ export function productPage({ product, related }) {
           <h2 class="enquiry__title">Wholesale Enquiries</h2>
           <p class="enquiry__price">Contact us for wholesale pricing</p>
           <p class="enquiry__body">
-            Message us for wholesale pricing, current availability and the
-            minimum order quantity for this product. We will reply with a trade
-            rate for your business.
+            ${esc(siteConfig.supplyTerms)} Message us for wholesale pricing,
+            current availability and the minimum order quantity for this
+            product. We will reply with a trade rate for your business.
           </p>
           ${whatsappButton({
             location: 'product_page',
@@ -219,6 +217,7 @@ export function productPage({ product, related }) {
             size: 'lg',
             block: true,
           })}
+          ${enquiryAdd(product, { label: true })}
           <p class="enquiry__note">
             Opens WhatsApp with your enquiry about
             <strong>${esc(product.name)}</strong> already written for you.

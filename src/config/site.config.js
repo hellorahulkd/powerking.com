@@ -21,6 +21,11 @@ export const siteConfig = {
   shortDescription:
     'Wholesale electronics distribution in Nepal — speakers, headphones, earbuds, chargers, data cables, multiplugs and mobile accessories. Browse the catalogue and enquire on WhatsApp for trade pricing, availability and minimum order quantities.',
 
+  // --- How stock is supplied ------------------------------------------------
+  // The same for every line we carry, so it is stated once here rather than
+  // being a field on each product that would only ever hold one answer.
+  supplyTerms: 'Supplied by the carton, or in loose pieces.',
+
   // --- Domain ---------------------------------------------------------------
   // Used for canonical URLs, Open Graph URLs and sitemap.xml. No trailing slash.
   domain: 'https://powerkingnepal.com',
@@ -112,6 +117,21 @@ export const whatsappMessages = {
     'Hi PowerKing Nepal, I would like to enquire about your {product} range.',
   hero:
     'Hi PowerKing Nepal, I would like to enquire about wholesale supply for my business.',
+
+  // The multi-product enquiry. The products and their quantities are written
+  // between these two lines by the enquiry list.
+  list: {
+    greeting: 'Hi PowerKing Nepal, I would like to enquire about the following:',
+    closing:
+      'Please send wholesale pricing, availability and minimum order quantities.',
+  },
 };
+
+/**
+ * How many products one enquiry may carry. The whole message travels in a
+ * wa.me URL, so this is a length limit rather than a preference — past this
+ * the link risks being truncated by the phone before WhatsApp ever sees it.
+ */
+export const ENQUIRY_MAX = 20;
 
 export default siteConfig;

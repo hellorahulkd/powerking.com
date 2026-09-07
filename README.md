@@ -144,7 +144,6 @@ to the list:
   "image": "/images/products/wireless-earbuds-pro.jpg",
   "gallery": [],
   "packSize": "50 pcs per carton",
-  "unit": "Per carton",
   "sku": "PK-EAR-010",
   "featured": true,
   "available": true,
@@ -187,7 +186,6 @@ opens a message naming that product.
 | `image` | yes | Path from the site root, starting with `/`. |
 | `gallery` | no | Extra images — adds thumbnails to the product page. |
 | `packSize` | no | e.g. `12 x 500ml`. |
-| `unit` | no | e.g. `Per case`. |
 | `sku` | no | Internal code. Searchable. |
 | `featured` | no | `true` puts it in the homepage Featured row (shows up to 8). |
 | `available` | no | `false` marks it "Currently unavailable" but keeps it listed. |
@@ -479,6 +477,7 @@ real product photography:
 | `scripts/dev/compare-test.js` | Browser tests for the product comparison table |
 | `scripts/dev/catalogue-test.js` | Browser tests for pagination, deferred cards and the icon sprite |
 | `scripts/dev/admin-test.js` | Browser tests for /admin/, against a stubbed GitHub — no token needed |
+| `scripts/dev/enquiry-test.js` | Browser tests for the multi-product enquiry list and the message it sends |
 
 ---
 

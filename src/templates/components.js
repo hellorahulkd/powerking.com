@@ -1,4 +1,4 @@
-import { siteConfig } from '../config/site.config.js';
+import { siteConfig, whatsappMessages, ENQUIRY_MAX } from '../config/site.config.js';
 import { esc, whatsappUrl, hasWhatsApp } from '../lib/html.js';
 import { icon } from './icons.js';
 
@@ -36,6 +36,78 @@ export function whatsappButton({
   return `<a class="${cls}" href="${esc(href)}" ${waAttrs(location, product)}>
     ${icon('whatsapp', { size: 20 })}<span>${esc(label)}</span>
   </a>`;
+}
+
+/**
+ * Add-to-enquiry toggle. Carries the product's own name and slug so the
+ * enquiry list never has to go digging through the DOM to find out what was
+ * added — the same control works on a card and on a product page.
+ *
+ * Without JavaScript it is not rendered at all: the single-product WhatsApp
+ * link beside it already works, and a dead button would be worse than none.
+ */
+export function enquiryAdd(product, { label = false, pin = false } = {}) {
+  // Three buttons do not fit a card's action row, and wrapping them onto a
+  // second line made every card in the catalogue taller. On a card the toggle
+  // is pinned to the corner opposite the badges instead.
+  const cls = label
+    ? 'btn btn--ghost btn--lg btn--block enq-add'
+    : (pin ? 'enq-add enq-add--pin' : 'btn btn--ghost btn--icon enq-add');
+  return `<button type="button" class="${cls}" hidden
+    data-enq-add
+    data-enq-slug="${esc(product.slug)}"
+    data-enq-name="${esc(product.name)}"
+    aria-pressed="false"
+    title="Add to enquiry list"
+    aria-label="Add ${esc(product.name)} to the enquiry list">
+    <span class="enq-add__on">${icon('plus', { size: label ? 20 : 19 })}</span>
+    <span class="enq-add__off">${icon('check', { size: label ? 20 : 19 })}</span>
+    ${label ? '<span class="enq-add__label">Add to enquiry list</span>' : ''}
+  </button>`;
+}
+
+/**
+ * The enquiry list itself: a bar that appears once something is selected, and
+ * the panel it opens. Rendered once per page from the layout.
+ *
+ * Quantities are asked for in cartons or pieces because the shop supplies
+ * both, so "20" on its own would have to be chased up on WhatsApp anyway.
+ */
+export function enquiryList() {
+  const { greeting, closing } = whatsappMessages.list;
+  return `<div class="enq-bar" id="enq-bar" hidden
+     data-greeting="${esc(greeting)}" data-closing="${esc(closing)}"
+     data-number="${esc(hasWhatsApp() ? String(siteConfig.whatsappNumber).trim() : '')}"
+     data-max="${ENQUIRY_MAX}">
+  <p class="enq-bar__count" id="enq-count" role="status" aria-live="polite"></p>
+  <div class="enq-bar__actions">
+    <button type="button" class="btn btn--ghost btn--sm" id="enq-clear">Clear</button>
+    <button type="button" class="btn btn--primary btn--sm" id="enq-open">Review enquiry</button>
+  </div>
+</div>
+
+<dialog class="enq" id="enq-dialog" aria-labelledby="enq-title">
+  <form method="dialog" class="enq__head">
+    <h2 class="enq__title" id="enq-title">Your enquiry</h2>
+    <button class="enq__close" value="close" aria-label="Close">${icon('close', { size: 20 })}</button>
+  </form>
+  <p class="enq__lead">
+    Tell us how many of each you need. ${esc(siteConfig.supplyTerms)}
+  </p>
+  <ul class="enq__list" id="enq-list"></ul>
+  <p class="enq__note" id="enq-note" role="status" aria-live="polite"></p>
+  <div class="enq__foot">
+    <a class="btn btn--whatsapp btn--lg btn--block" id="enq-send"
+       data-wa-track data-wa-location="enquiry_list"
+       ${hasWhatsApp() ? 'target="_blank" rel="noopener"' : ''} href="#">
+      ${icon('whatsapp', { size: 20 })}<span>Send on WhatsApp</span>
+    </a>
+    <p class="enq__fine">
+      Opens WhatsApp with the list and quantities already written out. Nothing
+      is ordered until we reply with pricing.
+    </p>
+  </div>
+</dialog>`;
 }
 
 /** Floating WhatsApp bubble. Hidden while the mobile menu is open (see app.js). */
@@ -90,6 +162,7 @@ export function productCard(product, { eager = false, location = 'product_card' 
          onerror="this.closest('.card__media').classList.add('card__media--fallback');this.remove()">
   </div>
   ${badges(product)}
+  ${enquiryAdd(product, { pin: true })}
   <div class="card__body">
     <p class="card__eyebrow">${esc(product.category)}</p>
     <h3 class="card__title"><a href="${esc(url)}">${esc(product.name)}</a></h3>

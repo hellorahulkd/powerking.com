@@ -39,7 +39,6 @@
  *  image       string   Path from the site root, e.g. '/images/products/x.jpg'.
  *  gallery     string[] Optional extra images. Omit or leave [] if none.
  *  packSize    string   e.g. '20 pcs per carton'. Use '' if not known.
- *  unit        string   Optional: how it is sold, e.g. 'Per carton'.
  *  sku         string   Optional internal code. Searchable. Use '' if none.
  *  featured    boolean  true → appears in the homepage Featured row (first 8).
  *  available   boolean  false → shown as "Currently unavailable", still listed.

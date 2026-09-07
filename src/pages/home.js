@@ -15,7 +15,7 @@ function heroSlider(featured) {
   const slides = featured
     .map((p, i) => {
       const url = `/products/${p.slug}/`;
-      const specs = [p.packSize, p.unit, p.sku && `SKU ${p.sku}`]
+      const specs = [p.packSize, p.sku && `SKU ${p.sku}`]
         .filter(Boolean)
         .map((x) => `<li>${esc(x)}</li>`)
         .join('');
@@ -109,6 +109,55 @@ function intro() {
 </section>`;
 }
 
+/**
+ * Search, on the page a visitor actually lands on.
+ *
+ * The site already told Google it was searchable — the homepage carries a
+ * SearchAction pointing at /products/?q= — while offering no box to type in.
+ * This is that box. It is a plain GET form, so it works with JavaScript off:
+ * the catalogue reads ?q= on load and filters before anything else runs.
+ *
+ * The shortcuts underneath are the brands we actually carry most of, counted
+ * from the catalogue rather than typed in here, so they cannot go stale as
+ * the range changes.
+ */
+function searchSection(products) {
+  const counts = new Map();
+  for (const p of products) {
+    // Sample placeholders and cartons with no readable brand are real rows in
+    // the catalogue but nothing to advertise as a line we are deep in.
+    if (p.sample || !p.brand || p.brand.startsWith('[')) continue;
+    counts.set(p.brand, (counts.get(p.brand) || 0) + 1);
+  }
+  const popular = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 5)
+    .map(([brand]) => brand);
+
+  const chips = popular
+    .map(
+      (term) => `<a class="hsearch__chip" href="/products/?q=${encodeURIComponent(term)}">${esc(term)}</a>`,
+    )
+    .join('');
+
+  return `<section class="section section--tight hsearch">
+  <div class="container">
+    <p class="eyebrow">Search The Catalogue</p>
+    <h2 class="section__title hsearch__title">Looking for something specific?</h2>
+    <form class="hsearch__form" role="search" action="/products/" method="get">
+      <label class="sr-only" for="home-search">Search products by name, brand, category or SKU</label>
+      <input class="hsearch__input" id="home-search" name="q" type="search"
+             placeholder="Speaker, charger, trimmer, model number…"
+             autocomplete="off" enterkeyhint="search">
+      <button class="btn btn--primary hsearch__go" type="submit">Search</button>
+    </form>
+    ${popular.length ? `<p class="hsearch__popular">
+      <span class="hsearch__popular-label">Most stocked:</span> ${chips}
+    </p>` : ''}
+  </div>
+</section>`;
+}
+
 function categorySection(categories, countsByCategory) {
   return `<section class="section section--top" id="categories">
   <div class="container">
@@ -186,6 +235,7 @@ export function homePage({ products, categories, countsByCategory }) {
   const body = [
     sampleNotice(),
     heroSlider(featured),
+    searchSection(products),
     categorySection(categories, countsByCategory),
     intro(),
     moreSection(rest),

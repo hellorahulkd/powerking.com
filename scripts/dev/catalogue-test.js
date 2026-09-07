@@ -148,11 +148,14 @@ const sprite = await page.eval(`
     symbols: s ? s.querySelectorAll('symbol').length : 0,
     uses,
     space: r ? Math.round(r.width) + 'x' + Math.round(r.height) : 'none',
+    // Measure an icon that is actually on screen: the enquiry toggle also
+    // draws from the sprite and ships hidden until its own script reveals it,
+    // so the first <use> on a card is not necessarily a painted one.
     painted: (() => {
-      const u = document.querySelector('.card use');
-      if (!u) return null;
-      const box = u.ownerSVGElement.getBoundingClientRect();
-      return Math.round(box.width);
+      const svgs = [...document.querySelectorAll('.card use')]
+        .map((u) => u.ownerSVGElement)
+        .filter((s) => s.getBoundingClientRect().width > 0);
+      return svgs.length ? Math.round(svgs[0].getBoundingClientRect().width) : 0;
     })(),
   };
 `);

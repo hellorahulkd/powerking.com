@@ -120,6 +120,48 @@ async function main() {
     await page.close();
   }
 
+  /* --------------------------------------------- 1c. search from the home page -- */
+  // The homepage declares a SearchAction to Google. This is the box that
+  // claim depends on, and the path from it has to end in a filtered listing.
+  process.stdout.write('\nSearch from the homepage\n');
+  {
+    const page = await newPage(port);
+    await page.setViewport(390, 844, true);
+    await page.goto(`${BASE}/`);
+    const form = await page.eval(`
+      const f = document.querySelector('.hsearch__form');
+      return {
+        action: f ? new URL(f.action).pathname : null,
+        method: f ? f.method : null,
+        field: f ? f.querySelector('input[type=search]').name : null,
+        chips: [...document.querySelectorAll('.hsearch__chip')].map(c => c.getAttribute('href')),
+      };
+    `);
+    check('the homepage has a search form pointing at the catalogue',
+      form.action === '/products/' && form.method === 'get' && form.field === 'q',
+      JSON.stringify(form));
+    check('the shortcuts are real catalogue queries',
+      form.chips.length > 0 && form.chips.every((h) => h.startsWith('/products/?q=')),
+      form.chips.join(' '));
+
+    // Follow the URL the form would produce rather than submitting it in
+    // page: an in-page navigation destroys the execution context this helper
+    // is talking to, and the next eval never comes back.
+    await page.goto(`${BASE}/products/?q=speaker`);
+    const landed = await page.eval(`return {
+      path: location.pathname + location.search,
+      prefilled: document.getElementById('product-search').value,
+      shown: [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length,
+    };`);
+    const expected = products.filter((p) =>
+      /speaker/i.test([p.name, p.brand, p.category, p.sku, ...(p.tags || [])].join(' '))).length;
+    check('searching from the homepage lands on a filtered catalogue',
+      landed.path === '/products/?q=speaker' && landed.prefilled === 'speaker'
+      && landed.shown > 0 && landed.shown === Math.min(expected, PAGE_SIZE),
+      JSON.stringify({ ...landed, expected }));
+    await page.close();
+  }
+
   /* ----------------------------------------------- 2. console cleanliness -- */
   process.stdout.write('\nRuntime errors\n');
   {

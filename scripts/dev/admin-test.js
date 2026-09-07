@@ -270,7 +270,7 @@ console.log('\nA second save uses the new sha');
 {
   const r = await page.eval(`
     document.querySelector('#list [data-edit]').click();
-    document.getElementById('f-unit').value = 'Per carton';
+    document.getElementById('f-sku').value = 'EDITED-SKU';
     document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     await new Promise(r => setTimeout(r, 300));
     const put = window.__gh.calls.filter(c => c.method === 'PUT').pop();
@@ -285,7 +285,7 @@ console.log('\nSomeone else saving first');
 {
   const r = await page.eval(`
     document.querySelector('#list [data-edit]').click();
-    document.getElementById('f-unit').value = 'Per piece';
+    document.getElementById('f-sku').value = 'CONFLICT-SKU';
     window.__gh.nextStatus = 409;
     document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     await new Promise(r => setTimeout(r, 400));

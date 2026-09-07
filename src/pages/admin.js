@@ -174,7 +174,6 @@ export function adminPage() {
 
         ${field('f-sku', 'Model / SKU', text('f-sku', { placeholder: 'K21' }), 'The model number on the box. Searchable.')}
         ${field('f-packsize', 'Pack size', text('f-packsize', { placeholder: '20 pcs per carton' }), 'How many come in a carton. This is the first thing a wholesale buyer asks and it is empty on every product so far.')}
-        ${field('f-unit', 'Sold as', text('f-unit', { placeholder: 'Per carton' }))}
         ${field('f-tags', 'Extra search words', text('f-tags', { placeholder: 'bluetooth, party, rgb' }), 'Comma separated. Words a buyer might search that are not already in the name or description.')}
 
         <div class="af">
@@ -201,6 +200,7 @@ export function adminPage() {
     chrome: false,
     bodyClass: 'page-admin',
     body,
+    headExtra: '<link rel="stylesheet" href="/assets/admin.css">',
     scripts: '<script src="/assets/admin.js" defer></script>',
   });
 }

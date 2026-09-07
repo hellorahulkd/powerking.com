@@ -231,7 +231,7 @@
 
   var BLANK = {
     id: 0, name: '', slug: '', brand: '', category: '', description: '',
-    image: '', gallery: [], packSize: '', unit: '', sku: '',
+    image: '', gallery: [], packSize: '', sku: '',
     featured: false, available: true, sample: false, tags: [],
   };
 
@@ -247,7 +247,6 @@
     $('f-description').value = p.description;
     $('f-sku').value = p.sku;
     $('f-packsize').value = p.packSize;
-    $('f-unit').value = p.unit;
     $('f-tags').value = (p.tags || []).join(', ');
     $('f-featured').checked = !!p.featured;
     $('f-available').checked = !!p.available;
@@ -318,7 +317,6 @@
       image: state.editing ? state.editing.image : '',
       gallery: state.editing ? (state.editing.gallery || []) : [],
       packSize: $('f-packsize').value.trim(),
-      unit: $('f-unit').value.trim(),
       sku: $('f-sku').value.trim(),
       featured: $('f-featured').checked,
       available: $('f-available').checked,

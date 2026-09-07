@@ -38,7 +38,7 @@ const shape = await page.eval(`
 check('comparison table renders', !shape.missing);
 check('this product plus its category siblings appear', shape.cols === 2, `${shape.cols} columns`);
 check('rows compare the specs that matter',
-  ['Brand', 'Pack size', 'Sold as', 'SKU', 'Availability', 'Enquire']
+  ['Brand', 'Pack size', 'SKU', 'Availability', 'Enquire']
     .every((r) => shape.rowHeaders.includes(r)), shape.rowHeaders.join(', '));
 check('column headers are scoped for screen readers', shape.colScoped === true);
 check('table has a caption', shape.caption === true);
