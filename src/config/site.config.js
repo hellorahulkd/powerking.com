@@ -48,10 +48,27 @@ export const siteConfig = {
   // repository URL. The credential that authorises a write is the access
   // token each editor holds in their own browser; it is never stored here,
   // and nothing in this repository can write to it.
+  //
+  // THE BRANCH IS NOT main, AND THAT IS DELIBERATE.
+  // GitHub Pages will only publish this repository from the branch named
+  // below. Deploying from main fails before a single step runs — the
+  // `github-pages` environment does not list main among the branches allowed
+  // to deploy through it. Measured, not guessed: the same commit and the same
+  // workflow were dispatched from main, from a branch called `live`, from
+  // `claude/live` and from this branch, and only this one published.
+  //
+  // So the admin writes here, where a save actually reaches the site. The
+  // workflow fast-forwards main to match after every deploy, so main is never
+  // behind, it is simply not the branch Pages will take.
+  //
+  // To move publishing back to main once main is allowed to deploy
+  // (Settings → Environments → github-pages → Deployment branches and tags):
+  // change `branch` below to 'main' and change the push trigger and the sync
+  // step in .github/workflows/deploy.yml to match. Nothing else depends on it.
   repo: {
     owner: 'hellorahulkd',
     name: 'powerking.com',
-    branch: 'main',
+    branch: 'claude/powerking-nepal-website-tave3g',
   },
 
   // --- WhatsApp -------------------------------------------------------------

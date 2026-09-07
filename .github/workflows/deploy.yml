@@ -1,43 +1,54 @@
 name: Build & Deploy to GitHub Pages
 
-# Every push to main rebuilds the site and publishes it.
-# Adding a product = edit src/data/products.js, commit, push. That is the
-# entire deployment process.
+# Every push to the publishing branch rebuilds the site and publishes it.
+# Saving a product in /admin/ is a push to that branch, so it is the whole
+# deployment process.
 on:
   push:
-    branches: [main]
+    # NOT main. See the note below — main cannot publish this repository.
+    branches: [claude/powerking-nepal-website-tave3g]
   # Lets you re-deploy by hand from the Actions tab without pushing a commit.
   workflow_dispatch:
 
-# Required for the deploy step to publish to Pages.
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# WHY A PUSH TO main MAY BUILD AND THEN NOT PUBLISH
+# WHY THE PUBLISHING BRANCH IS NOT main
 #
-# The deploy job below runs in the `github-pages` environment, and an
-# environment can restrict which branches are allowed to deploy through it.
-# On this repository that list did not include main: every push to main
-# built fine and then failed the deploy job in about a second, before any
-# step ran, while the identical workflow dispatched on a feature branch
-# published normally. Measured both ways on 2026-09-07 to be sure it was the
-# branch and not the event or the timing.
+# The deploy job runs in the `github-pages` environment, and an environment
+# can restrict which branches may deploy through it. On this repository that
+# list contains one branch, and it is not main. Every push to main built fine
+# and then failed the deploy job in about a second, before any step ran, so
+# the commit landed, the build passed, and the published site never changed —
+# which is why photos saved from /admin/ showed as broken images for a day.
 #
-# That is a repository setting, not something this file can fix:
+# Established by running the same commit and this same workflow from four
+# refs on 2026-09-07:
+#
+#   claude/powerking-nepal-website-tave3g  → published
+#   main                                   → deploy failed in 1s
+#   live                                   → deploy failed in 1s
+#   claude/live                            → deploy failed in 1s
+#
+# So it is not the event, not the timing, and not a wildcard on the prefix:
+# that one branch is the only ref GitHub will publish from. The admin panel
+# therefore commits there (src/config/site.config.js → repo.branch), and this
+# workflow deploys from there. main is fast-forwarded to match afterwards, so
+# it stays current without being in the publishing path.
+#
+# THE TIDIER ARRANGEMENT, WHEN SOMEONE CAN CHANGE THE SETTING:
 #   Settings → Environments → github-pages → Deployment branches and tags
-# main has to be on that list (or the restriction removed) or nothing saved
-# from /admin/ ever reaches the site — the commit lands, the build passes,
-# and the published site stays as it was.
+#   → add main (or remove the restriction)
+# then set repo.branch back to 'main' and change the push trigger and the
+# sync step below. Until then, this is what makes a save reach the site.
 #
-# One deployment at a time. Saving a product in /admin/ pushes twice, once
-# for the photo and once for the catalogue, so runs do queue up; GitHub skips
-# the ones queued in between and deploys the newest.
-#
-# cancel-in-progress stays false, which is what GitHub's own Pages
-# configuration specifies: a deployment cancelled mid-flight can leave the
-# next one to fail.
+# One deployment at a time. Saving a product pushes twice, once for the photo
+# and once for the catalogue, so runs do queue; GitHub skips the ones queued
+# in between and deploys the newest. cancel-in-progress stays false, which is
+# GitHub's own documented Pages configuration — a deployment cancelled
+# mid-flight can leave the next one to fail.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -77,3 +88,28 @@ jobs:
       - name: Publish to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # main is the default branch and the one anybody browsing the repository
+  # sees first, so it must not drift behind what is actually published. It
+  # cannot be the branch that deploys, but it can be kept identical to it.
+  #
+  # A push made with GITHUB_TOKEN does not trigger workflows, so this cannot
+  # loop back into another deploy. It is a fast-forward only: if main has
+  # commits of its own it fails, and that is not worth failing the deploy
+  # over, so the step reports and moves on.
+  sync-main:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fast-forward main to what was just published
+        continue-on-error: true
+        run: |
+          git push origin "${{ github.sha }}:refs/heads/main" \
+            || echo "main has diverged; leaving it alone."
