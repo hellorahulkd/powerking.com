@@ -1656,5 +1656,24 @@
     "tags": [
       "Portable speaker Radio fm"
     ]
+  },
+  {
+    "id": 267,
+    "name": "WSJAR E-8808 Portable Bluetooth Karaoke Speaker",
+    "slug": "wsjar-e-8808-portable-bluetooth-karaoke-speaker",
+    "brand": "WSJAR E-8808 Portable Bluetooth Karaoke Speaker",
+    "category": "Speakers",
+    "description": "WSJAR E-8808 Portable Bluetooth Karaoke Speaker\nProduct Description\n Vibrant RGB Lighting: Features dynamic, multi-color LED lights built into the main speaker grille and lower base strip for an engaging visual atmosphere.\n Included Karaoke Microphone: Packaged with a dedicated wireless handheld microphone for instant sing-along events, public announcements, and karaoke sessions.\n High-Impact 8.5-Inch Driver: Equipped with an 8.5-inch woofer and high-frequency horn tweeter to project clear vocals and solid bass response.\n Top Control Panel: Integrated top-mounted interface featuring easy-to-use volume knobs, playback buttons, microphone inputs, and status indicators.\n Multi-Format Playback: Supports Bluetooth wireless audio streaming, USB flash drive input, MicroSD/TF cards, and auxiliary line-in connections.\n Integrated Handle: Molded top carry handle makes it easy to lift and transport anywhere.\nDimensions & Specs\n Product Dimensions: ~24 cm × 20 cm × 38 cm (Length × Width × Height)\n Packaging Dimensions: ~26 cm × 22 cm × 40 cm\n Total Weight: ~2.2 kg – 2.8 kg\n Speaker Woofer Size: 8.5 inches\n Power Output: 8W RMS (High-Efficiency Loudspeaker Output)\n Battery: Integrated rechargeable lithium-ion battery (3–5 hours continuous playback)\n Connectivity: Bluetooth 5.0, USB Port, MicroSD/TF Slot, 6.35 mm Microphone Jack, AUX Input, Micro-USB Charging Port",
+    "image": "/images/products/wsjar-e-8808-portable-bluetooth-karaoke-speaker.jpg",
+    "gallery": [],
+    "packSize": "8",
+    "priceCarton": 2400,
+    "pricePiece": 2400,
+    "sku": "WSJAR E-8808 Portable Bluetooth Karaoke Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Trolley speaker"
+    ]
   }
 ]
