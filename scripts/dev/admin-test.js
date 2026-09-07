@@ -281,6 +281,23 @@ console.log('\nA second save uses the new sha');
   check('the second save succeeds', /Saved/i.test(r.msg), r.msg);
 }
 
+console.log('\nSaving a product nobody changed');
+{
+  const r = await page.eval(`
+    document.querySelector('#list [data-edit]').click();
+    const before = window.__gh.calls.filter(c => c.method === 'PUT').length;
+    document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    await new Promise(r => setTimeout(r, 300));
+    return {
+      puts: window.__gh.calls.filter(c => c.method === 'PUT').length - before,
+      msg: document.getElementById('work-msg').textContent,
+    };
+  `);
+  check('an unchanged product is not committed at all', r.puts === 0, JSON.stringify(r));
+  check('and the panel says why nothing happened',
+    /nothing changed/i.test(r.msg), r.msg);
+}
+
 console.log('\nSomeone else saving first');
 {
   const r = await page.eval(`

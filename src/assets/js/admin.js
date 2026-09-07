@@ -368,6 +368,7 @@
     if (bad.length) { say($('edit-msg'), bad.join(' '), 'warn'); return; }
 
     var save = $('save');
+    var unchanged = false;
     save.disabled = true;
     say($('edit-msg'), 'Saving…');
 
@@ -388,6 +389,14 @@
       var at = next.findIndex(function (p) { return p.id === product.id; });
       if (at === -1) next.push(product); else next[at] = product;
 
+      // Opening a product and saving it unchanged used to commit anyway, which
+      // put entries in the history that record nothing.
+      if (at !== -1 && JSON.stringify(state.products[at]) === JSON.stringify(product)
+          && !state.pendingImage) {
+        unchanged = true;
+        return null;
+      }
+
       return writeFile(
         PRODUCTS,
         textToBase64(JSON.stringify(next, null, 2) + '\n'),
@@ -401,7 +410,9 @@
       state.pendingImage = null;
       renderList();
       show('pane-work');
-      say($('work-msg'), 'Saved. The site rebuilds and goes live in about a minute.', 'ok');
+      say($('work-msg'), unchanged
+        ? 'Nothing changed, so nothing was saved.'
+        : 'Saved. The site rebuilds and goes live in about a minute.', 'ok');
     }).catch(function (err) {
       if (err.status === 409) return reloadAfterConflict($('edit-msg'));
       say($('edit-msg'), err.message, 'warn');
