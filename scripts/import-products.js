@@ -52,6 +52,8 @@ const COLUMNS = {
   image: 'auto — /images/products/<slug>.jpg, if blank',
   gallery: 'empty — separate several paths with |',
   packsize: "''",
+  pricecarton: "'' — numbers only, no Rs. and no commas",
+  pricepiece: "'' — a different figure from the carton rate",
   sku: "''",
   featured: 'false — yes/true/1 to set',
   available: 'true — no/false/0 to clear',
@@ -101,6 +103,24 @@ const slugify = (s) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+/**
+ * A price out of a spreadsheet arrives as "Rs. 12,500", "12500.00" or a bare
+ * number, so strip everything that is not part of one and keep whole rupees.
+ * Anything that is not a positive number becomes '' — "price on enquiry" —
+ * rather than a zero the site would publish as a quote.
+ */
+function money(value) {
+  // Take the first number-shaped run rather than stripping punctuation: the
+  // dot in "Rs." survives a naive strip and turns 12,500 into 0.125, which
+  // then rounds to a zero the site would publish as a price.
+  const match = String(value ?? '').match(/\d[\d,]*(?:\.\d+)?/);
+  if (!match) return '';
+  const n = Number(match[0].replace(/,/g, ''));
+  if (!Number.isFinite(n) || n <= 0) return '';
+  const whole = Math.round(n);
+  return whole > 0 ? whole : '';
+}
+
 /** Spreadsheets have no booleans; people type yes/no/true/false/1/0/x. */
 function bool(value, fallback) {
   const v = String(value ?? '').trim().toLowerCase();
@@ -136,6 +156,8 @@ function render(products) {
     image: p.image,
     gallery: p.gallery,
     packSize: p.packSize,
+    priceCarton: p.priceCarton,
+    pricePiece: p.pricePiece,
     sku: p.sku,
     featured: p.featured,
     available: p.available,
@@ -237,6 +259,8 @@ if (!errors.length) {
       image,
       gallery: list(cell('gallery')),
       packSize: cell('packsize'),
+      priceCarton: money(cell('pricecarton')),
+      pricePiece: money(cell('pricepiece')),
       sku: cell('sku'),
       ...flags,
       tags: list(cell('tags')),

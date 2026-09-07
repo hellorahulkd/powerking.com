@@ -21,6 +21,17 @@ export const siteConfig = {
   shortDescription:
     'Wholesale electronics distribution in Nepal — speakers, headphones, earbuds, chargers, data cables, multiplugs and mobile accessories. Browse the catalogue and enquire on WhatsApp for trade pricing, availability and minimum order quantities.',
 
+  // --- Money -----------------------------------------------------------------
+  // Prices are entered as plain numbers and formatted here. The locale is
+  // ne-NP forced to Latin digits: plain "ne-NP" renders Devanagari numerals
+  // (१,२५,०००), which is not what a trade buyer reads, while the tag below
+  // keeps Nepal's lakh grouping — 1,25,000 rather than 125,000.
+  currency: {
+    symbol: 'Rs.',
+    code: 'NPR',
+    locale: 'ne-NP-u-nu-latn',
+  },
+
   // --- How stock is supplied ------------------------------------------------
   // The same for every line we carry, so it is stated once here rather than
   // being a field on each product that would only ever hold one answer.

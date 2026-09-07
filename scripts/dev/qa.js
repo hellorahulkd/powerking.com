@@ -196,6 +196,48 @@ async function main() {
     await page.close();
   }
 
+  /* --------------------------------------------------------- 1e. prices -- */
+  // Prices are the one thing on this site a buyer will act on, so what is
+  // rendered has to be what is stored — and a product with no price must say
+  // so rather than showing a figure nobody quoted.
+  process.stdout.write('\nPrices\n');
+  {
+    const page = await newPage(port);
+    await page.setViewport(1280, 900, false);
+    const priced = products.find((p) => Number(p.priceCarton) > 0);
+    const unpriced = products.find((p) => !Number(p.priceCarton) && !Number(p.pricePiece));
+
+    if (unpriced) {
+      await page.goto(`${BASE}/products/${unpriced.slug}/`);
+      const r = await page.eval(`return {
+        ask: !!document.querySelector('.enquiry__price'),
+        prices: document.querySelectorAll('.price__value').length,
+        text: document.body.textContent,
+      };`);
+      check('a product with no price asks the buyer to enquire',
+        r.ask === true && r.prices === 0, JSON.stringify({ ask: r.ask, prices: r.prices }));
+      check('and never shows a zero price', !/Rs\.\s*0\b/.test(r.text));
+    }
+
+    if (priced) {
+      await page.goto(`${BASE}/products/${priced.slug}/`);
+      const r = await page.eval(`return {
+        labels: [...document.querySelectorAll('.price__label')].map(e => e.textContent.trim()),
+        values: [...document.querySelectorAll('.price__value')].map(e => e.textContent.trim()),
+        note: (document.querySelector('.enquiry__pricenote') || {}).textContent || '',
+      };`);
+      check('a priced product shows the carton rate and says it is the carton rate',
+        r.labels.includes('Per carton'), r.labels.join(', '));
+      check('the two rates are named as different things',
+        /different/i.test(r.note), r.note.slice(0, 70));
+      check('prices are written in rupees with Nepali grouping',
+        r.values.every((v) => /^Rs\. [\d,]+$/.test(v)), r.values.join(' | '));
+    } else {
+      check('no product carries an invented price', true);
+    }
+    await page.close();
+  }
+
   /* ----------------------------------------------- 2. console cleanliness -- */
   process.stdout.write('\nRuntime errors\n');
   {

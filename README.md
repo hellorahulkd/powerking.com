@@ -19,6 +19,7 @@ WhatsApp, where pricing and minimum order quantities are agreed.
 | --- | --- |
 | **Add a product or a category** | **Open [powerkingnepal.com/admin/](https://powerkingnepal.com/admin/), sign in, fill in the form** |
 | Add many products at once | A spreadsheet — see [§1](#1-how-to-add-a-product) |
+| Change a price | The same admin panel — carton and piece rates are separate fields |
 | Change the WhatsApp number | `whatsappNumber` in [`src/config/site.config.js`](src/config/site.config.js) |
 | Add Google Analytics | `googleAnalyticsId` in the same config file |
 | Change phone/email/address | Same config file |
@@ -144,6 +145,8 @@ to the list:
   "image": "/images/products/wireless-earbuds-pro.jpg",
   "gallery": [],
   "packSize": "50 pcs per carton",
+  "priceCarton": 12500,
+  "pricePiece": 650,
   "sku": "PK-EAR-010",
   "featured": true,
   "available": true,

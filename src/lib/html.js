@@ -57,6 +57,24 @@ export function whatsappUrl(messageKey = 'general', vars = {}) {
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
+/**
+ * A price as it is written in Nepal: "Rs. 1,25,000".
+ *
+ * Returns '' for anything that is not a usable number, and every caller
+ * checks for that — a product with no price set shows "price on enquiry"
+ * rather than "Rs. 0", which would be a quote nobody made.
+ */
+export function formatPrice(value) {
+  if (value === null || value === undefined || value === '') return '';
+  const n = Number(value);
+  // Zero is not a price anyone quoted, so it reads as "not set" rather than
+  // as free. Whole rupees only: wholesale here is not priced in paisa, and
+  // "Rs. 999.5" on a carton would look like a mistake.
+  if (!Number.isFinite(n) || n <= 0) return '';
+  const { symbol, locale } = siteConfig.currency;
+  return `${symbol} ${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(n)}`;
+}
+
 /** Render a value, or a clearly-marked placeholder when it is missing. */
 export function orPlaceholder(value, placeholderLabel) {
   const v = String(value ?? '').trim();

@@ -281,6 +281,49 @@ console.log('\nA second save uses the new sha');
   check('the second save succeeds', /Saved/i.test(r.msg), r.msg);
 }
 
+console.log('\nPrices');
+{
+  const r = await page.eval(`
+    document.getElementById('edit-back').click();
+    document.querySelector('#list [data-edit]').click();
+    document.getElementById('f-price-carton').value = '12500';
+    document.getElementById('f-price-piece').value = '650';
+    document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    await new Promise(r => setTimeout(r, 300));
+    const put = window.__gh.calls.filter(c => c.method === 'PUT').pop();
+    const saved = JSON.parse(new TextDecoder().decode(
+      Uint8Array.from(atob(put.body.content), c => c.charCodeAt(0))));
+    return { edited: saved.find(p => p.priceCarton === 12500) || null,
+             msg: document.getElementById('work-msg').textContent };
+  `);
+  check('both prices are saved as numbers, not text',
+    r.edited && r.edited.priceCarton === 12500 && r.edited.pricePiece === 650,
+    JSON.stringify(r.edited && { c: r.edited.priceCarton, p: r.edited.pricePiece }));
+
+  const junk = await page.eval(`
+    document.querySelector('#list [data-edit]').click();
+    const out = {};
+    for (const bad of ['0', '-5', 'abc', '0.4', '']) {
+      document.getElementById('f-price-carton').value = bad;
+      document.getElementById('f-price-piece').value = '650';
+      document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      await new Promise(r => setTimeout(r, 200));
+      const put = window.__gh.calls.filter(c => c.method === 'PUT').pop();
+      const saved = JSON.parse(new TextDecoder().decode(
+        Uint8Array.from(atob(put.body.content), c => c.charCodeAt(0))));
+      out[bad || '(empty)'] = saved.find(p => p.pricePiece === 650).priceCarton;
+      document.querySelector('#list [data-edit]').click();
+    }
+    document.getElementById('edit-back').click();
+    return out;
+  `);
+  // "Rs. 0" on a live product is a quote nobody gave; anything that is not a
+  // usable number has to land as "price on enquiry" instead.
+  check('zero, negative, non-numeric and sub-rupee prices save as no price',
+    ['0', '-5', 'abc', '0.4', '(empty)'].every((k) => junk[k] === ''),
+    JSON.stringify(junk));
+}
+
 console.log('\nSaving a product nobody changed');
 {
   const r = await page.eval(`

@@ -39,6 +39,10 @@
  *  image       string   Path from the site root, e.g. '/images/products/x.jpg'.
  *  gallery     string[] Optional extra images. Omit or leave [] if none.
  *  packSize    string   e.g. '20 pcs per carton'. Use '' if not known.
+ *  priceCarton number   Trade price for one carton, in rupees. Plain number —
+ *                       no "Rs.", no commas. '' means "price on enquiry".
+ *  pricePiece  number   Trade price for one loose piece, in rupees. A
+ *                       different figure from the carton rate.
  *  sku         string   Optional internal code. Searchable. Use '' if none.
  *  featured    boolean  true → appears in the homepage Featured row (first 8).
  *  available   boolean  false → shown as "Currently unavailable", still listed.

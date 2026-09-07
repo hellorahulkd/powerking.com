@@ -174,6 +174,8 @@ export function adminPage() {
 
         ${field('f-sku', 'Model / SKU', text('f-sku', { placeholder: 'K21' }), 'The model number on the box. Searchable.')}
         ${field('f-packsize', 'Pack size', text('f-packsize', { placeholder: '20 pcs per carton' }), 'How many come in a carton. This is the first thing a wholesale buyer asks and it is empty on every product so far.')}
+        ${field('f-price-carton', 'Price per carton (Rs.)', text('f-price-carton', { placeholder: '12500', type: 'number' }), 'Numbers only — no "Rs." and no commas. The site formats it as <code>Rs. 12,500</code>. Leave blank and the product shows "Price on enquiry".')}
+        ${field('f-price-piece', 'Price per loose piece (Rs.)', text('f-price-piece', { placeholder: '650', type: 'number' }), 'The loose-piece rate is a different number from the carton rate — fill in both so a buyer sees the difference.')}
         ${field('f-tags', 'Extra search words', text('f-tags', { placeholder: 'bluetooth, party, rgb' }), 'Comma separated. Words a buyer might search that are not already in the name or description.')}
 
         <div class="af">

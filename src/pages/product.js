@@ -1,11 +1,44 @@
 import { siteConfig } from '../config/site.config.js';
 import {
   esc, absoluteUrl, whatsappUrl, jsonForScript, metaDescription, socialImage,
+  formatPrice,
 } from '../lib/html.js';
 import { layout } from '../templates/layout.js';
 import {
   whatsappButton, breadcrumbSchema, slugifyCategory, enquiryAdd,
 } from '../templates/components.js';
+
+/**
+ * The two trade prices. They are deliberately shown as a pair and labelled,
+ * because a carton rate and a loose-piece rate are different numbers and a
+ * single figure would be read as covering both.
+ *
+ * A product with neither price set falls back to the enquiry line the site
+ * has always carried — no price is better than a wrong one.
+ */
+function priceBlock(product) {
+  const carton = formatPrice(product.priceCarton);
+  const piece = formatPrice(product.pricePiece);
+  if (!carton && !piece) {
+    return '<p class="enquiry__price">Contact us for wholesale pricing</p>';
+  }
+  const rows = [
+    carton && `<div class="price"><span class="price__label">Per carton</span>
+      <span class="price__value">${esc(carton)}</span></div>`,
+    piece && `<div class="price"><span class="price__label">Per piece</span>
+      <span class="price__value">${esc(piece)}</span></div>`,
+  ].filter(Boolean).join('');
+  return `<div class="prices">${rows}</div>
+    <p class="enquiry__pricenote">
+      ${carton && piece
+        ? 'The carton rate and the loose-piece rate are different — the carton rate is the better one.'
+        : carton
+          ? 'Carton rate. Loose pieces are priced differently — ask us.'
+          : 'Loose-piece rate. Buying by the carton is priced differently — ask us.'}
+      Trade prices, and they move with the market, so confirm on WhatsApp
+      before you order.
+    </p>`;
+}
 
 function specRow(label, value) {
   if (!value) return '';
@@ -56,6 +89,8 @@ function compareSection(product, siblings) {
   const all = [product, ...siblings];
   const rows = [
     ['Brand', (p) => p.brand],
+    ['Carton price', (p) => formatPrice(p.priceCarton)],
+    ['Piece price', (p) => formatPrice(p.pricePiece)],
     ['Pack size', (p) => p.packSize],
     ['SKU', (p) => p.sku],
     ['Availability', (p) => (p.available === false ? 'Currently unavailable' : 'Available')],
@@ -194,6 +229,8 @@ export function productPage({ product, related }) {
           ${specRow('Brand', product.brand)}
           ${specRow('Category', product.category)}
           ${specRow('Pack Size', product.packSize)}
+          ${specRow('Carton Price', formatPrice(product.priceCarton))}
+          ${specRow('Piece Price', formatPrice(product.pricePiece))}
           ${specRow('SKU', product.sku)}
         </dl>
 
@@ -204,7 +241,7 @@ export function productPage({ product, related }) {
 
         <div class="enquiry" id="enquire">
           <h2 class="enquiry__title">Wholesale Enquiries</h2>
-          <p class="enquiry__price">Contact us for wholesale pricing</p>
+          ${priceBlock(product)}
           <p class="enquiry__body">
             ${esc(siteConfig.supplyTerms)} Tell us how many you need and we
             will reply with a trade rate, current availability and the minimum
@@ -236,6 +273,10 @@ export function productPage({ product, related }) {
 
 ${compareSection(product, related)}`;
 
+  // A number, not a formatted string: structured data wants the raw amount.
+  const unitPrice = Number(product.pricePiece);
+  const offerPrice = Number.isFinite(unitPrice) && unitPrice > 0 ? unitPrice : null;
+
   const description = metaDescription(
     `${product.name} — ${product.brand}${
       product.packSize ? `, ${product.packSize}` : ''
@@ -260,7 +301,14 @@ ${compareSection(product, related)}`;
         product.available === false
           ? 'https://schema.org/OutOfStock'
           : 'https://schema.org/InStock',
-      priceCurrency: 'NPR',
+      // Offer.price means the price of one unit, so the loose-piece rate is
+      // the one that belongs here; the carton rate is a bulk rate for a
+      // quantity schema.org has no simple field for. Currency only rides
+      // along when there is an amount — a currency with no price is a claim
+      // about nothing, and search engines read this as a real offer.
+      ...(offerPrice
+        ? { price: offerPrice, priceCurrency: siteConfig.currency.code }
+        : {}),
       seller: { '@type': 'Organization', name: siteConfig.businessName },
     },
   };

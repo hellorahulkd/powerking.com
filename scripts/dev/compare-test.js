@@ -38,7 +38,7 @@ const shape = await page.eval(`
 check('comparison table renders', !shape.missing);
 check('this product plus its category siblings appear', shape.cols === 2, `${shape.cols} columns`);
 check('rows compare the specs that matter',
-  ['Brand', 'Pack size', 'SKU', 'Availability', 'Enquire']
+  ['Brand', 'Carton price', 'Piece price', 'Pack size', 'SKU', 'Availability', 'Enquire']
     .every((r) => shape.rowHeaders.includes(r)), shape.rowHeaders.join(', '));
 check('column headers are scoped for screen readers', shape.colScoped === true);
 check('table has a caption', shape.caption === true);
@@ -119,7 +119,7 @@ const card = await page.eval(`
   };
 `);
 check('card no longer repeats the description', card.desc === false);
-check('card no longer repeats the pricing line', card.price === false);
+check('the card shows a price line', card.price === true);
 check('card no longer shows the SKU', card.sku === false);
 check('card keeps the name, and the pack size when there is one',
   card.title === true && card.meta === packed.packSize,

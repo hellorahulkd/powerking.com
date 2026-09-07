@@ -231,7 +231,7 @@
 
   var BLANK = {
     id: 0, name: '', slug: '', brand: '', category: '', description: '',
-    image: '', gallery: [], packSize: '', sku: '',
+    image: '', gallery: [], packSize: '', priceCarton: '', pricePiece: '', sku: '',
     featured: false, available: true, sample: false, tags: [],
   };
 
@@ -247,6 +247,8 @@
     $('f-description').value = p.description;
     $('f-sku').value = p.sku;
     $('f-packsize').value = p.packSize;
+    $('f-price-carton').value = p.priceCarton;
+    $('f-price-piece').value = p.pricePiece;
     $('f-tags').value = (p.tags || []).join(', ');
     $('f-featured').checked = !!p.featured;
     $('f-available').checked = !!p.available;
@@ -317,12 +319,26 @@
       image: state.editing ? state.editing.image : '',
       gallery: state.editing ? (state.editing.gallery || []) : [],
       packSize: $('f-packsize').value.trim(),
+      priceCarton: price($('f-price-carton').value),
+      pricePiece: price($('f-price-piece').value),
       sku: $('f-sku').value.trim(),
       featured: $('f-featured').checked,
       available: $('f-available').checked,
       sample: $('f-sample').checked,
       tags: tags,
     };
+  }
+
+  /** A price is a positive number or nothing at all — never a string, and
+   *  never zero, which would publish as "Rs. 0". */
+  function price(value) {
+    var raw = String(value).trim();
+    var n = Number(raw);
+    if (!raw || !isFinite(n) || n <= 0) return '';
+    // Rounding can turn a positive number into zero, and "Rs. 0" on the site
+    // would read as a quote nobody gave.
+    var whole = Math.round(n);
+    return whole > 0 ? whole : '';
   }
 
   function nextId() {
