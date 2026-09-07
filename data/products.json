@@ -476,9 +476,11 @@
     "description": "SUV-shaped novelty speaker with a solar panel in the roof, stereo playback and a built-in flashlight. Sold as a gift line.",
     "image": "/images/products/kisonli-b3-solar-car-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "40",
+    "priceCarton": 800,
+    "pricePiece": 800,
     "sku": "B3",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": [
       "car speaker",
@@ -487,9 +489,7 @@
       "gift",
       "flashlight",
       "suv"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 209,
