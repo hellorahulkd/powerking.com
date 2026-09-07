@@ -352,30 +352,6 @@
     ]
   },
   {
-    "id": 203,
-    "name": "Kisonli U-2500BT 2.1 USB Gaming Speaker",
-    "slug": "kisonli-u-2500bt-gaming-speaker",
-    "brand": "Kisonli",
-    "category": "Speakers",
-    "description": "A 2.1 desktop set for gaming — subwoofer with two satellites, Bluetooth, and an infrared remote in the box. USB powered.",
-    "image": "/images/products/kisonli-u-2500bt-gaming-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "U-2500BT",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "2.1",
-      "gaming",
-      "subwoofer",
-      "remote",
-      "bluetooth",
-      "desktop"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 204,
     "name": "Kisonli K19 20W Portable Speaker with RGB",
     "slug": "kisonli-k19-20w-speaker",
