@@ -1637,5 +1637,24 @@
     "tags": [
       "Portable speaker radio fm"
     ]
+  },
+  {
+    "id": 266,
+    "name": "J-iPOK P618 Super Bass Wireless Speaker",
+    "slug": "j-ipok-p618-super-bass-wireless-speaker",
+    "brand": "J-iPOK P618 Super Bass Wireless Speaker",
+    "category": "Speakers",
+    "description": "J-iPOK P618 Super Bass Wireless Speaker\nProduct Description\n Integrated Smartphone Holder: Built-in top groove docks your smartphone upright for comfortable hands-free video and movie streaming.\n Heavy-Duty 20W Output: Features a powerful 4-inch speaker driver delivering 20W of volume with rich, enhanced bass response.\n Rugged Rubberized Armor: Wrapped in a durable black casing with high-impact orange corner bumpers for outdoor durability and grip.\n Extended 1800 mAh Battery: Built-in high-capacity rechargeable battery provides hours of continuous playback on a single charge.\n Multi-Input Versatility: Supports Bluetooth wireless connectivity, USB flash drives, TF/MicroSD cards, auxiliary line-in, and FM radio with an extendable antenna.\nDimensions & Specs\n Product Dimensions: ~22 cm × 11 cm × 12 cm (Length × Width × Height)\n Packaging Dimensions: ~24 cm × 12.5 cm × 13.5 cm\n Total Weight: ~750 g – 900 g\n Speaker Driver Size: 4 inches\n Power Output: 20W Peak Output\n Battery Capacity: 1800 mAh rechargeable lithium-ion battery (4–6 hours playback)\n Connectivity Options: Bluetooth 5.0, USB Port, MicroSD/TF Slot, FM Radio Antenna, Micro-USB Charging Port",
+    "image": "/images/products/j-ipok-p618-super-bass-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 1025,
+    "pricePiece": 1037,
+    "sku": "J-iPOK P618 Super Bass Wireless Speaker",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "Portable speaker Radio fm"
+    ]
   }
 ]
