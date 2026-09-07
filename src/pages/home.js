@@ -1,5 +1,5 @@
 import { siteConfig } from '../config/site.config.js';
-import { esc, whatsappUrl, hasWhatsApp } from '../lib/html.js';
+import { esc } from '../lib/html.js';
 import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
 import { productCard, whatsappButton } from '../templates/components.js';
@@ -82,7 +82,12 @@ function heroSlider(featured) {
 </section>`;
 }
 
-/** Compact band under the carousel: who this is, and the two primary actions. */
+/**
+ * Who this is, in three lines. It closes the page rather than opening it, so
+ * it carries one link out to the catalogue — the closing call to action
+ * directly below already offers WhatsApp, and four stacked buttons in a row
+ * is not a choice, it is noise.
+ */
 function intro() {
   return `<section class="intro">
   <div class="container intro__inner">
@@ -96,14 +101,8 @@ function intro() {
       </p>
     </div>
     <div class="intro__actions">
-      <a class="btn btn--primary btn--lg" href="/products/">
+      <a class="btn btn--primary" href="/products/">
         <span>Explore Products</span><span class="btn__arrow" aria-hidden="true">→</span>
-      </a>
-      <a class="btn btn--outline btn--lg"
-         href="${esc(whatsappUrl('hero'))}"
-         ${hasWhatsApp() ? 'target="_blank" rel="noopener"' : ''}
-         data-wa-track data-wa-location="intro">
-        <span>Contact Us on WhatsApp</span>
       </a>
     </div>
   </div>
@@ -164,9 +163,9 @@ function searchStrip(products) {
 function categorySection(allCategories, countsByCategory) {
   const categories = allCategories.filter((c) => (countsByCategory[c.name] || 0) > 0);
   if (!categories.length) return '';
-  return `<section class="section section--top" id="categories">
+  return `<section class="section section--top section--tight" id="categories">
   <div class="container">
-    <div class="section__head">
+    <div class="section__head section__head--tight">
       <div>
         <p class="eyebrow">Browse Our Catalogue</p>
         <h2 class="section__title">Shop by category</h2>
@@ -241,8 +240,10 @@ export function homePage({ products, categories, countsByCategory }) {
     searchStrip(products),
     heroSlider(featured),
     categorySection(categories, countsByCategory),
-    intro(),
     moreSection(rest),
+    // The "who we are" band is background, not what a buyer came for. It sits
+    // after the products now, above the closing call to action.
+    intro(),
     ctaSection(),
   ].join('\n');
 

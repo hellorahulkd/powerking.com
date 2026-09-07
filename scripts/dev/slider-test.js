@@ -131,6 +131,36 @@ const { proc, port } = await launch();
   await page.close();
 }
 
+// --- the controls have to keep off the slide ---------------------------------
+// The dots and Pause were absolutely positioned into whatever room the slide's
+// own bottom padding happened to leave, and on a phone they landed on top of
+// the slide's buttons. Checked as real geometry on every slide, at the
+// narrowest phone and at two common ones, because the tallest slide sets the
+// track height and only one of them shows the collision.
+{
+  const page = await newPage(port);
+  for (const [w, h] of [[320, 568], [390, 844], [402, 874]]) {
+    await page.setViewport(w, h, true);
+    await page.goto(`${BASE}/`);
+    const hit = await page.eval(`
+      const c = document.querySelector('.slider__controls').getBoundingClientRect();
+      const clash = [];
+      for (const el of document.querySelectorAll('.slide__actions .btn, .slide__title')) {
+        const b = el.getBoundingClientRect();
+        // Zero-size boxes belong to slides scrolled out of view.
+        if (b.height && b.bottom > c.top && b.top < c.bottom) {
+          clash.push(el.textContent.trim().slice(0, 30) + ' @' + Math.round(b.bottom)
+                     + ' vs controls @' + Math.round(c.top));
+        }
+      }
+      return clash;
+    `);
+    check(`slider controls clear the slide's own content at ${w}px`,
+      hit.length === 0, hit.join(' | '));
+  }
+  await page.close();
+}
+
 // --- no JavaScript ----------------------------------------------------------
 {
   const res = await fetch(`${BASE}/`);

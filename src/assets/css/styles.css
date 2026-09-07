@@ -385,7 +385,7 @@ code {
 .slide { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; }
 .slide__inner {
   display: grid; gap: .9rem; align-items: center;
-  padding-block: 1.25rem 2rem;
+  padding-block: 1.25rem .9rem;
 }
 .slide__eyebrow {
   margin: 0 0 .7rem; font-family: var(--font-mono);
@@ -450,6 +450,14 @@ code {
   position: absolute; left: 0; right: 0; bottom: 1rem; z-index: 3;
   display: flex; align-items: center; justify-content: center; gap: 1rem;
 }
+/* Absolutely positioned, this row lands on whatever the slide's own padding
+   happens to leave for it — and on a phone, where the slide stacks and the
+   buttons are full width, it landed on top of them. Below the two-column
+   breakpoint it sits in the flow under the track, where nothing can collide
+   with it whatever the slide contains. */
+@media (max-width: 819px) {
+  .slider__controls { position: static; padding-bottom: .8rem; }
+}
 .slider__dots { display: flex; gap: .45rem; }
 .slider__dot {
   width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%;
@@ -476,32 +484,39 @@ code {
 }
 
 /* ---------------------------------------------------------------- intro -- */
-.intro { padding: 3rem 0 1rem; }
-.intro__inner { display: grid; gap: 1.75rem; }
+.intro { padding: 2.25rem 0 .5rem; }
+.intro__inner { display: grid; gap: 1.1rem; }
 .intro__title {
-  font-size: var(--step-2); margin: 0 0 .6rem; max-width: 22ch;
+  font-size: var(--step-1); margin: 0 0 .5rem; max-width: 24ch;
 }
-.intro__lead { margin: 0; color: var(--text-muted); max-width: 44rem; font-size: var(--step-1); }
+.intro__lead { margin: 0; color: var(--text-muted); max-width: 44rem; font-size: var(--step-0); }
 .intro__actions { display: flex; flex-wrap: wrap; gap: .75rem; align-content: start; }
 @media (min-width: 900px) {
-  .intro { padding: 4.5rem 0 1.5rem; }
+  .intro { padding: 3rem 0 1rem; }
   .intro__inner { grid-template-columns: minmax(0, 1.5fr) auto; gap: 3rem; align-items: center; }
 }
 
 /* ------------------------------------------------------------- sections -- */
+/* The base first, its wide-screen size with it, and only then the modifiers.
+   The wide-screen `.section` rule used to sit last, and a media query is not
+   more specific than what it overrides — so above 800px it beat every
+   modifier below it, and `--tight`, `--top` and `--top-0` all silently
+   rendered as a full 5.5rem section. */
 .section { padding: 4rem 0; }
+@media (min-width: 800px) { .section { padding: 5.5rem 0; } }
 .section--tight { padding: 2.25rem 0; }
 .section--alt { background: var(--bg-alt); }
 .section--top-0 { padding-top: 1.5rem; }
 /* Sits directly under the carousel, so it needs less lead-in above. */
 .section--top { padding-top: 2rem; }
 @media (min-width: 800px) { .section--top { padding-top: 2.75rem; } }
-@media (min-width: 800px) { .section { padding: 5.5rem 0; } }
 .section__head {
   display: flex; align-items: flex-end; justify-content: space-between;
   gap: 1rem; flex-wrap: wrap; margin-bottom: 2.25rem;
 }
 .section__head h2 { margin: 0; }
+/* Less lead-in where the heading is a signpost rather than a section opener. */
+.section__head--tight { margin-bottom: 1.15rem; }
 .section__title { margin: 0 0 .35em; }
 .section__title--sm { font-size: var(--step-2); margin-bottom: .9rem; }
 .section__lead { color: var(--text-muted); max-width: 46rem; }
@@ -549,12 +564,15 @@ code {
 @media (min-width: 640px) { .cat-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 980px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
 .cat-tile {
-  position: relative; display: grid; align-content: start;
+  /* A column, so the arrow can be pushed to the bottom: tiles in a row are
+     the same height, and a two-line name must not leave its arrow sitting
+     higher than its neighbour's. */
+  position: relative; display: flex; flex-direction: column;
   /* A grid item defaults to min-width:auto, so the longest category name
      ("Accessories", "Multiplugs") sets a floor the 1fr track cannot go
      below — which pushed the two-up row past a 320px viewport. */
   min-width: 0;
-  padding: 1.5rem 1.35rem 1.35rem; min-height: 9.5rem; overflow: hidden;
+  padding: 1.1rem 1.1rem 1rem; min-height: 6.75rem; overflow: hidden;
   background: var(--bg-alt); border: 1px solid transparent;
   border-radius: var(--radius); text-decoration: none; color: var(--ink);
   transition: background-color .18s, transform .18s, box-shadow .18s;
@@ -565,16 +583,16 @@ code {
 }
 .cat-tile__name {
   font-family: var(--font-display); font-weight: 900;
-  font-size: var(--step-1); color: var(--ink); letter-spacing: -.03em;
-  line-height: 1.05; margin-bottom: .35rem; overflow-wrap: break-word;
+  font-size: var(--step-0); color: var(--ink); letter-spacing: -.03em;
+  line-height: 1.1; margin-bottom: .3rem; overflow-wrap: break-word;
 }
 .cat-tile__count {
   font-family: var(--font-mono); font-size: .7rem; letter-spacing: .1em;
   color: var(--text-faint); text-transform: uppercase;
 }
 .cat-tile__go {
-  font-size: 1.4rem; line-height: 1; color: var(--ink);
-  margin-top: 1.1rem; transition: transform .18s ease;
+  font-size: 1.25rem; line-height: 1; color: var(--ink);
+  margin-top: auto; padding-top: .6rem; transition: transform .18s ease;
 }
 .cat-tile:hover .cat-tile__go { transform: translateX(5px); }
 
