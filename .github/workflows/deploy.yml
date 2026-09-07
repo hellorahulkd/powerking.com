@@ -15,11 +15,19 @@ permissions:
   pages: write
   id-token: write
 
-# If two pushes land close together, let the newer one win rather than
-# queueing a deploy of stale content.
+# One deployment at a time. When several pushes land close together — which
+# is exactly what saving a product in /admin/ does, one commit for the photo
+# and one for the catalogue — GitHub skips the runs queued in between and
+# deploys the newest, so the site still ends up current.
+#
+# cancel-in-progress MUST stay false. It was true, and cancelling a Pages
+# deployment mid-flight left the next one to fail on arrival: every save made
+# from /admin/ between 00:08 and 00:25 built fine and then failed to publish,
+# which is why photos uploaded from the admin showed as broken images — the
+# files were in the repository, but the site serving them was never rebuilt.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:

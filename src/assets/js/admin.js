@@ -210,7 +210,12 @@
       // guarantee that whatever the file holds cannot close the attribute.
       var id = Number(p.id);
       return '<li class="admin__row" data-id="' + id + '">'
-        + '<img class="admin__thumb" src="' + escapeAttr(p.image) + '" alt="" loading="lazy">'
+        // A photo saved a minute ago is in the repository but not yet on the
+        // site serving this page, so its URL 404s. A broken-image icon reads
+        // as "your upload failed"; this says what is actually happening.
+        + '<img class="admin__thumb" src="' + escapeAttr(p.image) + '" alt="" loading="lazy"'
+        + ' onerror="this.classList.add(\'is-missing\');this.removeAttribute(\'src\')"'
+        + ' title="Photo appears here once the site finishes publishing">'
         + '<span class="admin__row-main">'
         + '<span class="admin__row-name">' + escapeHtml(p.name) + '</span>'
         + '<span class="admin__row-meta">' + escapeHtml(p.brand) + ' · ' + escapeHtml(p.category) + '</span>'
@@ -267,37 +272,84 @@
 
   function setPreview(src) {
     var img = $('f-image-preview');
+    var empty = $('f-image-empty');
     img.hidden = !src;
-    $('f-image-empty').hidden = !!src;
-    if (src) img.src = src;
+    empty.hidden = !!src;
+    empty.textContent = 'Click, or drop a photo here';
+    if (!src) { img.removeAttribute('src'); return; }
+    // A just-saved photo is not on the site yet, so its URL 404s for a minute.
+    img.onerror = function () {
+      img.hidden = true;
+      empty.hidden = false;
+      empty.textContent = 'Photo is still publishing';
+    };
+    img.src = src;
   }
 
-  /** Redraw a chosen photo as the catalogue's own tile: square, on white,
+  /** Draw whatever decoded onto the catalogue's own tile: square, on white,
    *  whole frame visible rather than cropped into. */
+  function paint(source, width, height) {
+    var S = TILE.size;
+    var canvas = document.createElement('canvas');
+    canvas.width = S; canvas.height = S;
+    var g = canvas.getContext('2d');
+    g.fillStyle = TILE.background;
+    g.fillRect(0, 0, S, S);
+    var r = Math.min(S / width, S / height);
+    var w = width * r, h = height * r;
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(source, (S - w) / 2, (S - h) / 2, w, h);
+    return canvas.toDataURL('image/jpeg', TILE.quality);
+  }
+
+  /** Is this one of the formats an iPhone shoots by default? */
+  function isAppleFormat(file) {
+    return /hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+  }
+
+  /**
+   * Two decoders, because they do not cover the same formats. createImageBitmap
+   * hands the file to the browser's own image pipeline, which on Safari reads
+   * the HEIC an iPhone shoots by default; <img> does not always. Chrome reads
+   * HEIC in neither, so a HEIC opened there fails whatever we do — hence the
+   * message saying so in words a shopkeeper can act on rather than "not an
+   * image this browser can open".
+   */
   function toTile(file) {
-    return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
-      reader.onerror = function () { reject(new Error('That file could not be read.')); };
-      reader.onload = function () {
-        var img = new Image();
-        img.onerror = function () { reject(new Error('That file is not an image this browser can open.')); };
-        img.onload = function () {
-          var S = TILE.size;
-          var canvas = document.createElement('canvas');
-          canvas.width = S; canvas.height = S;
-          var g = canvas.getContext('2d');
-          g.fillStyle = TILE.background;
-          g.fillRect(0, 0, S, S);
-          var r = Math.min(S / img.width, S / img.height);
-          var w = img.width * r, h = img.height * r;
-          g.imageSmoothingQuality = 'high';
-          g.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
-          resolve(canvas.toDataURL('image/jpeg', TILE.quality));
+    var viaBitmap = typeof createImageBitmap === 'function'
+      ? createImageBitmap(file).then(function (bmp) {
+          var url = paint(bmp, bmp.width, bmp.height);
+          if (bmp.close) bmp.close();
+          return url;
+        })
+      : Promise.reject(new Error('no createImageBitmap'));
+
+    return viaBitmap.catch(function () {
+      return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onerror = function () { reject(new Error('That file could not be read.')); };
+        reader.onload = function () {
+          var img = new Image();
+          img.onerror = function () { reject(cannotRead(file)); };
+          img.onload = function () { resolve(paint(img, img.width, img.height)); };
+          img.src = reader.result;
         };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      });
     });
+  }
+
+  function cannotRead(file) {
+    if (isAppleFormat(file)) {
+      return new Error('This is an iPhone HEIC photo and this browser cannot open '
+        + 'that format. Two ways round it: on a Mac, right-click the photo in '
+        + 'Finder → Quick Actions → Convert Image → JPEG, then choose the JPEG. '
+        + 'Or set the iPhone to shoot JPEG from now on: Settings → Camera → '
+        + 'Formats → Most Compatible. Safari can open HEIC directly if you would '
+        + 'rather open this page there.');
+    }
+    return new Error('That file is not an image this browser can open. '
+      + 'JPEG, PNG and WebP all work.');
   }
 
   function collect() {
@@ -338,6 +390,12 @@
     return whole > 0 ? whole : '';
   }
 
+  /** For comparing two names as a person would: case and spacing do not count,
+   *  so "LP V81", "lp  v81" and "LP-V81" are all the same product. */
+  function squash(name) {
+    return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
   function nextId() {
     return state.products.reduce(function (max, p) {
       return p.id > max ? p.id : max;
@@ -357,10 +415,24 @@
     if (clashesWithCategory) {
       out.push('The web address "' + product.slug + '" is already a category page.');
     }
-    var taken = state.products.some(function (p) {
+    // Same name, different product. Checked on the name and not only on the
+    // web address because that is what someone actually retypes by mistake,
+    // and because the message can then name the product they already have.
+    var sameName = state.products.filter(function (p) {
+      return p.id !== product.id && squash(p.name) === squash(product.name);
+    })[0];
+    if (sameName) {
+      out.push('A product called "' + sameName.name + '" already exists. '
+        + 'Open that one and edit it, or give this a name that tells them apart.');
+    }
+
+    var taken = state.products.filter(function (p) {
       return p.slug === product.slug && p.id !== product.id;
-    });
-    if (taken) out.push('Another product already uses the web address "' + product.slug + '".');
+    })[0];
+    if (taken && taken !== sameName) {
+      out.push('The web address "' + product.slug + '" is already used by "'
+        + taken.name + '".');
+    }
 
     if (!product.image && !state.pendingImage) out.push('Add a photo.');
     return out;
@@ -593,9 +665,9 @@
   $('new-product').addEventListener('click', function () { openEditor(null); });
 
   $('list').addEventListener('click', function (ev) {
-    var btn = ev.target.closest('[data-edit]');
+    var btn = ev.target.closest('[data-edit]') || ev.target.closest('.admin__row');
     if (!btn) return;
-    var id = Number(btn.getAttribute('data-edit'));
+    var id = Number(btn.getAttribute('data-edit') || btn.getAttribute('data-id'));
     openEditor(state.products.find(function (p) { return p.id === id; }));
   });
 
@@ -619,8 +691,7 @@
     if (!slugTouched && !state.editing) $('f-slug').value = slugify($('f-name').value);
   });
 
-  $('f-image').addEventListener('change', function () {
-    var file = $('f-image').files[0];
+  function usePhoto(file) {
     if (!file) return;
     say($('edit-msg'), 'Preparing the photo…');
     toTile(file).then(function (dataUrl) {
@@ -630,6 +701,33 @@
     }).catch(function (err) {
       say($('edit-msg'), err.message, 'warn');
     });
+  }
+
+  $('f-image').addEventListener('change', function () {
+    usePhoto($('f-image').files[0]);
+  });
+
+  // Dropping a photo straight onto the box. The default drop behaviour is to
+  // navigate to the file, which would throw away everything typed into the
+  // form, so every one of these has to be cancelled — including the drops
+  // that miss the box.
+  var drop = $('f-image-drop');
+  ['dragenter', 'dragover'].forEach(function (type) {
+    drop.addEventListener(type, function (ev) {
+      ev.preventDefault();
+      drop.classList.add('is-dropping');
+    });
+  });
+  ['dragleave', 'dragend'].forEach(function (type) {
+    drop.addEventListener(type, function () { drop.classList.remove('is-dropping'); });
+  });
+  drop.addEventListener('drop', function (ev) {
+    ev.preventDefault();
+    drop.classList.remove('is-dropping');
+    usePhoto(ev.dataTransfer && ev.dataTransfer.files[0]);
+  });
+  ['dragover', 'drop'].forEach(function (type) {
+    document.addEventListener(type, function (ev) { ev.preventDefault(); });
   });
 
   var tabs = [

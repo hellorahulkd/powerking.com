@@ -161,14 +161,17 @@ export function adminPage() {
 
         <div class="af">
           <span class="af__label">Photo</span>
-          <div class="admin__photo">
+          <label class="admin__photo" id="f-image-drop" for="f-image">
             <img id="f-image-preview" alt="" hidden>
-            <div class="admin__photo-empty" id="f-image-empty">No photo yet</div>
-          </div>
-          <input class="af__file" id="f-image" type="file" accept="image/*">
+            <span class="admin__photo-empty" id="f-image-empty">Click, or drop a photo here</span>
+          </label>
+          <input class="af__file" id="f-image" type="file"
+                 accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
           <p class="af__hint">
             Resized to a 600&nbsp;×&nbsp;600 tile on white to match the rest of the
             catalogue, so a photo straight off a phone is fine. Uploaded when you save.
+            iPhone HEIC photos open in Safari; Chrome cannot read that format and
+            will say so with the way round it.
           </p>
         </div>
 

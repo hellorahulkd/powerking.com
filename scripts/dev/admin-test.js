@@ -224,6 +224,107 @@ console.log('\nValidation happens before anything is committed');
     clash.calls === 0 && /category page/i.test(clash.msg), JSON.stringify(clash));
 }
 
+console.log('\nA product that already exists');
+{
+  // Straight off what happened in practice: the same speaker typed in twice,
+  // once as it is printed on the box and once with different spacing.
+  const existing = products[0];
+  const r = await page.eval(`
+    document.getElementById('edit-back').click();
+    document.getElementById('new-product').click();
+    document.getElementById('f-name').value = ${JSON.stringify(existing.name.toUpperCase())};
+    document.getElementById('f-description').value = 'A second copy of one we already list.';
+    const before = window.__gh.calls.length;
+    document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    return { calls: window.__gh.calls.length - before, msg: document.getElementById('edit-msg').textContent };
+  `);
+  check('a duplicate name is refused before anything is committed', r.calls === 0, JSON.stringify(r));
+  check('and the message names the product that already exists',
+    r.msg.includes(existing.name) && /already exists/i.test(r.msg), r.msg);
+
+  const spaced = await page.eval(`
+    document.getElementById('f-name').value = ${JSON.stringify('  ' + existing.name.replace(/\s+/g, '  ') + ' ')};
+    const before = window.__gh.calls.length;
+    document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    return { calls: window.__gh.calls.length - before, msg: document.getElementById('edit-msg').textContent };
+  `);
+  check('spacing and case do not get a duplicate past the check',
+    spaced.calls === 0 && /already exists/i.test(spaced.msg), JSON.stringify(spaced));
+}
+
+console.log('\nPhotos');
+{
+  const r = await page.eval(`
+    document.getElementById('edit-back').click();
+    const row = document.querySelector('.admin__row');
+    row.click();                                   // the whole row, not the button
+    const open = !document.getElementById('pane-edit').hidden;
+    const box = document.getElementById('f-image-drop');
+    return {
+      open: open,
+      isLabel: box.tagName.toLowerCase() === 'label' && box.getAttribute('for') === 'f-image',
+      accepts: document.getElementById('f-image').getAttribute('accept'),
+    };
+  `);
+  check('clicking anywhere on a row opens that product', r.open === true);
+  check('the photo box is itself the file picker', r.isLabel === true, JSON.stringify(r));
+  check('the picker offers iPhone photos as well as JPEG and PNG',
+    /heic/i.test(r.accepts || '') && /jpeg/i.test(r.accepts || ''), r.accepts);
+
+  // A file the browser cannot decode, labelled as an iPhone photo. Chrome
+  // cannot read HEIC, so this is the message a real one produces there.
+  const heic = await page.eval(`
+    const f = new File([new Uint8Array([0,0,0,24,102,116,121,112,104,101,105,99])],
+                       'IMG_4021.HEIC', { type: 'image/heic' });
+    const dt = new DataTransfer();
+    dt.items.add(f);
+    const input = document.getElementById('f-image');
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    return new Promise(function (done) {
+      setTimeout(function () { done(document.getElementById('edit-msg').textContent); }, 400);
+    });
+  `);
+  check('a HEIC photo Chrome cannot open says so, and how to fix it',
+    /HEIC/.test(heic) && /Convert Image|Most Compatible/.test(heic), heic);
+
+  // Dropping onto the box has to work as well as clicking it, and must not
+  // navigate the page away from a half-filled form.
+  const dropped = await page.eval(`
+    const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    const bytes = Uint8Array.from(atob(png), function (c) { return c.charCodeAt(0); });
+    const dt = new DataTransfer();
+    dt.items.add(new File([bytes], 'photo.png', { type: 'image/png' }));
+    const box = document.getElementById('f-image-drop');
+    box.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    return new Promise(function (done) {
+      setTimeout(function () {
+        const img = document.getElementById('f-image-preview');
+        done({
+          msg: document.getElementById('edit-msg').textContent,
+          shown: !img.hidden && img.src.startsWith('data:image/jpeg'),
+          here: location.pathname,
+        });
+      }, 500);
+    });
+  `);
+  check('a photo dropped on the box is accepted', /Photo ready/i.test(dropped.msg), JSON.stringify(dropped));
+  check('and is shown straight away, already redrawn as a tile', dropped.shown === true);
+  check('dropping does not navigate away from the form', dropped.here === '/admin/', dropped.here);
+
+  // The site publishes a minute behind the commit, so a just-saved photo 404s
+  // for a while. That must not look like a failed upload.
+  const missing = await page.eval(`
+    document.getElementById('edit-back').click();
+    const img = document.querySelector('.admin__thumb');
+    img.dispatchEvent(new Event('error'));
+    return { cls: img.className, src: img.getAttribute('src'), title: img.title };
+  `);
+  check('a photo that has not published yet shows a placeholder, not a broken icon',
+    /is-missing/.test(missing.cls) && missing.src === null, JSON.stringify(missing));
+  check('and says why', /publishing/i.test(missing.title || ''), missing.title);
+}
+
 console.log('\nSaving an edit');
 {
   const r = await page.eval(`
