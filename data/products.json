@@ -1451,5 +1451,24 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 251,
+    "name": "Sing-e ZQS1490W WITH MIC",
+    "slug": "sing-e-zqs1490w-with-mic",
+    "brand": "Sing-e",
+    "category": "Speakers",
+    "description": "Sing-e ZQS1490W \n Mini Karaoke System: Includes a wireless handheld microphone and a top storage slot. Features a 4-inch speaker driver with dynamic RGB LED ring lighting.\n Audio & Power: 10W output with super bass drive.\n Connectivity & Modes: Supports Bluetooth 5.0, MicroSD/TF card, USB drive, TWS stereo pairing, and FM radio.\n Battery: 1500mAh 3.7V rechargeable battery for portable use.\nDimensions & Weight\n Height: 19 cm (approx. 23 cm with handle extended)\n Width: 18 cm\n Depth/Thickness: 12.5 cm\n Weight: 0.69 kg",
+    "image": "/images/products/sing-e-zqs1490w-with-mic.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 850,
+    "pricePiece": 816,
+    "sku": "Sing-e ZQS1490W",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "SPEAKER WITH MIC"
+    ]
   }
 ]
