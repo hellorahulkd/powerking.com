@@ -1265,5 +1265,24 @@
     "tags": [
       "speakers"
     ]
+  },
+  {
+    "id": 241,
+    "name": "A151 Wireless Speaker",
+    "slug": "a151-wireless-speaker",
+    "brand": "A151 Wireless Speaker",
+    "category": "Speakers",
+    "description": "A151 Wireless Speaker\n\nPowerful sound with a stylish retro outdoor design. MIGLE YG-A151 is a portable wireless speaker designed for music, parties, travel and outdoor use.\n\nKey Features:\n\n* 🔊 Powerful & clear sound\n* 📱 Wireless Bluetooth connectivity\n* 📻 Built-in FM radio\n* 🎤 Microphone support\n* 🔦 Built-in side lights/flashlight\n* 📱 Phone holder on top\n* 🔋 Rechargeable battery\n* 🎒 Easy-to-carry handle\n* 📡 Extendable FM antenna\n* 🏕️ Perfect for home, travel, outdoor & parties\n\nModel: YG-A151\nType: Portable Wireless Speaker\nDesign: Outdoor / Retro Style\nConnectivity: Bluetooth\nExtra: FM Radio • Phone Stand • Flashlight • Mic Support",
+    "image": "/images/products/a151-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "40 Pcs cartoon",
+    "priceCarton": 900,
+    "pricePiece": 925,
+    "sku": "A151 Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "speaker"
+    ]
   }
 ]
