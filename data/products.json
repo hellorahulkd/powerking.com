@@ -761,28 +761,6 @@
     "pricePiece": ""
   },
   {
-    "id": 222,
-    "name": "V6 Wireless Speaker with Phone Stand",
-    "slug": "v6-wireless-speaker",
-    "brand": "[CONFIRM BRAND]",
-    "category": "Speakers",
-    "description": "Wireless speaker with a fold-up phone stand and a telescopic antenna. The carton is printed only with MODEL: V6 and shows no brand on its face.",
-    "image": "/images/products/v6-wireless-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "V6",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "phone stand",
-      "antenna",
-      "portable",
-      "wireless"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 223,
     "name": "Kisonli X9BT USB Gaming Speaker with RGB",
     "slug": "kisonli-x9bt-gaming-speaker",
