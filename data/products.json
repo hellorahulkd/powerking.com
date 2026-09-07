@@ -1322,5 +1322,24 @@
     "tags": [
       "Trolley speakers"
     ]
+  },
+  {
+    "id": 244,
+    "name": "LP V71 Solar-Powered Wireless Speaker",
+    "slug": "lp-v71-solar-powered-wireless-speaker",
+    "brand": "LP",
+    "category": "Speakers",
+    "description": "LP V71 Solar-Powered Wireless Speaker\nDescription\nThe LP V71 is a multi-functional, outdoor wireless speaker designed for travel, camping, and emergency situations. Equipped with top-mounted solar charging panels, it offers eco-friendly energy replenishment under direct sunlight alongside standard USB charging. It features dynamic stereo audio output powered by Bluetooth 5.3, a powerful built-in LED flashlight for illumination, a carrying strap, and versatile playback options including FM Radio, USB drive, and TF card support.\nKey Specifications\n Product Model: LP V71\n Connectivity: Wireless Bluetooth 5.3, USB Playback, TF Card Slot, FM Radio\n Audio Output: 8W x 2 Stereo Power Output\n Charging System: Solar Panel Charging + Micro-USB Charging\n Battery Capacity: 1200 mAh Rechargeable Battery\n Playback Time: ~3 – 5 Hours\n Special Features: Built-in Side Flashlight, Shoulder Strap Loops, Carrying Handle\n Dimensions: ~24.7 cm x 11 cm x 9.7 cm\n Package Includes: LP V71 Wireless Speaker, Carrying Strap, Charging Cable, User Manual",
+    "image": "/images/products/lp-v71-solar-powered-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 775,
+    "pricePiece": 800,
+    "sku": "LP",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "PORTABLE SPEAKER"
+    ]
   }
 ]
