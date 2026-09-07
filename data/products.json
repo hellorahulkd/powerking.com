@@ -1730,5 +1730,24 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 271,
+    "name": "Kisonli X9BT USB Gaming Speaker",
+    "slug": "kisonli-x9bt-usb-gaming-speaker",
+    "brand": "Kisonli X9BT USB Gaming Speaker",
+    "category": "Speakers",
+    "description": "Kisonli X9BT USB Gaming Speaker\n\nThe Kisonli X9BT is a stylish and compact speaker designed for music, gaming, and everyday entertainment. Featuring an attractive RGB colorful light effect, it adds a modern and vibrant look to your setup.\n\nIts compact design makes it ideal for use with PCs, laptops, gaming setups, and desks. The speaker provides clear audio for music, videos, movies, and gaming while maintaining a sleek and space-saving design.\n\nKey Features:\n\n* Stylish and compact design\n* RGB colorful lighting effect\n* Clear and enjoyable sound\n* USB connectivity\n* Suitable for gaming and multimedia\n* Ideal for PC and laptop setups\n* Modern black premium finish\n* Perfect for home and office use",
+    "image": "/images/products/kisonli-x9bt-usb-gaming-speaker.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 825,
+    "pricePiece": 850,
+    "sku": "Kisonli X9BT USB Gaming Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Computer speaker"
+    ]
   }
 ]
