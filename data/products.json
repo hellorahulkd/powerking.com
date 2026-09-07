@@ -1284,5 +1284,24 @@
     "tags": [
       "speaker"
     ]
+  },
+  {
+    "id": 242,
+    "name": "Powerking SS-1 is a heavy-duty portable",
+    "slug": "powerking-ss-1-is-a-heavy-duty-portable",
+    "brand": "Powerking",
+    "category": "Speakers",
+    "description": "The Powerking SS-1 is a heavy-duty portable PA speaker built for high-output audio, outdoor events, and karaoke setup. Equipped with an 8-inch woofer and a 3-inch tweeter, it delivers dynamic bass and crisp highs with up to 10,000W P.M.P.O. Designed with a rugged cabinet, smooth-rolling wheels, and a sturdy retractable telescopic handle, it offers maximum mobility. It supports universal connectivity including Bluetooth, USB, TF Card, AUX, FM radio, dual microphone inputs, and guitar playback.\nKey Specifications\n Product Model: Powerking SS-1 Portable Speaker\n Speaker Units: 8\" Woofer + 3\" Tweeter\n Peak Power: 10,000W P.M.P.O.\n Weight: ~3.2 kg (7.0 lbs)\n Height: 37.5 cm / 14.7 inches (with handle retracted)\n Length (Width): 26.0 cm / 10.2 inches\n Depth: 24.5 cm / 9.6 inches\n Connectivity: Bluetooth, USB, TF/SD, AUX, Guitar/Mic In, FM\n Package Includes: Trolley Speaker, Wireless Microphone, Desktop Mic with Stand, Remote Control, Power Adapter, User Manual",
+    "image": "/images/products/powerking-ss-1-is-a-heavy-duty-portable.jpg",
+    "gallery": [],
+    "packSize": "1",
+    "priceCarton": 10500,
+    "pricePiece": 10500,
+    "sku": "Powerking SS-1",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Heavy speakers"
+    ]
   }
 ]
