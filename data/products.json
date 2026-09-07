@@ -1544,5 +1544,22 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 256,
+    "name": "Powerking Mini Wireless Speaker",
+    "slug": "powerking-mini-wireless-speaker",
+    "brand": "Powerking M3",
+    "category": "Speakers",
+    "description": "Powerking Mini Wireless Speaker\n Ultra-Compact Design: Pocket-sized spherical body with a metallic finish, top mesh speaker grill, and non-slip rubberized base.\n Audio Performance: 40mm dynamic driver delivering 3W power output with clear highs and vocal clarity.\n Features & Controls: Built-in microphone for hands-free calling, physical media control buttons, and support for TWS dual-speaker stereo pairing.\n Connectivity Options: Bluetooth 5.0, MicroSD/TF Card slot, and AUX input.\n Battery & Power: 500mAh rechargeable lithium battery providing 4–6 hours of continuous playback with a 1.5-hour charge time.\nDimensions & Weight\n Height: 5.0 cm\n Diameter/Width: 6.0 cm\n Weight: 90 grams (0.09 kg)",
+    "image": "/images/products/powerking-mini-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 280,
+    "pricePiece": 285,
+    "sku": "Powerking Mini Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": []
   }
 ]
