@@ -1618,5 +1618,24 @@
     "tags": [
       "Trolley speaker"
     ]
+  },
+  {
+    "id": 260,
+    "name": "SU2 SZ-B001BT Portable Karaoke Wireless Speaker",
+    "slug": "su2-sz-b001bt-portable-karaoke-wireless-speaker",
+    "brand": "SV-2",
+    "category": "Speakers",
+    "description": "SU2 SZ-B001BT Portable Karaoke Wireless Speaker\n High-Power Output: Delivers up to 80W peak sound power with integrated EQ sound modes and deep bass tuning.\n Dual Wireless Microphones: Includes two matching handheld wireless microphones for dual-person karaoke, duet singing, and public speaking.\n Lighting & Top Controls: Top-mounted control panel with RGB ambient lighting strip, physical playback keys, mode switching, and volume controls.\n Ergonomic Build: Compact boombox-style body with a sturdy built-in top handle and side loops for an attachable shoulder carrying strap.\n Connectivity Options: Supports Bluetooth wireless streaming, USB flash drive, TF/MicroSD card, 3.5mm AUX input, and FM radio.\n Battery: High-capacity 8000mAh rechargeable lithium battery supporting up to 6–8 hours of playtime.\nDimensions & Weight\n Width: ~28.0 cm\n Height: ~20.0 cm (including handle)\n Depth/Thickness: ~14.0 cm\n Weight: ~2.5 kg – 3.0 kg (including microphones)",
+    "image": "/images/products/su2-sz-b001bt-portable-karaoke-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "12",
+    "priceCarton": 4200,
+    "pricePiece": 4250,
+    "sku": "SU2 SZ-B001BT Portable Karaoke Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Speaker"
+    ]
   }
 ]
