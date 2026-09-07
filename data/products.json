@@ -1675,5 +1675,24 @@
     "tags": [
       "Trolley speaker"
     ]
+  },
+  {
+    "id": 268,
+    "name": "WSJAR E-8809 Hi-Fi Loudspeaker & Wireless Microphone Set",
+    "slug": "wsjar-e-8809-hi-fi-loudspeaker-and-wireless-microphone-set",
+    "brand": "WSJAR E-8809",
+    "category": "Speakers",
+    "description": "WSJAR E-8809 Hi-Fi Loudspeaker & Wireless Microphone Set\nProduct Description\n Dual Light Ring Grille: Features stylized LED illumination encircling the center tweeter and lower woofer section to enhance visual ambiance.\n Handheld Wireless Microphone: Comes paired with a wireless mic for effortless karaoke, speeches, announcements, and performance hosting.\n High-Clarity Hi-Fi Audio: Driven by an 8.5-inch woofer to deliver punchy bass, clear vocals, and balanced dynamic range.\n Top-Facing Control Panel: Easily adjust volume, track selection, mode switching, and mic levels directly on the top interface.\n Multiple Playback Options: Stream music wirelessly via Bluetooth, or connect through USB flash drives, TF/MicroSD cards, and AUX inputs.\n Portable Form Factor: Designed with an integrated top carry handle for easy grab-and-go convenience.\nDimensions & Specs\n Product Dimensions: ~24 cm × 20 cm × 38 cm (Length × Width × Height)\n Packaging Dimensions: ~26 cm × 22 cm × 40 cm\n Total Weight: ~2.3 kg – 2.9 kg\n Speaker Woofer Size: 8.5 inches\n Power Output: 8W RMS\n Battery: Integrated rechargeable lithium-ion battery (3–5 hours playtime)\n Connectivity: Bluetooth 5.0, USB input, MicroSD/TF slot, 6.35 mm Microphone Jack, AUX Input, Micro-USB Charging Port",
+    "image": "/images/products/wsjar-e-8809-hi-fi-loudspeaker-and-wireless-microphone-set.jpg",
+    "gallery": [],
+    "packSize": "8",
+    "priceCarton": 2400,
+    "pricePiece": 2450,
+    "sku": "WSJAR E-8809 Hi-Fi Loudspeaker & Wireless Microphone Set",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Trolley speaker"
+    ]
   }
 ]
