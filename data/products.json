@@ -713,16 +713,18 @@
   },
   {
     "id": 219,
-    "name": "NDR High-Power Outdoor Trolley Speaker",
+    "name": "NDR C8 High-Power Outdoor Trolley Speaker",
     "slug": "ndr-high-power-outdoor-speaker",
-    "brand": "NDR",
+    "brand": "NDR C8",
     "category": "Speakers",
-    "description": "High-power outdoor cabinet on a stand, supplied with wireless microphones. The box front states big voice, high power and a big battery; no model number is printed on it.",
+    "description": "NDR High-Power Outdoor Trolley Speaker\n Professional PA Build: Heavy-duty wooden cabinet design with protective rubberized corner guards, front metal mesh grille, retractable telescoping handle, and smooth-rolling trolley wheels.\n Audio Performance: High-power outdoor PA sound system with deep bass response, dynamic EQ settings, and dedicated echo/treble/bass tuning controls.\n Microphone & PA Features: Supports wireless microphone connectivity (often includes dual wireless mics) with dedicated volume and priority controls for karaoke, events, and announcements.\n Connectivity & Modes: Bluetooth 5.0, FM Radio, USB flash drive playback, SD/TF card slot, 6.35mm wired microphone/guitar inputs, and AUX input.\n Battery: Built-in high-capacity rechargeable battery (12V) providing extended outdoor playback time.\nDimensions & Weight\n Height: 52 cm (approx. 85 cm – 90 cm with trolley handle extended)\n Width: 32 cm\n Depth/Thickness: 28 cm\n Weight: ~8.5 kg – 10.0 kg",
     "image": "/images/products/ndr-high-power-outdoor-speaker.jpg",
     "gallery": [],
-    "packSize": "",
-    "sku": "",
-    "featured": false,
+    "packSize": "4",
+    "priceCarton": 4800,
+    "pricePiece": 4750,
+    "sku": "NDR High-Power Outdoor Trolley Speaker",
+    "featured": true,
     "available": true,
     "tags": [
       "outdoor",
@@ -731,9 +733,7 @@
       "high power",
       "party",
       "stand"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 220,
