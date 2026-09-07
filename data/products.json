@@ -1341,5 +1341,24 @@
     "tags": [
       "PORTABLE SPEAKER"
     ]
+  },
+  {
+    "id": 245,
+    "name": "LP V78",
+    "slug": "lp-v78",
+    "brand": "LP",
+    "category": "Speakers",
+    "description": "The LP V78 is an all-terrain outdoor Bluetooth speaker engineered for high-output bass, travel, and emergency preparedness. Built with a top-mounted 10W solar panel for continuous eco-friendly charging under direct sunlight, it ensures uninterrupted playback wherever you go. It features an extended 74 cm telescopic antenna for enhanced FM radio reception, a built-in side flashlight, a removable shoulder strap for easy portability, and broad playback support across Bluetooth, USB drives, and TF cards.\nKey Specifications\n Product Model: LP V78 Wireless Speaker\n Audio Output: 10W Solar Powered Output with Enhanced Bass Performance\n Antenna: 74 cm Super Telescopic Antenna for FM Radio\n Battery Capacity: 1800 mAh Long-Lasting Rechargeable Battery\n Connectivity: Bluetooth Wireless Connection, USB Flash Drive, TF Card Slot, FM Radio\n Special Features: Eco-Friendly Solar Charging Panel, Side LED Light, Removable Shoulder Belt, Built-in Carrying Handle\n Package Includes: LP V78 Speaker, Removable Shoulder Strap, Charging Cable, User Manual",
+    "image": "/images/products/lp-v78.jpg",
+    "gallery": [],
+    "packSize": "30",
+    "priceCarton": 1025,
+    "pricePiece": 1050,
+    "sku": "LP V71 Solar-Powered Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "speaker"
+    ]
   }
 ]
