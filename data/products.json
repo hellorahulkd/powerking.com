@@ -1303,5 +1303,24 @@
     "tags": [
       "Heavy speakers"
     ]
+  },
+  {
+    "id": 243,
+    "name": "8268 trolley speaker",
+    "slug": "8268-trolley-speaker",
+    "brand": "Sing-e",
+    "category": "Speakers",
+    "description": "ZQS268 Super Bass Party Speaker\n\nA powerful party speaker with dual-speaker setup, colorful LED lighting and wireless microphones, perfect for parties, events and outdoor entertainment.\n\nKey Features:\n\n🔊 20W × 2 powerful output\n🔋 4500mAh rechargeable battery\n🌈 Colorful LED party lighting\n🎤 2 wireless microphones included\n🎶 Super bass sound\n📱 Bluetooth wireless connectivity\n🎤 Mic & karaoke support\n🏠 Perfect for parties, events, home & outdoor use\n👜 Portable design with easy handling\n\nModel: ZQS268\nBattery: 4500mAh\nOutput: 20W × 2\nMicrophones: 2 Wireless Mics\nLighting: Colorful LED\nType: Portable Party Speaker",
+    "image": "/images/products/8268-trolley-speaker.jpg",
+    "gallery": [],
+    "packSize": "8",
+    "priceCarton": 6500,
+    "pricePiece": 6400,
+    "sku": "8268 trolley speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Trolley speakers"
+    ]
   }
 ]
