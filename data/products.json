@@ -1768,5 +1768,24 @@
     "tags": [
       "K21 Speaker"
     ]
+  },
+  {
+    "id": 273,
+    "name": "Power Socket J08",
+    "slug": "power-socket-j08",
+    "brand": "Power Socket J08",
+    "category": "Power & Multiplugs",
+    "description": "Power Socket J08 Specification Overview\n Product Nomenclature: J08 Multi-Functional Power Socket and Surge Protector Extension Bar\n Electrical Capacity: Rated for up to 2500W power delivery with 2.1A maximum USB charging output\n Interface & Outlets: Features 6 universal international power sockets alongside integrated high-speed USB ports\n Safety & Control: Built with flame-retardant outer casing materials and an independent master power switch",
+    "image": "/images/products/power-socket-j08.jpg",
+    "gallery": [],
+    "packSize": "Power Socket J08",
+    "priceCarton": 650,
+    "pricePiece": 625,
+    "sku": "Power Socket J08",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplug"
+    ]
   }
 ]
