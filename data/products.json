@@ -1489,5 +1489,24 @@
     "tags": [
       "Speaker"
     ]
+  },
+  {
+    "id": 253,
+    "name": "EWA E-109",
+    "slug": "ewa-e-109",
+    "brand": "EWA E-109",
+    "category": "Speakers",
+    "description": "The EWA E-109 is a ultra-portable Bluetooth wireless music speaker featuring a woven fabric exterior and high-visibility neon accent controls. Designed for on-the-go listening, it delivers solid sound performance in a compact, travel-friendly package.\n Durable Fabric Finish: Wrapped in a light gray acoustic mesh fabric that provides enhanced grip, modern aesthetic appeal, and protection against minor bumps.\n Vibrant Accent Controls: Equipped with high-contrast neon green control buttons for quick adjustments to volume, playback, and track selection.\n Integrated Carrying Strap: Features a durable fabric loop strap at the top, making it easy to clip onto backpacks, bicycles, or carry on your wrist.\n Multiple Playback Options: Includes a protected rubber port flap supporting USB playback, TF/MicroSD cards, and Type-C charging.\n Passive Bass Radiator: Designed with a top-mounted passive radiator to enhance low-end bass frequencies and overall audio clarity.",
+    "image": "/images/products/ewa-e-109.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 850,
+    "pricePiece": 875,
+    "sku": "EWA E-109",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Speaker"
+    ]
   }
 ]
