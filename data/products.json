@@ -1599,5 +1599,24 @@
     "tags": [
       "Portable speaker"
     ]
+  },
+  {
+    "id": 259,
+    "name": "SING-E ZQS8229W Super Bass Party Speaker",
+    "slug": "sing-e-zqs8229w-super-bass-party-speaker",
+    "brand": "SING-E ZQS8229W",
+    "category": "Speakers",
+    "description": "SING-E ZQS8229W Super Bass Party Speaker\n Dual Woofer Design: Features dual 8-inch high-power woofers paired with dynamic multi-pattern RGB LED party lights.\n Audio Performance: 20\\text{W} \\times 2 (40\\text{W} RMS) total output power delivering deep bass response and room-filling volume.\n Karaoke System: Comes bundled with a wireless handheld microphone and a dedicated remote control.\n Connectivity & Modes: Bluetooth 5.0 streaming, FM radio, USB flash drive input, TF/MicroSD card reader, 3.5mm AUX port, and 6.35\\text{mm} wired microphone input.\n Battery & Power: High-capacity 4500\\text{mAh} rechargeable lithium battery providing 4–6 hours of continuous party playback.\nDimensions & Weight\n Height: ~68.0 cm\n Width: ~26.5 cm\n Depth/Thickness: ~25.0 cm\n Weight: ~4.5 kg – 5.2 kg",
+    "image": "/images/products/sing-e-zqs8229w-super-bass-party-speaker.jpg",
+    "gallery": [],
+    "packSize": "6",
+    "priceCarton": 4600,
+    "pricePiece": 4650,
+    "sku": "SING-E ZQS8229W Super Bass Party Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Trolley speaker"
+    ]
   }
 ]
