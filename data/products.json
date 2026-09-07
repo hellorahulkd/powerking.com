@@ -1656,5 +1656,24 @@
     "tags": [
       "Speaker"
     ]
+  },
+  {
+    "id": 262,
+    "name": "B72 Wireless Speaker",
+    "slug": "b72-wireless-speaker",
+    "brand": "B72",
+    "category": "Speakers",
+    "description": "Bass Kult B72 Wireless Speaker\n\n\t•\tPortable Bluetooth wireless speaker, “Built for Sound” series\n\t•\tModel: B72\n\t•\tRugged handle design (orange grip) — easy carry\n\t•\tAmbient LED light strip (RGB glow effect visible around speaker body)\n\t•\tFabric-mesh speaker body, black finish\n\t•\tTagline: “Powerful Sound, Ready Anytime — Portable Wireless Bluetooth Speaker”\n\t•\tRetail box packaging, grey/black themed design with graffiti-style branding",
+    "image": "/images/products/b72-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "30",
+    "priceCarton": 1250,
+    "pricePiece": 1300,
+    "sku": "B72 Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Speaker"
+    ]
   }
 ]
