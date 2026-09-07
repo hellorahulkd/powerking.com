@@ -1379,5 +1379,24 @@
     "tags": [
       "speaker"
     ]
+  },
+  {
+    "id": 247,
+    "name": "LP-V83",
+    "slug": "lp-v83",
+    "brand": "LP",
+    "category": "Speakers",
+    "description": "The LP-V83 is a compact, ultra-portable wireless Bluetooth speaker designed for on-the-go audio.\nDesign & Portability  \n Form Factor: Features a round, palm-sized puck design with a textured mesh front grille.\n Carrying Carabiner: Equipped with a top loop and attached metallic carabiner clip, making it easy to latch onto backpacks, belts, or gear.\n Water Resistance: Rated IPX4 splash-proof, offering protection against light rain, water splashes, and outdoor moisture.\nKey Specifications\n Output Power: 8W single speaker with Super Bass driver.\n Connectivity: Bluetooth V5.1 with up to 10 meters of range.\n Battery: 1000mAh – 1200mAh rechargeable lithium battery delivering 2 to 5 hours of playback depending on volume.\n Multi-Input Playback: Supports Bluetooth, MicroSD/TF card, USB drive, and built-in FM Radio.\n Features: Built-in HD microphone for hands-free calling and TWS (True Wireless Stereo) pairing support.",
+    "image": "/images/products/lp-v83.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 540,
+    "pricePiece": 550,
+    "sku": "LP",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "SPEAKER"
+    ]
   }
 ]
