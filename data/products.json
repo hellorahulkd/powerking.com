@@ -313,6 +313,8 @@
     "image": "/images/products/powerking-v35-solar-speaker.jpg",
     "gallery": [],
     "packSize": "50 pcs per carton",
+    "priceCarton": "",
+    "pricePiece": "",
     "sku": "V35",
     "featured": true,
     "available": true,
@@ -323,9 +325,7 @@
       "tf card",
       "usb",
       "powerking"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 202,
