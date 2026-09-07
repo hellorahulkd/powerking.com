@@ -1470,5 +1470,24 @@
     "tags": [
       "SPEAKER WITH MIC"
     ]
+  },
+  {
+    "id": 252,
+    "name": "Sing-e ZQSW3101",
+    "slug": "sing-e-zqsw3101",
+    "brand": "Sing-e",
+    "category": "Speakers",
+    "description": "Sing-e ZQSW3101 \n Mini Karaoke System: Includes a wireless handheld microphone and a top storage slot. Features a 4-inch speaker driver with dynamic RGB LED ring lighting.\n Audio & Power: 10W output with super bass drive.\n Connectivity & Modes: Supports Bluetooth 5.0, MicroSD/TF card, USB drive, TWS stereo pairing, and FM radio.\n Battery: 1500mAh 3.7V rechargeable battery for portable use.\nDimensions & Weight\n Height: 19 cm (approx. 23 cm with handle extended)\n Width: 18 cm\n Depth/Thickness: 12.5 cm\n Weight: 0.69 kg",
+    "image": "/images/products/sing-e-zqsw3101.jpg",
+    "gallery": [],
+    "packSize": "60",
+    "priceCarton": 565,
+    "pricePiece": 600,
+    "sku": "Sing-e ZQSW3101",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Speaker"
+    ]
   }
 ]
