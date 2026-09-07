@@ -1508,5 +1508,24 @@
     "tags": [
       "Speaker"
     ]
+  },
+  {
+    "id": 254,
+    "name": "FL1P 6 Portable Wireless Speaker",
+    "slug": "fl1p-6-portable-wireless-speaker",
+    "brand": "FL1P 6 Portable Wireless Speaker",
+    "category": "Speakers",
+    "description": "The FL1P 6 Portable Wireless Speaker features a cylindrical outdoor design wrapped in durable mesh fabric with rubberized end caps.\nKey Features\n Audio System: 2-way speaker design delivering clear sound with dual passive bass radiators.\n Water & Dust Protection: Waterproof rating built to withstand splashes and outdoor exposure.\n Connectivity: Bluetooth 5.1 for fast, stable pairing.\n Battery Life: Integrated rechargeable battery offering up to 15 hours of continuous playback.\nDimensions & Weight\n Height/Length: 17.8 cm\n Diameter/Width: 6.8 cm\n Weight: 550 grams (0.55 kg)",
+    "image": "/images/products/fl1p-6-portable-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 1025,
+    "pricePiece": 1050,
+    "sku": "FL1P 6 Portable Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "JBL portable speaker"
+    ]
   }
 ]
