@@ -1398,5 +1398,24 @@
     "tags": [
       "SPEAKER"
     ]
+  },
+  {
+    "id": 248,
+    "name": "LP-V104",
+    "slug": "lp-v104",
+    "brand": "LP",
+    "category": "Speakers",
+    "description": "The LP-V104 is a compact, square-style portable wireless speaker featuring bright color accent trimming and multi-input audio support.\nProduct Description\n Design & Build: Compact, boxy form factor with rounded corners, top-mounted control buttons, and a front mesh speaker grille framed in vibrant accent colors.\n Integrated Phone Holder: Features a top slot design that doubles as a phone stand while streaming audio.\n Audio & Power: Delivers 5W single-driver output with bass reinforcement.\n Connectivity & Modes: Supports Bluetooth 5.1, MicroSD/TF Card, USB Flash Drive, AUX input, and FM Radio.\n Battery: 1200mAh rechargeable battery supporting ~2–3 hours of continuous playback.\nDimensions & Weight\n Height: 9.5 cm\n Width: 9.5 cm\n Depth/Thickness: 5.5 cm\n Weight: ~240 grams (0.24 kg)",
+    "image": "/images/products/lp-v104.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 435,
+    "pricePiece": 425,
+    "sku": "LP-104",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "speaker"
+    ]
   }
 ]
