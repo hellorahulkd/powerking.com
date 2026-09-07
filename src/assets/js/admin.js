@@ -497,7 +497,9 @@
       show('pane-work');
       say($('work-msg'), unchanged
         ? 'Nothing changed, so nothing was saved.'
-        : 'Saved. The site rebuilds and goes live in about a minute.', 'ok');
+        : 'Saved to GitHub. The site rebuilds and goes live in about a minute — '
+          + 'if it has not appeared after a few minutes, check the Actions tab '
+          + 'for a failed deploy rather than saving again.', 'ok');
     }).catch(function (err) {
       if (err.status === 409) return reloadAfterConflict($('edit-msg'));
       say($('edit-msg'), err.message, 'warn');
