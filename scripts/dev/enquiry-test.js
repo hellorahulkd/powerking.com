@@ -64,7 +64,8 @@ console.log('\nSelecting products');
       stored: JSON.parse(localStorage.getItem('pk-enquiry') || '[]'),
     };
   `);
-  check('the bar appears with a running count', added.bar && /2 products/.test(added.count),
+  check('the bar appears with a running count',
+    added.bar && /2 products on your enquiry/.test(added.count),
     added.count);
   check('a selected control reports itself pressed', added.pressed === 'true');
   check('a selected control offers to remove, not add again',
@@ -166,7 +167,7 @@ console.log('\nMoving between pages');
   `);
   check('the selection survives moving to another page',
     kept.bar && kept.stored === name, JSON.stringify(kept));
-  check('the count follows it', /1 product selected/.test(kept.count), kept.count);
+  check('the count follows it', /1 product on your enquiry/.test(kept.count), kept.count);
 
   // A product page is where someone lands from search, so the control has to
   // work there too — and agree with what the catalogue already knows.
@@ -183,6 +184,87 @@ console.log('\nMoving between pages');
   check('it reflects whether this product is already in the list',
     onProduct.pressed === (product.name === kept.stored ? 'true' : 'false'),
     JSON.stringify({ pressed: onProduct.pressed, page: product.name, inList: kept.stored }));
+}
+
+console.log('\nThe Enquire buttons ask how many first');
+{
+  // Every button that names a product now opens the list with a quantity
+  // waiting, instead of jumping to a message with no quantity in it — which
+  // only started a conversation the shop then had to have anyway.
+  for (const [where, path, selector] of [
+    ['product page', `/products/${products[0].slug}/`, '.enquiry [data-enq-open]'],
+    ['catalogue card', '/products/', '.card [data-enq-open]'],
+    ['hero slide', '/', '.slide [data-enq-open]'],
+  ]) {
+    await fresh(path);
+    const r = await page.eval(`
+      const b = document.querySelector('${selector}');
+      if (!b) return { missing: true };
+      const href = b.getAttribute('href');
+      b.click();
+      await new Promise(r => setTimeout(r, 250));
+      return {
+        href,
+        open: document.getElementById('enq-dialog').open,
+        rows: document.querySelectorAll('.enq__row').length,
+        onQty: document.activeElement.hasAttribute('data-qty'),
+        name: (document.querySelector('.enq__name') || {}).textContent,
+        matches: b.getAttribute('data-enq-name'),
+      };
+    `);
+    check(`the ${where} Enquire button opens the list, not WhatsApp`,
+      !r.missing && r.open === true && r.rows === 1, JSON.stringify(r));
+    check(`the ${where} button puts its own product on the list`,
+      r.name === r.matches, JSON.stringify({ got: r.name, want: r.matches }));
+    check(`the ${where} button lands on the quantity box`, r.onQty === true);
+    check(`without JavaScript the ${where} button is still a WhatsApp link`,
+      /^https:\/\/wa\.me\//.test(r.href || ''), r.href);
+  }
+}
+
+console.log('\nThe floating button, with nothing on the list');
+{
+  await fresh('/about/');
+  const r = await page.eval(`
+    document.querySelector('.wa-float').click();
+    await new Promise(r => setTimeout(r, 250));
+    return {
+      open: document.getElementById('enq-dialog').open,
+      empty: !document.getElementById('enq-empty').hidden,
+      sendHidden: document.getElementById('enq-send').hidden,
+      browse: !!document.querySelector('.enq__empty a[href="/products/"]'),
+      orMessage: (document.querySelector('.enq__empty-or a') || {}).href || '',
+    };
+  `);
+  check('it opens the list rather than a blank message', r.open === true);
+  check('an empty list explains what to do instead of showing nothing',
+    r.empty === true && r.browse === true, JSON.stringify(r));
+  check('the send button is not offered with nothing to send', r.sendHidden === true);
+  check('someone who just wants to message us can still do that',
+    /^https:\/\/wa\.me\//.test(r.orMessage), r.orMessage);
+}
+
+console.log('\nSaying what the buttons do, in words');
+{
+  await fresh();
+  const words = await page.eval(`
+    const pin = document.querySelector('.enq-add--pin');
+    const on = pin.querySelector('.enq-add__on').textContent.trim();
+    const off = pin.querySelector('.enq-add__off').textContent.trim();
+    return { on, off, bar: null };
+  `);
+  check('the card control says "Add", not just a plus sign',
+    /add/i.test(words.on) && /added/i.test(words.off), JSON.stringify(words));
+
+  const bar = await page.eval(`
+    document.querySelector('.enq-add--pin').click();
+    return { count: document.getElementById('enq-count').textContent,
+             open: document.getElementById('enq-open').textContent.trim() };
+  `);
+  check('the bar names the list in plain words',
+    /on your enquiry/i.test(bar.count), bar.count);
+  check('and its button says what pressing it does',
+    /quantit/i.test(bar.open), bar.open);
 }
 
 console.log('\nThe cap on one message');

@@ -206,9 +206,9 @@ export function productPage({ product, related }) {
           <h2 class="enquiry__title">Wholesale Enquiries</h2>
           <p class="enquiry__price">Contact us for wholesale pricing</p>
           <p class="enquiry__body">
-            ${esc(siteConfig.supplyTerms)} Message us for wholesale pricing,
-            current availability and the minimum order quantity for this
-            product. We will reply with a trade rate for your business.
+            ${esc(siteConfig.supplyTerms)} Tell us how many you need and we
+            will reply with a trade rate, current availability and the minimum
+            order quantity.
           </p>
           ${whatsappButton({
             location: 'product_page',
@@ -216,11 +216,17 @@ export function productPage({ product, related }) {
             label: 'Enquire on WhatsApp',
             size: 'lg',
             block: true,
+            opensList: true,
           })}
-          ${enquiryAdd(product, { label: true })}
           <p class="enquiry__note">
-            Opens WhatsApp with your enquiry about
-            <strong>${esc(product.name)}</strong> already written for you.
+            Asks how many you want, then opens WhatsApp with the message
+            written for you. You can add more products to the same enquiry
+            before sending.
+          </p>
+          ${enquiryAdd(product, { label: true })}
+          <p class="enquiry__note enquiry__note--sub">
+            Or put it on a list and carry on browsing — send everything in one
+            message when you are ready.
           </p>
         </div>
       </div>

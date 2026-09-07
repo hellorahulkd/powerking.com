@@ -104,6 +104,43 @@ function configChecklist() {
 
 /* ------------------------------------------------------------- emitting -- */
 
+/**
+ * The stylesheet is heavily commented because the next person to change it
+ * needs the reasoning. A visitor on a phone in Kathmandu does not, and was
+ * downloading roughly nine kilobytes of it on every page.
+ *
+ * Comments and blank lines only — no minifier, no dependency, every rule and
+ * every value untouched, so what ships is still readable if anyone views
+ * source. It walks the file rather than running a regex over it, because a
+ * quoted value can contain the characters that open a comment and a regex
+ * cannot tell the two apart.
+ */
+function stripCssComments(css) {
+  let out = '';
+  let quote = '';                 // the quote character we are inside, if any
+  for (let i = 0; i < css.length; i++) {
+    const c = css[i];
+    if (quote) {
+      out += c;
+      if (c === '\\') { out += css[++i] ?? ''; continue; }   // escaped char
+      if (c === quote) quote = '';
+      continue;
+    }
+    if (c === '"' || c === "'") { quote = c; out += c; continue; }
+    if (c === '/' && css[i + 1] === '*') {
+      const close = css.indexOf('*/', i + 2);
+      i = close === -1 ? css.length : close + 1;
+      continue;
+    }
+    out += c;
+  }
+  return out
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.trim() !== '')
+    .join('\n') + '\n';
+}
+
 async function emit(routePath, html) {
   // '/products/x/' -> dist/products/x/index.html ; '/404.html' -> dist/404.html
   const isFile = routePath.endsWith('.html');
@@ -281,14 +318,18 @@ async function build() {
   // so the page still needs only one CSS request.
   const fontCss = await readFile(path.join(ROOT, 'src/assets/css/fonts.css'), 'utf8');
   const siteCss = await readFile(path.join(ROOT, 'src/assets/css/styles.css'), 'utf8');
-  await writeFile(path.join(DIST, 'assets/styles.css'), `${fontCss}\n${siteCss}`, 'utf8');
+  await writeFile(path.join(DIST, 'assets/styles.css'), stripCssComments(`${fontCss}\n${siteCss}`), 'utf8');
   await cp(path.join(ROOT, 'src/assets/js/app.js'), path.join(DIST, 'assets/app.js'));
   await cp(path.join(ROOT, 'src/assets/js/catalogue.js'), path.join(DIST, 'assets/catalogue.js'));
   await cp(path.join(ROOT, 'src/assets/js/slider.js'), path.join(DIST, 'assets/slider.js'));
   await cp(path.join(ROOT, 'src/assets/js/admin.js'), path.join(DIST, 'assets/admin.js'));
   await cp(path.join(ROOT, 'src/assets/js/enquiry.js'), path.join(DIST, 'assets/enquiry.js'));
   // Loaded only by /admin/, so the shop's own tool costs a shopper nothing.
-  await cp(path.join(ROOT, 'src/assets/css/admin.css'), path.join(DIST, 'assets/admin.css'));
+  await writeFile(
+    path.join(DIST, 'assets/admin.css'),
+    stripCssComments(await readFile(path.join(ROOT, 'src/assets/css/admin.css'), 'utf8')),
+    'utf8',
+  );
 
   // public/ is copied last so anything there (CNAME, favicon, images) wins.
   await copyDir(path.join(ROOT, 'public'), DIST);

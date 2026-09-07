@@ -96,6 +96,34 @@
   }
 
   /* -------------------------------------------------------- mobile menu -- */
+  /* ------------------------------------------------------- header search -- */
+  // The panel hangs below the header rather than growing it, so opening it
+  // never shifts --header-h out from under the site's sticky offsets.
+  var searchToggle = document.getElementById('search-toggle');
+  var searchPanel = document.getElementById('hdr-search');
+  if (searchToggle && searchPanel) {
+    searchToggle.addEventListener('click', function () {
+      var open = searchPanel.hidden;
+      searchPanel.hidden = !open;
+      searchToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) searchPanel.querySelector('input').focus();
+    });
+    searchPanel.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Escape') return;
+      searchPanel.hidden = true;
+      searchToggle.setAttribute('aria-expanded', 'false');
+      searchToggle.focus();
+    });
+    // Clicking away closes it; a search box left hanging open over the page
+    // reads as a bug.
+    document.addEventListener('click', function (ev) {
+      if (searchPanel.hidden) return;
+      if (searchPanel.contains(ev.target) || searchToggle.contains(ev.target)) return;
+      searchPanel.hidden = true;
+      searchToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
   var toggle = document.querySelector('.nav-toggle');
   var menu = document.getElementById('mobile-menu');
 

@@ -112,7 +112,9 @@
     // The bar occupies the corner the floating bubble sits in, and the two say
     // the same thing, so only one is ever on screen.
     document.body.classList.toggle('has-enquiry', n > 0);
-    countEl.textContent = n === 1 ? '1 product selected' : n + ' products selected';
+    countEl.textContent = n === 1
+      ? '1 product on your enquiry'
+      : n + ' products on your enquiry';
   }
 
   function renderButtons() {
@@ -124,15 +126,21 @@
       var name = btn.getAttribute('data-enq-name');
       btn.classList.toggle('is-on', on);
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      btn.setAttribute('title', on ? 'Remove from enquiry list' : 'Add to enquiry list');
+      btn.setAttribute('title', on ? 'Remove from your enquiry list' : 'Add to your enquiry list');
       btn.setAttribute('aria-label',
-        (on ? 'Remove ' : 'Add ') + name + (on ? ' from' : ' to') + ' the enquiry list');
-      var label = btn.querySelector('.enq-add__label');
-      if (label) label.textContent = on ? 'In your enquiry list' : 'Add to enquiry list';
+        (on ? 'Remove ' : 'Add ') + name + (on ? ' from' : ' to') + ' your enquiry list');
     }
   }
 
   function renderList() {
+    // An empty panel that just says "0 products" teaches nobody what to do.
+    var empty = items.length === 0;
+    document.getElementById('enq-empty').hidden = !empty;
+    document.getElementById('enq-more').hidden = empty;
+    listEl.hidden = empty;
+    sendEl.hidden = empty;
+    document.querySelector('.enq__fine').hidden = empty;
+
     listEl.innerHTML = items.map(function (it, i) {
       return '<li class="enq__row" data-slug="' + escAttr(it.slug) + '">'
         + '<span class="enq__n">' + (i + 1) + '</span>'
@@ -213,11 +221,47 @@
     if (add) { ev.preventDefault(); toggle(add); }
   });
 
-  document.getElementById('enq-open').addEventListener('click', function () {
+  function openPanel(from) {
     renderList();
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
-    track('enquiry_open', { items: items.length });
+    // Land on the quantity for whatever was just added, so "how many?" is the
+    // obvious next thing rather than something to go hunting for.
+    var first = listEl.querySelector('[data-qty]');
+    if (first) { first.focus(); first.select(); }
+    track('enquiry_open', { items: items.length, from: from || 'bar' });
+  }
+
+  document.getElementById('enq-open').addEventListener('click', function () {
+    openPanel('bar');
+  });
+
+  /**
+   * The Enquire buttons — on a product page and the floating bubble — are real
+   * wa.me links so they work without JavaScript. With JavaScript they open the
+   * list instead, because a message with no quantity in it only starts the
+   * conversation the shop then has to have anyway.
+   */
+  document.addEventListener('click', function (ev) {
+    var opener = ev.target.closest('[data-enq-open]');
+    if (!opener || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) return;
+    ev.preventDefault();
+    var slug = opener.getAttribute('data-enq-slug');
+    if (slug && indexOf(slug) === -1) {
+      if (items.length >= MAX) {
+        flash(opener, 'Your enquiry is full (' + MAX + ' products). Send it first.');
+        return;
+      }
+      items.push({
+        slug: slug,
+        name: opener.getAttribute('data-enq-name'),
+        qty: 1,
+        unit: 'cartons',
+      });
+      save(); render();
+      track('enquiry_add', { product: opener.getAttribute('data-enq-name'), items: items.length });
+    }
+    openPanel(slug ? 'product_cta' : 'floating_button');
   });
 
   document.getElementById('enq-clear').addEventListener('click', function () {

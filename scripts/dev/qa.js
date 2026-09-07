@@ -162,6 +162,40 @@ async function main() {
     await page.close();
   }
 
+  /* ------------------------------------------- 1d. search from the header -- */
+  process.stdout.write('\nSearch from the header\n');
+  {
+    const page = await newPage(port);
+    for (const vp of [VIEWPORTS[0], VIEWPORTS[2], VIEWPORTS[5]]) {
+      await page.setViewport(vp.w, vp.h, vp.mobile);
+      await page.goto(`${BASE}/about/`);
+      const r = await page.eval(`
+        const t = document.getElementById('search-toggle');
+        const panel = document.getElementById('hdr-search');
+        const before = document.querySelector('.site-header').getBoundingClientRect().height;
+        const closed = panel.hidden;
+        t.click();
+        const after = document.querySelector('.site-header').getBoundingClientRect().height;
+        const focused = document.activeElement.id;
+        const action = new URL(panel.querySelector('form').action).pathname;
+        const field = panel.querySelector('input[type=search]').name;
+        t.click();
+        return { closed, open: !panel.hidden, before, after, focused, action, field,
+                 reclosed: panel.hidden, expanded: t.getAttribute('aria-expanded') };
+      `);
+      check(`${vp.name} (${vp.w}px) — the header search opens, focuses and closes`,
+        r.closed === true && r.focused === 'header-search' && r.reclosed === true
+        && r.expanded === 'false', JSON.stringify(r));
+      // Opening it must not move the header, or every sticky offset that reads
+      // --header-h ends up pointing at the wrong place while it is open.
+      check(`${vp.name} (${vp.w}px) — opening it does not resize the header`,
+        Math.abs(r.after - r.before) < 1, `${r.before} -> ${r.after}`);
+      check(`${vp.name} (${vp.w}px) — it searches the catalogue`,
+        r.action === '/products/' && r.field === 'q', JSON.stringify(r));
+    }
+    await page.close();
+  }
+
   /* ----------------------------------------------- 2. console cleanliness -- */
   process.stdout.write('\nRuntime errors\n');
   {

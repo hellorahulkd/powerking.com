@@ -66,13 +66,15 @@ ${pageHead({
       <p>
         This website is our online catalogue. It exists so you can see what we
         carry before you get in touch — every product page has a WhatsApp
-        button that opens a message with that product already filled in.
+        button that asks how many you need, then opens WhatsApp with the
+        message written for you. You can put several products on one enquiry.
       </p>
 
       <h2>How ordering works</h2>
       <ol class="steps">
         <li><strong>Browse the catalogue.</strong> Search by product, brand or category.</li>
-        <li><strong>Send an enquiry.</strong> Tap “Enquire on WhatsApp” on any product.</li>
+        <li><strong>Build your enquiry.</strong> Press “Add” on everything you want a price for, then set the quantity of each.</li>
+        <li><strong>Send it in one message.</strong> Every product and quantity goes to us on WhatsApp together.</li>
         <li><strong>Get your trade price.</strong> We reply with pricing, availability and MOQ.</li>
         <li><strong>Confirm your order.</strong> We arrange supply directly with you.</li>
       </ol>

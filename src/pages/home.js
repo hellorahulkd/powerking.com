@@ -33,6 +33,7 @@ function heroSlider(featured) {
           ${whatsappButton({
             location: 'hero_slider',
             product: p,
+            opensList: true,
             label: 'Enquire on WhatsApp',
             size: 'lg',
           })}

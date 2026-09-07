@@ -44,6 +44,10 @@ export function header(active = '') {
       <ul>${links}</ul>
     </nav>
     <div class="site-header__actions">
+      <button class="hdr-search__toggle" type="button" id="search-toggle"
+              aria-expanded="false" aria-controls="hdr-search">
+        ${icon('search', { size: 20 })}<span class="sr-only">Search products</span>
+      </button>
       <a class="btn btn--whatsapp btn--sm nav-wa"
          href="${esc(whatsappUrl('general'))}"
          ${hasWhatsApp() ? 'target="_blank" rel="noopener"' : ''}
@@ -57,6 +61,16 @@ export function header(active = '') {
         <span class="nav-toggle__close">Close</span>
       </button>
     </div>
+  </div>
+
+  <div class="hdr-search" id="hdr-search" hidden>
+    <form class="container hdr-search__form" role="search" action="/products/" method="get">
+      <label class="sr-only" for="header-search">Search products by name, brand, category or SKU</label>
+      <input class="hdr-search__input" id="header-search" name="q" type="search"
+             placeholder="Search products, brands or model number…"
+             autocomplete="off" enterkeyhint="search">
+      <button class="btn btn--primary btn--sm" type="submit">Search</button>
+    </form>
   </div>
 
   <div class="mobile-menu" id="mobile-menu" hidden>

@@ -283,6 +283,14 @@ code {
 }
 /* POWERKING in caps is a wide mark. Below 360px it steps down so the header
    still fits a 320px phone. */
+/* The header gained a search control, and at 360-430px the logo alone was
+   taking 62% of the width and pushing the row off screen. The mark steps down
+   and the bar tightens. Ordered before the 359px block so the smaller cap
+   there still wins. */
+@media (max-width: 430px) {
+  .mark { --mark-cap: 16px; }
+  .site-header__inner { gap: .6rem; }
+}
 @media (max-width: 359px) {
   .mark { --mark-cap: 15px; }
   /* A smaller plate needs a smaller bar, or the sticky header eats the screen.
@@ -583,9 +591,6 @@ code {
   border-bottom: 1px solid var(--border); padding: .9rem 0;
 }
 .toolbar__search { position: relative; display: flex; align-items: center; gap: .5rem; }
-.toolbar__search-icon {
-  position: absolute; left: .8rem; color: var(--text-faint); pointer-events: none; display: grid;
-}
 .toolbar__search input {
   flex: 1; width: 100%; padding: .85rem 5rem .85rem 1.15rem;
   font: inherit; font-size: var(--step-0); color: var(--text);
@@ -705,8 +710,6 @@ code {
   margin: 0 0 .3rem; font-size: .72rem; font-weight: 650;
   text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint);
 }
-.card__brand { color: var(--violet-600); }
-.card__cat { color: var(--text-faint); text-decoration: none; }
 .card__cat:hover { color: var(--primary); text-decoration: underline; }
 .card__title {
   font-family: var(--font-display); font-size: var(--step-1); font-weight: 900;
@@ -1071,24 +1074,30 @@ body.menu-open .wa-float {
    card's action row keeps its width whichever state it is in. */
 .enq-add--pin {
   position: absolute; top: .85rem; right: .85rem; z-index: 2;
-  display: grid; place-items: center; width: 34px; height: 34px;
-  padding: 0; cursor: pointer;
-  background: rgba(255,255,255,.92); color: var(--ink);
+  padding: .3rem .6rem; cursor: pointer;
+  background: rgba(255,255,255,.94); color: var(--ink);
   border: 1px solid var(--border-strong);
+  font-family: var(--font-display); font-weight: 800; font-size: .75rem;
+  letter-spacing: -.01em; line-height: 1;
   clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px,
                      100% 100%, 8px 100%, 0 calc(100% - 8px));
 }
+.enq-add--pin .enq-add__on,
+.enq-add--pin .enq-add__off { display: flex; align-items: center; gap: .25rem; }
+.enq-add--pin.is-on .enq-add__on { display: none; }
+.enq-add--pin .enq-add__off { display: none; }
+.enq-add--pin.is-on .enq-add__off { display: flex; }
 .enq-add--pin:hover { background: #fff; border-color: var(--ink); }
 .enq-add--pin.is-on { background: var(--volt); border-color: var(--ink); }
 .enq-add--pin:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .enq-add__off { display: none; }
 .enq-add.is-on .enq-add__on { display: none; }
-.enq-add.is-on .enq-add__off { display: block; }
+.enq-add.is-on .enq-add__off { display: inline-flex; align-items: center; gap: .5rem; }
+.enq-add__on { display: inline-flex; align-items: center; gap: .5rem; }
 .enq-add.is-on {
   background: var(--volt); border-color: var(--ink); color: var(--ink);
 }
 .enq-add.is-on:hover { background: var(--volt-600); }
-.enq-add__label { font-weight: 600; }
 .enq-add.btn--block { margin-top: .6rem; }
 
 /* --- the bar --- */
@@ -1231,3 +1240,42 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
 }
 .hsearch__chip:hover { background: var(--bg-sunken); color: var(--ink); }
 @media (max-width: 480px) { .hsearch__go { width: 100%; } }
+
+/* --- enquiry panel: empty state and the way back to browsing --- */
+.enq__empty { padding: .5rem 1.25rem 1rem; text-align: center; }
+.enq__empty-title {
+  margin: 0 0 .3rem; font-family: var(--font-display); font-weight: 900;
+  font-size: var(--step-1); color: var(--ink); letter-spacing: -.02em;
+}
+.enq__empty-body {
+  margin: 0 0 1rem; font-size: var(--step--1); color: var(--text-muted);
+  max-width: 34ch; margin-inline: auto;
+}
+.enq__more { margin: .8rem 1.25rem 0; font-size: var(--step--1); }
+.enq__more a { font-weight: 600; }
+
+/* --- header search: a panel under the bar, not a taller bar --- */
+.hdr-search__toggle {
+  display: grid; place-items: center; width: 42px; height: 42px;
+  background: transparent; border: 1.5px solid var(--border-strong);
+  border-radius: 100px; color: var(--ink); cursor: pointer;
+}
+.hdr-search__toggle:hover { border-color: var(--ink); }
+.hdr-search__toggle[aria-expanded="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.hdr-search {
+  position: absolute; left: 0; right: 0; top: 100%; z-index: 59;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+.hdr-search__form { display: flex; gap: .5rem; padding-block: .9rem; }
+.hdr-search__input {
+  flex: 1; min-width: 0; padding: .7rem 1rem; font: inherit;
+  font-size: var(--step--1); color: var(--text); background: var(--bg-alt);
+  border: 1.5px solid var(--border-strong); border-radius: 100px;
+}
+.hdr-search__input:focus {
+  outline: none; border-color: var(--accent); box-shadow: var(--ring); background: var(--bg);
+}
+.enq__empty-or {
+  margin: 1rem 0 0; font-size: var(--step--1); color: var(--text-faint);
+}

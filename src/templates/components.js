@@ -26,6 +26,7 @@ export function whatsappButton({
   label = 'Enquire on WhatsApp',
   size = '',
   block = false,
+  opensList = false,
 } = {}) {
   const href = product
     ? whatsappUrl('product', { product: product.name })
@@ -33,7 +34,12 @@ export function whatsappButton({
   const cls = ['btn', 'btn--whatsapp', size && `btn--${size}`, block && 'btn--block']
     .filter(Boolean)
     .join(' ');
-  return `<a class="${cls}" href="${esc(href)}" ${waAttrs(location, product)}>
+  // opensList keeps the href — so it still works without JavaScript — and lets
+  // the enquiry list intercept the click to ask how many first.
+  const open = opensList
+    ? ` data-enq-open${product ? ` data-enq-slug="${esc(product.slug)}" data-enq-name="${esc(product.name)}"` : ''}`
+    : '';
+  return `<a class="${cls}" href="${esc(href)}" ${waAttrs(location, product)}${open}>
     ${icon('whatsapp', { size: 20 })}<span>${esc(label)}</span>
   </a>`;
 }
@@ -53,16 +59,19 @@ export function enquiryAdd(product, { label = false, pin = false } = {}) {
   const cls = label
     ? 'btn btn--ghost btn--lg btn--block enq-add'
     : (pin ? 'enq-add enq-add--pin' : 'btn btn--ghost btn--icon enq-add');
+  // A bare "+" told a first-time visitor nothing, so both variants say what
+  // they do in words. The pinned one stays small enough for a two-up phone grid.
+  const on = label ? 'Add to my enquiry list' : 'Add';
+  const off = label ? 'In your enquiry list' : 'Added';
   return `<button type="button" class="${cls}" hidden
     data-enq-add
     data-enq-slug="${esc(product.slug)}"
     data-enq-name="${esc(product.name)}"
     aria-pressed="false"
-    title="Add to enquiry list"
-    aria-label="Add ${esc(product.name)} to the enquiry list">
-    <span class="enq-add__on">${icon('plus', { size: label ? 20 : 19 })}</span>
-    <span class="enq-add__off">${icon('check', { size: label ? 20 : 19 })}</span>
-    ${label ? '<span class="enq-add__label">Add to enquiry list</span>' : ''}
+    title="Add to your enquiry list"
+    aria-label="Add ${esc(product.name)} to your enquiry list">
+    <span class="enq-add__on">${icon('plus', { size: label ? 20 : 15 })}<span class="enq-add__word">${on}</span></span>
+    <span class="enq-add__off">${icon('check', { size: label ? 20 : 15 })}<span class="enq-add__word">${off}</span></span>
   </button>`;
 }
 
@@ -82,7 +91,7 @@ export function enquiryList() {
   <p class="enq-bar__count" id="enq-count" role="status" aria-live="polite"></p>
   <div class="enq-bar__actions">
     <button type="button" class="btn btn--ghost btn--sm" id="enq-clear">Clear</button>
-    <button type="button" class="btn btn--primary btn--sm" id="enq-open">Review enquiry</button>
+    <button type="button" class="btn btn--primary btn--sm" id="enq-open">Set quantities &amp; send</button>
   </div>
 </div>
 
@@ -92,9 +101,29 @@ export function enquiryList() {
     <button class="enq__close" value="close" aria-label="Close">${icon('close', { size: 20 })}</button>
   </form>
   <p class="enq__lead">
-    Tell us how many of each you need. ${esc(siteConfig.supplyTerms)}
+    Put as many products as you like on this list, say how many of each, and
+    send it all in one WhatsApp message. ${esc(siteConfig.supplyTerms)}
   </p>
   <ul class="enq__list" id="enq-list"></ul>
+
+  <div class="enq__empty" id="enq-empty" hidden>
+    <p class="enq__empty-title">Nothing on your list yet</p>
+    <p class="enq__empty-body">
+      Browse the catalogue and press <strong>Add</strong> on anything you want
+      a price for. You can put several products on one enquiry.
+    </p>
+    <a class="btn btn--primary" href="/products/">Browse products</a>
+    <p class="enq__empty-or">
+      Or <a href="${esc(whatsappUrl('general'))}"
+        ${hasWhatsApp() ? 'target="_blank" rel="noopener"' : ''}
+        data-wa-track data-wa-location="enquiry_empty">just send us a message</a>
+      if you would rather ask about something else.
+    </p>
+  </div>
+
+  <p class="enq__more" id="enq-more">
+    <a href="/products/">Add more products →</a>
+  </p>
   <p class="enq__note" id="enq-note" role="status" aria-live="polite"></p>
   <div class="enq__foot">
     <a class="btn btn--whatsapp btn--lg btn--block" id="enq-send"
@@ -112,8 +141,12 @@ export function enquiryList() {
 
 /** Floating WhatsApp bubble. Hidden while the mobile menu is open (see app.js). */
 export function floatingWhatsApp() {
+  // Still a real wa.me link, so it works with JavaScript off. With JavaScript
+  // the enquiry list intercepts it and opens the panel, where a visitor can
+  // give quantities and add more products before anything is sent.
   return `<a class="wa-float" href="${esc(whatsappUrl('general'))}"
    ${waAttrs('floating_button', null)}
+   data-enq-open
    aria-label="Enquire on WhatsApp">
   ${icon('whatsapp', { size: 28 })}
   <span class="wa-float__label">Enquire</span>
@@ -176,8 +209,11 @@ export function productCard(product, { eager = false, location = 'product_card' 
     <a class="btn btn--whatsapp btn--icon"
        href="${esc(whatsappUrl('product', { product: product.name }))}"
        ${waAttrs(location, product)}
+       data-enq-open
+       data-enq-slug="${esc(product.slug)}"
+       data-enq-name="${esc(product.name)}"
        aria-label="Enquire about ${esc(product.name)} on WhatsApp"
-       title="Enquire on WhatsApp">
+       title="Enquire — asks how many first">
       ${icon('whatsapp', { size: 19 })}
     </a>
   </div>
