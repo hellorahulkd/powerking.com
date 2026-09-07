@@ -1749,5 +1749,24 @@
     "tags": [
       "Computer speaker"
     ]
+  },
+  {
+    "id": 272,
+    "name": "Kisonli K21 Professional",
+    "slug": "kisonli-k21-professional",
+    "brand": "Kisonli K21 Professional",
+    "category": "Speakers",
+    "description": "Kisonli K21 Professional Product Specification\n Product Nomenclature: Kisonli K21 High-Performance Portable Bluetooth Speaker\n Acoustic Profile: Engineered 40W audio architecture delivering robust dual-bass output and immersive 360-degree sound dispersion\n Physical Dimensions (L × W × H): 18.0\\text{ cm} \\times 9.0\\text{ cm} \\times 9.0\\text{ cm}\n Retail Packaging Dimensions (L × W × H): 22.0\\text{ cm} \\times 11.0\\text{ cm} \\times 13.0\\text{ cm}\n Structural Design: Ergonomic cylindrical form factor featuring integrated utility lanyards, tactile control interface, and dynamic RGB ambient illumination\n Ingress Protection: IPX6 water-resistant certification designed for mobile and outdoor environments",
+    "image": "/images/products/kisonli-k21-professional.jpg",
+    "gallery": [],
+    "packSize": "12",
+    "priceCarton": 3400,
+    "pricePiece": 3450,
+    "sku": "Kisonli K21 Professional",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "K21 Speaker"
+    ]
   }
 ]
