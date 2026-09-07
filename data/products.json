@@ -1694,5 +1694,24 @@
     "tags": [
       "Trolley speaker"
     ]
+  },
+  {
+    "id": 269,
+    "name": "J-iPOK P617",
+    "slug": "j-ipok-p617",
+    "brand": "",
+    "category": "Speakers",
+    "description": "Product Type: Portable multi-functional solar speaker and outdoor lantern/floodlight.\n Key Features:\n Built-in solar panel for eco-friendly charging.\n Integrated bright LED flashlight/floodlight on the side.\n 8W powerful speaker with a built-in microphone.\n 1200 mAh rechargeable battery.\n Wireless/Bluetooth connectivity, FM radio, and USB/TF card playback support.\n Dimensions: Specific physical measurements (height, width, and depth) are not listed on the product packaging or visible components shown in the sources.",
+    "image": "/images/products/j-ipok-p617.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 825,
+    "pricePiece": 850,
+    "sku": "J-iPOK P617",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Portable speaker"
+    ]
   }
 ]
