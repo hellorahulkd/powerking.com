@@ -1133,7 +1133,12 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
   width: min(34rem, calc(100vw - 2rem)); max-height: 85vh;
   padding: 0; border: 1px solid var(--border-strong); background: var(--bg);
   color: var(--text); overflow: hidden;
+  /* A column, so the list takes whatever height is left and Send stays inside
+     the dialog. Sized by content it overflowed a short window, and with
+     overflow hidden there was then no way to scroll to the button at all. */
+  display: flex; flex-direction: column;
 }
+.enq__head, .enq__lead, .enq__empty, .enq__more, .enq__note, .enq__foot { flex: none; }
 .enq::backdrop { background: rgba(16,16,16,.55); }
 .enq__head {
   display: flex; align-items: center; gap: 1rem;
@@ -1151,7 +1156,8 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
   font-size: var(--step--1); color: var(--text-muted);
 }
 .enq__list {
-  margin: 0; padding: 0 1.25rem; max-height: 52vh; overflow-y: auto;
+  margin: 0; padding: 0 1.25rem; overflow-y: auto;
+  flex: 1 1 auto; min-height: 0;
   display: flex; flex-direction: column; gap: .5rem;
 }
 .enq__row {
@@ -1196,7 +1202,10 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
 .enq__note { margin: .8rem 1.25rem 0; font-size: var(--step--1); color: var(--text-muted); }
 .enq__note:empty { display: none; }
 .enq__note--warn { color: #7A2E1B; font-weight: 600; }
-.enq__foot { padding: 1rem 1.25rem 1.25rem; }
+.enq__foot {
+  padding: 1rem 1.25rem 1.25rem;
+  border-top: 1px solid var(--border); background: var(--bg);
+}
 .enq__fine {
   margin: .6rem 0 0; font-size: .78rem; color: var(--text-faint); text-align: center;
 }
@@ -1296,4 +1305,18 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
   .enq__box { flex: 1; min-width: 0; }
   .enq__num { width: 100%; }
   .enq__remove { font-size: .72rem; padding: .2rem; }
+}
+
+/* A short window — a phone held sideways, or a laptop with a lot of browser
+   chrome — left no room between the fixed head and foot, collapsing the list
+   to nothing. The explainer and the fine print give way first: on a screen
+   this short, seeing the products matters more than the instructions. */
+@media (max-height: 560px) {
+  .enq { max-height: 94vh; }
+  .enq__lead, .enq__fine { display: none; }
+  .enq__head { padding: .7rem 1rem .5rem; }
+  .enq__list { padding-inline: 1rem; min-height: 5rem; }
+  .enq__more { margin: .5rem 1rem 0; }
+  .enq__foot { padding: .7rem 1rem .8rem; }
+  .enq__row { gap: .4rem; padding: .45rem; }
 }

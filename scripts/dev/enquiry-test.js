@@ -397,6 +397,53 @@ console.log('\nThe cap on one message');
     /most one message can carry/i.test(len.note), len.note);
 }
 
+console.log('\nThe panel fits the window it is in');
+{
+  // A full list on a short window used to push Send below the dialog's own
+  // edge, and the dialog clips rather than scrolls — so there was no way to
+  // reach the button at all. Every part has to stay inside, at every size.
+  for (const [w, h, label] of [
+    [1280, 620, 'a laptop with a lot of browser chrome'],
+    [1280, 500, 'a short window'],
+    [844, 390, 'a phone held sideways'],
+    [320, 480, 'the smallest phone'],
+    [390, 844, 'a phone upright'],
+    [1600, 1200, 'a big desktop'],
+  ]) {
+    await page.setViewport(w, h, w < 900);
+    await fresh();
+    const r = await page.eval(`
+      const b = [...document.querySelectorAll('.enq-add--pin')];
+      for (let i = 0; i < b.length; i++) b[i].click();
+      document.getElementById('enq-open').click();
+      await new Promise(r => setTimeout(r, 250));
+      const dialog = document.getElementById('enq-dialog');
+      const d = dialog.getBoundingClientRect();
+      const send = document.getElementById('enq-send').getBoundingClientRect();
+      const list = document.getElementById('enq-list');
+      const lb = list.getBoundingClientRect();
+      list.scrollTop = list.scrollHeight;
+      const rows = document.querySelectorAll('.enq__row');
+      const last = rows[rows.length - 1].getBoundingClientRect();
+      return {
+        rows: rows.length,
+        sendInside: send.height > 0 && send.bottom <= d.bottom + 1 && send.top >= d.top - 1,
+        listHeight: Math.round(lb.height),
+        lastReachable: last.bottom <= lb.bottom + 2,
+        clipped: dialog.scrollHeight > dialog.clientHeight + 1,
+        onScreen: d.bottom <= innerHeight + 1 && d.top >= -1,
+      };
+    `);
+    check(`${label} (${w}x${h}) — Send stays inside the panel`,
+      r.sendInside === true && r.clipped === false, JSON.stringify(r));
+    check(`${label} (${w}x${h}) — the products are still visible and scrollable`,
+      r.listHeight > 60 && r.lastReachable === true, JSON.stringify(r));
+    check(`${label} (${w}x${h}) — the panel fits the screen`, r.onScreen === true,
+      JSON.stringify(r));
+  }
+  await page.setViewport(1280, 900, false);
+}
+
 console.log('\nClearing and removing');
 {
   const removed = await page.eval(`
