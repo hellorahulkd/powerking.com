@@ -1561,5 +1561,24 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 257,
+    "name": "QL-8883 8-Inch Loud Speaker with Wireless Microphone",
+    "slug": "ql-8883-8-inch-loud-speaker-with-wireless-microphone",
+    "brand": "Powerking",
+    "category": "Speakers",
+    "description": "QL-8883 8-Inch Loud Speaker with Wireless Microphone\n Design & Build: Heavy-duty portable PA speaker body with dynamic RGB LED lighting grill, integrated top carry handle, and rear trolley wheels.\n Audio Performance: 8-inch high-excursion woofer driver delivering 8W RMS power output with enhanced bass clarity.\n Microphone & PA Features: Includes a dedicated VHF/UHF wireless microphone for karaoke, public addressing, and events.\n Connectivity Options: Bluetooth 5.0 streaming, USB flash drive, TF/MicroSD card reader, 3.5mm AUX input, and 6.35mm wired mic input.\n Battery: 3.7V / 1800mAh–2400mAh rechargeable lithium battery supporting 3–5 hours of continuous wireless playback.\nDimensions & Weight\n Height: ~38.0 cm – 42.0 cm\n Width: ~24.0 cm – 26.0 cm\n Depth/Thickness: ~20.0 cm – 22.0 cm\n Weight: ~2.2 kg – 2.8 kg",
+    "image": "/images/products/ql-8883-8-inch-loud-speaker-with-wireless-microphone.jpg",
+    "gallery": [],
+    "packSize": "8",
+    "priceCarton": 2350,
+    "pricePiece": 2390,
+    "sku": "QL-8883 8-Inch Loud Speaker with Wireless Microphone",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "speakers"
+    ]
   }
 ]
