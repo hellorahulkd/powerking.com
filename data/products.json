@@ -1642,5 +1642,24 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 265,
+    "name": "LP V115 SUN Outdoor Wireless Solar Speaker",
+    "slug": "lp-v115-sun-outdoor-wireless-solar-speaker",
+    "brand": "LP V115",
+    "category": "Speakers",
+    "description": "LP V115 SUN Outdoor Wireless Solar Speaker\nProduct Description\n Solar-Powered Charging: Built-in top solar panel continuously recharges the internal battery during outdoor sunlight exposure.\n Integrated Phone Holder Groove: Top-slot design securely holds a smartphone upright for hands-free video viewing while streaming audio.\n Emergency Side Flashlight: Features a high-power side LED beam, transforming the speaker into a handy torch light for camping and night travel.\n Multi-Source Audio: Supports Bluetooth 5.0 wireless streaming, USB flash drives, MicroSD/TF cards, and FM radio.\n Rugged & Portable Build: Enclosed in a textured tactical casing with corner bumpers and a convenient wrist carry strap.\nDimensions & Specs\n Product Dimensions: ~17 cm × 7.5 cm × 8 cm (Length × Width × Height)\n Packaging Dimensions: ~20 cm × 8.5 cm × 9 cm\n Total Weight: ~400 g – 500 g\n Output Power: 8W RMS high-efficiency driver\n Battery: Rechargeable lithium-ion battery (3–6 hours continuous playback)\n Connectivity & Charging: Solar panel input, Micro-USB charging port, USB port, TF Card slot, 3.5 mm AUX",
+    "image": "/images/products/lp-v115-sun-outdoor-wireless-solar-speaker.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 725,
+    "pricePiece": 750,
+    "sku": "LP V115 SUN Outdoor Wireless Solar Speaker",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "Portable speaker radio fm"
+    ]
   }
 ]
