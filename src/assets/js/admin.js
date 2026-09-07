@@ -201,7 +201,6 @@
 
     $('list').innerHTML = shown.map(function (p) {
       var badges = []
-        .concat(p.sample ? ['<span class="admin__badge">Sample</span>'] : [])
         .concat(p.featured ? ['<span class="admin__badge">Featured</span>'] : [])
         .concat(p.available ? [] : ['<span class="admin__badge">Unavailable</span>'])
         .concat(p.packSize ? [] : ['<span class="admin__badge admin__badge--warn">No pack size</span>'])
@@ -232,7 +231,7 @@
   var BLANK = {
     id: 0, name: '', slug: '', brand: '', category: '', description: '',
     image: '', gallery: [], packSize: '', priceCarton: '', pricePiece: '', sku: '',
-    featured: false, available: true, sample: false, tags: [],
+    featured: false, available: true, tags: [],
   };
 
   function openEditor(product) {
@@ -252,7 +251,6 @@
     $('f-tags').value = (p.tags || []).join(', ');
     $('f-featured').checked = !!p.featured;
     $('f-available').checked = !!p.available;
-    $('f-sample').checked = !!p.sample;
     $('f-image').value = '';
 
     $('f-category').innerHTML = state.categories.map(function (c) {
@@ -324,7 +322,6 @@
       sku: $('f-sku').value.trim(),
       featured: $('f-featured').checked,
       available: $('f-available').checked,
-      sample: $('f-sample').checked,
       tags: tags,
     };
   }

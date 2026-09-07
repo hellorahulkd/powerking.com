@@ -10,7 +10,32 @@
  */
 import { launch, newPage } from './cdp.js';
 import { products } from '../../src/data/products.js';
+import { searchText } from '../../src/templates/components.js';
 import { PAGE_SIZE } from '../../src/pages/catalogue.js';
+
+/**
+ * What the catalogue's client-side search should return for a term, worked out
+ * from the data rather than written down. Hard-coded counts went stale every
+ * time a product was added or removed, and a stale count fails a test that is
+ * still measuring the right thing. Mirrors src/assets/js/catalogue.js: every
+ * term must match the start of some word in the haystack.
+ */
+const HAYSTACKS = products.map((p) => searchText([
+  p.name, p.brand, p.category, p.sku, p.packSize, ...(p.tags || []),
+]));
+/** The brand used by the filter checks: the smallest one with a sibling. */
+const BRAND = [...new Set(products.map((p) => p.brand))]
+  .filter((b) => b && !b.startsWith('['))
+  .map((b) => ({ b, n: products.filter((p) => p.brand === b).length }))
+  .filter((x) => x.n >= 2)
+  .sort((a, b) => a.n - b.n || a.b.localeCompare(b.b))[0];
+
+function expected(term) {
+  const terms = searchText(term).split(' ').filter(Boolean);
+  return HAYSTACKS.filter(
+    (hay) => terms.every((t) => hay.split(' ').some((w) => w.startsWith(t))),
+  ).length;
+}
 
 const BASE = process.env.BASE || 'http://localhost:4321';
 const SHOTS = process.env.SHOTS || '';
@@ -37,7 +62,7 @@ const VIEWPORTS = [
 
 const PAGES = [
   '/', '/products/', '/products/speakers/', '/products/data-cables/',
-  '/products/sample-tws-wireless-earbuds/', '/about/', '/contact/', '/brands/',
+  `/products/${products[0].slug}/`, '/about/', '/contact/', '/brands/',
   '/privacy/', '/404.html',
 ];
 
@@ -279,31 +304,36 @@ async function main() {
         .filter(c => !c.hidden).map(c => c.querySelector('.card__title').textContent.trim());
     `);
 
-    const byName = await search('earbuds');
-    check('search by product name/category ("earbuds") matches 2',
-      byName.length === 2, byName.join(', '));
+    const byName = await search('trimmer');
+    check(`search by product name ("trimmer") matches ${expected('trimmer')}`,
+      byName.length === expected('trimmer'), byName.join(', '));
 
-    const byBrand = await search('samplelink');
-    check('search by brand matches 2', byBrand.length === 2, byBrand.join(', '));
+    const byBrand = await search('kisonli');
+    check(`search by brand matches ${expected('kisonli')}`,
+      byBrand.length === expected('kisonli'), byBrand.join(', '));
 
-    const bySku = await search('pk-cbl-001');
-    check('search by SKU (with punctuation) matches 1', bySku.length === 1, bySku.join(', '));
+    const bySku = await search('v-091');
+    check('search by SKU (with punctuation) matches 1',
+      bySku.length === expected('v-091') && bySku.length === 1, bySku.join(', '));
 
     // Matching is anchored to word starts: type-ahead works, but a term must
     // not match the middle of an unrelated word.
-    const prefix = await search('earbu');
-    check('type-ahead prefix ("earbu") still matches', prefix.length === 2, prefix.join(', '));
-    const midWord = await search('buds');
-    check('mid-word fragment ("buds") matches nothing', midWord.length === 0, midWord.join(', '));
+    const prefix = await search('trimm');
+    check('type-ahead prefix ("trimm") still matches',
+      prefix.length === expected('trimm') && prefix.length > 0, prefix.join(', '));
+    const midWord = await search('immer');
+    check('mid-word fragment ("immer") matches nothing', midWord.length === 0, midWord.join(', '));
 
-    const byTag = await search('powerbank');
-    check('search matches hidden tags ("powerbank")', byTag.length === 1, byTag.join(', '));
+    // "ipx6" is only in a product's tags, not in anything the card shows.
+    const byTag = await search('ipx6');
+    check('search matches hidden tags ("ipx6")',
+      byTag.length === expected('ipx6') && byTag.length === 1, byTag.join(', '));
 
     // Regression guard: assert the pixels, not just the `hidden` property.
     // A CSS class that sets `display` silently beats the UA [hidden] rule.
     const reallyHidden = await page.eval(`
       const i = document.getElementById('product-search');
-      i.value = 'powerbank';
+      i.value = 'ipx6';
       i.dispatchEvent(new Event('input', { bubbles: true }));
       const cards = [...document.querySelectorAll('[data-product]')];
       const hiddenOnes = cards.filter(c => c.hidden);
@@ -348,7 +378,7 @@ async function main() {
 
     const status = await page.eval(`
       const i = document.getElementById('product-search');
-      i.value = 'neckband';
+      i.value = 'ipx6';
       i.dispatchEvent(new Event('input', { bubbles: true }));
       return document.getElementById('search-status').textContent.trim();
     `);
@@ -408,19 +438,26 @@ async function main() {
     const brand = await page.eval(`
       document.querySelector('[data-filter-cat=""]').click();
       const s = document.getElementById('brand-filter');
-      s.value = 'SampleLink';
+      s.value = ${JSON.stringify(BRAND.b)};
       s.dispatchEvent(new Event('change', { bubbles: true }));
       return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
     `);
-    check('brand filter narrows to 2', brand === 2, `got ${brand}`);
+    check(`brand filter narrows to the ${BRAND.n} ${BRAND.b} products`,
+      brand === BRAND.n, `got ${brand}`);
 
+    // A term matching one product of that brand: the two controls have to
+    // intersect, not replace one another.
+    const narrow = products.find((p) => p.brand === BRAND.b);
+    const term = (narrow.sku || narrow.name).split(/\s+/)[0];
     const combined = await page.eval(`
       const i = document.getElementById('product-search');
-      i.value = 'lightning';
+      i.value = ${JSON.stringify(term)};
       i.dispatchEvent(new Event('input', { bubbles: true }));
       return [...document.querySelectorAll('[data-product]')].filter(c => !c.hidden).length;
     `);
-    check('search + brand filter combine', combined === 1, `got ${combined}`);
+    check('search + brand filter combine',
+      combined > 0 && combined <= BRAND.n && combined <= expected(term),
+      `got ${combined} for “${term}” within ${BRAND.n} ${BRAND.b} products`);
 
     // Exactly one category control is on screen at any width — the chips where
     // they can wrap, the select where they would be a blind swipe. Two at once
@@ -497,7 +534,7 @@ async function main() {
   {
     const page = await newPage(port);
     await page.setViewport(1280, 800, false);
-    await page.goto(`${BASE}/products/sample-tws-wireless-earbuds/`);
+    await page.goto(`${BASE}/products/${products[0].slug}/`);
     const wa = await page.eval(`
       const links = [...document.querySelectorAll('[data-wa-track]')];
       return {
@@ -509,11 +546,11 @@ async function main() {
     `);
     check('product page has WhatsApp CTAs', wa.count >= 4, `count ${wa.count}`);
     check('product name is attached for analytics',
-      wa.product === 'Sample TWS Wireless Earbuds', wa.product);
+      wa.product === products[0].name, wa.product);
     check('WhatsApp link is a real wa.me chat with the number configured',
       /^https:\/\/wa\.me\/9779863215831\?text=/.test(wa.href || ''), wa.href);
     check('the pre-filled message names the product',
-      decodeURIComponent(wa.href || '').includes('Sample TWS Wireless Earbuds'), wa.href);
+      decodeURIComponent(wa.href || '').includes(products[0].name), wa.href);
     check(
       'CTAs cover header, floating, product and footer',
       ['header', 'floating_button', 'product_page', 'footer'].every((l) => wa.locations.includes(l)),
@@ -534,7 +571,7 @@ async function main() {
   {
     const page = await newPage(port);
     await page.setViewport(1280, 800, false);
-    await page.goto(`${BASE}/products/sample-tws-wireless-earbuds/`);
+    await page.goto(`${BASE}/products/${products[0].slug}/`);
     const ev = await page.eval(`
       const seen = [];
       window.gtag = (type, name, params) => { if (type === 'event') seen.push({ name, params }); };
@@ -548,7 +585,7 @@ async function main() {
     const waEv = ev.seen.find(e => e.name === 'whatsapp_click');
     check(
       'whatsapp_click carries product + location',
-      waEv?.params?.product === 'Sample TWS Wireless Earbuds' && waEv?.params?.location === 'product_page',
+      waEv?.params?.product === products[0].name && waEv?.params?.location === 'product_page',
       JSON.stringify(waEv?.params),
     );
 
@@ -557,7 +594,7 @@ async function main() {
       const seen = [];
       window.gtag = (t, name, params) => { if (t === 'event') seen.push({ name, params }); };
       const i = document.getElementById('product-search');
-      i.value = 'powerbank';
+      i.value = 'ipx6';
       i.dispatchEvent(new Event('input', { bubbles: true }));
       await new Promise(r => setTimeout(r, 900));
       document.querySelector('[data-track-category]')?.click();
@@ -566,7 +603,7 @@ async function main() {
     check('product_search fires (debounced)', search.some(e => e.name === 'product_search'),
       JSON.stringify(search.map(e => e.name)));
     const se = search.find(e => e.name === 'product_search');
-    check('product_search carries term + result count', se?.params?.search_term === 'powerbank' && se?.params?.results === 1,
+    check('product_search carries term + result count', se?.params?.search_term === 'ipx6' && se?.params?.results === 1,
       JSON.stringify(se?.params));
 
     await page.goto(`${BASE}/products/speakers/`);

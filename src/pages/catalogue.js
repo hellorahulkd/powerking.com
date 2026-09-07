@@ -1,7 +1,7 @@
 import { esc, jsonForScript, absoluteUrl } from '../lib/html.js';
 import { layout } from '../templates/layout.js';
 import {
-  productCard, emptyState, sampleNotice, whatsappButton,
+  productCard, emptyState, whatsappButton,
   pageHead, breadcrumbSchema,
 } from '../templates/components.js';
 
@@ -181,11 +181,10 @@ export function cataloguePage({ products, categories, brands, page = 1 }) {
 </section>`;
 
   const body = `
-${sampleNotice()}
 ${pageHead({
   eyebrow: 'Product Catalogue',
   title: 'Our Products',
-  lead: 'Browse the full PowerKing Nepal range. Prices are quoted on enquiry — message us on WhatsApp with the products you need.',
+  lead: 'The full PowerKing Nepal range, supplied by the carton or in loose pieces. Add what you need to an enquiry and we will confirm trade pricing on WhatsApp.',
   crumbs,
 })}
 ${catGrid}
@@ -270,7 +269,6 @@ export function categoryPage({ category, products, categories, brands, page = 1 
     .join('');
 
   const body = `
-${sampleNotice()}
 ${pageHead({
   eyebrow: 'Category',
   title: category.name,

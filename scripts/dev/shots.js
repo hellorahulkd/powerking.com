@@ -4,6 +4,7 @@
  */
 import { launch, newPage } from './cdp.js';
 import { mkdir } from 'node:fs/promises';
+import { products } from '../../src/data/products.js';
 
 const BASE = process.env.BASE || 'http://localhost:4321';
 const OUT = process.argv[2] || 'screenshots';
@@ -11,7 +12,7 @@ const OUT = process.argv[2] || 'screenshots';
 const SHOTS = [
   ['home',      '/',                              390, 900,  true],
   ['catalogue', '/products/',                     390, 1000, true],
-  ['product',   '/products/sample-cola-500ml/',   390, 1100, true],
+  ['product',   `/products/${products[0].slug}/`,  390, 1100, true],
   ['contact',   '/contact/',                      390, 900,  true],
   ['404',       '/404.html',                      390, 800,  true],
   ['menu-open', '/',                              390, 900,  true],

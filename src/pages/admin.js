@@ -181,7 +181,6 @@ export function adminPage() {
         <div class="af">
           ${checkbox('f-featured', 'Featured', 'Candidate for the homepage row. It shows the first eight featured products, in catalogue order.')}
           ${checkbox('f-available', 'Available', 'Unticked shows "Currently unavailable" on the product, which stays listed.')}
-          ${checkbox('f-sample', 'Sample placeholder', 'Marks it as demo data with a badge. Real products leave this unticked.')}
         </div>
 
         <div class="admin__actions">

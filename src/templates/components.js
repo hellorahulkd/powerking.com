@@ -164,7 +164,6 @@ export function floatingWhatsApp() {
 /** "SAMPLE" / "Unavailable" badges. */
 function badges(product) {
   const out = [];
-  if (product.sample) out.push('<span class="badge badge--sample">Sample</span>');
   if (product.available === false)
     out.push('<span class="badge badge--out">Currently unavailable</span>');
   return out.length ? `<div class="card__badges">${out.join('')}</div>` : '';
@@ -202,7 +201,7 @@ export function productCard(product, { eager = false, location = 'product_card' 
 
   // The search haystack is built here, at build time, so filtering at runtime
   // is a handful of string tests per card — fast even on a low-end phone.
-  // Punctuation becomes whitespace so "PK-SAMPLE-001" is findable as "sample",
+  // Punctuation becomes whitespace so "PK-60" is findable as "pk" or "60",
   // and so the runtime can anchor matches to word starts (see catalogue.js).
   const haystack = searchText([
     product.name, product.brand, product.category, product.sku,
@@ -300,21 +299,6 @@ export function pageHead({ eyebrow = '', title, lead = '', crumbs = [] } = {}) {
     ${lead ? `<p class="page-head__lead">${esc(lead)}</p>` : ''}
   </div>
 </section>`;
-}
-
-/** Notice shown while the catalogue still contains sample products. */
-export function sampleNotice() {
-  if (!siteConfig.features.showSampleDataNotice) return '';
-  // The catalogue is now part real, part placeholder, so the banner must not
-  // claim everything is a demo — that would make a buyer distrust the real
-  // products too. Placeholders carry a "Sample" badge on their own card.
-  return `<div class="notice" role="note">
-  <div class="container">
-    <strong>We are still adding products.</strong> Items marked
-    <em>Sample</em> are placeholders used to build the site — everything else
-    is a line we supply. Message us on WhatsApp for anything you cannot find.
-  </div>
-</div>`;
 }
 
 /** Breadcrumb JSON-LD. */

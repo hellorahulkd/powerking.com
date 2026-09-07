@@ -46,7 +46,6 @@
  *  sku         string   Optional internal code. Searchable. Use '' if none.
  *  featured    boolean  true → appears in the homepage Featured row (first 8).
  *  available   boolean  false → shown as "Currently unavailable", still listed.
- *  sample      boolean  true → shows a "SAMPLE" badge. Remove for real products.
  *  tags        string[] Optional extra search keywords.
  *
  *  ⚠️  PACK SIZE IS EMPTY ON EVERY REAL PRODUCT. No carton photographed so

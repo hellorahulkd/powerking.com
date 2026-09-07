@@ -55,7 +55,6 @@ function gallery(product) {
       product.brand,
     )}" width="800" height="800" fetchpriority="high" decoding="async"
     onerror="this.closest('.pd-gallery__main').classList.add('is-fallback');this.remove()">
-    ${product.sample ? '<span class="badge badge--sample badge--float">Sample product</span>' : ''}
   </div>`;
 
   if (images.length < 2) return `<div class="pd-gallery">${main}</div>`;

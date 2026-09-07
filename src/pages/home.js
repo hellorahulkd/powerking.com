@@ -2,7 +2,7 @@ import { siteConfig } from '../config/site.config.js';
 import { esc, whatsappUrl, hasWhatsApp } from '../lib/html.js';
 import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
-import { productCard, sampleNotice, whatsappButton } from '../templates/components.js';
+import { productCard, whatsappButton } from '../templates/components.js';
 
 /**
  * Hero carousel of featured products.
@@ -111,23 +111,21 @@ function intro() {
 }
 
 /**
- * Search, on the page a visitor actually lands on.
+ * Search, as one strip at the very top of the page.
  *
- * The site already told Google it was searchable — the homepage carries a
- * SearchAction pointing at /products/?q= — while offering no box to type in.
- * This is that box. It is a plain GET form, so it works with JavaScript off:
- * the catalogue reads ?q= on load and filters before anything else runs.
+ * It was a full section — eyebrow, a two-line heading, a big field — which
+ * cost most of a screen before a visitor saw a single product. Everything a
+ * buyer needs is the box and a way into the most-stocked brands, so it is one
+ * row above the hero now.
  *
- * The shortcuts underneath are the brands we actually carry most of, counted
- * from the catalogue rather than typed in here, so they cannot go stale as
- * the range changes.
+ * A plain GET form, so it works with JavaScript off: the catalogue reads ?q=
+ * on load and filters before anything else runs. The shortcuts are counted
+ * from the catalogue, so they cannot go stale as the range changes.
  */
-function searchSection(products) {
+function searchStrip(products) {
   const counts = new Map();
   for (const p of products) {
-    // Sample placeholders and cartons with no readable brand are real rows in
-    // the catalogue but nothing to advertise as a line we are deep in.
-    if (p.sample || !p.brand || p.brand.startsWith('[')) continue;
+    if (!p.brand || p.brand.startsWith('[')) continue;
     counts.set(p.brand, (counts.get(p.brand) || 0) + 1);
   }
   const popular = [...counts.entries()]
@@ -141,25 +139,31 @@ function searchSection(products) {
     )
     .join('');
 
-  return `<section class="section section--tight hsearch">
-  <div class="container">
-    <p class="eyebrow">Search The Catalogue</p>
-    <h2 class="section__title hsearch__title">Looking for something specific?</h2>
+  return `<div class="hsearch">
+  <div class="container hsearch__inner">
     <form class="hsearch__form" role="search" action="/products/" method="get">
       <label class="sr-only" for="home-search">Search products by name, brand, category or SKU</label>
       <input class="hsearch__input" id="home-search" name="q" type="search"
-             placeholder="Speaker, charger, trimmer, model number…"
+             placeholder="Search speakers, chargers, trimmers or a model number…"
              autocomplete="off" enterkeyhint="search">
       <button class="btn btn--primary hsearch__go" type="submit">Search</button>
     </form>
     ${popular.length ? `<p class="hsearch__popular">
-      <span class="hsearch__popular-label">Most stocked:</span> ${chips}
+      <span class="hsearch__popular-label">Most stocked</span>${chips}
     </p>` : ''}
   </div>
-</section>`;
+</div>`;
 }
 
-function categorySection(categories, countsByCategory) {
+/**
+ * The category grid. Categories holding nothing are left out: a tile reading
+ * "0 products" is a dead end for a buyer, and the category still has its own
+ * page for anyone who reaches it another way. Add a product in /admin/ and the
+ * tile comes back on the next build.
+ */
+function categorySection(allCategories, countsByCategory) {
+  const categories = allCategories.filter((c) => (countsByCategory[c.name] || 0) > 0);
+  if (!categories.length) return '';
   return `<section class="section section--top" id="categories">
   <div class="container">
     <div class="section__head">
@@ -234,9 +238,8 @@ export function homePage({ products, categories, countsByCategory }) {
   const featuredIds = new Set(featured.map((p) => p.id));
   const rest = products.filter((p) => !featuredIds.has(p.id));
   const body = [
-    sampleNotice(),
+    searchStrip(products),
     heroSlider(featured),
-    searchSection(products),
     categorySection(categories, countsByCategory),
     intro(),
     moreSection(rest),

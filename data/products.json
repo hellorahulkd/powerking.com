@@ -12,7 +12,6 @@
     "sku": "PK-60",
     "featured": true,
     "available": true,
-    "sample": false,
     "tags": [
       "fast charger",
       "120w",
@@ -39,7 +38,6 @@
     "sku": "",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "fast charger",
       "120w",
@@ -63,7 +61,6 @@
     "sku": "V-091",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "hair trimmer",
       "clipper",
@@ -91,7 +88,6 @@
     "sku": "V-071",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "hair trimmer",
       "clipper",
@@ -117,7 +113,6 @@
     "sku": "",
     "featured": true,
     "available": true,
-    "sample": false,
     "tags": [
       "grooming kit",
       "trimmer",
@@ -145,7 +140,6 @@
     "sku": "NP-888",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "tripod",
       "phone stand",
@@ -171,7 +165,6 @@
     "sku": "",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "tablet stand",
       "holder",
@@ -197,7 +190,6 @@
     "sku": "K007",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "phone mount",
       "magnetic",
@@ -223,7 +215,6 @@
     "sku": "P-H32E",
     "featured": true,
     "available": true,
-    "sample": false,
     "tags": [
       "power bank",
       "30000mah",
@@ -249,7 +240,6 @@
     "sku": "P-A211",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "power bank",
       "15000mah",
@@ -275,7 +265,6 @@
     "sku": "M21 RGB",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "rgb light",
       "fill light",
@@ -301,7 +290,6 @@
     "sku": "",
     "featured": true,
     "available": true,
-    "sample": false,
     "tags": [
       "wifi repeater",
       "range extender",
@@ -328,7 +316,6 @@
     "sku": "V35",
     "featured": true,
     "available": true,
-    "sample": false,
     "tags": [
       "solar",
       "fm radio",
@@ -353,7 +340,6 @@
     "sku": "V9",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "8w",
       "good bass",
@@ -378,7 +364,6 @@
     "sku": "U-2500BT",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "2.1",
       "gaming",
@@ -403,7 +388,6 @@
     "sku": "K19",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "20w",
       "rgb",
@@ -427,7 +411,6 @@
     "sku": "SC-23",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "10w",
       "1800mah",
@@ -451,7 +434,6 @@
     "sku": "KS-1992",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "stereo",
       "aux",
@@ -476,7 +458,6 @@
     "sku": "Q2",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "mini",
       "portable",
@@ -499,7 +480,6 @@
     "sku": "B3",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "car speaker",
       "solar",
@@ -524,7 +504,6 @@
     "sku": "B2",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "car speaker",
       "solar",
@@ -551,7 +530,6 @@
     "sku": "V78",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "solar",
       "10w",
@@ -577,7 +555,6 @@
     "sku": "V90",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "10w",
       "4 inch",
@@ -603,7 +580,6 @@
     "sku": "V102",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "8w",
       "rgb",
@@ -629,7 +605,6 @@
     "sku": "V86 Mini",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "8w",
       "mini",
@@ -655,7 +630,6 @@
     "sku": "V80",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "ipx4",
       "splash resistant",
@@ -679,7 +653,6 @@
     "sku": "P353",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "rugged",
       "portable",
@@ -703,7 +676,6 @@
     "sku": "P338",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "car speaker",
       "novelty",
@@ -727,7 +699,6 @@
     "sku": "WS-105",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "car speaker",
       "novelty",
@@ -752,7 +723,6 @@
     "sku": "BOOMSBOX3",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "tws",
       "hi fi",
@@ -777,7 +747,6 @@
     "sku": "",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "outdoor",
       "trolley",
@@ -802,7 +771,6 @@
     "sku": "",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "wooden",
       "cabinet",
@@ -828,7 +796,6 @@
     "sku": "",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "karaoke",
       "microphone",
@@ -853,7 +820,6 @@
     "sku": "V6",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "phone stand",
       "antenna",
@@ -876,7 +842,6 @@
     "sku": "X9BT",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "gaming speaker",
       "usb",
@@ -901,7 +866,6 @@
     "sku": "E-8808",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "trolley speaker",
       "karaoke",
@@ -926,7 +890,6 @@
     "sku": "K21",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "portable speaker",
       "40w",
@@ -950,7 +913,6 @@
     "sku": "P378S",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "car speaker",
       "solar",
@@ -977,7 +939,6 @@
     "sku": "K40",
     "featured": true,
     "available": true,
-    "sample": false,
     "tags": [
       "subwoofer",
       "outdoor",
@@ -1002,7 +963,6 @@
     "sku": "JQS908S",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "trolley speaker",
       "karaoke",
@@ -1028,7 +988,6 @@
     "sku": "SS-1",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "trolley speaker",
       "karaoke",
@@ -1054,7 +1013,6 @@
     "sku": "P617",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "solar speaker",
       "floodlight",
@@ -1080,7 +1038,6 @@
     "sku": "G24",
     "featured": true,
     "available": true,
-    "sample": false,
     "tags": [
       "karaoke",
       "ktv",
@@ -1106,7 +1063,6 @@
     "sku": "T-004",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "usb speaker",
       "desktop",
@@ -1131,7 +1087,6 @@
     "sku": "YG-A151",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "wireless speaker",
       "phone stand",
@@ -1156,7 +1111,6 @@
     "sku": "K42",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "portable speaker",
       "15w",
@@ -1183,7 +1137,6 @@
     "sku": "V71",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "solar speaker",
       "bluetooth 5.3",
@@ -1209,7 +1162,6 @@
     "sku": "ZQS8268",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "trolley speaker",
       "karaoke",
@@ -1235,7 +1187,6 @@
     "sku": "SS-10",
     "featured": true,
     "available": true,
-    "sample": false,
     "tags": [
       "trolley speaker",
       "karaoke",
@@ -1262,7 +1213,6 @@
     "sku": "K27",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "portable speaker",
       "rgb",
@@ -1287,376 +1237,12 @@
     "sku": "A-110",
     "featured": false,
     "available": true,
-    "sample": false,
     "tags": [
       "usb speaker",
       "desktop",
       "computer speaker",
       "kisonli",
       "volume control"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 1,
-    "name": "Sample Portable Bluetooth Speaker 10W",
-    "slug": "sample-portable-bluetooth-speaker-10w",
-    "brand": "SampleAudio",
-    "category": "Speakers",
-    "description": "Compact 10W Bluetooth speaker with TWS pairing, TF card slot and around 8 hours of playback. A steady counter line for everyday retail.",
-    "image": "/images/products/sample-portable-bluetooth-speaker-10w.png",
-    "gallery": [],
-    "packSize": "20 pcs per carton",
-    "sku": "PK-SPK-001",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "bluetooth",
-      "speaker",
-      "portable",
-      "tws",
-      "wireless"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 2,
-    "name": "Sample Party Speaker 40W with RGB",
-    "slug": "sample-party-speaker-40w-rgb",
-    "brand": "SampleAudio",
-    "category": "Speakers",
-    "description": "Large 40W party speaker with RGB lighting, wireless mic input and a rechargeable battery. Sells well through the festival season.",
-    "image": "/images/products/sample-party-speaker-40w-rgb.png",
-    "gallery": [],
-    "packSize": "4 pcs per carton",
-    "sku": "PK-SPK-002",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "party speaker",
-      "rgb",
-      "karaoke",
-      "trolley",
-      "loud"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 3,
-    "name": "Sample Wireless Over-Ear Headphones",
-    "slug": "sample-wireless-over-ear-headphones",
-    "brand": "SampleAudio",
-    "category": "Headphones",
-    "description": "Foldable over-ear Bluetooth headphones with a built-in mic, AUX fallback and roughly 20 hours of playback per charge.",
-    "image": "/images/products/sample-wireless-over-ear-headphones.png",
-    "gallery": [],
-    "packSize": "30 pcs per carton",
-    "sku": "PK-HP-001",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "headphones",
-      "over ear",
-      "bluetooth",
-      "wireless",
-      "foldable"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 4,
-    "name": "Sample Wired Gaming Headset",
-    "slug": "sample-wired-gaming-headset",
-    "brand": "SampleGear",
-    "category": "Headphones",
-    "description": "Wired 3.5mm gaming headset with boom mic and RGB earcups. Popular with gaming and cyber-cafe customers.",
-    "image": "/images/products/sample-wired-gaming-headset.png",
-    "gallery": [],
-    "packSize": "24 pcs per carton",
-    "sku": "PK-HP-002",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "gaming",
-      "headset",
-      "wired",
-      "microphone",
-      "rgb"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 5,
-    "name": "Sample TWS Wireless Earbuds",
-    "slug": "sample-tws-wireless-earbuds",
-    "brand": "SampleAudio",
-    "category": "Earbuds",
-    "description": "True wireless earbuds with a charging case, touch controls and a digital battery display. One of the fastest-moving lines in the range.",
-    "image": "/images/products/sample-tws-wireless-earbuds.png",
-    "gallery": [],
-    "packSize": "50 pcs per carton",
-    "sku": "PK-EAR-001",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "tws",
-      "earbuds",
-      "wireless",
-      "bluetooth",
-      "charging case"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 6,
-    "name": "Sample Bluetooth Neckband Earphones",
-    "slug": "sample-bluetooth-neckband-earphones",
-    "brand": "SampleAudio",
-    "category": "Earbuds",
-    "description": "Magnetic neckband earphones with around 12 hours of playback, sweat resistance and in-line controls.",
-    "image": "/images/products/sample-bluetooth-neckband-earphones.png",
-    "gallery": [],
-    "packSize": "60 pcs per carton",
-    "sku": "PK-EAR-002",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "neckband",
-      "earphones",
-      "bluetooth",
-      "magnetic",
-      "sports"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 7,
-    "name": "Sample 20W USB-C Fast Charger",
-    "slug": "sample-20w-usb-c-fast-charger",
-    "brand": "SamplePower",
-    "category": "Chargers & Adapters",
-    "description": "Single-port 20W USB-C power delivery wall charger with built-in over-current protection. Supplied in retail-ready boxes.",
-    "image": "/images/products/sample-20w-usb-c-fast-charger.png",
-    "gallery": [],
-    "packSize": "100 pcs per carton",
-    "sku": "PK-CHG-001",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "charger",
-      "usb-c",
-      "fast charging",
-      "pd",
-      "20w",
-      "adapter"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 8,
-    "name": "Sample 3-Port Car Charger",
-    "slug": "sample-3-port-car-charger",
-    "brand": "SamplePower",
-    "category": "Chargers & Adapters",
-    "description": "Dual USB-A plus USB-C car charger with quick-charge support and an LED indicator ring.",
-    "image": "/images/products/sample-3-port-car-charger.png",
-    "gallery": [],
-    "packSize": "80 pcs per carton",
-    "sku": "PK-CHG-002",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "car charger",
-      "usb",
-      "quick charge",
-      "vehicle",
-      "adapter"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 9,
-    "name": "Sample USB-C Fast Charging Cable 1m",
-    "slug": "sample-usb-c-fast-charging-cable-1m",
-    "brand": "SampleLink",
-    "category": "Data Cables",
-    "description": "Braided 1 metre USB-C to USB-A cable rated for 3A fast charging and data transfer. Supplied in hanging retail packs.",
-    "image": "/images/products/sample-usb-c-fast-charging-cable-1m.png",
-    "gallery": [],
-    "packSize": "200 pcs per carton",
-    "sku": "PK-CBL-001",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "cable",
-      "usb-c",
-      "type c",
-      "braided",
-      "fast charging",
-      "data"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 10,
-    "name": "Sample Lightning Charging Cable 1m",
-    "slug": "sample-lightning-charging-cable-1m",
-    "brand": "SampleLink",
-    "category": "Data Cables",
-    "description": "One metre Lightning to USB-A charging and sync cable with a reinforced strain relief collar.",
-    "image": "/images/products/sample-lightning-charging-cable-1m.png",
-    "gallery": [],
-    "packSize": "200 pcs per carton",
-    "sku": "PK-CBL-002",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "cable",
-      "lightning",
-      "iphone",
-      "charging",
-      "data",
-      "sync"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 11,
-    "name": "Sample 4-Socket Multiplug with USB",
-    "slug": "sample-4-socket-multiplug-with-usb",
-    "brand": "SamplePower",
-    "category": "Power & Multiplugs",
-    "description": "Four universal sockets plus two USB ports, with a master switch and child-safety shutters.",
-    "image": "/images/products/sample-4-socket-multiplug-with-usb.png",
-    "gallery": [],
-    "packSize": "30 pcs per carton",
-    "sku": "PK-PWR-001",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "multiplug",
-      "extension",
-      "socket",
-      "usb",
-      "power strip"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 12,
-    "name": "Sample Extension Board 2m Cord",
-    "slug": "sample-extension-board-2m-cord",
-    "brand": "SamplePower",
-    "category": "Power & Multiplugs",
-    "description": "Extension board with a 2 metre copper cord, individual switches and surge protection.",
-    "image": "/images/products/sample-extension-board-2m-cord.png",
-    "gallery": [],
-    "packSize": "20 pcs per carton",
-    "sku": "PK-PWR-002",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "extension board",
-      "power strip",
-      "surge",
-      "cord",
-      "socket"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 13,
-    "name": "Sample Magnetic Phone Cooling Fan",
-    "slug": "sample-magnetic-phone-cooling-fan",
-    "brand": "SampleGear",
-    "category": "Phone Coolers",
-    "description": "Magnetic semiconductor phone cooler with RGB lighting and a USB-C feed, for gaming and long recording sessions.",
-    "image": "/images/products/sample-magnetic-phone-cooling-fan.png",
-    "gallery": [],
-    "packSize": "40 pcs per carton",
-    "sku": "PK-COOL-001",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "phone cooler",
-      "cooling fan",
-      "gaming",
-      "magnetic",
-      "radiator"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 14,
-    "name": "Sample 10000mAh Power Bank",
-    "slug": "sample-10000mah-power-bank",
-    "brand": "SamplePower",
-    "category": "Mobile Accessories",
-    "description": "Slim 10000mAh power bank with dual output, USB-C input and a four-stage LED charge indicator.",
-    "image": "/images/products/sample-10000mah-power-bank.png",
-    "gallery": [],
-    "packSize": "40 pcs per carton",
-    "sku": "PK-ACC-001",
-    "featured": false,
-    "available": true,
-    "sample": true,
-    "tags": [
-      "power bank",
-      "powerbank",
-      "10000mah",
-      "portable charger",
-      "battery"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 15,
-    "name": "Sample Adjustable Phone Holder",
-    "slug": "sample-adjustable-phone-holder",
-    "brand": "SampleGear",
-    "category": "Mobile Accessories",
-    "description": "Foldable aluminium desk and car phone holder with an adjustable arm and non-slip pads.",
-    "image": "/images/products/sample-adjustable-phone-holder.png",
-    "gallery": [],
-    "packSize": "60 pcs per carton",
-    "sku": "PK-ACC-002",
-    "featured": false,
-    "available": false,
-    "sample": true,
-    "tags": [
-      "phone holder",
-      "stand",
-      "mount",
-      "desk",
-      "car"
     ],
     "priceCarton": "",
     "pricePiece": ""

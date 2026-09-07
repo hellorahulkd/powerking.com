@@ -242,6 +242,12 @@ async function build() {
   }
   const brands = [...new Set(products.map((p) => p.brand))].sort((a, b) => a.localeCompare(b));
 
+  // Categories a buyer is offered. An empty category is a dead end — a chip
+  // that filters to nothing, a tile reading "0 products" — so it is left out
+  // of the navigation until it holds something. Its page is still built, so
+  // any link already pointing at it keeps working.
+  const listed = categories.filter((c) => countsByCategory[c.name] > 0);
+
   const routes = [];
   const add = (p, priority, changefreq = 'monthly') =>
     routes.push({ path: p, priority, changefreq });
@@ -250,13 +256,13 @@ async function build() {
   await emit('/', homePage({ products, categories, countsByCategory }));
   add('/', '1.0', 'weekly');
 
-  await emit('/products/', cataloguePage({ products, categories, brands }));
+  await emit('/products/', cataloguePage({ products, categories: listed, brands }));
   add('/products/', '0.9', 'weekly');
 
   // Pages 2..N exist for crawlers and for readers without JavaScript. With JS
   // the listing never leaves page one — "Show more" expands it in place.
   for (let page = 2; page <= Math.ceil(products.length / PAGE_SIZE); page++) {
-    await emit(`/products/page/${page}/`, cataloguePage({ products, categories, brands, page }));
+    await emit(`/products/page/${page}/`, cataloguePage({ products, categories: listed, brands, page }));
     add(`/products/page/${page}/`, '0.4', 'weekly');
   }
 
@@ -288,13 +294,13 @@ async function build() {
     const inCategory = products.filter((p) => p.category === category.name);
     await emit(
       `/products/${category.slug}/`,
-      categoryPage({ category, products: inCategory, categories, brands }),
+      categoryPage({ category, products: inCategory, categories: listed, brands }),
     );
     add(`/products/${category.slug}/`, '0.7', 'weekly');
     for (let page = 2; page <= Math.ceil(inCategory.length / PAGE_SIZE); page++) {
       await emit(
         `/products/${category.slug}/page/${page}/`,
-        categoryPage({ category, products: inCategory, categories, brands, page }),
+        categoryPage({ category, products: inCategory, categories: listed, brands, page }),
       );
       add(`/products/${category.slug}/page/${page}/`, '0.3', 'weekly');
     }
@@ -357,12 +363,6 @@ async function build() {
     for (const m of missing) log(`      • ${m}`);
   }
 
-  const sampleCount = products.filter((p) => p.sample).length;
-  if (sampleCount) {
-    log(`\n  → ${sampleCount} sample products are still in src/data/products.js.`);
-    log('     Replace them with your real catalogue, then set');
-    log('     features.showSampleDataNotice to false in the config.');
-  }
   log('');
 }
 

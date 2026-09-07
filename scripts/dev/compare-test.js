@@ -16,12 +16,28 @@ const check = (name, cond, detail = '') => {
   else { fails.push(`${name}${detail ? ` — ${detail}` : ''}`); console.log(`  ✗ ${name}${detail ? ` — ${detail}` : ''}`); }
 };
 
+/**
+ * Slugs are picked from the catalogue by category size rather than written
+ * down: the comparison table's whole behaviour turns on how many siblings a
+ * product has, and a hard-coded slug goes stale the moment the range changes.
+ */
+function bySiblings(predicate) {
+  const sizes = new Map();
+  for (const p of products) sizes.set(p.category, (sizes.get(p.category) || 0) + 1);
+  const hit = products.find((p) => predicate(sizes.get(p.category)));
+  if (!hit) throw new Error('no product in a category of the required size');
+  return hit.slug;
+}
+const PAIRED = bySiblings((n) => n === 2);
+const CROWDED = bySiblings((n) => n >= 3);
+const LONE = bySiblings((n) => n === 1);
+
 const { proc, port } = await launch();
 const page = await newPage(port);
 await page.setViewport(1280, 900, false);
 
-// A category with several products, so there is something to compare against.
-await page.goto(`${BASE}/products/sample-tws-wireless-earbuds/`);
+// A category with exactly two products: the table is this one plus one sibling.
+await page.goto(`${BASE}/products/${PAIRED}/`);
 
 const shape = await page.eval(`
   const t = document.querySelector('table.compare');
@@ -58,8 +74,8 @@ const stickiness = await page.eval(`
 `);
 check('attribute column is pinned while products scroll', stickiness === 'sticky', stickiness);
 
-// A category with three products exercises the toggles.
-await page.goto(`${BASE}/products/sample-20w-usb-c-fast-charger/`);
+// A category with three or more products exercises the toggles.
+await page.goto(`${BASE}/products/${CROWDED}/`);
 const toggle = await page.eval(`
   const boxes = document.querySelectorAll('[data-compare-toggle]');
   if (!boxes.length) return { none: true };
@@ -93,7 +109,7 @@ check('every compared product has its own enquiry button',
   wa.count >= 2 && wa.distinct === wa.count, JSON.stringify(wa));
 
 // A category with a single product has nothing to compare against.
-await page.goto(`${BASE}/products/sample-magnetic-phone-cooling-fan/`);
+await page.goto(`${BASE}/products/${LONE}/`);
 const lone = await page.eval(`return !!document.querySelector('table.compare');`);
 check('a product with no siblings shows no comparison table', lone === false);
 
