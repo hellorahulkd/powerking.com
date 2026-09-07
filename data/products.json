@@ -1806,5 +1806,24 @@
     "tags": [
       "Multiplugs"
     ]
+  },
+  {
+    "id": 275,
+    "name": "Heinz Defender Series Model HZ-B214 Power Socket",
+    "slug": "heinz-defender-series-model-hz-b214-power-socket",
+    "brand": "Heinz Defender Series Model HZ-B214 Power Socket",
+    "category": "Power & Multiplugs",
+    "description": "Heinz Defender Series Model HZ-B214 Power Socket Specification Overview\n Product Nomenclature: Heinz Defender Series (Model: HZ-B214, No.: 214) 4-Outlet Universal Power Strip\n Electrical Capacity: Rated for a maximum of 2500W power delivery, 10A current, and 250V voltage\n Safety & Protection Features: Includes built-in power protection, 750°C high flame-retardant casing, and independent switches for each outlet\n Outlet Configuration: Features 4 universal outlets with individual toggle switches and an integrated 2\\text{-meter} power cord",
+    "image": "/images/products/heinz-defender-series-model-hz-b214-power-socket.jpg",
+    "gallery": [],
+    "packSize": "48",
+    "priceCarton": 340,
+    "pricePiece": 350,
+    "sku": "Heinz Defender Series Model HZ-B214 Power Socket",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Heinz Defender Series Model HZ-B214 Power Socket"
+    ]
   }
 ]
