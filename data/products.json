@@ -1434,5 +1434,22 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 250,
+    "name": "LP-V85 Mini",
+    "slug": "lp-v85-mini",
+    "brand": "LP",
+    "category": "Speakers",
+    "description": "LP-V85 Mini\n Multifunctional Build: Portable boombox-style design featuring an integrated top carrying handle, telescopic FM radio antenna, and a built-in side LED flashlight for emergency lighting.\n Audio Performance: 8W output with enhanced bass response.\n Playback Modes: Bluetooth 5.1, FM Radio, MicroSD/TF Card, and USB Drive.\n Battery: 1200mAh rechargeable lithium battery providing 3–5 hours of playback.\nDimensions & Physical Specs\n Height: 13.5 cm (including top handle)\n Width: 16.0 cm\n Depth/Thickness: 7.5 cm\n Weight: 380 grams (0.38 kg)",
+    "image": "/images/products/lp-v85-mini.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 525,
+    "pricePiece": 550,
+    "sku": "LP-V85 Mini",
+    "featured": false,
+    "available": true,
+    "tags": []
   }
 ]
