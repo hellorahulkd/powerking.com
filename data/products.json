@@ -1694,5 +1694,22 @@
     "tags": [
       "Computer speaker"
     ]
+  },
+  {
+    "id": 264,
+    "name": "Kisonli B3 Solar Car Wireless Bluetooth Speaker",
+    "slug": "kisonli-b3-solar-car-wireless-bluetooth-speaker",
+    "brand": "Kisoni",
+    "category": "Speakers",
+    "description": "Kisonli B3 Solar Car Wireless Bluetooth Speaker\nProduct Description\n Metallic SUV Styling: Designed to resemble a blue luxury SUV with detailed multi-spoke dark rims, tinted windows, and integrated front LED headlights that function as a flashlight or play indicator.\n Roof Solar Charging: Includes a roof-integrated solar panel that absorbs sunlight for convenient energy top-ups while outdoors.\n Multi-Format Playback: Supports Bluetooth wireless streaming, USB flash drives, MicroSD/TF cards, AUX inputs, and built-in FM radio via an extendable antenna.\n Portable Desktop Accent: Serves double duty as a full-range 10W speaker unit and a sleek desk showpiece.\nDimensions & Specs\n Product Dimensions: 26.25 cm × 9.9 cm × 9.5 cm (Length × Width × Height)\n Weight: ~700 g – 850 g\n Output Power: 10W (single high-output internal horn speaker)\n Battery Capacity: 1200 mAh rechargeable battery (2–5 hours playtime)\n Charging Interface: Solar power charging panel + DC 7.5V / USB charging cable",
+    "image": "/images/products/kisonli-b3-solar-car-wireless-bluetooth-speaker.jpg",
+    "gallery": [],
+    "packSize": "30",
+    "priceCarton": 1025,
+    "pricePiece": 1050,
+    "sku": "Kisonli B3 Solar Car Wireless Bluetooth Speaker",
+    "featured": false,
+    "available": true,
+    "tags": []
   }
 ]
