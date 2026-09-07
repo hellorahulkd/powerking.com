@@ -1675,5 +1675,24 @@
     "tags": [
       "Speaker"
     ]
+  },
+  {
+    "id": 263,
+    "name": "Kisoni C80 speaker",
+    "slug": "kisoni-c80-speaker",
+    "brand": "Kisoni",
+    "category": "Speakers",
+    "description": "Kisoni C80 Computer Speaker\n Triple-Driver Aesthetic: Features three front circular speaker grills styled with vibrant green accent mesh ring detailing.\n Audio Performance: 8\\text{W} \\times 2 (16\\text{W} total output) stereo power tuned for clear voice reproduction and solid bass response (\"Good Bass\").\n Integrated Phone Stand: Built-in top groove designed to hold smartphones upright for hands-free media viewing.\n Multiple Inputs: Supports Bluetooth wireless streaming, FM radio tuning, USB flash drive, MicroSD/TF card playback, and AUX input.\n Portability: Overhead rigid carrying handle integrated directly into the upper chassis.\n Battery & Playtime: 1500mAh 3.7V rechargeable lithium battery offering 3–5 hours of continuous wireless playback.\nDimensions & Weight\n Width: ~25.0 cm\n Height: ~11.0 cm (including handle)\n Depth/Thickness: ~9.7 cm\n Weight: ~550 grams (0.55 kg)",
+    "image": "/images/products/kisoni-c80-speaker.jpg",
+    "gallery": [],
+    "packSize": "6",
+    "priceCarton": 2000,
+    "pricePiece": 2050,
+    "sku": "Kisoni C80 Computer Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Computer speaker"
+    ]
   }
 ]
