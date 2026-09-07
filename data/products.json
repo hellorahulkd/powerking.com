@@ -1527,5 +1527,22 @@
     "tags": [
       "JBL portable speaker"
     ]
+  },
+  {
+    "id": 255,
+    "name": "J-iPOK P353",
+    "slug": "j-ipok-p353",
+    "brand": "J-iPOK",
+    "category": "Speakers",
+    "description": "J-iPOK P353 / P353T Outdoor Boombox\n Rugged Outdoor Design: Heavy-duty reinforced casing with an integrated top carrying handle, side LED flashlight, and built-in solar charging panel.\n Audio Performance: 8W output power with enhanced bass driver.\n Multi-Input Support: Bluetooth streaming, FM radio (with antenna), MicroSD/TF card, USB drive, AUX input, and built-in microphone for hands-free calls.\n Battery: 1200mAh rechargeable lithium battery supporting solar and micro-USB/Type-C charging.\nDimensions & Weight\n Height: 13.0 cm (approx. 17.5 cm with top handle extended)\n Width: 21.0 cm\n Depth/Thickness: 8.5 cm\n Weight: 520 grams (0.52 kg)",
+    "image": "/images/products/j-ipok-p353.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 725,
+    "pricePiece": 750,
+    "sku": "J-iPOK P353",
+    "featured": false,
+    "available": true,
+    "tags": []
   }
 ]
