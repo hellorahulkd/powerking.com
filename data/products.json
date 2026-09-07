@@ -1246,5 +1246,24 @@
     ],
     "priceCarton": "",
     "pricePiece": ""
+  },
+  {
+    "id": 240,
+    "name": "Kisoni K40 portable speaker",
+    "slug": "kisoni-k40-portable-speaker",
+    "brand": "Kisoni K40",
+    "category": "Speakers",
+    "description": "Powerful sound meets a rugged, portable design. The Kisonli K40 is a 20W outdoor portable speaker designed for music lovers who want strong bass, clear audio, and an eye-catching RGB light effect.\n\nKey Features:\n\n* 🔊 20W powerful sound output\n* 🎵 Deep bass & clear audio\n* 🌈 RGB LED lighting effect\n* 🔋 Rechargeable battery for portable use\n* 📱 Wireless Bluetooth connectivity\n* 🎒 Built-in carry handle for easy portability\n* 🏕️ Ideal for outdoor parties, picnics, travel & home use\n* 💪 Stylish, durable cylindrical design\n* 🔊 Subwoofer-style powerful bass experience\n\nProduct: Kisonli K40\nPower: 20W\nType: Outdoor Portable Bluetooth Speaker\nLighting: RGB\nUse: Home • Party • Travel • Outdoor\n\nPowerful 20W sound. Portable design. RGB vibes. — Kisonli K40.",
+    "image": "/images/products/kisoni-k40-portable-speaker.jpg",
+    "gallery": [],
+    "packSize": "40Pcs Cartoon",
+    "priceCarton": 1150,
+    "pricePiece": 1175,
+    "sku": "Kisoni K40",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "speakers"
+    ]
   }
 ]
