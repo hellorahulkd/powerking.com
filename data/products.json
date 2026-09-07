@@ -618,29 +618,6 @@
     "pricePiece": ""
   },
   {
-    "id": 214,
-    "name": "LP V80 Good Bass Speaker IPX4",
-    "slug": "lp-v80-v81-ipx4-speaker",
-    "brand": "LP",
-    "category": "Speakers",
-    "description": "Compact splash-resistant speaker rated IPX4, with a clip loop for a bag or belt. Photographed alongside the LP V81; separate product shots are still to come.",
-    "image": "/images/products/lp-v80-v81-ipx4-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "V80",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "ipx4",
-      "splash resistant",
-      "compact",
-      "clip",
-      "good bass"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 215,
     "name": "J-iPOK P353 Rugged Portable Speaker",
     "slug": "j-ipok-p353-portable-speaker",
