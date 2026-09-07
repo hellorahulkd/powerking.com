@@ -39,6 +39,8 @@
     categories: null, categoriesSha: '',
     editing: null,          // the product being edited, or null for a new one
     pendingImage: null,     // { base64, name } waiting to be uploaded on save
+    pendingCategories: [],  // categories invented in the form, saved with it
+    bulk: [],               // rows waiting in the "Add many" pane
   };
 
   /* ------------------------------------------------------------- helpers -- */
@@ -46,7 +48,7 @@
   var $ = function (id) { return document.getElementById(id); };
 
   function show(pane) {
-    ['pane-auth', 'pane-work', 'pane-edit'].forEach(function (id) {
+    ['pane-auth', 'pane-work', 'pane-edit', 'pane-bulk'].forEach(function (id) {
       $(id).hidden = id !== pane;
     });
     window.scrollTo(0, 0);
@@ -242,6 +244,7 @@
   function openEditor(product) {
     state.editing = product;
     state.pendingImage = null;
+    state.pendingCategories = [];
 
     var p = product || BLANK;
     $('edit-title').textContent = product ? 'Edit product' : 'Add product';
@@ -258,16 +261,68 @@
     $('f-available').checked = !!p.available;
     $('f-image').value = '';
 
-    $('f-category').innerHTML = state.categories.map(function (c) {
-      return '<option value="' + escapeAttr(c.name) + '"'
-        + (c.name === p.category ? ' selected' : '') + '>' + escapeHtml(c.name) + '</option>';
-    }).join('');
+    renderCategoryOptions(p.category);
 
     setPreview(p.image || '');
     $('delete').hidden = !product;
     say($('edit-msg'), '');
     show('pane-edit');
     $('f-name').focus();
+  }
+
+  /** Every category, the ones waiting to be committed with this product
+   *  included, with `selected` on the one given. */
+  function renderCategoryOptions(selected) {
+    $('f-category').innerHTML = allCategories().map(function (c) {
+      return '<option value="' + escapeAttr(c.name) + '"'
+        + (c.name === selected ? ' selected' : '') + '>' + escapeHtml(c.name) + '</option>';
+    }).join('');
+  }
+
+  function allCategories() {
+    return state.categories.concat(state.pendingCategories || []);
+  }
+
+  /**
+   * A category invented while filling in a product. It is held here and
+   * written with the save, not before it: a category committed on its own and
+   * then abandoned leaves an empty section on the site, and a product
+   * committed before its category exists fails the build outright. The save
+   * writes categories first for the same reason.
+   */
+  function newCategoryHere() { newCategoryHereFor($('edit-msg')); }
+
+  function newCategoryHereFor(msgEl) {
+    var name = (window.prompt('New category name\n\ne.g. Trolley Speakers') || '').trim();
+    if (!name) return;
+
+    var clash = allCategories().filter(function (c) {
+      return squash(c.name) === squash(name) || c.slug === slugifyCategory(name);
+    })[0];
+    if (clash) {
+      say(msgEl, 'There is already a category called "' + clash.name + '".', 'warn');
+      renderCategoryOptions(clash.name);
+      return;
+    }
+    if (!slugifyCategory(name)) {
+      say(msgEl, 'That name has no letters or numbers in it to make a web address from.', 'warn');
+      return;
+    }
+
+    var description = (window.prompt('One line describing what is in "' + name + '".\n\n'
+      + 'It is the heading text on the category page and what Google shows '
+      + 'underneath it, so write it for a buyer.') || '').trim();
+    if (description.length <= 40) {
+      say(msgEl, 'A category description needs to be more than 40 characters — '
+        + 'the build rejects a page with less. Nothing was added.', 'warn');
+      return;
+    }
+
+    state.pendingCategories.push({
+      name: name, slug: slugifyCategory(name), description: description,
+    });
+    renderCategoryOptions(name);
+    say(msgEl, '"' + name + '" will be created when you save.', 'ok');
   }
 
   function setPreview(src) {
@@ -409,9 +464,27 @@
     if (!product.name) out.push('The product needs a name.');
     if (!product.slug) out.push('That name produces an empty web address — type one in yourself.');
     if (!product.category) out.push('Pick a category.');
-    if (!product.description) out.push('The product needs a description; it is used on the page and in Google.');
+    // The build refuses a page whose meta description is 40 characters or
+    // shorter, and refuses two pages that share one. Caught here, where it
+    // costs a sentence; caught there, the commit lands and the site silently
+    // stops updating.
+    if (!product.description) {
+      out.push('The product needs a description; it is used on the page and in Google.');
+    } else if (product.description.length <= 40) {
+      out.push('The description is too short — it needs more than 40 characters '
+        + '(this one has ' + product.description.length + '). It is what Google shows '
+        + 'under the product, and the build rejects anything shorter.');
+    } else {
+      var sameText = state.products.filter(function (p) {
+        return p.id !== product.id && p.description === product.description;
+      })[0];
+      if (sameText) {
+        out.push('"' + sameText.name + '" already has exactly this description. '
+          + 'Two pages cannot share one, so write a different sentence for this product.');
+      }
+    }
 
-    var clashesWithCategory = state.categories.some(function (c) { return c.slug === product.slug; });
+    var clashesWithCategory = allCategories().some(function (c) { return c.slug === product.slug; });
     if (clashesWithCategory) {
       out.push('The web address "' + product.slug + '" is already a category page.');
     }
@@ -438,6 +511,234 @@
     return out;
   }
 
+  /* -------------------------------------------------------------- bulk add -- */
+
+  /**
+   * One product per photo.
+   *
+   * The slow part of adding a product is not the form, it is doing the form
+   * twenty times. Here the twenty photos are chosen once, each becomes a row,
+   * and the fields that differ per product are the only ones typed. Category
+   * is set once for the batch and overridable per row.
+   *
+   * Nothing is committed until every row passes the same checks a single save
+   * passes — including the description rules the build enforces, which is
+   * where a bulk entry would otherwise fail twenty times over.
+   */
+
+  /** A name worth starting from, out of a supplier's file name. */
+  function nameFromFile(filename) {
+    return String(filename)
+      .replace(/\.[a-z0-9]+$/i, '')          // extension
+      .replace(/[_+]+/g, ' ')
+      .replace(/\s*[-–]\s*/g, ' ')
+      .replace(/\b(img|image|photo|dsc|whatsapp|jpeg|jpg|png)\b/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  var bulkKey = 0;
+
+  function bulkAddFiles(files) {
+    var list = Array.prototype.slice.call(files || []);
+    if (!list.length) return;
+    say($('bulk-msg'), 'Preparing ' + list.length
+      + (list.length === 1 ? ' photo…' : ' photos…'));
+
+    var done = 0, failed = [];
+    var work = list.map(function (file) {
+      return toTile(file).then(function (dataUrl) {
+        state.bulk.push({
+          // A plain counter. Date.now() + Math.random() looked unique and is
+          // not: the sum is past the precision where the fraction survives, so
+          // two rows staged in the same millisecond can share a key, and then
+          // one row's fields are read into the other's.
+          key: 'b' + (++bulkKey),
+          name: nameFromFile(file.name),
+          category: '', description: '', brand: '', sku: '',
+          packSize: '', priceCarton: '', pricePiece: '',
+          image: dataUrl,
+        });
+        done++;
+      }).catch(function (err) {
+        failed.push(file.name + ' — ' + err.message);
+      });
+    });
+
+    Promise.all(work).then(function () {
+      renderBulk();
+      say($('bulk-msg'), failed.length
+        ? done + ' added. ' + failed.length + ' could not be read: ' + failed.join(' | ')
+        : done + (done === 1 ? ' photo ready.' : ' photos ready.'),
+        failed.length ? 'warn' : 'ok');
+    });
+  }
+
+  function bulkCategoryOptions(selected, blankLabel) {
+    return '<option value="">' + escapeHtml(blankLabel) + '</option>'
+      + allCategories().map(function (c) {
+          return '<option value="' + escapeAttr(c.name) + '"'
+            + (c.name === selected ? ' selected' : '') + '>' + escapeHtml(c.name) + '</option>';
+        }).join('');
+  }
+
+  function renderBulk() {
+    var any = state.bulk.length > 0;
+    $('bulk-shared').hidden = !any;
+    $('bulk-actions').hidden = !any;
+    $('bulk-category').innerHTML = bulkCategoryOptions($('bulk-category').value, 'Choose a category');
+
+    $('bulk-rows').innerHTML = state.bulk.map(function (row, i) {
+      var k = escapeAttr(row.key);
+      return '<div class="bulk__row" data-key="' + k + '">'
+        + '<img class="bulk__thumb" src="' + escapeAttr(row.image) + '" alt="">'
+        + '<div class="bulk__fields">'
+        + '<label class="sr-only" for="bk-name-' + i + '">Product name</label>'
+        + '<input class="af__input" id="bk-name-' + i + '" data-bk="name" placeholder="Product name as printed on the box" value="' + escapeAttr(row.name) + '">'
+        + '<label class="sr-only" for="bk-cat-' + i + '">Category</label>'
+        + '<select class="af__input" id="bk-cat-' + i + '" data-bk="category">'
+        + bulkCategoryOptions(row.category, 'Category…') + '</select>'
+        + '<label class="sr-only" for="bk-desc-' + i + '">Description</label>'
+        + '<textarea class="af__input bulk__desc" id="bk-desc-' + i + '" data-bk="description" rows="2" '
+        + 'placeholder="What the box states. More than 40 characters, and different from every other product.">'
+        + escapeHtml(row.description) + '</textarea>'
+        + '<div class="bulk__small">'
+        + '<input class="af__input" data-bk="brand" placeholder="Brand" value="' + escapeAttr(row.brand) + '">'
+        + '<input class="af__input" data-bk="sku" placeholder="Model / SKU" value="' + escapeAttr(row.sku) + '">'
+        + '<input class="af__input" data-bk="packSize" placeholder="20 pcs per carton" value="' + escapeAttr(row.packSize) + '">'
+        + '<input class="af__input" data-bk="priceCarton" type="number" placeholder="Carton Rs." value="' + escapeAttr(row.priceCarton) + '">'
+        + '<input class="af__input" data-bk="pricePiece" type="number" placeholder="Piece Rs." value="' + escapeAttr(row.pricePiece) + '">'
+        + '</div>'
+        + '</div>'
+        + '<button type="button" class="btn btn--ghost btn--sm" data-bk-remove="' + k + '">Remove</button>'
+        + '</div>';
+    }).join('');
+  }
+
+  /** Read the rows back out of the DOM into state, so nothing typed is lost
+   *  when the list re-renders. */
+  function harvestBulk() {
+    Array.prototype.forEach.call($('bulk-rows').children, function (el) {
+      var row = state.bulk.filter(function (r) { return r.key === el.getAttribute('data-key'); })[0];
+      if (!row) return;
+      Array.prototype.forEach.call(el.querySelectorAll('[data-bk]'), function (input) {
+        row[input.getAttribute('data-bk')] = input.value;
+      });
+    });
+  }
+
+  /** Turn a row into the product it would become, so the ordinary checks
+   *  apply to it unchanged. */
+  function bulkProduct(row, id) {
+    return {
+      id: id,
+      name: row.name.trim(),
+      slug: slugify(row.name),
+      brand: row.brand.trim() || '[CONFIRM BRAND]',
+      category: row.category,
+      description: row.description.trim(),
+      image: '/images/products/' + slugify(row.name) + '.jpg',
+      gallery: [],
+      packSize: row.packSize.trim(),
+      priceCarton: price(row.priceCarton),
+      pricePiece: price(row.pricePiece),
+      sku: row.sku.trim(),
+      featured: false,
+      available: true,
+      tags: [],
+    };
+  }
+
+  function bulkSave() {
+    harvestBulk();
+    if (!state.bulk.length) return;
+
+    // Every row is checked against the catalogue AND against the other rows,
+    // which is where bulk entry goes wrong: two photos of the same speaker,
+    // or the same sentence pasted into both descriptions.
+    var id = nextId();
+    var drafts = state.bulk.map(function (row) { return bulkProduct(row, id++); });
+    var problemsFound = [];
+
+    drafts.forEach(function (draft, i) {
+      var against = state.products.concat(drafts.filter(function (_, j) { return j !== i; }));
+      var saved = state.products;
+      state.products = against;
+      var bad = problems(draft);
+      state.products = saved;
+      // The photo is in hand, it just has not been uploaded yet.
+      bad = bad.filter(function (m) { return m !== 'Add a photo.'; });
+      if (bad.length) problemsFound.push((draft.name || 'Row ' + (i + 1)) + ': ' + bad.join(' '));
+    });
+
+    if (problemsFound.length) {
+      say($('bulk-msg'), problemsFound.length
+        + (problemsFound.length === 1 ? ' row is not ready. ' : ' rows are not ready. ')
+        + problemsFound.join('  •  '), 'warn');
+      return;
+    }
+
+    $('bulk-save').disabled = true;
+    var total = drafts.length;
+
+    // Categories first, then every photo, then the catalogue once. The
+    // catalogue is what makes the products real, so it is written last: if a
+    // photo upload fails, no product on the site points at a missing image.
+    var step = Promise.resolve();
+    if (state.pendingCategories.length) {
+      var nextCats = state.categories.concat(state.pendingCategories);
+      var names = state.pendingCategories.map(function (c) { return c.name; }).join(', ');
+      step = writeFile(
+        CATEGORIES,
+        textToBase64(JSON.stringify(nextCats, null, 2) + '\n'),
+        'Add the ' + names + ' category',
+        state.categoriesSha,
+      ).then(function (res) {
+        state.categories = nextCats;
+        state.categoriesSha = res.content.sha;
+        state.pendingCategories = [];
+        renderCategories();
+      });
+    }
+
+    drafts.forEach(function (draft, i) {
+      step = step.then(function () {
+        say($('bulk-msg'), 'Uploading photo ' + (i + 1) + ' of ' + total + '…');
+        var path = IMAGE_DIR + draft.slug + '.jpg';
+        return shaOf(path).then(function (sha) {
+          return writeFile(path, state.bulk[i].image.split(',')[1],
+            'Add photo for ' + draft.name, sha);
+        });
+      });
+    });
+
+    step.then(function () {
+      say($('bulk-msg'), 'Saving the catalogue…');
+      var next = state.products.concat(drafts);
+      return writeFile(
+        PRODUCTS,
+        textToBase64(JSON.stringify(next, null, 2) + '\n'),
+        'Add ' + total + (total === 1 ? ' product' : ' products'),
+        state.productsSha,
+      ).then(function (res) {
+        state.products = next;
+        state.productsSha = res.content.sha;
+      });
+    }).then(function () {
+      state.bulk = [];
+      renderBulk();
+      renderList();
+      show('pane-work');
+      say($('work-msg'), total + (total === 1 ? ' product' : ' products')
+        + ' saved. The site rebuilds and goes live in about a minute.', 'ok');
+    }).catch(function (err) {
+      if (err.status === 409) return reloadAfterConflict($('bulk-msg'));
+      say($('bulk-msg'), err.message, 'warn');
+    }).then(function () {
+      $('bulk-save').disabled = false;
+    });
+  }
+
   /* ---------------------------------------------------------------- saving -- */
 
   function reloadAfterConflict(el) {
@@ -457,16 +758,36 @@
     save.disabled = true;
     say($('edit-msg'), 'Saving…');
 
-    // The photo goes up first. If the catalogue write then fails, an unused
-    // image is harmless; a product pointing at an image that was never
-    // uploaded is a broken card on the live site.
-    var uploaded = Promise.resolve(product.image);
-    if (state.pendingImage) {
+    // Order matters, and it is not arbitrary. A category invented in this
+    // form is written first: the build rejects a product naming a category
+    // that does not exist, so the catalogue must never be committed ahead of
+    // it. The photo goes next — an unused image is harmless, while a product
+    // pointing at an image that was never uploaded is a broken card on the
+    // live site. The catalogue goes last.
+    var ready = Promise.resolve();
+    if (state.pendingCategories.length) {
+      var nextCats = state.categories.concat(state.pendingCategories);
+      var catNames = state.pendingCategories.map(function (c) { return c.name; }).join(', ');
+      ready = writeFile(
+        CATEGORIES,
+        textToBase64(JSON.stringify(nextCats, null, 2) + '\n'),
+        'Add the ' + catNames + ' category',
+        state.categoriesSha,
+      ).then(function (res) {
+        state.categories = nextCats;
+        state.categoriesSha = res.content.sha;
+        state.pendingCategories = [];
+        renderCategories();
+      });
+    }
+
+    var uploaded = ready.then(function () {
+      if (!state.pendingImage) return product.image;
       var imgPath = IMAGE_DIR + product.slug + '.jpg';
-      uploaded = shaOf(imgPath).then(function (sha) {
+      return shaOf(imgPath).then(function (sha) {
         return writeFile(imgPath, state.pendingImage, 'Add photo for ' + product.name, sha);
       }).then(function () { return '/images/products/' + product.slug + '.jpg'; });
-    }
+    });
 
     uploaded.then(function (imagePath) {
       product.image = imagePath;
@@ -665,6 +986,75 @@
 
   $('filter').addEventListener('input', renderList);
   $('new-product').addEventListener('click', function () { openEditor(null); });
+  $('f-category-new').addEventListener('click', newCategoryHere);
+
+  /* --- bulk add ---------------------------------------------------------- */
+  $('bulk-open').addEventListener('click', function () {
+    state.pendingCategories = [];
+    renderBulk();
+    say($('bulk-msg'), '');
+    show('pane-bulk');
+  });
+  $('bulk-back').addEventListener('click', function () {
+    harvestBulk();
+    show('pane-work');
+  });
+  $('bulk-files').addEventListener('change', function () {
+    harvestBulk();
+    bulkAddFiles($('bulk-files').files);
+    $('bulk-files').value = '';
+  });
+  var bulkDrop = $('bulk-drop');
+  ['dragenter', 'dragover'].forEach(function (type) {
+    bulkDrop.addEventListener(type, function (ev) {
+      ev.preventDefault();
+      bulkDrop.classList.add('is-dropping');
+    });
+  });
+  ['dragleave', 'dragend'].forEach(function (type) {
+    bulkDrop.addEventListener(type, function () { bulkDrop.classList.remove('is-dropping'); });
+  });
+  bulkDrop.addEventListener('drop', function (ev) {
+    ev.preventDefault();
+    bulkDrop.classList.remove('is-dropping');
+    harvestBulk();
+    bulkAddFiles(ev.dataTransfer && ev.dataTransfer.files);
+  });
+
+  // One category for the batch, applied to every row that has none of its own.
+  $('bulk-category').addEventListener('change', function () {
+    var pick = $('bulk-category').value;
+    harvestBulk();
+    state.bulk.forEach(function (row) { if (pick) row.category = pick; });
+    renderBulk();
+  });
+  $('bulk-category-new').addEventListener('click', function () {
+    harvestBulk();
+    var before = state.pendingCategories.length;
+    newCategoryHereFor($('bulk-msg'));
+    if (state.pendingCategories.length > before) {
+      var added = state.pendingCategories[state.pendingCategories.length - 1].name;
+      state.bulk.forEach(function (row) { row.category = added; });
+      renderBulk();
+      $('bulk-category').value = added;
+    }
+  });
+  $('bulk-rows').addEventListener('click', function (ev) {
+    var kill = ev.target.closest('[data-bk-remove]');
+    if (!kill) return;
+    harvestBulk();
+    var key = kill.getAttribute('data-bk-remove');
+    state.bulk = state.bulk.filter(function (r) { return r.key !== key; });
+    renderBulk();
+  });
+  $('bulk-save').addEventListener('click', bulkSave);
+  $('bulk-clear').addEventListener('click', function () {
+    if (!state.bulk.length) return;
+    if (!window.confirm('Discard these ' + state.bulk.length + ' rows?')) return;
+    state.bulk = [];
+    renderBulk();
+    say($('bulk-msg'), '');
+  });
 
   $('list').addEventListener('click', function (ev) {
     var btn = ev.target.closest('[data-edit]') || ev.target.closest('.admin__row');

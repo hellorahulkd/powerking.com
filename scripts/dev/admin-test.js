@@ -501,6 +501,192 @@ console.log('\nCategories');
     && renamed.prods.some((p) => p.category === 'Loudspeakers'));
 }
 
+console.log('\nWhat the build demands of a description');
+{
+  const r = await page.eval(`
+    document.getElementById('edit-back').click();
+    document.getElementById('new-product').click();
+    document.getElementById('f-name').value = 'A Speaker Nobody Has Listed Yet';
+    document.getElementById('f-description').value = 'Too short.';
+    const before = window.__gh.calls.length;
+    document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    return { calls: window.__gh.calls.length - before, msg: document.getElementById('edit-msg').textContent };
+  `);
+  // check.js rejects a page whose meta description is 40 characters or fewer,
+  // and that rejection lands after the commit, where it silently stops the
+  // site updating. It has to be caught here instead.
+  check('a description the build would reject is refused before committing',
+    r.calls === 0 && /40 characters/.test(r.msg), JSON.stringify(r));
+
+  const dupe = await page.eval(`
+    document.getElementById('f-description').value = ${JSON.stringify(products[0].description)};
+    const before = window.__gh.calls.length;
+    document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    return { calls: window.__gh.calls.length - before, msg: document.getElementById('edit-msg').textContent };
+  `);
+  check('a description copied from another product is refused, and names it',
+    dupe.calls === 0 && dupe.msg.includes(products[0].name), JSON.stringify(dupe));
+}
+
+console.log('\nA new category, without leaving the product');
+{
+  const made = await page.eval(`
+    window.prompt = (function () {
+      const answers = ['Trolley Speakers',
+        'Wheeled party speakers with a handle, a microphone and a rechargeable battery.'];
+      let i = 0;
+      return function () { return answers[i++]; };
+    }());
+    const before = window.__gh.calls.length;
+    document.getElementById('f-category-new').click();
+    const sel = document.getElementById('f-category');
+    return {
+      calls: window.__gh.calls.length - before,
+      value: sel.value,
+      listed: [...sel.options].map(o => o.value).includes('Trolley Speakers'),
+      msg: document.getElementById('edit-msg').textContent,
+    };
+  `);
+  check('a category added in the form appears and is selected',
+    made.listed && made.value === 'Trolley Speakers', JSON.stringify(made));
+  check('nothing is committed for it yet', made.calls === 0, `${made.calls} calls`);
+  check('and the form says when it will be created',
+    /when you save/i.test(made.msg), made.msg);
+
+  const saved = await page.eval(`
+    document.getElementById('f-description').value =
+      'A wheeled trolley speaker with a microphone, tested only as far as the box states.';
+    // A product without a photo is refused, which would make this measure
+    // nothing at all.
+    const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    const bytes = Uint8Array.from(atob(png), c => c.charCodeAt(0));
+    const dt = new DataTransfer();
+    dt.items.add(new File([bytes], 'trolley.png', { type: 'image/png' }));
+    document.getElementById('f-image-drop').dispatchEvent(
+      new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    await new Promise(r => setTimeout(r, 400));
+    const before = window.__gh.calls.length;
+    document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    return new Promise(function (done) {
+      setTimeout(function () {
+        const writes = window.__gh.calls.slice(before).filter(c => c.method === 'PUT');
+        done({
+          paths: writes.map(c => c.url.split('/contents/')[1].split('?')[0]),
+          messages: writes.map(c => c.body.message),
+          msg: document.getElementById('edit-msg').textContent
+               + ' / ' + document.getElementById('work-msg').textContent,
+          categories: JSON.parse(atob(
+            (writes.find(c => c.url.includes('categories.json')) || { body: { content: btoa('[]') } }).body.content
+          )).map(c => c.name),
+        });
+      }, 900);
+    });
+  `);
+  check('the category file is written before the catalogue',
+    saved.paths.indexOf('data/categories.json') === 0
+    && saved.paths.indexOf('data/products.json') === saved.paths.length - 1,
+    `${saved.paths.join(' → ')} :: ${saved.msg}`);
+  check('the new category is in what was written',
+    saved.categories.includes('Trolley Speakers'), saved.categories.join(', '));
+}
+
+console.log('\nAdding many products at once');
+{
+  const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+  const staged = await page.eval(`
+    document.getElementById('bulk-open').click();
+    const bytes = Uint8Array.from(atob(${JSON.stringify(png)}), c => c.charCodeAt(0));
+    const dt = new DataTransfer();
+    dt.items.add(new File([bytes], 'Kisonli_K33-portable_speaker.png', { type: 'image/png' }));
+    dt.items.add(new File([bytes], 'IMG_LP V90 trolley.png', { type: 'image/png' }));
+    const box = document.getElementById('bulk-drop');
+    box.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    return new Promise(function (done) {
+      setTimeout(function () {
+        done({
+          rows: document.querySelectorAll('.bulk__row').length,
+          names: [...document.querySelectorAll('[data-bk="name"]')].map(i => i.value),
+          thumbs: [...document.querySelectorAll('.bulk__thumb')].map(i => i.src.slice(0, 15)),
+          bulkPane: !document.getElementById('pane-bulk').hidden,
+        });
+      }, 700);
+    });
+  `);
+  check('dropped photos become one row each', staged.rows === 2, JSON.stringify(staged));
+  check('each row is named from its file, with the noise stripped',
+    staged.names[0] === 'Kisonli K33 portable speaker' && staged.names[1] === 'LP V90 trolley',
+    staged.names.join(' | '));
+  check('each row shows its photo, already redrawn as a tile',
+    staged.thumbs.every(t => t === 'data:image/jpeg'), staged.thumbs.join(', '));
+
+  const incomplete = await page.eval(`
+    const before = window.__gh.calls.length;
+    document.getElementById('bulk-save').click();
+    return { calls: window.__gh.calls.length - before, msg: document.getElementById('bulk-msg').textContent };
+  `);
+  check('rows missing a category and description commit nothing',
+    incomplete.calls === 0 && /not ready/.test(incomplete.msg), JSON.stringify(incomplete));
+
+  // The failure mode particular to bulk entry: the same sentence in both.
+  const shared = await page.eval(`
+    // Read the category off the page: an earlier block in this file renames
+    // one, so the names in data/categories.json are no longer what is live.
+    const cat = document.getElementById('bulk-category').options[1].value;
+    document.querySelectorAll('[data-bk="category"]').forEach(s => { s.value = cat; });
+    document.querySelectorAll('[data-bk="description"]').forEach(t => {
+      t.value = 'A portable speaker with a rechargeable battery, exactly as the carton states.';
+    });
+    const before = window.__gh.calls.length;
+    document.getElementById('bulk-save').click();
+    return { calls: window.__gh.calls.length - before, msg: document.getElementById('bulk-msg').textContent };
+  `);
+  check('two rows sharing one description are caught before committing',
+    shared.calls === 0 && /description/i.test(shared.msg), JSON.stringify(shared));
+
+  const done = await page.eval(`
+    // However many products the stub holds by now — earlier blocks in this
+    // file have added some, and hard-coding the number here measured those
+    // instead of these.
+    const startedWith = JSON.parse(window.__gh.files['data/products.json'].text).length;
+    const descs = [
+      'A portable Bluetooth speaker with a rechargeable battery, as the carton states.',
+      'A wheeled trolley speaker supplied with one microphone, as the carton states.',
+    ];
+    document.querySelectorAll('[data-bk="description"]').forEach((t, i) => { t.value = descs[i]; });
+    const before = window.__gh.calls.length;
+    document.getElementById('bulk-save').click();
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        const writes = window.__gh.calls.slice(before).filter(c => c.method === 'PUT');
+        const cat = writes.find(c => c.url.includes('products.json'));
+        const saved = cat ? JSON.parse(atob(cat.body.content)) : [];
+        resolve({
+          paths: writes.map(c => c.url.split('/contents/')[1].split('?')[0]),
+          added: saved.length - startedWith,
+          last2: saved.slice(-2).map(p => ({ name: p.name, image: p.image, category: p.category })),
+          ids: saved.slice(-2).map(p => p.id),
+          msg: document.getElementById('work-msg').textContent,
+          bulkMsg: document.getElementById('bulk-msg').textContent,
+          rowsLeft: document.querySelectorAll('.bulk__row').length,
+        });
+      }, 1200);
+    });
+  `);
+  check('both photos are uploaded, then the catalogue once',
+    done.paths.filter(p => p.startsWith('public/images/')).length === 2
+    && done.paths[done.paths.length - 1] === 'data/products.json',
+    `${done.paths.join(' → ')} :: ${done.bulkMsg}`);
+  check('both products are added in that single catalogue write',
+    done.added === 2, `${done.added} added`);
+  check('each points at its own photo',
+    done.last2[0].image !== done.last2[1].image
+    && done.last2.every(p => /^\/images\/products\/.+\.jpg$/.test(p.image)),
+    JSON.stringify(done.last2));
+  check('they get distinct ids', done.ids[0] !== done.ids[1], done.ids.join(','));
+  check('the pane empties and says how many were saved',
+    done.rowsLeft === 0 && /2 products saved/.test(done.msg), JSON.stringify(done));
+}
+
 console.log('\nSigning out');
 {
   const r = await page.eval(`

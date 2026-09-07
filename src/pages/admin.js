@@ -127,6 +127,7 @@ export function adminPage() {
     <div id="view-products" role="tabpanel" aria-labelledby="tab-products">
       <div class="admin__toolbar">
         <input class="af__input" id="filter" type="search" placeholder="Search products…" autocomplete="off">
+        <button type="button" class="btn btn--ghost btn--sm" id="bulk-open">Add many</button>
         <button type="button" class="btn btn--primary btn--sm" id="new-product">Add product</button>
       </div>
       <p class="admin__count" id="count"></p>
@@ -146,6 +147,43 @@ export function adminPage() {
     </div>
   </section>
 
+  <!-- ------------------------------------------------------------ bulk add -->
+  <section class="admin__pane" id="pane-bulk" hidden>
+    <button type="button" class="admin__back" id="bulk-back">${icon('arrow', { size: 16, className: 'admin__back-icon' })} Back to the list</button>
+    <h2>Add many products</h2>
+    <p class="admin__lead">
+      Choose or drop all the photos at once — one product per photo. Each name
+      is filled in from its file name, so rename the files first if that saves
+      you typing. Everything is saved together in one go, and nothing is
+      committed until every row is complete.
+    </p>
+
+    <div class="bulk__pick">
+      <label class="admin__photo admin__photo--wide" id="bulk-drop" for="bulk-files">
+        <span class="admin__photo-empty">Click, or drop photos here</span>
+      </label>
+      <input class="af__file" id="bulk-files" type="file" multiple
+             accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
+    </div>
+
+    <div class="af" id="bulk-shared" hidden>
+      <label class="af__label" for="bulk-category">Category for all of them</label>
+      <div class="af__row">
+        <select class="af__input" id="bulk-category"></select>
+        <button type="button" class="btn btn--ghost btn--sm" id="bulk-category-new">+ New category</button>
+      </div>
+      <p class="af__hint">Each row can be changed on its own below.</p>
+    </div>
+
+    <div class="bulk__rows" id="bulk-rows"></div>
+
+    <div class="admin__actions" id="bulk-actions" hidden>
+      <button type="button" class="btn btn--primary" id="bulk-save">Save and publish all</button>
+      <button type="button" class="btn btn--ghost" id="bulk-clear">Discard these</button>
+    </div>
+    <p class="admin__msg" id="bulk-msg" role="status" aria-live="polite"></p>
+  </section>
+
   <!-- --------------------------------------------------------- product form -->
   <section class="admin__pane" id="pane-edit" hidden>
     <div class="admin__narrow">
@@ -156,7 +194,15 @@ export function adminPage() {
         ${field('f-name', 'Product name', text('f-name', { placeholder: 'Kisonli K21 40W Portable Speaker' }), 'As printed on the box. This is the page heading and the name sent in a WhatsApp enquiry.')}
         ${field('f-slug', 'Web address', text('f-slug', { placeholder: 'kisonli-k21-40w-speaker' }), 'Filled in from the name. Changing it on a product that is already published breaks the old link.')}
         ${field('f-brand', 'Brand', text('f-brand', { placeholder: 'Kisonli' }), 'Leave as <code>[CONFIRM BRAND]</code> if the carton shows no brand — better a visible gap than a guess.')}
-        ${field('f-category', 'Category', '<select class="af__input" id="f-category"></select>')}
+        ${field(
+          'f-category',
+          'Category',
+          `<div class="af__row">
+            <select class="af__input" id="f-category"></select>
+            <button type="button" class="btn btn--ghost btn--sm" id="f-category-new">+ New category</button>
+          </div>`,
+          'Not in the list? Add it here — it is created when you save this product, so a category never appears empty on the site.',
+        )}
         ${field('f-description', 'Description', '<textarea class="af__input" id="f-description" rows="5" placeholder="What the box actually states."></textarea>', 'One to three sentences. Also used as the page description in Google. Write down what the carton says rather than what it probably means.')}
 
         <div class="af">
