@@ -761,30 +761,6 @@
     "pricePiece": ""
   },
   {
-    "id": 221,
-    "name": "Colorful Karaoke Speaker Set with Two Microphones",
-    "slug": "karaoke-speaker-two-mics",
-    "brand": "[CONFIRM BRAND]",
-    "category": "Speakers",
-    "description": "Small karaoke set: one RGB-lit speaker on a leather carry strap with two wireless microphones. The box states a colourful karaoke sound system and carries no model number.",
-    "image": "/images/products/karaoke-speaker-two-mics.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "karaoke",
-      "microphone",
-      "rgb",
-      "portable",
-      "gift",
-      "party"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 222,
     "name": "V6 Wireless Speaker with Phone Stand",
     "slug": "v6-wireless-speaker",
