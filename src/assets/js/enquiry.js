@@ -33,7 +33,7 @@
   var noteEl = document.getElementById('enq-note');
   var sendEl = document.getElementById('enq-send');
 
-  /** [{ slug, name, qty, unit }] in the order they were added. */
+  /** [{ slug, name, image, cartons, pieces }] in the order they were added. */
   var items = read();
 
   /* --------------------------------------------------------------- store -- */
@@ -47,11 +47,25 @@
       return raw.filter(function (it) {
         return it && typeof it.slug === 'string' && typeof it.name === 'string';
       }).slice(0, MAX).map(function (it) {
+        // Lists saved before cartons and pieces were separate boxes carry a
+        // single qty and a unit. Carry them across rather than dropping a
+        // list somebody had already built.
+        if (typeof it.qty === 'number' && it.cartons === undefined) {
+          var wasPieces = it.unit === 'pieces';
+          return {
+            slug: it.slug,
+            name: it.name,
+            image: typeof it.image === 'string' ? it.image : '',
+            cartons: wasPieces ? 0 : clampQty(it.qty),
+            pieces: wasPieces ? clampQty(it.qty) : 0,
+          };
+        }
         return {
           slug: it.slug,
           name: it.name,
-          qty: clampQty(it.qty),
-          unit: it.unit === 'pieces' ? 'pieces' : 'cartons',
+          image: typeof it.image === 'string' ? it.image : '',
+          cartons: clampQty(it.cartons),
+          pieces: clampQty(it.pieces),
         };
       });
     } catch (e) {
@@ -63,9 +77,10 @@
     try { localStorage.setItem(STORE, JSON.stringify(items)); } catch (e) { /* private mode */ }
   }
 
+  /** Either box may legitimately be zero — but not both, which send() checks. */
   function clampQty(n) {
     var q = Math.floor(Number(n));
-    if (!isFinite(q) || q < 1) return 1;
+    if (!isFinite(q) || q < 0) return 0;
     return q > 9999 ? 9999 : q;
   }
 
@@ -85,10 +100,21 @@
    * because the same product is supplied by the carton and in loose pieces —
    * a bare number would have to be chased up.
    */
+  function amount(n, one, many) {
+    return n + ' ' + (n === 1 ? one : many);
+  }
+
+  /** "1 carton + 10 pieces", or just whichever of the two was asked for. */
+  function quantityOf(it) {
+    var parts = [];
+    if (it.cartons > 0) parts.push(amount(it.cartons, 'carton', 'cartons'));
+    if (it.pieces > 0) parts.push(amount(it.pieces, 'piece', 'pieces'));
+    return parts.join(' + ');
+  }
+
   function buildMessage() {
     var lines = items.map(function (it, i) {
-      var unit = it.qty === 1 ? it.unit.replace(/s$/, '') : it.unit;
-      return (i + 1) + '. ' + it.name + ' (' + it.qty + ' ' + unit + ')';
+      return (i + 1) + '. ' + it.name + ' (' + quantityOf(it) + ')';
     });
     return GREETING + '\n\n' + lines.join('\n') + '\n\n' + CLOSING;
   }
@@ -142,31 +168,38 @@
     document.querySelector('.enq__fine').hidden = empty;
 
     listEl.innerHTML = items.map(function (it, i) {
-      return '<li class="enq__row" data-slug="' + escAttr(it.slug) + '">'
-        + '<span class="enq__n">' + (i + 1) + '</span>'
+      var id = escAttr(it.slug);
+      // Two boxes rather than a number and a unit menu: the shop supplies both
+      // ways, so a buyer wanting a carton AND a few loose pieces can say so on
+      // one line instead of adding the product twice.
+      function box(kind, label, value) {
+        return '<span class="enq__box">'
+          + '<label class="enq__box-label" for="' + kind + '-' + id + '">' + label + '</label>'
+          + '<input class="enq__num" id="' + kind + '-' + id + '" type="number"'
+          + ' inputmode="numeric" min="0" max="9999" step="1" value="' + value + '"'
+          + ' data-' + kind + ' aria-label="' + label + ' of ' + escAttr(it.name) + '">'
+          + '</span>';
+      }
+      return '<li class="enq__row" data-slug="' + id + '">'
+        + (it.image
+          ? '<img class="enq__thumb" src="' + escAttr(it.image) + '" alt="" width="56" height="56"'
+            + ' loading="lazy" decoding="async"'
+            + ' onerror="this.style.visibility=\'hidden\'">'
+          : '<span class="enq__thumb enq__thumb--none" aria-hidden="true"></span>')
+        + '<span class="enq__main">'
         + '<span class="enq__name">' + esc(it.name) + '</span>'
-        + '<span class="enq__qty">'
-        + '<label class="sr-only" for="q-' + escAttr(it.slug) + '">Quantity of '
-        + esc(it.name) + '</label>'
-        + '<input class="enq__num" id="q-' + escAttr(it.slug) + '" type="number" inputmode="numeric"'
-        + ' min="1" max="9999" step="1" value="' + it.qty + '" data-qty>'
-        + '<label class="sr-only" for="u-' + escAttr(it.slug) + '">Unit for '
-        + esc(it.name) + '</label>'
-        + '<select class="enq__unit" id="u-' + escAttr(it.slug) + '" data-unit>'
-        + '<option value="cartons"' + (it.unit === 'cartons' ? ' selected' : '') + '>Cartons</option>'
-        + '<option value="pieces"' + (it.unit === 'pieces' ? ' selected' : '') + '>Pieces</option>'
-        + '</select></span>'
+        + '<span class="enq__qty">' + box('cartons', 'Cartons', it.cartons)
+        + box('pieces', 'Pieces', it.pieces) + '</span>'
+        + '</span>'
         + '<button type="button" class="enq__remove" data-remove'
         + ' aria-label="Remove ' + escAttr(it.name) + ' from the enquiry list">Remove</button>'
         + '</li>';
     }).join('');
 
     sendEl.href = sendHref();
-    var full = items.length >= MAX;
-    noteEl.textContent = full
+    say(items.length >= MAX
       ? 'That is the most one message can carry. Send these, then start another list.'
-      : '';
-    noteEl.className = 'enq__note' + (full ? ' enq__note--warn' : '');
+      : '');
   }
 
   function render() {
@@ -193,7 +226,11 @@
       flash(btn, 'Your enquiry is full (' + MAX + ' products). Send it first.');
       return;
     }
-    items.push({ slug: slug, name: name, qty: 1, unit: 'cartons' });
+    items.push({
+      slug: slug, name: name,
+      image: btn.getAttribute('data-enq-image') || '',
+      cartons: 1, pieces: 0,
+    });
     save(); render();
     track('enquiry_add', { product: name, items: items.length });
   }
@@ -227,7 +264,7 @@
     else dialog.setAttribute('open', '');
     // Land on the quantity for whatever was just added, so "how many?" is the
     // obvious next thing rather than something to go hunting for.
-    var first = listEl.querySelector('[data-qty]');
+    var first = listEl.querySelector('[data-cartons]');
     if (first) { first.focus(); first.select(); }
     track('enquiry_open', { items: items.length, from: from || 'bar' });
   }
@@ -255,8 +292,8 @@
       items.push({
         slug: slug,
         name: opener.getAttribute('data-enq-name'),
-        qty: 1,
-        unit: 'cartons',
+        image: opener.getAttribute('data-enq-image') || '',
+        cartons: 1, pieces: 0,
       });
       save(); render();
       track('enquiry_add', { product: opener.getAttribute('data-enq-name'), items: items.length });
@@ -277,8 +314,9 @@
     if (!row) return;
     var at = indexOf(row.getAttribute('data-slug'));
     if (at === -1) return;
-    if (ev.target.hasAttribute('data-qty')) items[at].qty = clampQty(ev.target.value);
-    if (ev.target.hasAttribute('data-unit')) items[at].unit = ev.target.value;
+    if (ev.target.hasAttribute('data-cartons')) items[at].cartons = clampQty(ev.target.value);
+    if (ev.target.hasAttribute('data-pieces')) items[at].pieces = clampQty(ev.target.value);
+    row.classList.remove('is-empty');
     save();
     // Only the link needs updating — re-rendering the list here would pull the
     // caret out of the number the reader is still typing into.
@@ -286,11 +324,13 @@
   });
 
   listEl.addEventListener('change', function (ev) {
-    if (!ev.target.hasAttribute('data-qty')) return;
-    // Normalise on blur/commit so an emptied box does not stay empty.
+    var which = ev.target.hasAttribute('data-cartons') ? 'cartons'
+      : ev.target.hasAttribute('data-pieces') ? 'pieces' : '';
+    if (!which) return;
+    // Normalise on blur so an emptied box shows the 0 it is actually holding.
     var row = ev.target.closest('[data-slug]');
     var at = indexOf(row.getAttribute('data-slug'));
-    if (at !== -1) ev.target.value = items[at].qty;
+    if (at !== -1) ev.target.value = items[at][which];
   });
 
   listEl.addEventListener('click', function (ev) {
@@ -305,7 +345,23 @@
     if (!items.length && dialog.open) dialog.close();
   });
 
-  sendEl.addEventListener('click', function () {
+  sendEl.addEventListener('click', function (ev) {
+    // Both boxes at zero is not a quantity, and sending it would produce a
+    // line the shop has to ask about. Point at the row instead of guessing.
+    var blank = items.filter(function (it) { return it.cartons < 1 && it.pieces < 1; });
+    if (blank.length) {
+      ev.preventDefault();
+      for (var i = 0; i < blank.length; i++) {
+        var row = listEl.querySelector('[data-slug="' + cssEscape(blank[i].slug) + '"]');
+        if (row) row.classList.add('is-empty');
+      }
+      say(blank.length === 1
+        ? 'How many of ' + blank[0].name + '? Fill in cartons, pieces, or both.'
+        : 'Fill in cartons or pieces for the ' + blank.length + ' highlighted products.');
+      var first = listEl.querySelector('.is-empty [data-cartons]');
+      if (first) { first.focus(); first.select(); }
+      return;
+    }
     // Rebuild rather than trust the last render: the reader may have changed a
     // quantity and clicked straight through.
     sendEl.href = sendHref();
@@ -314,6 +370,35 @@
       products: items.map(function (i) { return i.name; }).join(' | '),
     });
   });
+
+  /** Slugs are [a-z0-9-] by construction, but a selector should not assume it. */
+  function cssEscape(value) {
+    return window.CSS && CSS.escape ? CSS.escape(value) : String(value).replace(/"/g, '\\"');
+  }
+
+  function say(message) {
+    noteEl.textContent = message;
+    noteEl.className = 'enq__note' + (message ? ' enq__note--warn' : '');
+  }
+
+  /**
+   * A list built before this version has no pictures in it. Any control on
+   * this page knows its own product's image, so fill the gaps from those and
+   * write the upgraded shape back once, rather than re-migrating on every
+   * page load for the rest of the list's life.
+   */
+  (function upgradeStoredList() {
+    var changed = false;
+    items.forEach(function (it) {
+      if (it.image) return;
+      var control = document.querySelector('[data-enq-image][data-enq-slug="' + cssEscape(it.slug) + '"]');
+      var src = control && control.getAttribute('data-enq-image');
+      if (src) { it.image = src; changed = true; }
+    });
+    var stored = '';
+    try { stored = localStorage.getItem(STORE) || ''; } catch (e) { /* private mode */ }
+    if (changed || stored !== JSON.stringify(items)) save();
+  }());
 
   render();
 }());

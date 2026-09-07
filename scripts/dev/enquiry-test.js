@@ -70,10 +70,13 @@ console.log('\nSelecting products');
   check('a selected control reports itself pressed', added.pressed === 'true');
   check('a selected control offers to remove, not add again',
     /^Remove /.test(added.label), added.label);
-  check('the selection is stored with a default quantity of one carton',
+  check('the selection is stored as one carton, no loose pieces',
     added.stored.length === 2
-    && added.stored.every((i) => i.qty === 1 && i.unit === 'cartons'),
+    && added.stored.every((i) => i.cartons === 1 && i.pieces === 0),
     JSON.stringify(added.stored));
+  check('each stored product carries its picture',
+    added.stored.every((i) => /^\/images\/products\//.test(i.image || '')),
+    JSON.stringify(added.stored.map((i) => i.image)));
 
   const toggled = await page.eval(`
     const b = document.querySelectorAll('[data-enq-add]')[0];
@@ -94,10 +97,12 @@ console.log('\nThe message that reaches WhatsApp');
     const names = [b[0], b[1]].map(x => x.getAttribute('data-enq-name'));
     document.getElementById('enq-open').click();
     const rows = [...document.querySelectorAll('.enq__row')];
-    const q = rows[0].querySelector('[data-qty]');
-    q.value = '12'; q.dispatchEvent(new Event('input', { bubbles: true }));
-    const u = rows[1].querySelector('[data-unit]');
-    u.value = 'pieces'; u.dispatchEvent(new Event('input', { bubbles: true }));
+    const c = rows[0].querySelector('[data-cartons]');
+    c.value = '12'; c.dispatchEvent(new Event('input', { bubbles: true }));
+    const c2 = rows[1].querySelector('[data-cartons]');
+    c2.value = '0'; c2.dispatchEvent(new Event('input', { bubbles: true }));
+    const p2 = rows[1].querySelector('[data-pieces]');
+    p2.value = '1'; p2.dispatchEvent(new Event('input', { bubbles: true }));
     const href = document.getElementById('enq-send').href;
     return { names, rows: rows.length, href,
              text: decodeURIComponent(href.split('?text=')[1] || '') };
@@ -115,13 +120,15 @@ console.log('\nThe message that reaches WhatsApp');
   check('quantities carry the unit they were given in',
     /\(12 cartons\)/.test(built.text) && /\(1 piece\)/.test(built.text),
     built.text);
+  check('a box left at zero is not mentioned in the message',
+    !/0 cartons/.test(built.text) && !/0 pieces/.test(built.text), built.text);
   check('the list is numbered in the order it was built',
     built.text.indexOf('1. ' + built.names[0]) !== -1
     && built.text.indexOf('2. ' + built.names[1]) !== -1);
 
   // "1 cartons" is the kind of thing a buyer notices and a shop does not.
   const singular = await page.eval(`
-    const q = document.querySelector('.enq__row [data-qty]');
+    const q = document.querySelector('.enq__row [data-cartons]');
     q.value = '1'; q.dispatchEvent(new Event('input', { bubbles: true }));
     return decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1]);
   `);
@@ -132,20 +139,22 @@ console.log('\nThe message that reaches WhatsApp');
 console.log('\nGuarding the quantity');
 {
   const guarded = await page.eval(`
-    const q = document.querySelector('.enq__row [data-qty]');
+    const q = document.querySelector('.enq__row [data-pieces]');
     const out = {};
-    for (const bad of ['0', '-5', 'abc', '']) {
+    for (const bad of ['-5', 'abc', '']) {
       q.value = bad;
       q.dispatchEvent(new Event('input', { bubbles: true }));
-      out[bad || '(empty)'] = JSON.parse(localStorage.getItem('pk-enquiry'))[0].qty;
+      out[bad || '(empty)'] = JSON.parse(localStorage.getItem('pk-enquiry'))[0].pieces;
     }
     q.value = '999999';
     q.dispatchEvent(new Event('input', { bubbles: true }));
-    out.huge = JSON.parse(localStorage.getItem('pk-enquiry'))[0].qty;
+    out.huge = JSON.parse(localStorage.getItem('pk-enquiry'))[0].pieces;
     return out;
   `);
-  check('zero, negative, empty and non-numeric quantities fall back to one',
-    ['0', '-5', 'abc', '(empty)'].every((k) => guarded[k] === 1),
+  // Zero is a legitimate value in one box now — it means "none of these" — so
+  // only nonsense falls back, and an all-zero row is caught when Send is used.
+  check('negative, empty and non-numeric quantities fall back to zero',
+    ['-5', 'abc', '(empty)'].every((k) => guarded[k] === 0),
     JSON.stringify(guarded));
   check('an absurd quantity is capped rather than sent as typed',
     guarded.huge === 9999, String(guarded.huge));
@@ -207,7 +216,7 @@ console.log('\nThe Enquire buttons ask how many first');
         href,
         open: document.getElementById('enq-dialog').open,
         rows: document.querySelectorAll('.enq__row').length,
-        onQty: document.activeElement.hasAttribute('data-qty'),
+        onQty: document.activeElement.hasAttribute('data-cartons'),
         name: (document.querySelector('.enq__name') || {}).textContent,
         matches: b.getAttribute('data-enq-name'),
       };
@@ -265,6 +274,95 @@ console.log('\nSaying what the buttons do, in words');
     /on your enquiry/i.test(bar.count), bar.count);
   check('and its button says what pressing it does',
     /quantit/i.test(bar.open), bar.open);
+}
+
+console.log('\nA carton and loose pieces on the same line');
+{
+  await fresh();
+  const both = await page.eval(`
+    document.querySelector('[data-enq-add]').click();
+    document.getElementById('enq-open').click();
+    await new Promise(r => setTimeout(r, 200));
+    const row = document.querySelector('.enq__row');
+    const c = row.querySelector('[data-cartons]');
+    const p = row.querySelector('[data-pieces]');
+    c.value = '1'; c.dispatchEvent(new Event('input', { bubbles: true }));
+    p.value = '10'; p.dispatchEvent(new Event('input', { bubbles: true }));
+    return {
+      stored: JSON.parse(localStorage.getItem('pk-enquiry'))[0],
+      text: decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1] || ''),
+      thumb: (row.querySelector('.enq__thumb') || {}).getAttribute
+        ? row.querySelector('.enq__thumb').getAttribute('src') : null,
+      labels: [...row.querySelectorAll('.enq__box-label')].map(l => l.textContent),
+    };
+  `);
+  check('a row holds cartons and pieces at the same time',
+    both.stored.cartons === 1 && both.stored.pieces === 10, JSON.stringify(both.stored));
+  check('the message says both, joined',
+    /\(1 carton \+ 10 pieces\)/.test(both.text), both.text);
+  check('both boxes are labelled in the panel',
+    both.labels.join(',') === 'Cartons,Pieces', both.labels.join(','));
+  check('the row shows the product photo',
+    /^\/images\/products\//.test(both.thumb || ''), both.thumb);
+}
+
+console.log('\nA row with no quantity at all');
+{
+  const blocked = await page.eval(`
+    const row = document.querySelector('.enq__row');
+    for (const k of ['data-cartons', 'data-pieces']) {
+      const el = row.querySelector('[' + k + ']');
+      el.value = '0'; el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const before = location.href;
+    document.getElementById('enq-send').click();
+    await new Promise(r => setTimeout(r, 150));
+    return {
+      note: document.getElementById('enq-note').textContent,
+      flagged: document.querySelectorAll('.enq__row.is-empty').length,
+      focused: document.activeElement.hasAttribute('data-cartons'),
+      navigated: location.href !== before,
+    };
+  `);
+  check('sending is refused when a row names no quantity',
+    /how many/i.test(blocked.note) && blocked.navigated === false, JSON.stringify(blocked));
+  check('and the row in question is pointed at', blocked.flagged === 1 && blocked.focused);
+
+  const fixed = await page.eval(`
+    const el = document.querySelector('.enq__row [data-pieces]');
+    el.value = '4'; el.dispatchEvent(new Event('input', { bubbles: true }));
+    return { flagged: document.querySelectorAll('.enq__row.is-empty').length,
+             text: decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1] || '') };
+  `);
+  check('filling one of the two boxes clears the warning',
+    fixed.flagged === 0 && /\(4 pieces\)/.test(fixed.text), JSON.stringify(fixed));
+}
+
+console.log('\nA list saved before the two boxes existed');
+{
+  // Real people have a list in their browser right now, in the older shape.
+  await page.goto(`${BASE}/products/`);
+  await page.eval(`
+    localStorage.setItem('pk-enquiry', JSON.stringify([
+      { slug: '${products[0].slug}', name: ${JSON.stringify(products[0].name)}, qty: 15, unit: 'cartons' },
+      { slug: '${products[1].slug}', name: ${JSON.stringify(products[1].name)}, qty: 8, unit: 'pieces' }
+    ]));
+    return 1;
+  `);
+  await page.goto(`${BASE}/products/`);
+  const up = await page.eval(`
+    return { stored: JSON.parse(localStorage.getItem('pk-enquiry')),
+             count: document.getElementById('enq-count').textContent };
+  `);
+  check('an older list is carried across rather than dropped',
+    up.stored.length === 2, JSON.stringify(up.count));
+  check('a carton quantity stays in the cartons box',
+    up.stored[0].cartons === 15 && up.stored[0].pieces === 0, JSON.stringify(up.stored[0]));
+  check('a pieces quantity stays in the pieces box',
+    up.stored[1].cartons === 0 && up.stored[1].pieces === 8, JSON.stringify(up.stored[1]));
+  check('and the pictures it never had are filled in from the page',
+    up.stored.every((i) => /^\/images\/products\//.test(i.image || '')),
+    JSON.stringify(up.stored.map((i) => i.image)));
 }
 
 console.log('\nThe cap on one message');

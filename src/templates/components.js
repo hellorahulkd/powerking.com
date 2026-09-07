@@ -37,11 +37,21 @@ export function whatsappButton({
   // opensList keeps the href — so it still works without JavaScript — and lets
   // the enquiry list intercept the click to ask how many first.
   const open = opensList
-    ? ` data-enq-open${product ? ` data-enq-slug="${esc(product.slug)}" data-enq-name="${esc(product.name)}"` : ''}`
+    ? ` data-enq-open${product ? ` ${enqData(product)}` : ''}`
     : '';
   return `<a class="${cls}" href="${esc(href)}" ${waAttrs(location, product)}${open}>
     ${icon('whatsapp', { size: 20 })}<span>${esc(label)}</span>
   </a>`;
+}
+
+/**
+ * What the enquiry list needs in order to show a product without fetching
+ * anything: its identity, its name and its picture. Emitted by every control
+ * that can put something on the list, from one place so they cannot drift.
+ */
+function enqData(product) {
+  return `data-enq-slug="${esc(product.slug)}" data-enq-name="${esc(product.name)}"`
+    + ` data-enq-image="${esc(product.image)}"`;
 }
 
 /**
@@ -64,9 +74,7 @@ export function enquiryAdd(product, { label = false, pin = false } = {}) {
   const on = label ? 'Add to my enquiry list' : 'Add';
   const off = label ? 'In your enquiry list' : 'Added';
   return `<button type="button" class="${cls}" hidden
-    data-enq-add
-    data-enq-slug="${esc(product.slug)}"
-    data-enq-name="${esc(product.name)}"
+    data-enq-add ${enqData(product)}
     aria-pressed="false"
     title="Add to your enquiry list"
     aria-label="Add ${esc(product.name)} to your enquiry list">
@@ -209,9 +217,7 @@ export function productCard(product, { eager = false, location = 'product_card' 
     <a class="btn btn--whatsapp btn--icon"
        href="${esc(whatsappUrl('product', { product: product.name }))}"
        ${waAttrs(location, product)}
-       data-enq-open
-       data-enq-slug="${esc(product.slug)}"
-       data-enq-name="${esc(product.name)}"
+       data-enq-open ${enqData(product)}
        aria-label="Enquire about ${esc(product.name)} on WhatsApp"
        title="Enquire — asks how many first">
       ${icon('whatsapp', { size: 19 })}

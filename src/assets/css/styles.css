@@ -1151,37 +1151,43 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
   font-size: var(--step--1); color: var(--text-muted);
 }
 .enq__list {
-  margin: 0; padding: 0 1.25rem; max-height: 46vh; overflow-y: auto;
+  margin: 0; padding: 0 1.25rem; max-height: 52vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: .5rem;
 }
 .enq__row {
-  display: grid; gap: .2rem .6rem; align-items: center;
-  grid-template-columns: 1.4rem 1fr auto;
+  display: grid; gap: .6rem; align-items: center;
+  grid-template-columns: auto 1fr auto;
   padding: .6rem; background: var(--bg-alt);
+  border: 1.5px solid transparent;
 }
-.enq__n {
-  font-family: var(--font-mono); font-size: .72rem; color: var(--text-faint);
-  font-variant-numeric: tabular-nums;
+/* Set when Send is pressed on a row that names no quantity at all. */
+.enq__row.is-empty { border-color: var(--danger); background: #FDEDE8; }
+.enq__thumb {
+  width: 56px; height: 56px; flex: none; object-fit: contain;
+  background: var(--bg); border: 1px solid var(--border);
 }
+.enq__thumb--none { display: block; }
+.enq__main { min-width: 0; display: flex; flex-direction: column; gap: .4rem; }
 .enq__name {
-  font-family: var(--font-display); font-weight: 800; font-size: .9rem;
+  font-family: var(--font-display); font-weight: 800; font-size: .88rem;
   line-height: 1.25; letter-spacing: -.01em;
 }
-.enq__qty { grid-column: 2; display: flex; gap: .35rem; align-items: center; }
+.enq__qty { display: flex; gap: .5rem; align-items: flex-end; flex-wrap: wrap; }
+.enq__box { display: flex; flex-direction: column; gap: .15rem; }
+.enq__box-label {
+  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--text-faint);
+}
 .enq__num {
-  width: 4.5rem; padding: .35rem .45rem; font: inherit; font-size: var(--step--1);
+  width: 4.6rem; padding: .35rem .45rem; font: inherit; font-size: var(--step--1);
   font-variant-numeric: tabular-nums;
   border: 1.5px solid var(--border-strong); background: var(--bg); color: var(--text);
 }
-.enq__unit {
-  padding: .35rem .45rem; font: inherit; font-size: var(--step--1);
-  border: 1.5px solid var(--border-strong); background: var(--bg); color: var(--text);
-}
-.enq__num:focus, .enq__unit:focus {
+.enq__num:focus {
   outline: none; border-color: var(--accent); box-shadow: var(--ring);
 }
 .enq__remove {
-  grid-row: 1 / span 2; grid-column: 3;
+  align-self: start;
   background: transparent; border: 0; cursor: pointer; padding: .3rem;
   font-size: .78rem; font-weight: 600; color: var(--text-faint);
   text-decoration: underline; text-underline-offset: 2px;
@@ -1278,4 +1284,16 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
 }
 .enq__empty-or {
   margin: 1rem 0 0; font-size: var(--step--1); color: var(--text-faint);
+}
+
+/* On a narrow phone the two quantity boxes could not sit side by side and
+   wrapped, doubling the height of every row. Let them share the width they
+   have rather than each insisting on 4.6rem. */
+@media (max-width: 420px) {
+  .enq__row { grid-template-columns: 44px 1fr auto; gap: .5rem; }
+  .enq__thumb { width: 44px; height: 44px; }
+  .enq__qty { flex-wrap: nowrap; }
+  .enq__box { flex: 1; min-width: 0; }
+  .enq__num { width: 100%; }
+  .enq__remove { font-size: .72rem; padding: .2rem; }
 }
