@@ -1787,5 +1787,24 @@
     "tags": [
       "Multiplug"
     ]
+  },
+  {
+    "id": 274,
+    "name": "2500W Defender Series Power Socket",
+    "slug": "2500w-defender-series-power-socket",
+    "brand": "2500W Defender Series Power Socket",
+    "category": "Power & Multiplugs",
+    "description": "2500W Defender Series Power Socket Specification Overview\n Product Nomenclature: 2500W Defender Series Multi-Outlet Power Strip with Overload Protection\n Electrical Capacity: Rated for up to 2500W power delivery designed to handle heavy-duty household and office electronics\n Safety & Protection Features: Equipped with built-in overload protection mechanisms and a high-flame retardant outer shell structure\n Outlet Configuration: Features 4 individual universal sockets with independent side-mounted master safety switches and a 2\\text{-meter} power cord layout\n2500W Defender Series Power Socket Physical Dimensions\n Retail Packaging Dimensions (L × W × H): Approximately 35.0\\text{ cm} \\times 12.0\\text{ cm} \\times 4.5\\text{ cm} (per individual blister pack)",
+    "image": "/images/products/2500w-defender-series-power-socket.jpg",
+    "gallery": [],
+    "packSize": "48",
+    "priceCarton": 440,
+    "pricePiece": 450,
+    "sku": "2500W Defender Series Power Socket",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplugs"
+    ]
   }
 ]
