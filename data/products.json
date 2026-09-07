@@ -1825,5 +1825,24 @@
     "tags": [
       "Heinz Defender Series Model HZ-B214 Power Socket"
     ]
+  },
+  {
+    "id": 276,
+    "name": "Powerking Socket Extension Model RO.5IN4PD",
+    "slug": "powerking-socket-extension-model-ro-5in4pd",
+    "brand": "Powerking Socket Extension Model RO.5IN4PD",
+    "category": "Power & Multiplugs",
+    "description": "Powerking Socket Extension Model RO.5IN4PD Specification Overview\n Product Nomenclature: Powerking Electrical Socket Extension (Model: RO.5IN4PD) with Wood-Grain Finish\n Electrical Capacity: Rated for a maximum of 10A current and 250V voltage capacity\n Interface & Outlets: Features multiple universal international power sockets alongside built-in high-speed charging USB ports and a master power control switch\n Design & Build Features: Premium wood-grain aesthetic styling combined with a durable protective hanging retail pouch packaging",
+    "image": "/images/products/powerking-socket-extension-model-ro-5in4pd.jpg",
+    "gallery": [],
+    "packSize": "48",
+    "priceCarton": 370,
+    "pricePiece": 375,
+    "sku": "Powerking Socket Extension Model RO.5IN4PD",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplugs"
+    ]
   }
 ]
