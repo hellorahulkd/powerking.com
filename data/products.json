@@ -55,9 +55,11 @@
     "brand": "VGR",
     "category": "Grooming",
     "description": "Metal-bodied professional T-blade trimmer with an LED charge display and a 600mAh battery, usable corded or cordless and charged over USB. Supplied with guide combs, a cleaning brush, blade oil, a charging cable and a manual.",
-    "image": "/images/products/vgr-v-091-professional-hair-trimmer.png",
+    "image": "/images/products/vgr-v-091-professional-hair-trimmer.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "48",
+    "priceCarton": 1390,
+    "pricePiece": 1395,
     "sku": "V-091",
     "featured": false,
     "available": true,
@@ -71,9 +73,7 @@
       "cordless",
       "usb charging",
       "t blade"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 104,
