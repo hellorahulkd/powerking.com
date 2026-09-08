@@ -148,6 +148,39 @@ export function enquiryList() {
 }
 
 /** Floating WhatsApp bubble. Hidden while the mobile menu is open (see app.js). */
+/**
+ * The bar pinned to the bottom of a phone screen.
+ *
+ * On a phone the header's navigation is behind a Menu button, so getting from
+ * a product back to the catalogue is two taps and a scroll. This is the same
+ * three destinations always within thumb reach, which is what every shopping
+ * app on the same phone does.
+ *
+ * Hidden above 900px, where the header's own navigation is already on screen.
+ * The Enquire tab is a button, not a link: it opens the enquiry panel, and it
+ * carries the running count so the list is never out of sight.
+ */
+export function tabBar() {
+  return `<nav class="tabbar" aria-label="Quick navigation">
+  <a class="tabbar__item" href="/">
+    ${icon('home', { size: 22 })}<span class="tabbar__label">Home</span>
+  </a>
+  <a class="tabbar__item" href="/products/">
+    ${icon('grid', { size: 22 })}<span class="tabbar__label">Categories</span>
+  </a>
+  <button type="button" class="tabbar__item" id="tab-enquire" data-enq-open
+          aria-label="Open your enquiry list">
+    <span class="tabbar__mark">
+      ${icon('whatsapp', { size: 22 })}
+      <!-- The count is decoration for a screen reader: the button's own label
+           carries it in words, and read out here it became "1 Enquire". -->
+      <span class="tabbar__badge" id="tab-enq-count" aria-hidden="true" hidden>0</span>
+    </span>
+    <span class="tabbar__label">Enquire</span>
+  </button>
+</nav>`;
+}
+
 export function floatingWhatsApp() {
   // Still a real wa.me link, so it works with JavaScript off. With JavaScript
   // the enquiry list intercepts it and opens the panel, where a visitor can

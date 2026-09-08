@@ -34,7 +34,9 @@ function heroSlider(featured) {
             location: 'hero_slider',
             product: p,
             opensList: true,
-            label: 'Enquire on WhatsApp',
+            // Short, because on a phone this button shares a row with "View
+            // Product" and the longer label wrapped onto two lines.
+            label: 'Enquire',
             size: 'lg',
           })}
         </div>
@@ -160,9 +162,28 @@ function searchStrip(products) {
  * page for anyone who reaches it another way. Add a product in /admin/ and the
  * tile comes back on the next build.
  */
-function categorySection(allCategories, countsByCategory) {
+/**
+ * Categories as a row of round photographs, scrolled sideways.
+ *
+ * This was a two-up grid of text tiles: six categories meant three rows and
+ * about 870px on a phone — most of a screen spent on six words and six
+ * arrows, before a single product appeared. A row of thumbnails does the same
+ * job in a fifth of the height, and a picture of what is in a category says
+ * more than its name does.
+ *
+ * The thumbnail is the first product in that category. Nothing is invented or
+ * commissioned: it is a photograph the shop already uploaded, of something
+ * actually in there.
+ */
+function categorySection(allCategories, countsByCategory, products) {
   const categories = allCategories.filter((c) => (countsByCategory[c.name] || 0) > 0);
   if (!categories.length) return '';
+
+  const faceOf = (name) => {
+    const first = products.find((p) => p.category === name && p.image);
+    return first ? first.image : '';
+  };
+
   return `<section class="section section--top section--tight" id="categories">
   <div class="container">
     <div class="section__head section__head--tight">
@@ -172,16 +193,21 @@ function categorySection(allCategories, countsByCategory) {
       </div>
       <a class="link-arrow" href="/products/">All products <span aria-hidden="true">→</span></a>
     </div>
-    <ul class="cat-grid">
+    <ul class="cat-row">
       ${categories
         .map((c) => {
           const n = countsByCategory[c.name] || 0;
+          const face = faceOf(c.name);
           return `<li>
-        <a class="cat-tile" href="/products/${esc(c.slug)}/"
+        <a class="cat-face" href="/products/${esc(c.slug)}/"
            data-track-category="${esc(c.name)}">
-          <span class="cat-tile__name">${esc(c.name)}</span>
-          <span class="cat-tile__count">${n} ${n === 1 ? 'product' : 'products'}</span>
-          <span class="cat-tile__go" aria-hidden="true">→</span>
+          <span class="cat-face__shot">${
+            face
+              ? `<img src="${esc(face)}" alt="" width="200" height="200" loading="lazy" decoding="async">`
+              : ''
+          }</span>
+          <span class="cat-face__name">${esc(c.name)}</span>
+          <span class="cat-face__count">${n} ${n === 1 ? 'item' : 'items'}</span>
         </a>
       </li>`;
         })
@@ -214,6 +240,49 @@ function moreSection(rest) {
 </section>`;
 }
 
+/**
+ * The shop's own clips, at the bottom of the home page.
+ *
+ * Cards that link out, not embeds. An embedded TikTok or YouTube player loads
+ * a third-party script into every visit to the home page, tracks whoever
+ * scrolls past it, and costs more to load than the rest of this site put
+ * together. A link costs nothing and goes to the same video.
+ *
+ * Renders nothing at all while site.config.js has no videos in it — an empty
+ * "Our videos" heading is worse than no heading.
+ */
+function videoSection() {
+  const videos = (siteConfig.videos || []).filter((v) => v && v.url);
+  if (!videos.length) return '';
+
+  return `<section class="section section--tight" id="videos">
+  <div class="container">
+    <div class="section__head section__head--tight">
+      <div>
+        <p class="eyebrow">From our channel</p>
+        <h2 class="section__title section__title--sm">Trending videos</h2>
+      </div>
+    </div>
+    <ul class="vids">
+      ${videos
+        .map(
+          (v) => `<li>
+        <a class="vid" href="${esc(v.url)}" target="_blank" rel="noopener">
+          <span class="vid__shot">${
+            v.poster
+              ? `<img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async">`
+              : ''
+          }<span class="vid__play" aria-hidden="true"></span></span>
+          ${v.caption ? `<span class="vid__caption">${esc(v.caption)}</span>` : ''}
+        </a>
+      </li>`,
+        )
+        .join('')}
+    </ul>
+  </div>
+</section>`;
+}
+
 function ctaSection() {
   return `<section class="cta">
   <div class="container cta__inner">
@@ -239,10 +308,11 @@ export function homePage({ products, categories, countsByCategory }) {
   const body = [
     searchStrip(products),
     heroSlider(featured),
-    categorySection(categories, countsByCategory),
+    categorySection(categories, countsByCategory, products),
     moreSection(rest),
     // The "who we are" band is background, not what a buyer came for. It sits
     // after the products now, above the closing call to action.
+    videoSection(),
     intro(),
     ctaSection(),
   ].join('\n');

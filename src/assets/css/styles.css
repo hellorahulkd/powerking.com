@@ -556,45 +556,42 @@ code {
 .prop__body { margin: 0; color: var(--text-muted); font-size: var(--step--1); }
 
 /* ----------------------------------------------------------- categories -- */
-.cat-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, 1fr); }
-/* The <li> is the grid item, and it defaults to min-width:auto — so the
-   longest category name set a floor the 1fr track could not go below, and
-   the two-up row ran past a 320px viewport. */
-.cat-grid > li { min-width: 0; }
-@media (min-width: 640px) { .cat-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 980px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
-.cat-tile {
-  /* A column, so the arrow can be pushed to the bottom: tiles in a row are
-     the same height, and a two-line name must not leave its arrow sitting
-     higher than its neighbour's. */
-  position: relative; display: flex; flex-direction: column;
-  /* A grid item defaults to min-width:auto, so the longest category name
-     ("Accessories", "Multiplugs") sets a floor the 1fr track cannot go
-     below — which pushed the two-up row past a 320px viewport. */
-  min-width: 0;
-  padding: 1.1rem 1.1rem 1rem; min-height: 6.75rem; overflow: hidden;
-  background: var(--bg-alt); border: 1px solid transparent;
-  border-radius: var(--radius); text-decoration: none; color: var(--ink);
-  transition: background-color .18s, transform .18s, box-shadow .18s;
+/* A sideways row of round product photographs. Scrolls on a phone, wraps into
+   a centred row once there is width for it. */
+.cat-row {
+  display: flex; gap: 1rem; overflow-x: auto; padding-bottom: .35rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
-.cat-tile:hover {
-  background: var(--bg); border-color: var(--border);
-  transform: translateY(-2px); box-shadow: var(--shadow-md); color: var(--ink);
+.cat-row::-webkit-scrollbar { display: none; }
+.cat-row > li { flex: none; scroll-snap-align: start; width: 5.5rem; }
+@media (min-width: 700px) {
+  .cat-row { flex-wrap: wrap; overflow-x: visible; gap: 1.25rem; }
+  .cat-row > li { width: 7rem; }
 }
-.cat-tile__name {
-  font-family: var(--font-display); font-weight: 900;
-  font-size: var(--step-0); color: var(--ink); letter-spacing: -.03em;
-  line-height: 1.1; margin-bottom: .3rem; overflow-wrap: break-word;
+.cat-face {
+  display: grid; justify-items: center; gap: .1rem; text-align: center;
+  text-decoration: none; color: var(--ink);
 }
-.cat-tile__count {
-  font-family: var(--font-mono); font-size: .7rem; letter-spacing: .1em;
+.cat-face__shot {
+  display: grid; place-items: center; width: 5.5rem; height: 5.5rem;
+  border-radius: 50%; overflow: hidden;
+  background: var(--bg-alt); border: 2px solid var(--border);
+  transition: border-color .18s, transform .18s;
+}
+@media (min-width: 700px) { .cat-face__shot { width: 7rem; height: 7rem; } }
+.cat-face__shot img { width: 100%; height: 100%; object-fit: cover; }
+.cat-face:hover .cat-face__shot {
+  border-color: var(--accent); transform: translateY(-2px);
+}
+.cat-face__name {
+  margin-top: .4rem; font-family: var(--font-display); font-weight: 800;
+  font-size: .82rem; line-height: 1.15; letter-spacing: -.02em;
+}
+.cat-face__count {
+  font-family: var(--font-mono); font-size: .64rem; letter-spacing: .06em;
   color: var(--text-faint); text-transform: uppercase;
 }
-.cat-tile__go {
-  font-size: 1.25rem; line-height: 1; color: var(--ink);
-  margin-top: auto; padding-top: .6rem; transition: transform .18s ease;
-}
-.cat-tile:hover .cat-tile__go { transform: translateX(5px); }
 
 .cat-strip { display: flex; flex-wrap: wrap; gap: .5rem; }
 .cat-strip__item {
@@ -696,6 +693,87 @@ code {
 @media (max-width: 520px) { .grid--cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; } }
 @media (max-width: 359px) { .grid--cards { grid-template-columns: 1fr; } }
 
+/* On a phone the point is to get products on screen. Sections, headings and
+   the gaps between them all give up room here; the products do not.
+   Measured before and after on a 402x874 phone: the catalogue's first product
+   card started 824px down the page, below the fold on every phone sold. */
+@media (max-width: 560px) {
+  .section { padding: 1.75rem 0; }
+  .section--tight { padding: 1.5rem 0; }
+  .section--top { padding-top: 1.25rem; }
+  .section--top-0 { padding-top: 1rem; }
+  .section__head { margin-bottom: .7rem; }
+  .section__head--tight { margin-bottom: .6rem; }
+  /* The "view all" link beside a heading is the same destination as the
+     Categories tab now pinned to the bottom of the screen. */
+  .section__head .link-arrow { display: none; }
+  .section__title { font-size: var(--step-2); }
+  .section__foot { margin-top: 1.25rem; }
+  /* The eyebrow above a section heading is decoration, and decoration is what
+     a 402px screen has least room for. The heading still says what it is. */
+  .section__head .eyebrow { display: none; }
+  .eyebrow { margin-bottom: .3rem; font-size: .64rem; }
+  .grid--cards { gap: .6rem; }
+  .cat-row { gap: .75rem; }
+  .cat-row > li { width: 4.9rem; }
+  .cat-face__shot { width: 4.9rem; height: 4.9rem; }
+  .cat-face__name { margin-top: .3rem; font-size: .76rem; }
+
+  .page-head { padding: 1.1rem 0 1.25rem; }
+  .page-head h1 { font-size: var(--step-3); margin-bottom: .3rem; }
+  /* Two lines. The full sentence is worth having on a laptop; on a phone the
+     fourth line of it costs a row of products. */
+  .page-head__lead {
+    font-size: var(--step-0);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .crumbs { margin-bottom: .5rem; }
+
+  /* The catalogue lists its categories twice on the way down: once as a strip
+     of links, once as the toolbar's own category filter. On a laptop that is
+     a signpost and a control; on a phone it is 224px of the same words twice,
+     so the strip gives way and the filter stays. */
+  .page-catalogue #categories { display: none; }
+
+  .toolbar { padding: .55rem 0; }
+  .toolbar__search input { min-height: 46px; padding-block: .6rem; }
+  .toolbar__filters { margin-top: .45rem; }
+
+  /* The carousel was taking the whole of the first screen and the categories
+     the whole of the second, so the first product was three screens down.
+     Shorter picture, smaller heading, and the two buttons side by side
+     instead of stacked. */
+  .slide__inner { padding-block: .85rem .6rem; gap: .7rem; }
+  .slide__media { height: 7.25rem; }
+  .slide__media img { max-height: 7.25rem; }
+  /* A 780px-tall phone has 94px less to give than an 874px one, and it all
+     comes out of the fold. The picture gives it back. */
+  @media (max-height: 820px) {
+    .slide__media { height: 5.75rem; }
+    .slide__media img { max-height: 5.75rem; }
+    .slide__inner { padding-block: .6rem .45rem; gap: .5rem; }
+    .cat-face__shot { width: 4.4rem; height: 4.4rem; }
+    .cat-row > li { width: 4.4rem; }
+    .section { padding: 1.3rem 0; }
+    .section--tight { padding: 1.15rem 0; }
+    .section__title { font-size: var(--step-1); }
+    .section__head { margin-bottom: .55rem; }
+  }
+  .slide__title { font-size: var(--step-1); margin-bottom: .45rem; }
+  /* The brand-and-category line and the "contact us for pricing" line are
+     both repeated on the card and the product page below. On a phone they
+     cost 45px that a product photograph can use instead. */
+  .slide__eyebrow, .slide__specs, .slide__price { display: none; }
+  .slide__actions { flex-wrap: nowrap; gap: .5rem; }
+  .slide__actions .btn { flex: 1 1 0; min-width: 0; }
+  .slide__actions .btn--lg { padding: .7rem .5rem; font-size: var(--step--1); min-height: 46px; }
+  .slider__controls { padding-bottom: .5rem; }
+
+  .hsearch__inner { padding-block: .6rem; }
+  .hsearch__input { padding-block: .5rem; }
+}
+
 /* ------------------------------------------------------------------ card -- */
 .card {
   position: relative; display: flex; flex-direction: column;
@@ -705,9 +783,13 @@ code {
 }
 .card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
 .card--out { opacity: .82; }
+/* No padding. The uploaded tile is already the product centred on white with
+   whatever margin the supplier's photo carries; adding 1.1rem on top of that
+   shrank a 175px box to a 139px picture, and on a phone that reads as a small
+   product floating in a large empty card. */
 .card__media {
   display: grid; place-items: center; aspect-ratio: 1 / 1;
-  background: var(--bg-alt); overflow: hidden; padding: 1.1rem;
+  background: var(--bg-alt); overflow: hidden;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 /* contain, not cover: a product photograph must never be cropped. */
@@ -728,24 +810,29 @@ code {
 }
 .badge--out { background: #FBE9E6; color: var(--danger); border: 1px solid #F1C9C2; }
 .badge--float { position: absolute; top: .75rem; left: .75rem; }
-.card__body { padding: 1.05rem 1.1rem .35rem; flex: 1; }
+.card__body { padding: .7rem .75rem .3rem; flex: 1; }
 .card__eyebrow {
   display: flex; flex-wrap: wrap; align-items: center; gap: .3rem;
-  margin: 0 0 .3rem; font-size: .72rem; font-weight: 650;
+  margin: 0 0 .2rem; font-size: .66rem; font-weight: 650;
   text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint);
 }
 .card__cat:hover { color: var(--primary); text-decoration: underline; }
+/* Two lines, then an ellipsis. A four-line product name made one card in a
+   row twice the height of its neighbour and pushed everything below it down
+   a screen. */
 .card__title {
-  font-family: var(--font-display); font-size: var(--step-1); font-weight: 900;
-  letter-spacing: -.03em; margin: 0 0 .4rem; line-height: 1.08;
+  font-family: var(--font-display); font-size: var(--step-0); font-weight: 900;
+  letter-spacing: -.03em; margin: 0 0 .3rem; line-height: 1.15;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .card__title a { color: var(--primary); text-decoration: none; }
 .card__title a::after { content: ""; position: absolute; inset: 0; } /* whole-card link */
 .card__title a:hover { color: var(--accent-600); }
 .card__meta { margin: 0; font-size: var(--step--1); color: var(--text-muted); }
 .card__actions {
-  display: grid; grid-template-columns: 1fr 1fr; gap: .5rem;
-  padding: .6rem 1.1rem 1.1rem; margin-top: auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: .4rem;
+  padding: .45rem .75rem .75rem; margin-top: auto;
   position: relative; z-index: 1;
 }
 
@@ -1400,3 +1487,80 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
   font-family: var(--font-sans); font-weight: 500; font-size: var(--step--1);
   color: var(--text-faint); letter-spacing: 0;
 }
+
+/* -------------------------------------------------------------- videos -- */
+/* A sideways row of portrait cards, the shape a phone video actually is.
+   Each is a link out; nothing is embedded (see videoSection in home.js). */
+.vids {
+  display: flex; gap: .75rem; overflow-x: auto; padding-bottom: .35rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.vids::-webkit-scrollbar { display: none; }
+.vids > li { flex: none; width: 10.5rem; scroll-snap-align: start; }
+@media (min-width: 700px) { .vids > li { width: 12.5rem; } }
+.vid { display: grid; gap: .45rem; text-decoration: none; color: var(--ink); }
+.vid__shot {
+  position: relative; display: block; aspect-ratio: 9 / 16; overflow: hidden;
+  border-radius: var(--radius-lg); background: var(--ink);
+}
+.vid__shot img { width: 100%; height: 100%; object-fit: cover; }
+.vid__play {
+  position: absolute; inset: 0; margin: auto;
+  width: 3rem; height: 3rem; border-radius: 50%;
+  background: rgba(255,255,255,.92);
+  transition: transform .18s ease;
+}
+/* The triangle, drawn rather than typed so it sits optically centred. */
+.vid__play::after {
+  content: ""; position: absolute; inset: 0; margin: auto;
+  width: 0; height: 0; margin-left: 1.15rem;
+  border-left: .85rem solid var(--ink);
+  border-top: .55rem solid transparent;
+  border-bottom: .55rem solid transparent;
+}
+.vid:hover .vid__play { transform: scale(1.08); }
+.vid__caption {
+  font-size: var(--step--1); font-weight: 600; line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------- tab bar -- */
+/* Pinned to the bottom of a phone. Above 900px the header's own navigation is
+   on screen and this would be a second copy of it, so it goes away. */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 58;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: var(--bg); border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 12px rgba(0,0,0,.06);
+}
+.tabbar__item {
+  display: grid; justify-items: center; gap: .15rem;
+  padding: .5rem .25rem .55rem; border: 0; background: none; cursor: pointer;
+  font-family: var(--font-sans); font-size: .68rem; font-weight: 650;
+  color: var(--text-muted); text-decoration: none; line-height: 1;
+}
+.tabbar__item:hover, .tabbar__item:focus-visible { color: var(--ink); }
+.tabbar__item svg { display: block; }
+.tabbar__mark { position: relative; display: block; }
+.tabbar__badge {
+  position: absolute; top: -.35rem; right: -.55rem; min-width: 1.05rem;
+  padding: 0 .25rem; border-radius: 100px;
+  background: var(--whatsapp); color: #06280F;
+  font-family: var(--font-display); font-weight: 900; font-size: .62rem;
+  line-height: 1.05rem; text-align: center;
+}
+@media (min-width: 900px) { .tabbar { display: none; } }
+
+/* Room for the bar, so it never covers the last line of a page. */
+@media (max-width: 899px) {
+  body { padding-bottom: 3.65rem; }
+  /* The floating bubble and the Enquire tab are the same control; only the
+     tab is shown where the tab bar exists. */
+  .wa-float { display: none; }
+  /* The enquiry bar stacks above the tab bar rather than over it. */
+  .enq-bar { bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
+}
+@media print { .tabbar { display: none; } }

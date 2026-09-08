@@ -141,6 +141,20 @@
     countEl.textContent = n === 1
       ? '1 product on your enquiry'
       : n + ' products on your enquiry';
+
+    // The bottom bar's Enquire tab carries the same number, so the list is
+    // never out of sight on a phone.
+    var badge = document.getElementById('tab-enq-count');
+    if (badge) {
+      badge.hidden = n === 0;
+      badge.textContent = n;
+      var tab = document.getElementById('tab-enquire');
+      if (tab) {
+        tab.setAttribute('aria-label', n === 0
+          ? 'Open your enquiry list'
+          : 'Open your enquiry list — ' + n + (n === 1 ? ' product' : ' products'));
+      }
+    }
   }
 
   function renderButtons() {

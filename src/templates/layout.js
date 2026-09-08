@@ -2,7 +2,7 @@ import { siteConfig } from '../config/site.config.js';
 import { esc, absoluteUrl, metaDescription, jsonForScript } from '../lib/html.js';
 import { header } from './header.js';
 import { footer } from './footer.js';
-import { floatingWhatsApp, enquiryList } from './components.js';
+import { floatingWhatsApp, enquiryList, tabBar } from './components.js';
 import { iconSprite } from './icons.js';
 
 /**
@@ -140,6 +140,7 @@ ${body}
 ${chrome ? footer() : ''}
 ${chrome && siteConfig.features.showFloatingWhatsApp ? floatingWhatsApp() : ''}
 ${chrome ? enquiryList() : ''}
+${chrome ? tabBar() : ''}
 ${chrome ? '<script src="/assets/app.js" defer></script>\n<script src="/assets/enquiry.js" defer></script>' : ''}
 ${scripts}
 </body>

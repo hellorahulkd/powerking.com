@@ -615,6 +615,130 @@ async function main() {
   }
 
   /* ------------------------------------------------------ 8. a11y basics -- */
+  /* ------------------------------------------------- N. mobile density -- */
+  // The complaint this section exists for: on a phone you had to scroll twice
+  // before a product appeared. Everything above the first card — the search
+  // strip, the carousel, the category row, the section heading — is measured
+  // together, because any one of them growing puts products back off screen.
+  process.stdout.write('\nA phone sees products without scrolling\n');
+  {
+    const page = await newPage(port);
+    // The narrowest phone still in use and a current one; the fold has to hold
+    // on both, not just the roomy one.
+    for (const [w, h] of [[402, 874], [360, 780]]) {
+      await page.setViewport(w, h, true);
+      for (const url of ['/', '/products/']) {
+        await page.goto(BASE + url);
+        const r = await page.eval(`
+          const card = document.querySelector('[data-product]');
+          const bar = document.querySelector('.tabbar');
+          const b = card ? card.getBoundingClientRect() : null;
+          const barTop = bar ? bar.getBoundingClientRect().top : ${h};
+          return {
+            cardTop: b ? Math.round(b.top) : null,
+            // A card hidden behind the pinned bar is not on screen.
+            visible: b ? Math.round(Math.min(barTop, ${h}) - b.top) : 0,
+          };
+        `);
+        check(`${url} shows a product on the first screen at ${w}x${h}`,
+          r.cardTop !== null && r.visible > 60,
+          `card top ${r.cardTop}, ${r.visible}px of it above the bar`);
+      }
+    }
+
+    // The other half of the complaint: the picture did not fill its box, so a
+    // product looked small inside a mostly empty card.
+    await page.setViewport(402, 874, true);
+    await page.goto(`${BASE}/products/`);
+    const fill = await page.eval(`
+      const media = document.querySelector('.card__media');
+      const img = media.querySelector('img');
+      const m = media.getBoundingClientRect(), i = img.getBoundingClientRect();
+      return { media: Math.round(m.height), img: Math.round(i.height),
+               fit: getComputedStyle(img).objectFit };
+    `);
+    check('the product photo fills its card, edge to edge',
+      fill.img === fill.media, `${fill.img}px picture in a ${fill.media}px box`);
+    // contain, still: a catalogue photograph must not be cropped to fill.
+    check('and is not cropped to do it', fill.fit === 'contain', fill.fit);
+    await page.close();
+  }
+
+  process.stdout.write('\nThe bar pinned to the bottom of a phone\n');
+  {
+    const page = await newPage(port);
+    await page.setViewport(402, 874, true);
+    await page.goto(`${BASE}/`);
+    const r = await page.eval(`
+      const bar = document.querySelector('.tabbar');
+      const b = bar.getBoundingClientRect();
+      return {
+        shown: getComputedStyle(bar).display !== 'none',
+        atBottom: Math.round(b.bottom) <= 874 && Math.round(b.bottom) >= 870,
+        items: [...bar.querySelectorAll('.tabbar__label')].map(i => i.textContent.trim()),
+        floatShown: getComputedStyle(document.querySelector('.wa-float')).display !== 'none',
+        bodyPad: getComputedStyle(document.body).paddingBottom,
+      };
+    `);
+    check('it is on screen, at the bottom', r.shown && r.atBottom, JSON.stringify(r));
+    check('with Home, Categories and Enquire',
+      r.items.join('|') === 'Home|Categories|Enquire', r.items.join('|'));
+    check('the floating bubble stands down for it, so there is one Enquire',
+      r.floatShown === false);
+    check('the page reserves room, so the bar covers nothing',
+      parseFloat(r.bodyPad) > 40, r.bodyPad);
+
+    // It has to stay put — that is the whole point of it.
+    const stuck = await page.eval(`
+      window.scrollTo(0, 2000);
+      return new Promise(function (done) {
+        setTimeout(function () {
+          const b = document.querySelector('.tabbar').getBoundingClientRect();
+          done({ bottom: Math.round(b.bottom), scrolled: Math.round(window.scrollY) });
+        }, 250);
+      });
+    `);
+    check('and stays there once the page is scrolled',
+      stuck.scrolled > 500 && stuck.bottom >= 870 && stuck.bottom <= 874,
+      JSON.stringify(stuck));
+
+    // A list left over from an earlier check would make this count wrong.
+    // Cleared here and reloaded from Node: reloading inside page.eval destroys
+    // the execution context the call is waiting on, and the run hangs.
+    await page.eval(`try { localStorage.removeItem('pk-enquiry'); } catch (e) {} return 1;`);
+    await page.goto(`${BASE}/`);
+    const badge = await page.eval(`
+      document.querySelector('[data-enq-add]').click();
+      return new Promise(function (done) {
+        setTimeout(function () {
+          const b = document.getElementById('tab-enq-count');
+          const bar = document.querySelector('.enq-bar').getBoundingClientRect();
+          const tab = document.querySelector('.tabbar').getBoundingClientRect();
+          done({ hidden: b.hidden, text: b.textContent,
+                 barClearsTab: Math.round(bar.bottom) <= Math.round(tab.top) });
+        }, 300);
+      });
+    `);
+    check('the Enquire tab counts what is on the list',
+      badge.hidden === false && badge.text === '1', JSON.stringify(badge));
+    check('and the enquiry bar stacks above it rather than under it',
+      badge.barClearsTab === true, JSON.stringify(badge));
+
+    await page.setViewport(1280, 800, false);
+    await page.goto(`${BASE}/`);
+    const desktop = await page.eval(`
+      return {
+        bar: getComputedStyle(document.querySelector('.tabbar')).display,
+        float: getComputedStyle(document.querySelector('.wa-float')).display,
+        bodyPad: getComputedStyle(document.body).paddingBottom,
+      };
+    `);
+    check('on a laptop it gives way to the header navigation',
+      desktop.bar === 'none' && desktop.float !== 'none' && parseFloat(desktop.bodyPad) < 10,
+      JSON.stringify(desktop));
+    await page.close();
+  }
+
   process.stdout.write('\nAccessibility basics\n');
   {
     const page = await newPage(port);

@@ -114,6 +114,26 @@ export const siteConfig = {
   // Google Analytics 4 measurement ID, e.g. 'G-XXXXXXXXXX'.
   // While blank, no analytics script is injected at all (no cookies, no
   // network requests) — the site stays fast and privacy-clean until you add it.
+  // --- Trending videos ------------------------------------------------------
+  // Shown as a row at the bottom of the home page. Empty means the section is
+  // not rendered at all, which is why it starts empty: a video nobody has
+  // linked is not a video.
+  //
+  // Add one entry per clip. `url` is the link people follow — a TikTok,
+  // Instagram or YouTube address, whatever the shop actually posts. `caption`
+  // is what the card says. `poster` is optional: a path under public/ to a
+  // still frame; without one the card shows the play mark on the brand's
+  // black. Nothing is embedded and no third-party script is loaded — the card
+  // is a link, so the page stays fast and nobody is tracked for scrolling
+  // past it.
+  //
+  //   videos: [
+  //     { url: 'https://www.tiktok.com/@powerkingnepal/video/1234567890',
+  //       caption: 'PowerKing V35 solar speaker, unboxed',
+  //       poster: '/images/videos/v35.jpg' },
+  //   ],
+  videos: [],
+
   googleAnalyticsId: '',
 
   // --- Branding -------------------------------------------------------------
