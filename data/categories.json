@@ -48,5 +48,10 @@
     "name": "Networking",
     "slug": "networking",
     "description": "Wi-Fi repeaters, range extenders and access points for home and shop coverage."
+  },
+  {
+    "name": "Microphone",
+    "slug": "microphone",
+    "description": "Phone microhpne,easy record audio"
   }
 ]
