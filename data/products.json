@@ -313,6 +313,8 @@
     "image": "/images/products/powerking-v35-solar-speaker.jpg",
     "gallery": [],
     "packSize": "50 pcs per carton",
+    "priceCarton": "",
+    "pricePiece": "",
     "sku": "V35",
     "featured": true,
     "available": true,
@@ -323,9 +325,7 @@
       "tf card",
       "usb",
       "powerking"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 202,
@@ -336,9 +336,11 @@
     "description": "Twin 8W drivers in the Good Bass line, with a moulded slot in the top that stands a phone up for video. Bluetooth, TF card, USB and FM.",
     "image": "/images/products/powerking-v9-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "50",
+    "priceCarton": 850,
+    "pricePiece": 850,
     "sku": "V9",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": [
       "8w",
@@ -347,33 +349,7 @@
       "fm radio",
       "tf card",
       "powerking"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 203,
-    "name": "Kisonli U-2500BT 2.1 USB Gaming Speaker",
-    "slug": "kisonli-u-2500bt-gaming-speaker",
-    "brand": "Kisonli",
-    "category": "Speakers",
-    "description": "A 2.1 desktop set for gaming — subwoofer with two satellites, Bluetooth, and an infrared remote in the box. USB powered.",
-    "image": "/images/products/kisonli-u-2500bt-gaming-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "U-2500BT",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "2.1",
-      "gaming",
-      "subwoofer",
-      "remote",
-      "bluetooth",
-      "desktop"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 204,
@@ -476,9 +452,11 @@
     "description": "SUV-shaped novelty speaker with a solar panel in the roof, stereo playback and a built-in flashlight. Sold as a gift line.",
     "image": "/images/products/kisonli-b3-solar-car-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "40",
+    "priceCarton": 800,
+    "pricePiece": 800,
     "sku": "B3",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": [
       "car speaker",
@@ -487,9 +465,7 @@
       "gift",
       "flashlight",
       "suv"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 209,
@@ -618,29 +594,6 @@
     "pricePiece": ""
   },
   {
-    "id": 214,
-    "name": "LP V80 Good Bass Speaker IPX4",
-    "slug": "lp-v80-v81-ipx4-speaker",
-    "brand": "LP",
-    "category": "Speakers",
-    "description": "Compact splash-resistant speaker rated IPX4, with a clip loop for a bag or belt. Photographed alongside the LP V81; separate product shots are still to come.",
-    "image": "/images/products/lp-v80-v81-ipx4-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "V80",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "ipx4",
-      "splash resistant",
-      "compact",
-      "clip",
-      "good bass"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 215,
     "name": "J-iPOK P353 Rugged Portable Speaker",
     "slug": "j-ipok-p353-portable-speaker",
@@ -736,16 +689,18 @@
   },
   {
     "id": 219,
-    "name": "NDR High-Power Outdoor Trolley Speaker",
+    "name": "NDR C8 High-Power Outdoor Trolley Speaker",
     "slug": "ndr-high-power-outdoor-speaker",
-    "brand": "NDR",
+    "brand": "NDR C8",
     "category": "Speakers",
-    "description": "High-power outdoor cabinet on a stand, supplied with wireless microphones. The box front states big voice, high power and a big battery; no model number is printed on it.",
+    "description": "NDR High-Power Outdoor Trolley Speaker\n Professional PA Build: Heavy-duty wooden cabinet design with protective rubberized corner guards, front metal mesh grille, retractable telescoping handle, and smooth-rolling trolley wheels.\n Audio Performance: High-power outdoor PA sound system with deep bass response, dynamic EQ settings, and dedicated echo/treble/bass tuning controls.\n Microphone & PA Features: Supports wireless microphone connectivity (often includes dual wireless mics) with dedicated volume and priority controls for karaoke, events, and announcements.\n Connectivity & Modes: Bluetooth 5.0, FM Radio, USB flash drive playback, SD/TF card slot, 6.35mm wired microphone/guitar inputs, and AUX input.\n Battery: Built-in high-capacity rechargeable battery (12V) providing extended outdoor playback time.\nDimensions & Weight\n Height: 52 cm (approx. 85 cm – 90 cm with trolley handle extended)\n Width: 32 cm\n Depth/Thickness: 28 cm\n Weight: ~8.5 kg – 10.0 kg",
     "image": "/images/products/ndr-high-power-outdoor-speaker.jpg",
     "gallery": [],
-    "packSize": "",
-    "sku": "",
-    "featured": false,
+    "packSize": "4",
+    "priceCarton": 4800,
+    "pricePiece": 4750,
+    "sku": "NDR High-Power Outdoor Trolley Speaker",
+    "featured": true,
     "available": true,
     "tags": [
       "outdoor",
@@ -754,9 +709,7 @@
       "high power",
       "party",
       "stand"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 220,
@@ -779,52 +732,6 @@
       "aux",
       "mic input",
       "stand"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 221,
-    "name": "Colorful Karaoke Speaker Set with Two Microphones",
-    "slug": "karaoke-speaker-two-mics",
-    "brand": "[CONFIRM BRAND]",
-    "category": "Speakers",
-    "description": "Small karaoke set: one RGB-lit speaker on a leather carry strap with two wireless microphones. The box states a colourful karaoke sound system and carries no model number.",
-    "image": "/images/products/karaoke-speaker-two-mics.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "karaoke",
-      "microphone",
-      "rgb",
-      "portable",
-      "gift",
-      "party"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
-    "id": 222,
-    "name": "V6 Wireless Speaker with Phone Stand",
-    "slug": "v6-wireless-speaker",
-    "brand": "[CONFIRM BRAND]",
-    "category": "Speakers",
-    "description": "Wireless speaker with a fold-up phone stand and a telescopic antenna. The carton is printed only with MODEL: V6 and shows no brand on its face.",
-    "image": "/images/products/v6-wireless-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "V6",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "phone stand",
-      "antenna",
-      "portable",
-      "wireless"
     ],
     "priceCarton": "",
     "pricePiece": ""
@@ -1507,6 +1414,492 @@
     "available": true,
     "tags": [
       "Speaker"
+    ]
+  },
+  {
+    "id": 254,
+    "name": "FL1P 6 Portable Wireless Speaker",
+    "slug": "fl1p-6-portable-wireless-speaker",
+    "brand": "FL1P 6 Portable Wireless Speaker",
+    "category": "Speakers",
+    "description": "The FL1P 6 Portable Wireless Speaker features a cylindrical outdoor design wrapped in durable mesh fabric with rubberized end caps.\nKey Features\n Audio System: 2-way speaker design delivering clear sound with dual passive bass radiators.\n Water & Dust Protection: Waterproof rating built to withstand splashes and outdoor exposure.\n Connectivity: Bluetooth 5.1 for fast, stable pairing.\n Battery Life: Integrated rechargeable battery offering up to 15 hours of continuous playback.\nDimensions & Weight\n Height/Length: 17.8 cm\n Diameter/Width: 6.8 cm\n Weight: 550 grams (0.55 kg)",
+    "image": "/images/products/fl1p-6-portable-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 1025,
+    "pricePiece": 1050,
+    "sku": "FL1P 6 Portable Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "JBL portable speaker"
+    ]
+  },
+  {
+    "id": 255,
+    "name": "J-iPOK P353",
+    "slug": "j-ipok-p353",
+    "brand": "J-iPOK",
+    "category": "Speakers",
+    "description": "J-iPOK P353 / P353T Outdoor Boombox\n Rugged Outdoor Design: Heavy-duty reinforced casing with an integrated top carrying handle, side LED flashlight, and built-in solar charging panel.\n Audio Performance: 8W output power with enhanced bass driver.\n Multi-Input Support: Bluetooth streaming, FM radio (with antenna), MicroSD/TF card, USB drive, AUX input, and built-in microphone for hands-free calls.\n Battery: 1200mAh rechargeable lithium battery supporting solar and micro-USB/Type-C charging.\nDimensions & Weight\n Height: 13.0 cm (approx. 17.5 cm with top handle extended)\n Width: 21.0 cm\n Depth/Thickness: 8.5 cm\n Weight: 520 grams (0.52 kg)",
+    "image": "/images/products/j-ipok-p353.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 725,
+    "pricePiece": 750,
+    "sku": "J-iPOK P353",
+    "featured": false,
+    "available": true,
+    "tags": []
+  },
+  {
+    "id": 256,
+    "name": "Powerking Mini Wireless Speaker",
+    "slug": "powerking-mini-wireless-speaker",
+    "brand": "Powerking M3",
+    "category": "Speakers",
+    "description": "Powerking Mini Wireless Speaker\n Ultra-Compact Design: Pocket-sized spherical body with a metallic finish, top mesh speaker grill, and non-slip rubberized base.\n Audio Performance: 40mm dynamic driver delivering 3W power output with clear highs and vocal clarity.\n Features & Controls: Built-in microphone for hands-free calling, physical media control buttons, and support for TWS dual-speaker stereo pairing.\n Connectivity Options: Bluetooth 5.0, MicroSD/TF Card slot, and AUX input.\n Battery & Power: 500mAh rechargeable lithium battery providing 4–6 hours of continuous playback with a 1.5-hour charge time.\nDimensions & Weight\n Height: 5.0 cm\n Diameter/Width: 6.0 cm\n Weight: 90 grams (0.09 kg)",
+    "image": "/images/products/powerking-mini-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 280,
+    "pricePiece": 285,
+    "sku": "Powerking Mini Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": []
+  },
+  {
+    "id": 257,
+    "name": "QL-8883 8-Inch Loud Speaker with Wireless Microphone",
+    "slug": "ql-8883-8-inch-loud-speaker-with-wireless-microphone",
+    "brand": "Powerking",
+    "category": "Speakers",
+    "description": "QL-8883 8-Inch Loud Speaker with Wireless Microphone\n Design & Build: Heavy-duty portable PA speaker body with dynamic RGB LED lighting grill, integrated top carry handle, and rear trolley wheels.\n Audio Performance: 8-inch high-excursion woofer driver delivering 8W RMS power output with enhanced bass clarity.\n Microphone & PA Features: Includes a dedicated VHF/UHF wireless microphone for karaoke, public addressing, and events.\n Connectivity Options: Bluetooth 5.0 streaming, USB flash drive, TF/MicroSD card reader, 3.5mm AUX input, and 6.35mm wired mic input.\n Battery: 3.7V / 1800mAh–2400mAh rechargeable lithium battery supporting 3–5 hours of continuous wireless playback.\nDimensions & Weight\n Height: ~38.0 cm – 42.0 cm\n Width: ~24.0 cm – 26.0 cm\n Depth/Thickness: ~20.0 cm – 22.0 cm\n Weight: ~2.2 kg – 2.8 kg",
+    "image": "/images/products/ql-8883-8-inch-loud-speaker-with-wireless-microphone.jpg",
+    "gallery": [],
+    "packSize": "8",
+    "priceCarton": 2350,
+    "pricePiece": 2390,
+    "sku": "QL-8883 8-Inch Loud Speaker with Wireless Microphone",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "speakers"
+    ]
+  },
+  {
+    "id": 258,
+    "name": "LP V116 Portable Wireless Speaker",
+    "slug": "lp-v116-portable-wireless-speaker",
+    "brand": "LP V116",
+    "category": "Speakers",
+    "description": "LP V116 Portable Wireless Speaker\n Design & Features: Compact matte-black body with dynamic multi-color RGB LED lighting grill ring, extended telescopic FM radio antenna, top-mounted physical control buttons, digital LED display screen, and a top groove designed to serve as a smartphone stand.\n Audio Performance: Loud 10W stereo power output optimized for clear voice clarity and deep bass response (\"Good Bass\").\n Connectivity Options: Bluetooth wireless connection, FM Radio, USB flash drive input, MicroSD/TF card playback, and AUX line-in.\n Portability: Includes a durable wrist lanyard/carrying strap for effortless portability on the go.\n Battery: Rechargeable 1200mAh lithium battery providing 3–5 hours of continuous music playback.\nDimensions & Weight\n Height: 14.5 cm (with antenna down)\n Width: 11.0 cm\n Depth/Thickness: 7.5 cm\n Weight: ~380 grams (0.38 kg)",
+    "image": "/images/products/lp-v116-portable-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 575,
+    "pricePiece": 600,
+    "sku": "LP V116 Portable Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Portable speaker"
+    ]
+  },
+  {
+    "id": 259,
+    "name": "SING-E ZQS8229W Super Bass Party Speaker",
+    "slug": "sing-e-zqs8229w-super-bass-party-speaker",
+    "brand": "SING-E ZQS8229W",
+    "category": "Speakers",
+    "description": "SING-E ZQS8229W Super Bass Party Speaker\n Dual Woofer Design: Features dual 8-inch high-power woofers paired with dynamic multi-pattern RGB LED party lights.\n Audio Performance: 20\\text{W} \\times 2 (40\\text{W} RMS) total output power delivering deep bass response and room-filling volume.\n Karaoke System: Comes bundled with a wireless handheld microphone and a dedicated remote control.\n Connectivity & Modes: Bluetooth 5.0 streaming, FM radio, USB flash drive input, TF/MicroSD card reader, 3.5mm AUX port, and 6.35\\text{mm} wired microphone input.\n Battery & Power: High-capacity 4500\\text{mAh} rechargeable lithium battery providing 4–6 hours of continuous party playback.\nDimensions & Weight\n Height: ~68.0 cm\n Width: ~26.5 cm\n Depth/Thickness: ~25.0 cm\n Weight: ~4.5 kg – 5.2 kg",
+    "image": "/images/products/sing-e-zqs8229w-super-bass-party-speaker.jpg",
+    "gallery": [],
+    "packSize": "6",
+    "priceCarton": 4600,
+    "pricePiece": 4650,
+    "sku": "SING-E ZQS8229W Super Bass Party Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Trolley speaker"
+    ]
+  },
+  {
+    "id": 260,
+    "name": "SU2 SZ-B001BT Portable Karaoke Wireless Speaker",
+    "slug": "su2-sz-b001bt-portable-karaoke-wireless-speaker",
+    "brand": "SV-2",
+    "category": "Speakers",
+    "description": "SU2 SZ-B001BT Portable Karaoke Wireless Speaker\n High-Power Output: Delivers up to 80W peak sound power with integrated EQ sound modes and deep bass tuning.\n Dual Wireless Microphones: Includes two matching handheld wireless microphones for dual-person karaoke, duet singing, and public speaking.\n Lighting & Top Controls: Top-mounted control panel with RGB ambient lighting strip, physical playback keys, mode switching, and volume controls.\n Ergonomic Build: Compact boombox-style body with a sturdy built-in top handle and side loops for an attachable shoulder carrying strap.\n Connectivity Options: Supports Bluetooth wireless streaming, USB flash drive, TF/MicroSD card, 3.5mm AUX input, and FM radio.\n Battery: High-capacity 8000mAh rechargeable lithium battery supporting up to 6–8 hours of playtime.\nDimensions & Weight\n Width: ~28.0 cm\n Height: ~20.0 cm (including handle)\n Depth/Thickness: ~14.0 cm\n Weight: ~2.5 kg – 3.0 kg (including microphones)",
+    "image": "/images/products/su2-sz-b001bt-portable-karaoke-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "12",
+    "priceCarton": 4200,
+    "pricePiece": 4250,
+    "sku": "SU2 SZ-B001BT Portable Karaoke Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Speaker"
+    ]
+  },
+  {
+    "id": 261,
+    "name": "LP-V60 Wireless Portable Speaker",
+    "slug": "lp-v60-wireless-portable-speaker",
+    "brand": "LP-V60",
+    "category": "Speakers",
+    "description": "LP V60 Wireless Portable Speaker\n Triple-Driver Aesthetic: Features three front circular speaker grills styled with vibrant green accent mesh ring detailing.\n Audio Performance: 8\\text{W} \\times 2 (16\\text{W} total output) stereo power tuned for clear voice reproduction and solid bass response (\"Good Bass\").\n Integrated Phone Stand: Built-in top groove designed to hold smartphones upright for hands-free media viewing.\n Multiple Inputs: Supports Bluetooth wireless streaming, FM radio tuning, USB flash drive, MicroSD/TF card playback, and AUX input.\n Portability: Overhead rigid carrying handle integrated directly into the upper chassis.\n Battery & Playtime: 1500mAh 3.7V rechargeable lithium battery offering 3–5 hours of continuous wireless playback.\nDimensions & Weight\n Width: ~25.0 cm\n Height: ~11.0 cm (including handle)\n Depth/Thickness: ~9.7 cm\n Weight: ~550 grams (0.55 kg)",
+    "image": "/images/products/lp-v60-wireless-portable-speaker.jpg",
+    "gallery": [],
+    "packSize": "30",
+    "priceCarton": 1200,
+    "pricePiece": 1250,
+    "sku": "LP V60 Wireless Portable Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Speaker"
+    ]
+  },
+  {
+    "id": 262,
+    "name": "B72 Wireless Speaker",
+    "slug": "b72-wireless-speaker",
+    "brand": "B72",
+    "category": "Speakers",
+    "description": "Bass Kult B72 Wireless Speaker\n\n\t•\tPortable Bluetooth wireless speaker, “Built for Sound” series\n\t•\tModel: B72\n\t•\tRugged handle design (orange grip) — easy carry\n\t•\tAmbient LED light strip (RGB glow effect visible around speaker body)\n\t•\tFabric-mesh speaker body, black finish\n\t•\tTagline: “Powerful Sound, Ready Anytime — Portable Wireless Bluetooth Speaker”\n\t•\tRetail box packaging, grey/black themed design with graffiti-style branding",
+    "image": "/images/products/b72-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "30",
+    "priceCarton": 1250,
+    "pricePiece": 1300,
+    "sku": "B72 Wireless Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Speaker"
+    ]
+  },
+  {
+    "id": 263,
+    "name": "Kisoni C80 speaker",
+    "slug": "kisoni-c80-speaker",
+    "brand": "Kisoni",
+    "category": "Speakers",
+    "description": "Kisoni C80 Computer Speaker\n Triple-Driver Aesthetic: Features three front circular speaker grills styled with vibrant green accent mesh ring detailing.\n Audio Performance: 8\\text{W} \\times 2 (16\\text{W} total output) stereo power tuned for clear voice reproduction and solid bass response (\"Good Bass\").\n Integrated Phone Stand: Built-in top groove designed to hold smartphones upright for hands-free media viewing.\n Multiple Inputs: Supports Bluetooth wireless streaming, FM radio tuning, USB flash drive, MicroSD/TF card playback, and AUX input.\n Portability: Overhead rigid carrying handle integrated directly into the upper chassis.\n Battery & Playtime: 1500mAh 3.7V rechargeable lithium battery offering 3–5 hours of continuous wireless playback.\nDimensions & Weight\n Width: ~25.0 cm\n Height: ~11.0 cm (including handle)\n Depth/Thickness: ~9.7 cm\n Weight: ~550 grams (0.55 kg)",
+    "image": "/images/products/kisoni-c80-speaker.jpg",
+    "gallery": [],
+    "packSize": "6",
+    "priceCarton": 2000,
+    "pricePiece": 2050,
+    "sku": "Kisoni C80 Computer Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Computer speaker"
+    ]
+  },
+  {
+    "id": 264,
+    "name": "Kisonli B3 Solar Car Wireless Bluetooth Speaker",
+    "slug": "kisonli-b3-solar-car-wireless-bluetooth-speaker",
+    "brand": "Kisoni",
+    "category": "Speakers",
+    "description": "Kisonli B3 Solar Car Wireless Bluetooth Speaker\nProduct Description\n Metallic SUV Styling: Designed to resemble a blue luxury SUV with detailed multi-spoke dark rims, tinted windows, and integrated front LED headlights that function as a flashlight or play indicator.\n Roof Solar Charging: Includes a roof-integrated solar panel that absorbs sunlight for convenient energy top-ups while outdoors.\n Multi-Format Playback: Supports Bluetooth wireless streaming, USB flash drives, MicroSD/TF cards, AUX inputs, and built-in FM radio via an extendable antenna.\n Portable Desktop Accent: Serves double duty as a full-range 10W speaker unit and a sleek desk showpiece.\nDimensions & Specs\n Product Dimensions: 26.25 cm × 9.9 cm × 9.5 cm (Length × Width × Height)\n Weight: ~700 g – 850 g\n Output Power: 10W (single high-output internal horn speaker)\n Battery Capacity: 1200 mAh rechargeable battery (2–5 hours playtime)\n Charging Interface: Solar power charging panel + DC 7.5V / USB charging cable",
+    "image": "/images/products/kisonli-b3-solar-car-wireless-bluetooth-speaker.jpg",
+    "gallery": [],
+    "packSize": "30",
+    "priceCarton": 1025,
+    "pricePiece": 1050,
+    "sku": "Kisonli B3 Solar Car Wireless Bluetooth Speaker",
+    "featured": false,
+    "available": true,
+    "tags": []
+  },
+  {
+    "id": 265,
+    "name": "LP V115 SUN Outdoor Wireless Solar Speaker",
+    "slug": "lp-v115-sun-outdoor-wireless-solar-speaker",
+    "brand": "LP V115",
+    "category": "Speakers",
+    "description": "LP V115 SUN Outdoor Wireless Solar Speaker\nProduct Description\n Solar-Powered Charging: Built-in top solar panel continuously recharges the internal battery during outdoor sunlight exposure.\n Integrated Phone Holder Groove: Top-slot design securely holds a smartphone upright for hands-free video viewing while streaming audio.\n Emergency Side Flashlight: Features a high-power side LED beam, transforming the speaker into a handy torch light for camping and night travel.\n Multi-Source Audio: Supports Bluetooth 5.0 wireless streaming, USB flash drives, MicroSD/TF cards, and FM radio.\n Rugged & Portable Build: Enclosed in a textured tactical casing with corner bumpers and a convenient wrist carry strap.\nDimensions & Specs\n Product Dimensions: ~17 cm × 7.5 cm × 8 cm (Length × Width × Height)\n Packaging Dimensions: ~20 cm × 8.5 cm × 9 cm\n Total Weight: ~400 g – 500 g\n Output Power: 8W RMS high-efficiency driver\n Battery: Rechargeable lithium-ion battery (3–6 hours continuous playback)\n Connectivity & Charging: Solar panel input, Micro-USB charging port, USB port, TF Card slot, 3.5 mm AUX",
+    "image": "/images/products/lp-v115-sun-outdoor-wireless-solar-speaker.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 725,
+    "pricePiece": 750,
+    "sku": "LP V115 SUN Outdoor Wireless Solar Speaker",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "Portable speaker radio fm"
+    ]
+  },
+  {
+    "id": 266,
+    "name": "J-iPOK P618 Super Bass Wireless Speaker",
+    "slug": "j-ipok-p618-super-bass-wireless-speaker",
+    "brand": "J-iPOK P618 Super Bass Wireless Speaker",
+    "category": "Speakers",
+    "description": "J-iPOK P618 Super Bass Wireless Speaker\nProduct Description\n Integrated Smartphone Holder: Built-in top groove docks your smartphone upright for comfortable hands-free video and movie streaming.\n Heavy-Duty 20W Output: Features a powerful 4-inch speaker driver delivering 20W of volume with rich, enhanced bass response.\n Rugged Rubberized Armor: Wrapped in a durable black casing with high-impact orange corner bumpers for outdoor durability and grip.\n Extended 1800 mAh Battery: Built-in high-capacity rechargeable battery provides hours of continuous playback on a single charge.\n Multi-Input Versatility: Supports Bluetooth wireless connectivity, USB flash drives, TF/MicroSD cards, auxiliary line-in, and FM radio with an extendable antenna.\nDimensions & Specs\n Product Dimensions: ~22 cm × 11 cm × 12 cm (Length × Width × Height)\n Packaging Dimensions: ~24 cm × 12.5 cm × 13.5 cm\n Total Weight: ~750 g – 900 g\n Speaker Driver Size: 4 inches\n Power Output: 20W Peak Output\n Battery Capacity: 1800 mAh rechargeable lithium-ion battery (4–6 hours playback)\n Connectivity Options: Bluetooth 5.0, USB Port, MicroSD/TF Slot, FM Radio Antenna, Micro-USB Charging Port",
+    "image": "/images/products/j-ipok-p618-super-bass-wireless-speaker.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 1025,
+    "pricePiece": 1037,
+    "sku": "J-iPOK P618 Super Bass Wireless Speaker",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "Portable speaker Radio fm"
+    ]
+  },
+  {
+    "id": 267,
+    "name": "WSJAR E-8808 Portable Bluetooth Karaoke Speaker",
+    "slug": "wsjar-e-8808-portable-bluetooth-karaoke-speaker",
+    "brand": "WSJAR E-8808 Portable Bluetooth Karaoke Speaker",
+    "category": "Speakers",
+    "description": "WSJAR E-8808 Portable Bluetooth Karaoke Speaker\nProduct Description\n Vibrant RGB Lighting: Features dynamic, multi-color LED lights built into the main speaker grille and lower base strip for an engaging visual atmosphere.\n Included Karaoke Microphone: Packaged with a dedicated wireless handheld microphone for instant sing-along events, public announcements, and karaoke sessions.\n High-Impact 8.5-Inch Driver: Equipped with an 8.5-inch woofer and high-frequency horn tweeter to project clear vocals and solid bass response.\n Top Control Panel: Integrated top-mounted interface featuring easy-to-use volume knobs, playback buttons, microphone inputs, and status indicators.\n Multi-Format Playback: Supports Bluetooth wireless audio streaming, USB flash drive input, MicroSD/TF cards, and auxiliary line-in connections.\n Integrated Handle: Molded top carry handle makes it easy to lift and transport anywhere.\nDimensions & Specs\n Product Dimensions: ~24 cm × 20 cm × 38 cm (Length × Width × Height)\n Packaging Dimensions: ~26 cm × 22 cm × 40 cm\n Total Weight: ~2.2 kg – 2.8 kg\n Speaker Woofer Size: 8.5 inches\n Power Output: 8W RMS (High-Efficiency Loudspeaker Output)\n Battery: Integrated rechargeable lithium-ion battery (3–5 hours continuous playback)\n Connectivity: Bluetooth 5.0, USB Port, MicroSD/TF Slot, 6.35 mm Microphone Jack, AUX Input, Micro-USB Charging Port",
+    "image": "/images/products/wsjar-e-8808-portable-bluetooth-karaoke-speaker.jpg",
+    "gallery": [],
+    "packSize": "8",
+    "priceCarton": 2400,
+    "pricePiece": 2400,
+    "sku": "WSJAR E-8808 Portable Bluetooth Karaoke Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Trolley speaker"
+    ]
+  },
+  {
+    "id": 268,
+    "name": "WSJAR E-8809 Hi-Fi Loudspeaker & Wireless Microphone Set",
+    "slug": "wsjar-e-8809-hi-fi-loudspeaker-and-wireless-microphone-set",
+    "brand": "WSJAR E-8809",
+    "category": "Speakers",
+    "description": "WSJAR E-8809 Hi-Fi Loudspeaker & Wireless Microphone Set\nProduct Description\n Dual Light Ring Grille: Features stylized LED illumination encircling the center tweeter and lower woofer section to enhance visual ambiance.\n Handheld Wireless Microphone: Comes paired with a wireless mic for effortless karaoke, speeches, announcements, and performance hosting.\n High-Clarity Hi-Fi Audio: Driven by an 8.5-inch woofer to deliver punchy bass, clear vocals, and balanced dynamic range.\n Top-Facing Control Panel: Easily adjust volume, track selection, mode switching, and mic levels directly on the top interface.\n Multiple Playback Options: Stream music wirelessly via Bluetooth, or connect through USB flash drives, TF/MicroSD cards, and AUX inputs.\n Portable Form Factor: Designed with an integrated top carry handle for easy grab-and-go convenience.\nDimensions & Specs\n Product Dimensions: ~24 cm × 20 cm × 38 cm (Length × Width × Height)\n Packaging Dimensions: ~26 cm × 22 cm × 40 cm\n Total Weight: ~2.3 kg – 2.9 kg\n Speaker Woofer Size: 8.5 inches\n Power Output: 8W RMS\n Battery: Integrated rechargeable lithium-ion battery (3–5 hours playtime)\n Connectivity: Bluetooth 5.0, USB input, MicroSD/TF slot, 6.35 mm Microphone Jack, AUX Input, Micro-USB Charging Port",
+    "image": "/images/products/wsjar-e-8809-hi-fi-loudspeaker-and-wireless-microphone-set.jpg",
+    "gallery": [],
+    "packSize": "8",
+    "priceCarton": 2400,
+    "pricePiece": 2450,
+    "sku": "WSJAR E-8809 Hi-Fi Loudspeaker & Wireless Microphone Set",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Trolley speaker"
+    ]
+  },
+  {
+    "id": 269,
+    "name": "J-iPOK P617",
+    "slug": "j-ipok-p617",
+    "brand": "",
+    "category": "Speakers",
+    "description": "Product Type: Portable multi-functional solar speaker and outdoor lantern/floodlight.\n Key Features:\n Built-in solar panel for eco-friendly charging.\n Integrated bright LED flashlight/floodlight on the side.\n 8W powerful speaker with a built-in microphone.\n 1200 mAh rechargeable battery.\n Wireless/Bluetooth connectivity, FM radio, and USB/TF card playback support.\n Dimensions: Specific physical measurements (height, width, and depth) are not listed on the product packaging or visible components shown in the sources.",
+    "image": "/images/products/j-ipok-p617.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 825,
+    "pricePiece": 850,
+    "sku": "J-iPOK P617",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Portable speaker"
+    ]
+  },
+  {
+    "id": 270,
+    "name": "Kisonli K27 Portable Wireless Bluetooth Speaker",
+    "slug": "kisonli-k27-portable-wireless-bluetooth-speaker",
+    "brand": "Kisonli K27",
+    "category": "Speakers",
+    "description": "Kisonli K27 Portable Wireless Bluetooth Speaker\n\nProduct Description:\nThe Kisonli K27 Portable Wireless Speaker is a stylish and powerful speaker designed for an enhanced music experience. Its compact cylindrical design makes it easy to place and carry, while the built-in handle provides added portability. The speaker features an attractive modern design with colorful lighting effects, making it suitable for both indoor and outdoor entertainment.\n\nWith its wireless connectivity and easy-to-use control buttons, the K27 is ideal for enjoying music at home, during parties, gatherings, and outdoor activities.\n\nKey Features:\n\n* Portable and stylish design\n* Wireless connectivity\n* Powerful sound and bass performance\n* RGB-style colorful lighting effect\n* Easy-access control buttons\n* Built-in carrying handle\n* Suitable for home, parties, travel, and outdoor use\n\nApproximate Product Dimensions:\n\n* Length: 14 cm\n* Width: 14 cm\n* Height: 20 cm",
+    "image": "/images/products/kisonli-k27-portable-wireless-bluetooth-speaker.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 990,
+    "pricePiece": 1000,
+    "sku": "Kisonli K27 Portable Wireless Bluetooth Speaker",
+    "featured": false,
+    "available": true,
+    "tags": []
+  },
+  {
+    "id": 271,
+    "name": "Kisonli T-004 USB Computer Speaker",
+    "slug": "kisonli-x9bt-usb-gaming-speaker",
+    "brand": "Kisonli X9BT USB Gaming Speaker",
+    "category": "Speakers",
+    "description": "Kisonli X9BT USB Gaming Speaker\n\nThe Kisonli X9BT is a stylish and compact speaker designed for music, gaming, and everyday entertainment. Featuring an attractive RGB colorful light effect, it adds a modern and vibrant look to your setup.\n\nIts compact design makes it ideal for use with PCs, laptops, gaming setups, and desks. The speaker provides clear audio for music, videos, movies, and gaming while maintaining a sleek and space-saving design.\n\nKey Features:\n\n* Stylish and compact design\n* RGB colorful lighting effect\n* Clear and enjoyable sound\n* USB connectivity\n* Suitable for gaming and multimedia\n* Ideal for PC and laptop setups\n* Modern black premium finish\n* Perfect for home and office use",
+    "image": "/images/products/kisonli-x9bt-usb-gaming-speaker.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 825,
+    "pricePiece": 850,
+    "sku": "Kisonli X9BT USB Gaming Speaker",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Computer speaker"
+    ]
+  },
+  {
+    "id": 272,
+    "name": "Kisonli K21 Professional",
+    "slug": "kisonli-k21-professional",
+    "brand": "Kisonli K21 Professional",
+    "category": "Speakers",
+    "description": "Kisonli K21 Professional Product Specification\n Product Nomenclature: Kisonli K21 High-Performance Portable Bluetooth Speaker\n Acoustic Profile: Engineered 40W audio architecture delivering robust dual-bass output and immersive 360-degree sound dispersion\n Physical Dimensions (L × W × H): 18.0\\text{ cm} \\times 9.0\\text{ cm} \\times 9.0\\text{ cm}\n Retail Packaging Dimensions (L × W × H): 22.0\\text{ cm} \\times 11.0\\text{ cm} \\times 13.0\\text{ cm}\n Structural Design: Ergonomic cylindrical form factor featuring integrated utility lanyards, tactile control interface, and dynamic RGB ambient illumination\n Ingress Protection: IPX6 water-resistant certification designed for mobile and outdoor environments",
+    "image": "/images/products/kisonli-k21-professional.jpg",
+    "gallery": [],
+    "packSize": "12",
+    "priceCarton": 3400,
+    "pricePiece": 3450,
+    "sku": "Kisonli K21 Professional",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "K21 Speaker"
+    ]
+  },
+  {
+    "id": 273,
+    "name": "Power Socket J08",
+    "slug": "power-socket-j08",
+    "brand": "Power Socket J08",
+    "category": "Power & Multiplugs",
+    "description": "Power Socket J08 Specification Overview\n Product Nomenclature: J08 Multi-Functional Power Socket and Surge Protector Extension Bar\n Electrical Capacity: Rated for up to 2500W power delivery with 2.1A maximum USB charging output\n Interface & Outlets: Features 6 universal international power sockets alongside integrated high-speed USB ports\n Safety & Control: Built with flame-retardant outer casing materials and an independent master power switch",
+    "image": "/images/products/power-socket-j08.jpg",
+    "gallery": [],
+    "packSize": "Power Socket J08",
+    "priceCarton": 650,
+    "pricePiece": 625,
+    "sku": "Power Socket J08",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplug"
+    ]
+  },
+  {
+    "id": 274,
+    "name": "2500W Defender Series Power Socket",
+    "slug": "2500w-defender-series-power-socket",
+    "brand": "2500W Defender Series Power Socket",
+    "category": "Power & Multiplugs",
+    "description": "2500W Defender Series Power Socket Specification Overview\n Product Nomenclature: 2500W Defender Series Multi-Outlet Power Strip with Overload Protection\n Electrical Capacity: Rated for up to 2500W power delivery designed to handle heavy-duty household and office electronics\n Safety & Protection Features: Equipped with built-in overload protection mechanisms and a high-flame retardant outer shell structure\n Outlet Configuration: Features 4 individual universal sockets with independent side-mounted master safety switches and a 2\\text{-meter} power cord layout\n2500W Defender Series Power Socket Physical Dimensions\n Retail Packaging Dimensions (L × W × H): Approximately 35.0\\text{ cm} \\times 12.0\\text{ cm} \\times 4.5\\text{ cm} (per individual blister pack)",
+    "image": "/images/products/2500w-defender-series-power-socket.jpg",
+    "gallery": [],
+    "packSize": "48",
+    "priceCarton": 440,
+    "pricePiece": 450,
+    "sku": "2500W Defender Series Power Socket",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplugs"
+    ]
+  },
+  {
+    "id": 275,
+    "name": "Heinz Defender Series Model HZ-B214 Power Socket",
+    "slug": "heinz-defender-series-model-hz-b214-power-socket",
+    "brand": "Heinz Defender Series Model HZ-B214 Power Socket",
+    "category": "Power & Multiplugs",
+    "description": "Heinz Defender Series Model HZ-B214 Power Socket Specification Overview\n Product Nomenclature: Heinz Defender Series (Model: HZ-B214, No.: 214) 4-Outlet Universal Power Strip\n Electrical Capacity: Rated for a maximum of 2500W power delivery, 10A current, and 250V voltage\n Safety & Protection Features: Includes built-in power protection, 750°C high flame-retardant casing, and independent switches for each outlet\n Outlet Configuration: Features 4 universal outlets with individual toggle switches and an integrated 2\\text{-meter} power cord",
+    "image": "/images/products/heinz-defender-series-model-hz-b214-power-socket.jpg",
+    "gallery": [],
+    "packSize": "48",
+    "priceCarton": 340,
+    "pricePiece": 350,
+    "sku": "Heinz Defender Series Model HZ-B214 Power Socket",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Heinz Defender Series Model HZ-B214 Power Socket"
+    ]
+  },
+  {
+    "id": 276,
+    "name": "Powerking Socket Extension Model RO.5IN4PD",
+    "slug": "powerking-socket-extension-model-ro-5in4pd",
+    "brand": "Powerking Socket Extension Model RO.5IN4PD",
+    "category": "Power & Multiplugs",
+    "description": "Powerking Socket Extension Model RO.5IN4PD Specification Overview\n Product Nomenclature: Powerking Electrical Socket Extension (Model: RO.5IN4PD) with Wood-Grain Finish\n Electrical Capacity: Rated for a maximum of 10A current and 250V voltage capacity\n Interface & Outlets: Features multiple universal international power sockets alongside built-in high-speed charging USB ports and a master power control switch\n Design & Build Features: Premium wood-grain aesthetic styling combined with a durable protective hanging retail pouch packaging",
+    "image": "/images/products/powerking-socket-extension-model-ro-5in4pd.jpg",
+    "gallery": [],
+    "packSize": "48",
+    "priceCarton": 370,
+    "pricePiece": 375,
+    "sku": "Powerking Socket Extension Model RO.5IN4PD",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplugs"
+    ]
+  },
+  {
+    "id": 277,
+    "name": "Powerking Colorful Series Socket Extension 3M 5M 9M",
+    "slug": "powerking-colorful-series-socket-extension",
+    "brand": "Powerking Colorful Series Socket Extension",
+    "category": "Power & Multiplugs",
+    "description": "Powerking Colorful Series Socket Extension Specification Overview\n Product Nomenclature: Powerking Colorful Series Socket Extension (Model variants available in 3\\text{m}, 5\\text{m}, and 9\\text{m} cord lengths)\n Electrical Capacity: Rated for a maximum of 10A current and 250W (up to 2500W equivalent power handling depending on configuration)\n Interface & Outlets: Features multiple universal international power sockets alongside individual corresponding round indicator/control switches\n Safety & Build Features: Constructed with genuine materials featuring fine craftsmanship, flame-retardant housing properties, and packaged in a clear hanging retail polybag\nPowerking Colorful Series Socket Extension Physical Dimensions\n Retail Packaging Dimensions (L × W × H): Approximately 32.0\\text{ cm} \\times 12.0\\text{ cm} \\times 4.5\\text{ cm} (varies based on chosen cable length option)",
+    "image": "/images/products/powerking-colorful-series-socket-extension.jpg",
+    "gallery": [],
+    "packSize": "48",
+    "priceCarton": 370,
+    "pricePiece": 370,
+    "sku": "Powerking Colorful Series Socket Extension",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "MULTIPLUGS"
+    ]
+  },
+  {
+    "id": 278,
+    "name": "314 Powerking Colorful Series Socket Extension 3M 5M 9M",
+    "slug": "314-powerking-colorful-series-socket-extension",
+    "brand": "314 Powerking Colorful Series Socket Extension",
+    "category": "Power & Multiplugs",
+    "description": "Powerking Colorful Series Socket Extension Specification Overview\n Product Nomenclature: Powerking Colorful Series Socket Extension (Model variants available in 3\\text{m}, 5\\text{m}, and 9\\text{m} cord lengths)\n Electrical Capacity: Rated for a maximum of 10A current and 250W (up to 2500W equivalent power handling depending on configuration)\n Interface & Outlets: Features multiple universal international power sockets alongside individual corresponding round indicator/control switches\n Safety & Build Features: Constructed with genuine materials featuring fine craftsmanship, flame-retardant housing properties, and packaged in a clear hanging retail polybag\nPowerking Colorful Series Socket Extension Physical Dimensions\n Retail Packaging Dimensions (L × W × H): Approximately 32.0\\text{ cm} \\times 12.0\\text{ cm} \\times 4.5\\text{ cm} (varies based on chosen cable length option)",
+    "image": "/images/products/314-powerking-colorful-series-socket-extension.jpg",
+    "gallery": [],
+    "packSize": "60",
+    "priceCarton": 290,
+    "pricePiece": 290,
+    "sku": "314 Powerking Colorful Series Socket Extension",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "MULTIPLUGS"
+    ]
+  },
+  {
+    "id": 279,
+    "name": "N57 Heavy Powerking Colorful Series Socket Extension",
+    "slug": "n57-heavy-powerking-colorful-series-socket-extension",
+    "brand": "N57 Heavy Powerking Colorful Series Socket Extension",
+    "category": "Power & Multiplugs",
+    "description": "N57 Heavy Powerking Colorful Series Socket Extension Specification Overview\n Product Nomenclature: Powerking Colorful Series Socket Extension (Model varianT available in 3\\text{m}, 5\\text{m}, and 9\\text{m} cord lengths)\n Electrical Capacity: Rated for a maximum of 10A current and 250W (up to 2500W equivalent power handling depending on configuration)\n Interface & Outlets: Features multiple universal international power sockets alongside individual corresponding round indicator/control switches\n Safety & Build Features: Constructed with genuine materials featuring fine craftsmanship, flame-retardant housing properties, and packaged in a clear hanging retail polybag\nPowerking Colorful Series Socket Extension Physical Dimensions\n Retail Packaging Dimensions (L × W × H): Approximately 32.0\\text{ cm} \\times 12.0\\text{ cm} \\times 4.5\\text{ cm} (varies based on chosen cable length option)",
+    "image": "/images/products/n57-heavy-powerking-colorful-series-socket-extension.jpg",
+    "gallery": [],
+    "packSize": "40",
+    "priceCarton": 775,
+    "pricePiece": 762,
+    "sku": "N57 Heavy Powerking Colorful Series Socket Extension",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplugs"
     ]
   }
 ]
