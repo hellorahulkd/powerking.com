@@ -194,3 +194,31 @@ textarea.af__input { line-height: 1.55; resize: vertical; }
   .bulk__row { flex-wrap: wrap; }
   .bulk__thumb { width: 60px; height: 60px; }
 }
+
+/* --- reading the box --- */
+.bulk__vision {
+  margin-bottom: 1.25rem; padding: .75rem .9rem;
+  background: var(--bg-alt); border: 1px solid var(--border);
+}
+.bulk__vision > summary {
+  cursor: pointer; font-weight: 600; font-size: var(--step--1);
+}
+.bulk__vision .af__row { margin-top: .6rem; }
+.af__actions-inline {
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  margin: .6rem 0 0;
+}
+.af__hint--inline { margin: 0; }
+.bulk__shot { display: grid; gap: .4rem; justify-items: center; }
+.bulk__read { white-space: nowrap; }
+/* A value that came off a photograph and has not been checked by a person.
+   Marked rather than merely coloured, so it survives a re-render. */
+.af__input.is-suggested {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--volt-100, #FBF3C4) 45%, var(--bg));
+}
+.bulk__note {
+  margin: 0; font-size: .72rem; color: #6B5A00;
+  background: var(--volt-100, #FBF3C4); border: 1px solid #EFE4B8;
+  padding: .3rem .5rem;
+}

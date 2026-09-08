@@ -687,6 +687,253 @@ console.log('\nAdding many products at once');
     done.rowsLeft === 0 && /2 products saved/.test(done.msg), JSON.stringify(done));
 }
 
+console.log('\nReading what is printed on the box');
+{
+  // The vision provider is stubbed the same way GitHub is: the panel's own
+  // fetch is intercepted, so these assert the exact request sent to the model
+  // and the exact handling of what comes back — with no key and no network.
+  await page.eval(`
+    window.__vision = { calls: [], reply: null, status: 200 };
+    const realFetch = window.fetch;
+    window.fetch = function (url, opts) {
+      const u = String(url);
+      if (/anthropic|googleapis|openai/.test(u)) {
+        window.__vision.calls.push({ url: u, opts: opts, body: JSON.parse(opts.body) });
+        return Promise.resolve({
+          ok: window.__vision.status < 300,
+          status: window.__vision.status,
+          json: () => Promise.resolve(window.__vision.reply),
+        });
+      }
+      return realFetch(url, opts);
+    };
+    return 1;
+  `);
+
+  const off = await page.eval(`
+    document.getElementById('edit-back') && document.getElementById('edit-back').click();
+    document.getElementById('bulk-open').click();
+    return {
+      summary: document.getElementById('vision-summary').textContent,
+      readButtonHidden: document.getElementById('f-read').hidden,
+    };
+  `);
+  check('with no key set up, the panel says so and offers no read button',
+    /not set up/.test(off.summary) && off.readButtonHidden === true, JSON.stringify(off));
+
+  const saved = await page.eval(`
+    document.getElementById('vision-provider').value = 'anthropic';
+    document.getElementById('vision-provider').dispatchEvent(new Event('change', { bubbles: true }));
+    const model = document.getElementById('vision-model').value;
+    document.getElementById('vision-key').value = 'test-key-123';
+    document.getElementById('vision-save').click();
+    return {
+      model: model,
+      summary: document.getElementById('vision-summary').textContent,
+      // The key must be in this browser and nowhere else.
+      stored: localStorage.getItem('pk-vision-key'),
+      keyFieldCleared: document.getElementById('vision-key').value,
+    };
+  `);
+  check('picking a provider fills in a current model id by default',
+    saved.model === 'claude-opus-5', saved.model);
+  check('saving a key switches reading on', /on, using Claude/.test(saved.summary), saved.summary);
+  check('the key is kept in this browser only',
+    saved.stored === 'test-key-123' && saved.keyFieldCleared === '', JSON.stringify(saved));
+
+  const src = await (await fetch(`${BASE}/assets/admin.js`)).text();
+  check('no API key of any kind is in the shipped script',
+    !/sk-ant-[A-Za-z0-9]|sk-proj-[A-Za-z0-9]|AIza[0-9A-Za-z_-]{10}/.test(src));
+
+  // Dropping photos with reading switched on.
+  const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+  const read = await page.eval(`
+    window.__vision.reply = { content: [{ type: 'text', text: JSON.stringify({
+      name: 'Kisonli K33 Portable Speaker',
+      brand: 'Kisonli',
+      sku: 'K-33',
+      packSize: '40 pcs per carton',
+      description: 'Bluetooth 5.3 portable speaker, 1200mAh battery, 5W output, TF card and AUX input as printed on the carton.',
+    }) }] };
+    const bytes = Uint8Array.from(atob(${JSON.stringify(png)}), c => c.charCodeAt(0));
+    const dt = new DataTransfer();
+    dt.items.add(new File([bytes], 'IMG_2201.png', { type: 'image/png' }));
+    document.getElementById('bulk-drop').dispatchEvent(
+      new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    return new Promise(function (done) {
+      setTimeout(function () {
+        const call = window.__vision.calls[0] || {};
+        const row = document.querySelector('.bulk__row');
+        done({
+          url: call.url,
+          headers: call.opts ? call.opts.headers : {},
+          model: call.body ? call.body.model : '',
+          prompt: call.body ? call.body.messages[0].content.find(c => c.type === 'text').text : '',
+          imageBytes: call.body
+            ? call.body.messages[0].content.find(c => c.type === 'image').source.data.length : 0,
+          tileBytes: row.querySelector('.bulk__thumb').src.length,
+          name: row.querySelector('[data-bk="name"]').value,
+          brand: row.querySelector('[data-bk="brand"]').value,
+          sku: row.querySelector('[data-bk="sku"]').value,
+          packSize: row.querySelector('[data-bk="packSize"]').value,
+          description: row.querySelector('[data-bk="description"]').value.slice(0, 30),
+          marked: [...row.querySelectorAll('[data-suggested]')].map(e => e.getAttribute('data-suggested')).sort(),
+          note: (row.querySelector('.bulk__note') || {}).textContent || '',
+        });
+      }, 1200);
+    });
+  `);
+  check('the photo goes to the provider the key was saved for',
+    /api\.anthropic\.com/.test(read.url), read.url);
+  check('the browser-access header Anthropic requires is sent',
+    read.headers['anthropic-dangerous-direct-browser-access'] === 'true',
+    JSON.stringify(read.headers));
+  check('the key travels in a header, never in the URL',
+    read.headers['x-api-key'] === 'test-key-123' && !read.url.includes('test-key-123'),
+    read.url);
+
+  // §36 lives or dies on this prompt.
+  check('the prompt forbids guessing and demands null for anything illegible',
+    /Never guess/.test(read.prompt) && /null/.test(read.prompt)
+    && /does not say it/.test(read.prompt), read.prompt.slice(0, 120));
+  check('the prompt forbids using outside knowledge of the product',
+    /know\s+about this product from elsewhere/.test(read.prompt), read.prompt.slice(0, 200));
+
+  // A 600x600 tile loses the small print, so the reader gets its own, larger
+  // rendering. Measured in pixels on a photo-shaped image, because on the 1x1
+  // used above both renderings are dominated by the tile's white ground.
+  const sized = await page.eval(`
+    const c = document.createElement('canvas');
+    c.width = 1200; c.height = 800;
+    const g = c.getContext('2d');
+    g.fillStyle = '#ccc'; g.fillRect(0, 0, 1200, 800);
+    g.fillStyle = '#000'; g.font = '40px sans-serif';
+    g.fillText('MODEL K-33', 60, 300);
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    const dt = new DataTransfer();
+    dt.items.add(new File([blob], 'carton.png', { type: 'image/png' }));
+    document.getElementById('bulk-drop').dispatchEvent(
+      new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    await new Promise(r => setTimeout(r, 1200));
+
+    const call = window.__vision.calls[window.__vision.calls.length - 1];
+    const sent = call.body.messages[0].content.find(c => c.type === 'image').source.data;
+    const rows = document.querySelectorAll('.bulk__row');
+    const tileSrc = rows[rows.length - 1].querySelector('.bulk__thumb').src;
+    const measure = (src) => new Promise(res => {
+      const im = new Image();
+      im.onload = () => res({ w: im.width, h: im.height });
+      im.src = src;
+    });
+    return {
+      sent: await measure('data:image/jpeg;base64,' + sent),
+      tile: await measure(tileSrc),
+    };
+  `);
+  check('the catalogue tile is still the square 600px one',
+    sized.tile.w === 600 && sized.tile.h === 600, JSON.stringify(sized.tile));
+  check('but the model is sent a bigger image, at the photo\'s own shape',
+    sized.sent.w === 1200 && sized.sent.h === 800, JSON.stringify(sized.sent));
+
+  check('what was legible is filled in', read.name === 'Kisonli K33 Portable Speaker'
+    && read.brand === 'Kisonli' && read.sku === 'K-33'
+    && read.packSize === '40 pcs per carton', JSON.stringify(read));
+  check('every filled field is marked as unchecked',
+    read.marked.join(',') === 'brand,description,name,packSize,sku', read.marked.join(','));
+  check('and the row says to check it against the box',
+    /Check it against the box/.test(read.note), read.note);
+
+  // The other half of §36: a model that cannot read the box must say nothing.
+  const blank = await page.eval(`
+    window.__vision.reply = { content: [{ type: 'text', text: JSON.stringify({
+      name: 'Portable Bluetooth Speaker',
+      brand: null, sku: 'N/A', packSize: 'not visible', description: null,
+    }) }] };
+    document.querySelectorAll('[data-bk-read]')[0].click();
+    return new Promise(function (done) {
+      setTimeout(function () {
+        const row = document.querySelector('.bulk__row');
+        done({
+          brand: row.querySelector('[data-bk="brand"]').value,
+          sku: row.querySelector('[data-bk="sku"]').value,
+          packSize: row.querySelector('[data-bk="packSize"]').value,
+        });
+      }, 900);
+    });
+  `);
+  check('null, "N/A" and "not visible" are all left blank, never written in',
+    blank.brand === 'Kisonli' && blank.sku === 'K-33' && blank.packSize === '40 pcs per carton',
+    JSON.stringify(blank));
+
+  const errored = await page.eval(`
+    window.__vision.status = 401;
+    window.__vision.reply = { error: { message: 'invalid x-api-key' } };
+    document.querySelectorAll('[data-bk-read]')[0].click();
+    return new Promise(function (done) {
+      setTimeout(function () { done(document.getElementById('bulk-msg').textContent); }, 900);
+    });
+  `);
+  check('a refused key is reported in words, not swallowed',
+    /refused/.test(errored) && /invalid x-api-key/.test(errored), errored);
+
+  // The other two providers, so a wrong URL or a key in the query string
+  // cannot ship unnoticed.
+  const others = await page.eval(`
+    const out = {};
+    for (const provider of ['gemini', 'openai']) {
+      localStorage.setItem('pk-vision-provider', provider);
+      localStorage.setItem('pk-vision-model', '');
+      localStorage.setItem('pk-vision-key', 'KEY-' + provider);
+      window.__vision.calls.length = 0;
+      window.__vision.reply = provider === 'gemini'
+        ? { candidates: [{ content: { parts: [{ text: '{\"sku\":\"G-1\"}' }] } }] }
+        : { choices: [{ message: { content: '{\"sku\":\"O-1\"}' } }] };
+      document.querySelectorAll('[data-bk-read]')[0].click();
+      await new Promise(r => setTimeout(r, 900));
+      const call = window.__vision.calls[0] || {};
+      out[provider] = {
+        url: call.url,
+        headers: call.opts ? call.opts.headers : {},
+        model: call.body ? call.body.model : '',
+        keyInUrl: (call.url || '').includes('KEY-' + provider),
+      };
+    }
+    return out;
+  `);
+  check('Gemini is called on its own endpoint with the key in a header',
+    /generativelanguage\.googleapis\.com/.test(others.gemini.url)
+    && others.gemini.headers['x-goog-api-key'] === 'KEY-gemini'
+    && others.gemini.keyInUrl === false,
+    JSON.stringify(others.gemini));
+  check('OpenAI is called with a bearer token, not a key in the URL',
+    /api\.openai\.com/.test(others.openai.url)
+    && others.openai.headers.Authorization === 'Bearer KEY-openai'
+    && others.openai.keyInUrl === false,
+    JSON.stringify(others.openai));
+
+  const forgotten = await page.eval(`
+    window.__vision.status = 200;
+    document.getElementById('vision-forget').click();
+    return {
+      stored: localStorage.getItem('pk-vision-key'),
+      provider: localStorage.getItem('pk-vision-provider'),
+      summary: document.getElementById('vision-summary').textContent,
+      readButtons: document.querySelectorAll('[data-bk-read]').length,
+    };
+  `);
+  check('"Forget" deletes the key and switches reading back off',
+    forgotten.stored === null && forgotten.provider === null
+    && /not set up/.test(forgotten.summary) && forgotten.readButtons === 0,
+    JSON.stringify(forgotten));
+
+  await page.eval(`
+    state = null;
+    document.getElementById('bulk-clear') && (window.confirm = () => true);
+    document.getElementById('bulk-clear').click();
+    return 1;
+  `);
+}
+
 console.log('\nSigning out');
 {
   const r = await page.eval(`

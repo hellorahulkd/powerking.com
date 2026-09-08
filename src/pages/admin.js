@@ -158,6 +158,42 @@ export function adminPage() {
       committed until every row is complete.
     </p>
 
+    <!-- Reading the box. The key is the editor's own and lives in their own
+         browser, exactly like the GitHub token — never in this repository. -->
+    <details class="bulk__vision" id="vision-setup">
+      <summary id="vision-summary">Fill in from the photos — not set up</summary>
+      <p class="af__hint">
+        With a key from one of these, dropping photos in fills the name, brand,
+        model and the specification text <strong>printed on the box</strong>.
+        Anything not legible on the packaging is left blank for you to type.
+        Everything it fills is marked and needs checking — it reads, it does
+        not know the product.
+      </p>
+      <p class="af__hint">
+        The key is stored in this browser only, next to your GitHub token. It
+        is never committed, and you can clear it here at any time.
+      </p>
+      <div class="af__row">
+        <label class="sr-only" for="vision-provider">Provider</label>
+        <select class="af__input" id="vision-provider">
+          <option value="">Off</option>
+          <option value="gemini">Google Gemini</option>
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="openai">OpenAI</option>
+        </select>
+        <label class="sr-only" for="vision-model">Model</label>
+        <input class="af__input" id="vision-model" placeholder="Model" autocomplete="off">
+      </div>
+      <div class="af__row">
+        <label class="sr-only" for="vision-key">API key</label>
+        <input class="af__input" id="vision-key" type="password"
+               placeholder="Paste the API key" autocomplete="off">
+        <button type="button" class="btn btn--primary btn--sm" id="vision-save">Save</button>
+        <button type="button" class="btn btn--ghost btn--sm" id="vision-forget">Forget</button>
+      </div>
+      <p class="admin__msg" id="vision-msg" role="status" aria-live="polite"></p>
+    </details>
+
     <div class="bulk__pick">
       <label class="admin__photo admin__photo--wide" id="bulk-drop" for="bulk-files">
         <span class="admin__photo-empty">Click, or drop photos here</span>
@@ -213,6 +249,10 @@ export function adminPage() {
           </label>
           <input class="af__file" id="f-image" type="file"
                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
+          <p class="af__actions-inline">
+            <button type="button" class="btn btn--ghost btn--sm" id="f-read" hidden>Read the box</button>
+            <span class="af__hint af__hint--inline" id="f-read-note"></span>
+          </p>
           <p class="af__hint">
             Resized to a 600&nbsp;×&nbsp;600 tile on white to match the rest of the
             catalogue, so a photo straight off a phone is fine. Uploaded when you save.

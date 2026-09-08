@@ -38,7 +38,8 @@
     products: null, productsSha: '',
     categories: null, categoriesSha: '',
     editing: null,          // the product being edited, or null for a new one
-    pendingImage: null,     // { base64, name } waiting to be uploaded on save
+    pendingImage: null,     // base64 tile waiting to be uploaded on save
+    pendingReadable: null,  // a larger rendering of the same photo, for reading
     pendingCategories: [],  // categories invented in the form, saved with it
     bulk: [],               // rows waiting in the "Add many" pane
   };
@@ -244,6 +245,7 @@
   function openEditor(product) {
     state.editing = product;
     state.pendingImage = null;
+    state.pendingReadable = null;
     state.pendingCategories = [];
 
     var p = product || BLANK;
@@ -341,9 +343,9 @@
     img.src = src;
   }
 
-  /** Draw whatever decoded onto the catalogue's own tile: square, on white,
+  /** Draw a decoded image onto the catalogue's own tile: square, on white,
    *  whole frame visible rather than cropped into. */
-  function paint(source, width, height) {
+  function paintTile(source, width, height) {
     var S = TILE.size;
     var canvas = document.createElement('canvas');
     canvas.width = S; canvas.height = S;
@@ -357,25 +359,54 @@
     return canvas.toDataURL('image/jpeg', TILE.quality);
   }
 
+  /**
+   * A second, larger rendering, used only for reading the box.
+   *
+   * The catalogue tile is 600x600 on white, which is right for a product card
+   * and wrong for reading: model numbers and spec tables printed on a carton
+   * do not survive that downscale. This keeps the original proportions and
+   * allows 1400px on the long edge, which is what actually gets sent to the
+   * vision model. It is never stored or published.
+   */
+  function paintReadable(source, width, height) {
+    var MAX = 1400;
+    var r = Math.min(1, MAX / Math.max(width, height));
+    var w = Math.max(1, Math.round(width * r));
+    var h = Math.max(1, Math.round(height * r));
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    var g = canvas.getContext('2d');
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(source, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', 0.9);
+  }
+
   /** Is this one of the formats an iPhone shoots by default? */
   function isAppleFormat(file) {
     return /hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
   }
 
   /**
-   * Two decoders, because they do not cover the same formats. createImageBitmap
-   * hands the file to the browser's own image pipeline, which on Safari reads
-   * the HEIC an iPhone shoots by default; <img> does not always. Chrome reads
-   * HEIC in neither, so a HEIC opened there fails whatever we do — hence the
-   * message saying so in words a shopkeeper can act on rather than "not an
-   * image this browser can open".
+   * Decode once, hand back both renderings.
+   *
+   * Two decoders, because they do not cover the same formats.
+   * createImageBitmap hands the file to the browser's own image pipeline,
+   * which on Safari reads the HEIC an iPhone shoots by default; <img> does not
+   * always. Chrome reads HEIC in neither, so a HEIC opened there fails
+   * whatever we do — hence the message saying so in words a shopkeeper can act
+   * on rather than "not an image this browser can open".
    */
-  function toTile(file) {
+  function prepare(file) {
+    function both(source, width, height) {
+      return { tile: paintTile(source, width, height),
+               readable: paintReadable(source, width, height) };
+    }
+
     var viaBitmap = typeof createImageBitmap === 'function'
       ? createImageBitmap(file).then(function (bmp) {
-          var url = paint(bmp, bmp.width, bmp.height);
+          var out = both(bmp, bmp.width, bmp.height);
           if (bmp.close) bmp.close();
-          return url;
+          return out;
         })
       : Promise.reject(new Error('no createImageBitmap'));
 
@@ -386,12 +417,17 @@
         reader.onload = function () {
           var img = new Image();
           img.onerror = function () { reject(cannotRead(file)); };
-          img.onload = function () { resolve(paint(img, img.width, img.height)); };
+          img.onload = function () { resolve(both(img, img.width, img.height)); };
           img.src = reader.result;
         };
         reader.readAsDataURL(file);
       });
     });
+  }
+
+  /** Just the catalogue tile, for callers that do not need to read anything. */
+  function toTile(file) {
+    return prepare(file).then(function (r) { return r.tile; });
   }
 
   function cannotRead(file) {
@@ -511,6 +547,235 @@
     return out;
   }
 
+  /* ------------------------------------------------------ reading the box -- */
+
+  /**
+   * Filling the form in from what is printed on the packaging.
+   *
+   * This is the one part of the panel that could break the rule the whole
+   * catalogue is built on: never publish information nobody supplied. A model
+   * asked to "describe this speaker" will happily produce plausible wattage,
+   * battery life and brand names that are nowhere on the box. So the prompt
+   * below is written to forbid exactly that, every field it returns is marked
+   * as unverified in the form, and nothing it produces is ever saved without a
+   * person looking at it.
+   *
+   * The key is the editor's own, held in their browser beside the GitHub token
+   * and never in this repository — the same arrangement, for the same reason:
+   * a static site has nowhere else to put a credential, and this way each
+   * person's can be revoked on its own.
+   *
+   * Raw fetch rather than a provider SDK because this site has no build step
+   * and no dependencies; there is nothing here to npm install into.
+   */
+
+  var VISION = {
+    provider: 'pk-vision-provider',
+    model: 'pk-vision-model',
+    key: 'pk-vision-key',
+  };
+
+  var VISION_DEFAULT_MODEL = {
+    anthropic: 'claude-opus-5',
+    gemini: 'gemini-2.5-flash',
+    openai: 'gpt-4o-mini',
+  };
+
+  // Written at the model rather than at a person: every clause is here because
+  // its absence produces invented catalogue data.
+  var READ_PROMPT = [
+    'You are transcribing text that is physically printed on product packaging',
+    'in a photograph, for a wholesale electronics catalogue in Nepal.',
+    '',
+    'Return ONLY a JSON object with the keys: name, brand, sku, packSize, description.',
+    '',
+    'These rules matter more than being helpful:',
+    '- Transcribe ONLY what is legibly printed in this image.',
+    '- If a value is not legibly printed, return null for it. Never guess,',
+    '  complete, expand, translate or infer, and never use anything you know',
+    '  about this product from elsewhere. If the packaging does not say it, it',
+    '  is null.',
+    '- name: the product name as printed. Add no words that are not on the box.',
+    '- brand: the manufacturer brand mark only. No brand mark visible means null.',
+    '- sku: the model or article number as printed, e.g. "K21" or "V-091".',
+    '  Not a barcode number.',
+    '- packSize: only if the carton states a quantity per carton, e.g.',
+    '  "50 pcs per carton". Otherwise null.',
+    '- description: the specification text printed on the box — power, battery,',
+    '  connectivity, dimensions, what the package includes — written as plain',
+    '  sentences. Facts printed on the packaging only. If little is legible,',
+    '  return null rather than padding it out.',
+    '',
+    'Output the JSON object and nothing else.',
+  ].join('\n');
+
+  function visionSettings() {
+    var provider = '';
+    var model = '';
+    var key = '';
+    try {
+      provider = localStorage.getItem(VISION.provider) || '';
+      model = localStorage.getItem(VISION.model) || '';
+      key = localStorage.getItem(VISION.key) || '';
+    } catch (e) { /* private browsing */ }
+    return { provider: provider, model: model, key: key };
+  }
+
+  function visionReady() {
+    var s = visionSettings();
+    return Boolean(s.provider && s.key);
+  }
+
+  /** The request each provider wants. Same picture, same instruction. */
+  function visionRequest(settings, base64) {
+    var model = settings.model || VISION_DEFAULT_MODEL[settings.provider];
+
+    if (settings.provider === 'anthropic') {
+      return {
+        url: 'https://api.anthropic.com/v1/messages',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': settings.key,
+          'anthropic-version': '2023-06-01',
+          // Without this the browser's preflight is refused outright.
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: {
+          model: model,
+          max_tokens: 1024,
+          // Transcription, not reasoning: the cheap end of the range is the
+          // right one, and it keeps a batch of twenty photos affordable.
+          output_config: { effort: 'low' },
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
+              { type: 'text', text: READ_PROMPT },
+            ],
+          }],
+        },
+        read: function (json) {
+          var blocks = json.content || [];
+          for (var i = 0; i < blocks.length; i++) {
+            if (blocks[i].type === 'text') return blocks[i].text;
+          }
+          return '';
+        },
+      };
+    }
+
+    if (settings.provider === 'gemini') {
+      return {
+        // The key goes in a header, not the query string, so it stays out of
+        // anything that logs URLs.
+        url: 'https://generativelanguage.googleapis.com/v1beta/models/'
+          + encodeURIComponent(model) + ':generateContent',
+        headers: { 'content-type': 'application/json', 'x-goog-api-key': settings.key },
+        body: {
+          contents: [{
+            parts: [
+              { inline_data: { mime_type: 'image/jpeg', data: base64 } },
+              { text: READ_PROMPT },
+            ],
+          }],
+          generationConfig: { responseMimeType: 'application/json' },
+        },
+        read: function (json) {
+          var c = (json.candidates || [])[0];
+          var parts = c && c.content && c.content.parts;
+          return parts && parts.length ? (parts[0].text || '') : '';
+        },
+      };
+    }
+
+    return {
+      url: 'https://api.openai.com/v1/chat/completions',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: 'Bearer ' + settings.key,
+      },
+      body: {
+        model: model,
+        response_format: { type: 'json_object' },
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: READ_PROMPT },
+            { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + base64 } },
+          ],
+        }],
+      },
+      read: function (json) {
+        var c = (json.choices || [])[0];
+        return (c && c.message && c.message.content) || '';
+      },
+    };
+  }
+
+  /** Models wrap JSON in prose and code fences often enough to plan for it. */
+  function parseReply(text) {
+    var t = String(text || '').trim().replace(/^```(?:json)?/i, '').replace(/```$/, '');
+    var start = t.indexOf('{');
+    var end = t.lastIndexOf('}');
+    if (start === -1 || end <= start) throw new Error('The reply was not JSON.');
+    return JSON.parse(t.slice(start, end + 1));
+  }
+
+  /** A field is usable only if it is a non-empty string. null, "null",
+   *  "n/a" and "not visible" are all the model saying it could not read it. */
+  function usable(value) {
+    if (typeof value !== 'string') return '';
+    var v = value.trim();
+    if (!v) return '';
+    if (/^(null|n\/?a|none|unknown|not (visible|legible|printed|stated))\.?$/i.test(v)) return '';
+    return v;
+  }
+
+  /**
+   * Read one photo. Resolves to the fields that were legible, which may be
+   * none of them — that is a normal outcome, not a failure.
+   */
+  function readTheBox(readableDataUrl) {
+    var settings = visionSettings();
+    if (!settings.provider || !settings.key) {
+      return Promise.reject(new Error('No photo-reading key is set up yet.'));
+    }
+    var req = visionRequest(settings, readableDataUrl.split(',')[1]);
+
+    return fetch(req.url, {
+      method: 'POST',
+      headers: req.headers,
+      body: JSON.stringify(req.body),
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (json) {
+        if (!res.ok) {
+          var detail = (json.error && (json.error.message || json.error.status))
+            || json.message || ('HTTP ' + res.status);
+          if (res.status === 401 || res.status === 403) {
+            throw new Error('That key was refused: ' + detail);
+          }
+          if (res.status === 429) {
+            throw new Error('Rate limited — wait a moment and read again. ' + detail);
+          }
+          throw new Error('The photo reader failed: ' + detail);
+        }
+        var fields = parseReply(req.read(json));
+        return {
+          name: usable(fields.name),
+          brand: usable(fields.brand),
+          sku: usable(fields.sku),
+          packSize: usable(fields.packSize),
+          description: usable(fields.description),
+        };
+      });
+    });
+  }
+
+  /** Which of those actually came back with something. */
+  function filled(fields) {
+    return Object.keys(fields).filter(function (k) { return fields[k]; });
+  }
+
   /* -------------------------------------------------------------- bulk add -- */
 
   /**
@@ -546,9 +811,10 @@
       + (list.length === 1 ? ' photo…' : ' photos…'));
 
     var done = 0, failed = [];
+    var staged = [];
     var work = list.map(function (file) {
-      return toTile(file).then(function (dataUrl) {
-        state.bulk.push({
+      return prepare(file).then(function (rendered) {
+        var row = {
           // A plain counter. Date.now() + Math.random() looked unique and is
           // not: the sum is past the precision where the fraction survives, so
           // two rows staged in the same millisecond can share a key, and then
@@ -557,8 +823,12 @@
           name: nameFromFile(file.name),
           category: '', description: '', brand: '', sku: '',
           packSize: '', priceCarton: '', pricePiece: '',
-          image: dataUrl,
-        });
+          image: rendered.tile,
+          readable: rendered.readable,   // larger, for reading only; never saved
+          suggested: [],                 // fields the photo reader filled in
+        };
+        state.bulk.push(row);
+        staged.push(row);
         done++;
       }).catch(function (err) {
         failed.push(file.name + ' — ' + err.message);
@@ -571,6 +841,53 @@
         ? done + ' added. ' + failed.length + ' could not be read: ' + failed.join(' | ')
         : done + (done === 1 ? ' photo ready.' : ' photos ready.'),
         failed.length ? 'warn' : 'ok');
+      if (done && visionReady()) readRows(staged);
+    });
+  }
+
+  /**
+   * Read each staged photo in turn rather than all at once: twenty parallel
+   * requests is the shape that trips a rate limit, and a batch that half
+   * fails is worse than one that takes a few seconds longer.
+   */
+  function readRows(rows) {
+    var i = 0, read = 0, failures = [];
+
+    function next() {
+      if (i >= rows.length) {
+        renderBulk();
+        say($('bulk-msg'), failures.length
+          ? 'Read ' + read + ' of ' + rows.length + '. ' + failures.join(' | ')
+              + ' Check every filled-in field before saving.'
+          : 'Read ' + read + ' of ' + rows.length + ' from the photos. '
+              + 'Everything filled in is marked — check it before saving.',
+          failures.length ? 'warn' : 'ok');
+        return;
+      }
+      var row = rows[i++];
+      say($('bulk-msg'), 'Reading photo ' + i + ' of ' + rows.length + '…');
+      readTheBox(row.readable).then(function (fields) {
+        applyRead(row, fields);
+        read++;
+      }).catch(function (err) {
+        failures.push(err.message);
+      }).then(next);
+    }
+    next();
+  }
+
+  /** Fill only what is still empty: anything a person typed wins over
+   *  anything read off a photograph. */
+  function applyRead(row, fields) {
+    row.suggested = row.suggested || [];
+    ['name', 'brand', 'sku', 'packSize', 'description'].forEach(function (k) {
+      if (!fields[k]) return;
+      // The name is pre-filled from the file name, so it is the one field
+      // where the photo is the better source and may replace what is there.
+      var replaceable = k === 'name' || !String(row[k] || '').trim();
+      if (!replaceable) return;
+      row[k] = fields[k];
+      if (row.suggested.indexOf(k) === -1) row.suggested.push(k);
     });
   }
 
@@ -590,22 +907,39 @@
 
     $('bulk-rows').innerHTML = state.bulk.map(function (row, i) {
       var k = escapeAttr(row.key);
+      var sug = row.suggested || [];
+      // A field the photo reader filled is marked in the markup, not just
+      // coloured, so it survives a re-render and can be asserted in a test.
+      var mark = function (field) {
+        return sug.indexOf(field) === -1 ? '' : ' is-suggested" data-suggested="' + field + '';
+      };
+      var note = sug.length
+        ? '<p class="bulk__note">Read off the photo: ' + escapeHtml(sug.join(', '))
+          + '. Check it against the box before saving.</p>'
+        : '';
       return '<div class="bulk__row" data-key="' + k + '">'
+        + '<div class="bulk__shot">'
         + '<img class="bulk__thumb" src="' + escapeAttr(row.image) + '" alt="">'
+        + (visionReady()
+            ? '<button type="button" class="btn btn--ghost btn--sm bulk__read"'
+              + ' data-bk-read="' + k + '">Read the box</button>'
+            : '')
+        + '</div>'
         + '<div class="bulk__fields">'
+        + note
         + '<label class="sr-only" for="bk-name-' + i + '">Product name</label>'
-        + '<input class="af__input" id="bk-name-' + i + '" data-bk="name" placeholder="Product name as printed on the box" value="' + escapeAttr(row.name) + '">'
+        + '<input class="af__input' + mark('name') + '" id="bk-name-' + i + '" data-bk="name" placeholder="Product name as printed on the box" value="' + escapeAttr(row.name) + '">'
         + '<label class="sr-only" for="bk-cat-' + i + '">Category</label>'
         + '<select class="af__input" id="bk-cat-' + i + '" data-bk="category">'
         + bulkCategoryOptions(row.category, 'Category…') + '</select>'
         + '<label class="sr-only" for="bk-desc-' + i + '">Description</label>'
-        + '<textarea class="af__input bulk__desc" id="bk-desc-' + i + '" data-bk="description" rows="2" '
+        + '<textarea class="af__input bulk__desc' + mark('description') + '" id="bk-desc-' + i + '" data-bk="description" rows="2" '
         + 'placeholder="What the box states. More than 40 characters, and different from every other product.">'
         + escapeHtml(row.description) + '</textarea>'
         + '<div class="bulk__small">'
-        + '<input class="af__input" data-bk="brand" placeholder="Brand" value="' + escapeAttr(row.brand) + '">'
-        + '<input class="af__input" data-bk="sku" placeholder="Model / SKU" value="' + escapeAttr(row.sku) + '">'
-        + '<input class="af__input" data-bk="packSize" placeholder="20 pcs per carton" value="' + escapeAttr(row.packSize) + '">'
+        + '<input class="af__input' + mark('brand') + '" data-bk="brand" placeholder="Brand" value="' + escapeAttr(row.brand) + '">'
+        + '<input class="af__input' + mark('sku') + '" data-bk="sku" placeholder="Model / SKU" value="' + escapeAttr(row.sku) + '">'
+        + '<input class="af__input' + mark('packSize') + '" data-bk="packSize" placeholder="20 pcs per carton" value="' + escapeAttr(row.packSize) + '">'
         + '<input class="af__input" data-bk="priceCarton" type="number" placeholder="Carton Rs." value="' + escapeAttr(row.priceCarton) + '">'
         + '<input class="af__input" data-bk="pricePiece" type="number" placeholder="Piece Rs." value="' + escapeAttr(row.pricePiece) + '">'
         + '</div>'
@@ -622,7 +956,14 @@
       var row = state.bulk.filter(function (r) { return r.key === el.getAttribute('data-key'); })[0];
       if (!row) return;
       Array.prototype.forEach.call(el.querySelectorAll('[data-bk]'), function (input) {
-        row[input.getAttribute('data-bk')] = input.value;
+        var field = input.getAttribute('data-bk');
+        // Editing a field the reader filled is a person taking responsibility
+        // for it, so it stops being flagged as unchecked.
+        if (row.suggested && row.suggested.indexOf(field) !== -1
+            && input.value !== row[field]) {
+          row.suggested = row.suggested.filter(function (f) { return f !== field; });
+        }
+        row[field] = input.value;
       });
     });
   }
@@ -988,6 +1329,89 @@
   $('new-product').addEventListener('click', function () { openEditor(null); });
   $('f-category-new').addEventListener('click', newCategoryHere);
 
+  /* --- reading the box --------------------------------------------------- */
+
+  function renderVision() {
+    var s = visionSettings();
+    var names = { gemini: 'Google Gemini', anthropic: 'Claude', openai: 'OpenAI' };
+    $('vision-provider').value = s.provider;
+    $('vision-model').value = s.model || VISION_DEFAULT_MODEL[s.provider] || '';
+    $('vision-key').value = '';
+    $('vision-summary').textContent = visionReady()
+      ? 'Fill in from the photos — on, using ' + (names[s.provider] || s.provider)
+      : 'Fill in from the photos — not set up';
+    $('f-read').hidden = !visionReady();
+  }
+
+  $('vision-provider').addEventListener('change', function () {
+    var picked = $('vision-provider').value;
+    $('vision-model').value = VISION_DEFAULT_MODEL[picked] || '';
+  });
+
+  $('vision-save').addEventListener('click', function () {
+    var provider = $('vision-provider').value;
+    var key = $('vision-key').value.trim();
+    if (!provider) { say($('vision-msg'), 'Pick a provider first.', 'warn'); return; }
+    if (!key) { say($('vision-msg'), 'Paste the API key.', 'warn'); return; }
+    try {
+      localStorage.setItem(VISION.provider, provider);
+      localStorage.setItem(VISION.model, $('vision-model').value.trim());
+      localStorage.setItem(VISION.key, key);
+    } catch (e) {
+      say($('vision-msg'), 'This browser will not store the key — private '
+        + 'browsing blocks it. Photo reading cannot be switched on here.', 'warn');
+      return;
+    }
+    renderVision();
+    renderBulk();
+    say($('vision-msg'), 'Saved in this browser. Photos dropped in from now on '
+      + 'get read.', 'ok');
+  });
+
+  $('vision-forget').addEventListener('click', function () {
+    try {
+      localStorage.removeItem(VISION.provider);
+      localStorage.removeItem(VISION.model);
+      localStorage.removeItem(VISION.key);
+    } catch (e) { /* nothing stored anyway */ }
+    renderVision();
+    renderBulk();
+    say($('vision-msg'), 'Key deleted from this browser.', 'ok');
+  });
+
+  // The same reader, for one product at a time.
+  $('f-read').addEventListener('click', function () {
+    if (!state.pendingReadable) {
+      say($('edit-msg'), 'Choose the photo first — it is the photo that gets read.', 'warn');
+      return;
+    }
+    $('f-read').disabled = true;
+    say($('edit-msg'), 'Reading the box…');
+    readTheBox(state.pendingReadable).then(function (fields) {
+      var got = [];
+      [['name', 'f-name'], ['brand', 'f-brand'], ['sku', 'f-sku'],
+       ['packSize', 'f-packsize'], ['description', 'f-description']].forEach(function (pair) {
+        var value = fields[pair[0]];
+        if (!value) return;
+        var el = $(pair[1]);
+        // Never overwrite something already typed.
+        if (String(el.value).trim() && pair[0] !== 'name') return;
+        el.value = value;
+        el.classList.add('is-suggested');
+        got.push(pair[0]);
+      });
+      say($('edit-msg'), got.length
+        ? 'Read off the photo: ' + got.join(', ') + '. Check each against the box '
+          + 'before saving — it reads the packaging, it does not know the product.'
+        : 'Nothing on that box was legible. Type it in yourself.',
+        got.length ? 'ok' : 'warn');
+    }).catch(function (err) {
+      say($('edit-msg'), err.message, 'warn');
+    }).then(function () {
+      $('f-read').disabled = false;
+    });
+  });
+
   /* --- bulk add ---------------------------------------------------------- */
   $('bulk-open').addEventListener('click', function () {
     state.pendingCategories = [];
@@ -1047,6 +1471,30 @@
     state.bulk = state.bulk.filter(function (r) { return r.key !== key; });
     renderBulk();
   });
+  $('bulk-rows').addEventListener('click', function (ev) {
+    var again = ev.target.closest('[data-bk-read]');
+    if (!again) return;
+    harvestBulk();
+    var row = state.bulk.filter(function (r) {
+      return r.key === again.getAttribute('data-bk-read');
+    })[0];
+    if (!row) return;
+    again.disabled = true;
+    say($('bulk-msg'), 'Reading that photo…');
+    readTheBox(row.readable).then(function (fields) {
+      applyRead(row, fields);
+      renderBulk();
+      var got = filled(fields);
+      say($('bulk-msg'), got.length
+        ? 'Read from the photo: ' + got.join(', ') + '. Check it before saving.'
+        : 'Nothing on that box was legible. Type it in yourself.',
+        got.length ? 'ok' : 'warn');
+    }).catch(function (err) {
+      say($('bulk-msg'), err.message, 'warn');
+      again.disabled = false;
+    });
+  });
+
   $('bulk-save').addEventListener('click', bulkSave);
   $('bulk-clear').addEventListener('click', function () {
     if (!state.bulk.length) return;
@@ -1086,10 +1534,14 @@
   function usePhoto(file) {
     if (!file) return;
     say($('edit-msg'), 'Preparing the photo…');
-    toTile(file).then(function (dataUrl) {
-      state.pendingImage = dataUrl.split(',')[1];
-      setPreview(dataUrl);
-      say($('edit-msg'), 'Photo ready. It uploads when you save.', 'ok');
+    prepare(file).then(function (rendered) {
+      state.pendingImage = rendered.tile.split(',')[1];
+      state.pendingReadable = rendered.readable;
+      setPreview(rendered.tile);
+      say($('edit-msg'), visionReady()
+        ? 'Photo ready. It uploads when you save — or press "Read the box" to '
+          + 'fill in what is printed on it.'
+        : 'Photo ready. It uploads when you save.', 'ok');
     }).catch(function (err) {
       say($('edit-msg'), err.message, 'warn');
     });
@@ -1138,6 +1590,8 @@
   });
 
   /* ------------------------------------------------------------------ start -- */
+
+  renderVision();
 
   var saved = '';
   try { saved = localStorage.getItem(STORE) || ''; } catch (e) { /* private mode */ }
