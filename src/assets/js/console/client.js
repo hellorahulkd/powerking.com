@@ -67,6 +67,10 @@ export function toAppError(err, fallback = 'Something went wrong. Please try aga
   if (err instanceof AppError) return err;
 
   const raw = typeof err === 'string' ? err : err?.message || err?.msg || err?.error_description || '';
+  // The PK_ prefix is how a deliberate refusal from one of the database
+  // functions is told apart from an accident; it is not part of the code
+  // callers match on, so it is stripped here. DUPLICATE_SKU, not
+  // PK_DUPLICATE_SKU — every `code` in this application reads that way.
   const pk = /\bPK_([A-Z_]+):\s*(.*)/.exec(raw);
   if (pk) {
     const message = pk[2].trim();

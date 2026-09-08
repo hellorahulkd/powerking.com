@@ -49,6 +49,14 @@ function check(label, ok, detail = '') {
 
 function group(name) { process.stdout.write(`\n  ${name}\n`); }
 
+/**
+ * Network failures a test caused on purpose — a wrong password, a duplicate
+ * SKU. Declared rather than pattern-matched globally, so the final "nothing
+ * else failed" check stays strict about everything nobody asked for.
+ */
+const expectedFailures = [/auth\/v1\/token/];
+const expectFailure = (pattern) => expectedFailures.push(pattern);
+
 /* --------------------------------------------------------------- helpers -- */
 
 /** Wait until an expression is truthy, or give up. */
@@ -238,6 +246,149 @@ SUITES.roles = async (page, base) => {
   // offer somebody a button that would fail.
 };
 
+SUITES.products = async (page, base, rig) => {
+  group('Products');
+  await clearSession(page);
+  await signIn(page, base, USERS[0]);
+
+  await page.goto(`${base}/admin/products/`);
+  await until(page, `!!document.querySelector('#results .table tbody tr')`, { label: 'the product table' });
+
+  check('the list is paged, not the whole catalogue at once',
+    (await page.eval(`return document.querySelectorAll('#results tbody tr').length;`)) === 25);
+  check('and says how many there are in total',
+    /87 products/.test(await page.eval(`return ${text('#count')};`) || ''),
+    await page.eval(`return ${text('#count')};`));
+
+  // Search runs in Postgres, so this is a real query, not a filter over rows
+  // that were already downloaded.
+  await page.eval(`
+    const box = document.querySelector('.toolbar__search');
+    box.value = 'PK-60';
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+  await until(page, `document.querySelectorAll('#results tbody tr').length === 1`,
+    { label: 'the search to narrow' });
+  check('searching a SKU finds exactly that product',
+    /PK-60/.test(await page.eval(`return ${text('#results tbody tr')};`) || ''));
+  check('the search is in the URL, so the view can be shared or bookmarked',
+    (await page.eval(`return new URLSearchParams(location.search).get('q');`)) === 'PK-60');
+
+  await page.eval(`
+    const box = document.querySelector('.toolbar__search');
+    box.value = 'charger';
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+  await until(page, `document.querySelectorAll('#results tbody tr').length > 0 &&
+    !document.body.textContent.includes('PK-60 120W')`, { label: 'the second search' })
+    .catch(() => {});
+  check('searching a word finds products by name',
+    (await page.eval(`return document.querySelectorAll('#results tbody tr').length;`)) > 0);
+
+  // Back must restore the previous filter — the state is in the URL.
+  await page.eval(`history.back(); return true;`);
+  await until(page, `new URLSearchParams(location.search).get('q') === 'PK-60'`,
+    { label: 'the back button' });
+  check('the browser Back button restores the previous search', true);
+
+  group('Add a product');
+  await page.goto(`${base}/admin/products/new/`);
+  await until(page, `!!document.querySelector('form')`, { label: 'the form' });
+
+  // Submitting an empty form must not reach the network.
+  await page.eval(`document.querySelector('form').requestSubmit(); return true;`);
+  await until(page, `document.querySelectorAll('.f.is-invalid').length > 0`,
+    { label: 'validation' });
+  const invalidCount = await page.eval(`return document.querySelectorAll('.f.is-invalid').length;`);
+  check('an empty form is refused before anything is sent', invalidCount >= 3, `${invalidCount} fields`);
+  check('and names what is missing',
+    /needs a name/i.test(await page.eval(`return ${text('.f.is-invalid .f__error')};`) || ''));
+
+  // The web address follows the name until it is edited by hand.
+  await page.eval(`
+    const n = document.querySelector('form .f__input');
+    n.value = 'Test Bluetooth Speaker X1';
+    n.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+  check('the web address is filled in from the name',
+    (await page.eval(`
+      return [...document.querySelectorAll('.f')].find(f =>
+        /Web address/.test(f.querySelector('.f__label')?.textContent || ''))
+        ?.querySelector('input')?.value;
+    `)) === 'test-bluetooth-speaker-x1');
+
+  const fill = async (label, value) => page.eval(`
+    const f = [...document.querySelectorAll('.f')].find(f =>
+      (f.querySelector('.f__label')?.textContent || '').trim().replace(/\\s*\\*$/, '') === ${JSON.stringify(label)});
+    const c = f?.querySelector('input, select, textarea');
+    if (!c) return false;
+    c.value = ${JSON.stringify(value)};
+    c.dispatchEvent(new Event('input', { bubbles: true }));
+    c.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  `);
+
+  const categoryId = rig.psql(`select id from public.categories where slug = 'speakers'`);
+  check('SKU field filled', await fill('SKU', 'TEST-X1'));
+  check('category chosen', await fill('Category', categoryId));
+  await fill('Units per carton', '20');
+  await fill('Cost price (Rs.)', '400');
+  await fill('Wholesale price per piece (Rs.)', '550');
+  await fill('Low-stock level', '10');
+  await fill('Opening stock', '247');
+
+  await page.eval(`document.querySelector('form').requestSubmit(); return true;`);
+  await until(page, `location.pathname === '/admin/products/view/'`,
+    { label: 'the new product page', timeout: 10000 });
+  check('creating a product lands on its page', true);
+
+  group('One product');
+  await until(page, `!!document.querySelector('.big-number')`, { label: 'the stock figure' });
+  const big = await page.eval(`return ${text('.big-number')};`);
+  check('opening stock was recorded', /247 available/.test(big), big);
+  // Requirement 20, on the screen a person actually reads.
+  check('247 units at 20 per carton reads as 12 cartons + 7 units',
+    /12 cartons \+ 7 units/.test(big), big);
+
+  // textContent, not innerText: innerText returns the *rendered* text, and
+  // these labels are uppercased by CSS, so innerText would report
+  // "FULL CARTONS" and a case-sensitive match would quietly fail.
+  const shown = await page.eval(`return document.body.textContent;`);
+  check('cost price is shown to staff here', /Rs\.\s*400/.test(shown));
+  check('the carton breakdown is also given as separate figures',
+    /Full cartons/.test(shown) && /Loose units/.test(shown));
+
+  await until(page, `!!document.querySelector('#history .table tbody tr')`, { label: 'the history' });
+  const historyRow = await page.eval(`return ${text('#history tbody tr')};`);
+  check('the opening stock appears in the history as a real movement',
+    /Stock in/.test(historyRow) && /\+247/.test(historyRow), historyRow);
+  check('and is attributed to the person who created it',
+    /Ama Admin/.test(historyRow), historyRow);
+  check('and records the stock level after it', /247/.test(historyRow));
+
+  group('Duplicate SKUs');
+  // The next submission is meant to be rejected by the database.
+  expectFailure(/rpc\/create_product/);
+  await page.goto(`${base}/admin/products/new/`);
+  await until(page, `!!document.querySelector('form')`);
+  await fill('Product name', 'Clashing Product');
+  await fill('SKU', 'test-x1');           // same SKU, different case
+  await fill('Category', categoryId);
+  await page.eval(`document.querySelector('form').requestSubmit(); return true;`);
+  const skuError = await until(page, `(() => {
+    const f = [...document.querySelectorAll('.f.is-invalid')].find(f =>
+      /SKU/.test(f.querySelector('.f__label')?.textContent || ''));
+    return f ? f.querySelector('.f__error').textContent.trim() : null;
+  })()`, { label: 'the duplicate SKU error' });
+  check('a duplicate SKU is refused, case-insensitively, on the SKU field',
+    /already used/i.test(skuError), skuError);
+  check('and stayed on the form rather than losing what was typed',
+    (await page.eval(`return location.pathname;`)) === '/admin/products/new/');
+};
+
 SUITES.deactivated = async (page, base, rig) => {
   group('A deactivated account');
   await clearSession(page);
@@ -307,11 +458,12 @@ async function main() {
       await suite(page, rig.url, rig);
     }
 
-    // Expected failures are the ones a test caused on purpose. The wrong
-    // password above is a 400 by design, and the rig serves no fonts or
-    // images. Everything else is the console misbehaving.
-    const EXPECTED = /auth\/v1\/token|favicon|\.woff2|site\.webmanifest|\/images\//;
-    const problems = page.problems().filter((p) => !EXPECTED.test(p));
+    // Everything a test caused on purpose is declared with expectFailure;
+    // the rig serves no fonts or images. Anything else is the console
+    // misbehaving, and is a failure.
+    const RIG_GAPS = /favicon|\.woff2|site\.webmanifest|\/images\//;
+    const problems = page.problems().filter(
+      (p) => !RIG_GAPS.test(p) && !expectedFailures.some((rx) => rx.test(p)));
     check('nothing else failed to load, and nothing threw', problems.length === 0,
       problems.slice(0, 4).join(' | '));
   } finally {

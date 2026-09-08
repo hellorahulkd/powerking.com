@@ -26,7 +26,11 @@
  * to a screen that loads and then does nothing.
  */
 export const CONSOLE_ROUTES = [
-  { path: '/admin/', page: 'dashboard', title: 'Dashboard' },
+  { path: '/admin/',               page: 'dashboard',    title: 'Dashboard' },
+  { path: '/admin/products/',      page: 'products',     title: 'Products' },
+  { path: '/admin/products/new/',  page: 'product-form', title: 'Add product' },
+  { path: '/admin/products/edit/', page: 'product-form', title: 'Edit product' },
+  { path: '/admin/products/view/', page: 'product-view', title: 'Product' },
 ];
 
 export default CONSOLE_ROUTES;
