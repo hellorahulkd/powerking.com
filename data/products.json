@@ -1939,5 +1939,24 @@
     "tags": [
       "Multiplugs"
     ]
+  },
+  {
+    "id": 282,
+    "name": "PowerKing Yellow 10-Meter Multiplug",
+    "slug": "powerking-yellow-10-meter-multiplug",
+    "brand": "Powerking",
+    "category": "Power & Multiplugs",
+    "description": "### PowerKing Yellow 10-Meter Multiplug\n\nPower up your everyday devices with the **PowerKing Yellow 3-Meter Multiplug**, designed to give you extra reach and convenient access to multiple power connections. Its **3-meter cable** makes it ideal for homes, offices, shops, and workspaces where the nearest power outlet is farther away.\n\n**Key Features:**\n\n* **3-meter long cable** for extended reach\n* **Bright yellow color** for easy visibility\n* Multiple sockets for convenient connection of devices\n* Suitable for home, office, shop, and workspace use\n* Durable design for everyday use\n* Helps keep your workspace organized and connected\n\n**PowerKing — convenient power, wherever you need it.**",
+    "image": "/images/products/powerking-yellow-10-meter-multiplug.jpg",
+    "gallery": [],
+    "packSize": "60",
+    "priceCarton": 185,
+    "pricePiece": 190,
+    "sku": "Yellow 10m",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplugs"
+    ]
   }
 ]
