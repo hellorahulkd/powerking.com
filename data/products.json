@@ -82,9 +82,11 @@
     "brand": "VGR",
     "category": "Grooming",
     "description": "Chrome-finish professional hair trimmer for corded or cordless use, charged over USB at 5V/1A. Supplied with 1mm, 2mm and 3mm guide combs, a cleaning brush, blade oil, a USB-C cable and a storage pouch.",
-    "image": "/images/products/vgr-v-071-professional-hair-trimmer.png",
+    "image": "/images/products/vgr-v-071-professional-hair-trimmer.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "48",
+    "priceCarton": 875,
+    "pricePiece": 875,
     "sku": "V-071",
     "featured": false,
     "available": true,
@@ -96,9 +98,7 @@
       "cordless",
       "usb charging",
       "8973224080711"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 105,
