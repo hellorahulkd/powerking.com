@@ -172,6 +172,27 @@ export function resetDatabase({ seed = true, users = [] } = {}) {
   return made;
 }
 
+/**
+ * Put the catalogue back the way the seed leaves it, without touching the
+ * schema or the accounts.
+ *
+ * Dropping and recreating the database between tests would be simpler, but
+ * PostgREST holds a connection pool to it and caches its schema, so it would
+ * have to be restarted each time as well. Truncating the data and re-running
+ * the seed leaves the connection valid and takes a fraction of the time.
+ *
+ * auth.users and profiles are deliberately left alone: the accounts are part
+ * of the rig, not part of the fixture.
+ */
+export function resetData() {
+  psql(`
+    truncate table public.stock_movements, public.inventory, public.products,
+                   public.categories, public.brands, public.suppliers
+      restart identity cascade;
+  `);
+  psqlFile(path.join(ROOT, 'supabase/seed/0001_catalogue_from_json.sql'));
+}
+
 /* ------------------------------------------------------------- postgrest -- */
 
 function startPostgrest() {
@@ -357,6 +378,7 @@ export async function startRig({ users, seed = true, quiet = false } = {}) {
     users: made,
     psql,
     psqlAs,
+    resetData,
     async stop() {
       pgrst.kill('SIGTERM');
       await new Promise((r) => server.close(r));

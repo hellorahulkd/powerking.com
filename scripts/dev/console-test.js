@@ -389,6 +389,141 @@ SUITES.products = async (page, base, rig) => {
     (await page.eval(`return location.pathname;`)) === '/admin/products/new/');
 };
 
+SUITES.stock = async (page, base, rig) => {
+  group('Stock in');
+  await clearSession(page);
+  await signIn(page, base, USERS[0]);
+
+  const productId = rig.psql(`select id from public.products where sku = 'PK-60'`);
+  rig.psqlAs('admin@powerking.test',
+    `update public.products set units_per_carton = 20, cost_price = 400 where id = '${productId}';`);
+
+  await page.goto(`${base}/admin/inventory/stock-in/?product=${productId}`);
+  await until(page, `!!document.querySelector('form')`, { label: 'the stock-in form' });
+  await until(page, `!!document.querySelector('.f .table__main')`, { label: 'the preselected product' });
+  check('a product can be preselected from a link',
+    /PK-60/.test(await page.eval(`return ${text('.f .table__sub')};`) || ''));
+
+  const setQty = async (v) => page.eval(`
+    const q = [...document.querySelectorAll('.f')].find(f =>
+      /^Quantity/.test((f.querySelector('.f__label')?.textContent || '').trim()))
+      ?.querySelector('input');
+    q.value = ${JSON.stringify(String(v))};
+    q.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+
+  await setQty(250);
+  await until(page, `${text('#effect')} !== ''`, { label: 'the running effect' });
+  check('the form shows the effect before it is committed',
+    /0 → 250/.test(await page.eval(`return ${text('#effect')};`) || ''),
+    await page.eval(`return ${text('#effect')};`));
+  check('including the carton reading',
+    /12 cartons \+ 10 units/.test(await page.eval(`return ${text('#effect')};`) || ''));
+
+  await page.eval(`document.querySelector('form').requestSubmit(); return true;`);
+  await until(page, `!!document.querySelector('#receipt .big-number')`, { label: 'the receipt' });
+  const receipt = await page.eval(`return ${text('#receipt .big-number')};`);
+  check('stock in is confirmed with before and after', /0 → 250/.test(receipt), receipt);
+  check('the database agrees',
+    rig.psql(`select quantity from public.inventory where product_id = '${productId}'`) === '250');
+  check('and the movement was recorded',
+    rig.psql(`select count(*) from public.stock_movements where product_id = '${productId}'
+              and movement_type = 'STOCK_IN'`) === '1');
+  check('the quantity box is cleared, ready for the next line of the delivery',
+    (await page.eval(`
+      return [...document.querySelectorAll('.f')].find(f =>
+        /^Quantity/.test((f.querySelector('.f__label')?.textContent || '').trim()))
+        ?.querySelector('input').value;
+    `)) === '');
+
+  group('Stock out');
+  await page.goto(`${base}/admin/inventory/stock-out/?product=${productId}`);
+  await until(page, `!!document.querySelector('.f .table__main')`, { label: 'the product' });
+
+  // More than there is: refused before it is sent.
+  await setQty(251);
+  await page.eval(`document.querySelector('form').requestSubmit(); return true;`);
+  await until(page, `document.querySelectorAll('.f.is-invalid').length > 0`, { label: 'the refusal' });
+  const overError = await page.eval(`return ${text('.f.is-invalid .f__error')};`);
+  check('removing more than is in stock is refused', /only 250/i.test(overError || ''), overError);
+  check('and nothing was written',
+    rig.psql(`select quantity from public.inventory where product_id = '${productId}'`) === '250');
+
+  await setQty(20);
+  await page.eval(`document.querySelector('form').requestSubmit(); return true;`);
+  await until(page, `!!document.querySelector('#receipt .big-number')`, { label: 'the receipt' });
+  check('a valid stock out is recorded',
+    /250 → 230/.test(await page.eval(`return ${text('#receipt .big-number')};`) || ''));
+  check('the database agrees',
+    rig.psql(`select quantity from public.inventory where product_id = '${productId}'`) === '230');
+
+  group('Adjustments');
+  // Staff must not be able to reach this screen at all.
+  await clearSession(page);
+  await signIn(page, base, USERS[2]);
+  await page.goto(`${base}/admin/inventory/adjustment/`);
+  await until(page, `!!document.querySelector('.state--error')`, { label: 'the refusal' });
+  check('staff are told plainly that adjustments are not theirs to make',
+    /manager or an admin/i.test(await page.eval(`return ${text('.state--error .state__text')};`) || ''));
+
+  await clearSession(page);
+  await signIn(page, base, USERS[1]);
+  await page.goto(`${base}/admin/inventory/adjustment/?product=${productId}`);
+  await until(page, `!!document.querySelector('.f .table__main')`, { label: 'the product' });
+  await setQty(5);
+  await page.eval(`document.querySelector('form').requestSubmit(); return true;`);
+  await until(page, `document.querySelectorAll('.f.is-invalid').length > 0`, { label: 'the reason check' });
+  check('an adjustment without a reason is refused',
+    /reason/i.test(await page.eval(`return ${text('.f.is-invalid .f__error')};`) || ''));
+
+  await page.eval(`
+    const r = [...document.querySelectorAll('.f')].find(f =>
+      /^Reason/.test((f.querySelector('.f__label')?.textContent || '').trim()))
+      ?.querySelector('select');
+    r.value = 'Damaged';
+    r.dispatchEvent(new Event('change', { bubbles: true }));
+    document.querySelector('form').requestSubmit();
+    return true;
+  `);
+  await until(page, `!!document.querySelector('#receipt .big-number')`, { label: 'the receipt' });
+  check('a manager can write off damaged stock',
+    rig.psql(`select quantity from public.inventory where product_id = '${productId}'`) === '225');
+  check('and the reason is in the ledger, permanently',
+    rig.psql(`select reason from public.stock_movements where product_id = '${productId}'
+              and movement_type = 'ADJUSTMENT_OUT'`) === 'Damaged');
+
+  group('Inventory list');
+  await page.goto(`${base}/admin/inventory/`);
+  await until(page, `!!document.querySelector('#results tbody tr')`, { label: 'the inventory table' });
+  // Search rather than hunt through pages: the list is sorted by name and
+  // this product is not on the first page of 25.
+  await page.eval(`
+    const box = document.querySelector('.toolbar__search');
+    box.value = 'PK-60';
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+  await until(page, `document.querySelectorAll('#results tbody tr').length === 1`,
+    { label: 'the search' });
+  const firstRow = await page.eval(`return ${text('#results tbody tr')};`);
+  check('the inventory table shows cartons alongside units',
+    /11 cartons \+ 5 units/.test(firstRow || ''), (firstRow || '').slice(0, 160));
+
+  await page.eval(`
+    const f = [...document.querySelectorAll('.toolbar__filters select')]
+      .find(s => [...s.options].some(o => o.value === 'out'));
+    f.value = 'out';
+    f.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  `);
+  await until(page, `new URLSearchParams(location.search).get('filter') === 'out'`,
+    { label: 'the filter' });
+  await until(page, `!document.querySelector('#results .spinner')`, { label: 'the reload' });
+  check('filtering to out-of-stock excludes the product that has stock',
+    !/PK-60/.test(await page.eval(`return ${text('#results')};`) || ''));
+};
+
 SUITES.deactivated = async (page, base, rig) => {
   group('A deactivated account');
   await clearSession(page);
@@ -455,6 +590,10 @@ async function main() {
 
     for (const [name, suite] of Object.entries(SUITES)) {
       if (only && only !== name) continue;
+      // Each suite starts from the seeded catalogue. Without this they pass
+      // in isolation and fail together, which is the worst way for a test to
+      // be wrong — it looks like flakiness rather than like shared state.
+      rig.resetData();
       await suite(page, rig.url, rig);
     }
 

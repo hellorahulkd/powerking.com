@@ -553,3 +553,23 @@ textarea.f__input { line-height: 1.55; resize: vertical; }
   .table td, .table th { border-color: #999; }
   a[href]::after { content: ''; }
 }
+
+/* ------------------------------------------------------- product picker -- */
+/* Search-and-choose rather than a dropdown: at ten thousand products a
+   <select> is not a control, it is a scroll. */
+.picker-results {
+  border: 1px solid var(--border-strong);
+  border-top: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--surface);
+}
+.picker-result {
+  display: flex; align-items: center; gap: .6rem; width: 100%;
+  padding: .45rem .55rem; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--border);
+  font: inherit; font-size: .82rem; cursor: pointer;
+}
+.picker-result:last-child { border-bottom: 0; }
+.picker-result:hover, .picker-result:focus-visible { background: var(--bg-alt); }
+.picker-result:focus-visible { outline: 2px solid var(--volt); outline-offset: -2px; }
