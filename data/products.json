@@ -2182,5 +2182,24 @@
     "tags": [
       "U20 Phone cooler"
     ]
+  },
+  {
+    "id": 295,
+    "name": "HKVIPER series mobile phone radiator coolers",
+    "slug": "hkviper-series-mobile-phone-radiator-coolers",
+    "brand": "HKVIPER series mobile phone radiator coolers",
+    "category": "Phone Coolers",
+    "description": "The HKVIPER series mobile phone radiator coolers are engineered for high-performance mobile gaming and streaming. Built to prevent phone overheating, thermal throttling, and frame drops, these compact cooling fans feature detachable back clips for versatile mounting on various smartphone models. Designed with vibrant built-in RGB lighting, quiet heat dissipation fans, and lightweight ergonomics, they deliver optimal thermal control without adding bulk during gameplay.\nKey Specifications\n Brand: HKVIPER\n Models Featured: HK-2 P90, HK-3 PRO, HA-3 PRO\n Cooling System: High-speed silent fan with semiconductor cooling plate\n Attachment Type: Detachable Back Clips (Universal fit for iOS & Android)\n Lighting: Built-in dynamic RGB gaming illumination\n Weight: ~60 g – 75 g (lightweight, zero-burden grip)\n Dimensions: ~6.0 cm x 6.0 cm x 2.5 cm (compact circular design)\n Interface: Type-C USB Input\n Package Includes: HKVIPER Phone Cooler, Detachable Clips, Type-C Power Cable, User Manual",
+    "image": "/images/products/hkviper-series-mobile-phone-radiator-coolers.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 750,
+    "pricePiece": 775,
+    "sku": "HKVIPER series mobile phone radiator coolers",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Phone coolers"
+    ]
   }
 ]
