@@ -499,6 +499,14 @@
     var out = [];
     if (!product.name) out.push('The product needs a name.');
     if (!product.slug) out.push('That name produces an empty web address — type one in yourself.');
+    // The build refuses a product with no brand outright, and that refusal
+    // lands after the commit — the save says "Saved" and the site quietly
+    // stops updating. One product reached the catalogue that way.
+    if (!product.brand) {
+      out.push('The product needs a brand. Type the brand from the box, or '
+        + '[CONFIRM BRAND] if the carton does not show one — the build rejects '
+        + 'a product with the brand left empty.');
+    }
     if (!product.category) out.push('Pick a category.');
     // The build refuses a page whose meta description is 40 characters or
     // shorter, and refuses two pages that share one. Caught here, where it

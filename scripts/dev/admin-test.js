@@ -33,9 +33,13 @@ const check = (label, ok, detail = '') => {
 
 /** The fake GitHub, installed before admin.js runs. */
 const stub = `
-// A previous run may have left a token in this origin's storage, and the panel
-// would sign itself back in with it. Start signed out, always.
-try { localStorage.removeItem('pk-admin-token'); } catch (e) {}
+// A previous run may have left a token — or a photo-reading key — in this
+// origin's storage, and the panel would pick either back up. Start clean,
+// always.
+try {
+  ['pk-admin-token', 'pk-vision-provider', 'pk-vision-model', 'pk-vision-key']
+    .forEach(function (k) { localStorage.removeItem(k); });
+} catch (e) {}
 window.__gh = {
   calls: [],
   nextStatus: null,          // force one response to fail, for the conflict path
@@ -222,6 +226,28 @@ console.log('\nValidation happens before anything is committed');
   `);
   check('a web address that collides with a category page is refused',
     clash.calls === 0 && /category page/i.test(clash.msg), JSON.stringify(clash));
+}
+
+console.log('\nEvery field the build insists on');
+{
+  // The build refuses a product with an empty brand, and that refusal lands
+  // after the commit: the panel says "Saved" and the site stops updating.
+  // One product reached the live catalogue that way and stopped every deploy
+  // until it was fixed by hand.
+  const r = await page.eval(`
+    document.getElementById('edit-back').click();
+    document.getElementById('new-product').click();
+    document.getElementById('f-name').value = 'A Speaker With No Brand On The Box';
+    document.getElementById('f-brand').value = '';
+    document.getElementById('f-description').value =
+      'A speaker whose carton carries no brand mark anywhere on it at all.';
+    const before = window.__gh.calls.length;
+    document.getElementById('edit-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    return { calls: window.__gh.calls.length - before, msg: document.getElementById('edit-msg').textContent };
+  `);
+  check('an empty brand is refused before committing', r.calls === 0, JSON.stringify(r));
+  check('and the message offers the placeholder rather than a guess',
+    /\[CONFIRM BRAND\]/.test(r.msg), r.msg);
 }
 
 console.log('\nA product that already exists');
@@ -554,6 +580,7 @@ console.log('\nA new category, without leaving the product');
     /when you save/i.test(made.msg), made.msg);
 
   const saved = await page.eval(`
+    document.getElementById('f-brand').value = '[CONFIRM BRAND]';
     document.getElementById('f-description').value =
       'A wheeled trolley speaker with a microphone, tested only as far as the box states.';
     // A product without a photo is refused, which would make this measure

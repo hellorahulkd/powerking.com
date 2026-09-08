@@ -896,7 +896,13 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
 
 /* --------------------------------------------------------------- brands -- */
 .brand-jump { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 2rem; }
-.brand-jump .chip { text-decoration: none; }
+/* A brand is whatever the catalogue says it is, and some of those strings run
+   to fifty characters. Chips are nowrap by design elsewhere; here that made
+   one brand wider than a 360px phone and pushed the whole page sideways. */
+.brand-jump .chip {
+  text-decoration: none; max-width: 100%;
+  white-space: normal; overflow-wrap: anywhere;
+}
 .brand-block { margin-bottom: 2.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
 .brand-block__head {
   display: flex; align-items: flex-end; justify-content: space-between;
