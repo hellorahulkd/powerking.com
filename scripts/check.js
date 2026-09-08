@@ -13,6 +13,7 @@ import { siteConfig } from '../src/config/site.config.js';
 import { products } from '../src/data/products.js';
 import { categories } from '../src/data/categories.js';
 import { PAGE_SIZE } from '../src/pages/catalogue.js';
+import { CONSOLE_ROUTES } from '../src/config/admin-routes.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
@@ -68,9 +69,20 @@ async function main() {
     return out;
   };
 
-  // Pages that are built but must never be advertised: a tool for the people
-  // who run the shop, not content for a search engine.
-  const NOT_INDEXED = ['/admin/'];
+  // Pages that are built but must never be advertised: tools for the people
+  // who run the shop, not content for a search engine. Every one of them is
+  // asserted below to carry a noindex and to be absent from the sitemap.
+  const NOT_INDEXED = [
+    '/admin/login/',
+    '/admin/catalogue/',
+    ...CONSOLE_ROUTES.map((r) => r.path),
+  ];
+  // The console screens are drawn by JavaScript after the session has been
+  // checked, so their HTML is a shell: no <h1> and no meta description worth
+  // the name. They are noindex tools, so the SEO rules below would be
+  // measuring the wrong thing — they get their own, stricter, checks instead.
+  const isConsoleShell = (route) =>
+    route.startsWith('/admin/') && route !== '/admin/catalogue/' && route !== '/admin/login/';
 
   const expected = [
     // /admin/ is emitted but deliberately kept out of the sitemap, so it is
@@ -100,6 +112,22 @@ async function main() {
 
     const title = doc.match(/<title>([^<]+)<\/title>/)?.[1];
     assert(`${rel} has a <title>`, Boolean(title));
+
+    if (isConsoleShell(rel)) {
+      // What actually matters for a page nobody should find in Google.
+      assert(`${rel} is noindex`, /<meta name="robots" content="noindex/.test(doc));
+      assert(`${rel} names the module that fills it in`, /<main[^>]+data-page="[a-z-]+"/.test(doc));
+      assert(`${rel} loads the console as a module`,
+        /<script type="module" src="\/assets\/console\/app\.js">/.test(doc));
+      assert(`${rel} says something useful without JavaScript`, /<noscript>/.test(doc));
+      // A shell that shipped data would be a shell that leaked it. Everything
+      // on these screens arrives from Supabase, authorised per reader.
+      assert(`${rel} contains no product data`, !/data-product|"sku"|priceCarton/.test(doc));
+      assert(`${rel} loads no marketing chrome`,
+        !/class="site-header|class="site-footer|wa-float/.test(doc));
+      continue;
+    }
+
     const desc = doc.match(/<meta name="description" content="([^"]*)"/)?.[1];
     assert(`${rel} has a meta description`, Boolean(desc) && desc.length > 40, `len ${desc?.length}`);
     assert(`${rel} has a canonical URL`, /<link rel="canonical" href="https:\/\//.test(doc));
@@ -134,6 +162,8 @@ async function main() {
   /* --------------------------------------------- Open Graph image type -- */
   // WhatsApp/Facebook crawlers cannot render SVG previews.
   for (const file of files) {
+    const rel = '/' + path.relative(DIST, file).replace(/index\.html$/, '');
+    if (isConsoleShell(rel)) continue;   // no social preview for a private tool
     const doc = await readFile(file, 'utf8');
     const og = doc.match(/property="og:image" content="([^"]+)"/)?.[1] || '';
     assert(`${path.relative(DIST, file)} og:image is a raster format`,
@@ -163,6 +193,57 @@ async function main() {
 
   const robots = await readFile(path.join(DIST, 'robots.txt'), 'utf8');
   assert('robots.txt points at the sitemap', robots.includes(`${base}/sitemap.xml`));
+  assert('robots.txt asks crawlers to leave /admin/ alone', /Disallow:\s*\/admin\//.test(robots));
+
+  /* ------------------------------------------------ inventory console -- */
+  // The console's own assets. A missing module here is a screen that loads
+  // and then does nothing, which is the failure mode hardest to notice.
+  for (const f of ['assets/console.css', 'assets/console/app.js', 'assets/console/client.js',
+                   'assets/console/session.js', 'assets/console/ui.js', 'assets/console/format.js',
+                   'assets/console/data.js', 'assets/console/login.js', 'assets/console/env.js']) {
+    assert(`dist/${f} exists`, existsSync(path.join(DIST, f)));
+  }
+  for (const route of CONSOLE_ROUTES) {
+    const shell = await readFile(path.join(DIST, route.path, 'index.html'), 'utf8');
+    assert(`${route.path} names its module`, shell.includes(`data-page="${route.page}"`));
+    const modulePath = path.join(DIST, 'assets/console/pages', `${route.page}.js`);
+    assert(`the module for ${route.path} was published`, existsSync(modulePath),
+      `assets/console/pages/${route.page}.js`);
+  }
+
+  // THE ONE THAT MATTERS MOST. A service-role key bypasses Row Level Security
+  // completely, so it must never be in anything served to a browser. This
+  // checks the built output rather than trusting the code that wrote it.
+  const envJs = await readFile(path.join(DIST, 'assets/console/env.js'), 'utf8');
+  // Checked against the exported values rather than the file's text: the file
+  // explains in a comment that it never carries a service-role key, and a
+  // search for the phrase would match the explanation. What matters is what
+  // is assigned, so that is what is read.
+  const exported = Object.fromEntries(
+    [...envJs.matchAll(/export const (\w+) = ("([^"]*)"|true|false);/g)]
+      .map((m) => [m[1], m[3] ?? m[2]]),
+  );
+  assert('the published Supabase config exports only the expected names',
+    Object.keys(exported).sort().join(',') ===
+      'CONFIGURED,SUPABASE_ANON_KEY,SUPABASE_BUCKET,SUPABASE_URL',
+    Object.keys(exported).join(','));
+  for (const [name, value] of Object.entries(exported)) {
+    assert(`${name} holds no credential beyond the public key`,
+      !/service[_-]?role|postgres:\/\/|-----BEGIN/i.test(String(value)), name);
+  }
+  const anonKey = exported.SUPABASE_ANON_KEY || '';
+  if (anonKey.split('.').length === 3) {
+    let role = '';
+    try {
+      role = JSON.parse(Buffer.from(anonKey.split('.')[1], 'base64url').toString('utf8')).role || '';
+    } catch { /* not a JWT we can read; the regex above already checked the text */ }
+    assert('the published key is not a service-role key', role !== 'service_role', role);
+  }
+  for (const file of await allHtmlFiles()) {
+    const doc = await readFile(file, 'utf8');
+    assert(`${path.relative(DIST, file)} carries no service-role key`,
+      !/service_role/i.test(doc));
+  }
 
   /* -------------------------------------------------- internal links -- */
   // Catch typos in hrefs before visitors hit a 404.

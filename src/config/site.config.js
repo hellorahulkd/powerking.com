@@ -22,14 +22,29 @@ export const siteConfig = {
     'Wholesale electronics distribution in Nepal — speakers, headphones, earbuds, chargers, data cables, multiplugs and mobile accessories. Browse the catalogue and enquire on WhatsApp for trade pricing, availability and minimum order quantities.',
 
   // --- Money -----------------------------------------------------------------
-  // Prices are entered as plain numbers and formatted here. The locale is
-  // ne-NP forced to Latin digits: plain "ne-NP" renders Devanagari numerals
-  // (१,२५,०००), which is not what a trade buyer reads, while the tag below
-  // keeps Nepal's lakh grouping — 1,25,000 rather than 125,000.
+  // Prices are entered as plain numbers and formatted here.
+  //
+  // A LIST, not a single locale, and the order matters. What is wanted is
+  // Nepal's lakh grouping in Latin digits — 1,25,000 rather than 125,000, and
+  // not the Devanagari १,२५,००० that plain "ne-NP" produces, which is not what
+  // a trade buyer reads.
+  //
+  // ne-NP-u-nu-latn gives exactly that where the engine has Nepali locale
+  // data. Node does. Several Chromium builds do not: Intl silently falls back
+  // to the default locale and quietly returns 125,000 instead — measured, not
+  // assumed, in scripts/dev/console-test.js. That mattered the moment the
+  // inventory console started formatting prices in the browser, because the
+  // same product would then read 1,25,000 on the public page (rendered in
+  // Node at build time) and 125,000 in the admin panel.
+  //
+  // en-IN is the second entry because India and Nepal group digits the same
+  // way, and it is present in every engine checked. Intl.NumberFormat takes
+  // the list and uses the first locale it actually has, so this is correct
+  // everywhere rather than correct where it was developed.
   currency: {
     symbol: 'Rs.',
     code: 'NPR',
-    locale: 'ne-NP-u-nu-latn',
+    locale: ['ne-NP-u-nu-latn', 'en-IN', 'en'],
   },
 
   // --- How stock is supplied ------------------------------------------------

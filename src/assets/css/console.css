@@ -1,0 +1,555 @@
+/**
+ * ============================================================================
+ *  POWERKING NEPAL — INVENTORY CONSOLE
+ * ============================================================================
+ *  Loaded only by /admin/, so a shopper never downloads a byte of it.
+ *
+ *  It defines no colour, no font and no spacing scale of its own: every value
+ *  comes from the tokens in styles.css, which is why the console looks like
+ *  PowerKing rather than like a dashboard template. What it does change is
+ *  density. The marketing pages are built to be read; this is built to be
+ *  worked in for an afternoon, so the type is smaller, the rows are tighter
+ *  and there is far less air.
+ *
+ *  The brand's cut-corner plate and single yellow accent are kept. The yellow
+ *  still appears almost nowhere — primary buttons and the active nav marker —
+ *  so it still means something when it does.
+ * ============================================================================
+ */
+
+/* ============================================================== layout === */
+
+.page-console,
+.page-login { background: var(--bg-alt); }
+
+.page-console body,
+.page-console { min-height: 100vh; }
+
+/* The shell is a sidebar and a column, and the column scrolls. On a phone the
+   sidebar becomes a drawer over the top rather than a squeeze, because 240px
+   of a 360px screen is not a layout. */
+.page-console {
+  --side-w: 244px;
+  --top-h: 60px;
+}
+
+.shell__side {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--side-w);
+  display: flex;
+  flex-direction: column;
+  background: var(--ink);
+  color: #fff;
+  z-index: 40;
+}
+
+.shell__brand { padding: 1.15rem 1.15rem .9rem; }
+.shell__mark { display: block; text-decoration: none; color: inherit; }
+.shell__wordmark {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: .16em;
+  color: #fff;
+}
+.shell__sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--volt);
+  margin-top: .15rem;
+}
+
+.nav { flex: 1; overflow-y: auto; padding: .5rem .6rem 1rem; display: grid; gap: 1px; }
+.nav__link {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .5rem .65rem;
+  font-size: .84rem;
+  color: rgba(255, 255, 255, .72);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+}
+.nav__link:hover { background: rgba(255, 255, 255, .07); color: #fff; }
+.nav__link svg { flex: none; opacity: .8; }
+/* The one place the accent appears in the chrome. */
+.nav__link.is-active {
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+  border-left-color: var(--volt);
+  font-weight: 600;
+}
+.nav__link.is-active svg { opacity: 1; color: var(--volt); }
+.nav__link:focus-visible { outline: 2px solid var(--volt); outline-offset: -2px; }
+
+.shell__user {
+  border-top: 1px solid rgba(255, 255, 255, .14);
+  padding: .8rem .9rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.shell__who { min-width: 0; flex: 1; }
+.shell__name {
+  display: block;
+  font-size: .8rem;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shell__role {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .6rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--volt);
+}
+.shell__user .btn { --btn-bg: transparent; --btn-fg: rgba(255,255,255,.75); --btn-bd: rgba(255,255,255,.28); }
+.shell__user .btn:hover { --btn-fg: #fff; --btn-bd: rgba(255,255,255,.6); }
+
+.shell__top {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  min-height: var(--top-h);
+  padding: .55rem 1.15rem;
+  margin-left: var(--side-w);
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.shell__title {
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -.015em;
+  margin: 0;
+}
+.shell__actions { margin-left: auto; display: flex; gap: .5rem; flex-wrap: wrap; }
+
+.shell__main {
+  margin-left: var(--side-w);
+  padding: 1.15rem 1.15rem 4rem;
+  max-width: 1400px;
+}
+
+.shell__burger { display: none; }
+
+/* --- the drawer, under 900px ------------------------------------------- */
+@media (max-width: 900px) {
+  .page-console { --side-w: 0px; }
+  .shell__side {
+    width: 244px;
+    transform: translateX(-100%);
+    transition: transform .18s ease;
+    box-shadow: var(--shadow-lg);
+  }
+  body.is-nav-open .shell__side { transform: none; }
+  .shell__top, .shell__main { margin-left: 0; }
+  .shell__burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    background: none;
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .shell__burger-bars,
+  .shell__burger-bars::before,
+  .shell__burger-bars::after {
+    display: block; width: 17px; height: 2px; background: var(--ink); content: '';
+  }
+  .shell__burger-bars { position: relative; }
+  .shell__burger-bars::before { position: absolute; top: -5px; }
+  .shell__burger-bars::after { position: absolute; top: 5px; }
+  /* A scrim so the drawer reads as over the page, not beside it. */
+  body.is-nav-open::after {
+    content: ''; position: fixed; inset: 0; background: rgba(0, 0, 0, .35); z-index: 35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shell__side { transition: none; }
+}
+
+/* ============================================================== pieces === */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1rem 1.1rem;
+}
+.card__title {
+  font-family: var(--font-display);
+  font-size: .95rem;
+  font-weight: 800;
+  margin: 0 0 .15rem;
+}
+.card__head {
+  display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap;
+  margin-bottom: .75rem;
+}
+.card__head .btn { margin-left: auto; }
+.card__link { font-size: .78rem; margin-left: auto; }
+
+.grid { display: grid; gap: .85rem; }
+.grid--kpi { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.grid--2 { grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+.stack { display: grid; gap: .85rem; }
+.row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.row--end { justify-content: flex-end; }
+.spacer { flex: 1; }
+
+/* --- KPI ---------------------------------------------------------------- */
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: .9rem 1rem;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+a.kpi:hover { border-color: var(--border-strong); }
+.kpi__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.kpi__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+  margin-top: .25rem;
+}
+.kpi__note { display: block; font-size: .74rem; color: var(--text-muted); margin-top: .2rem; }
+.kpi--warn .kpi__value { color: #8A5A00; }
+.kpi--bad  .kpi__value { color: var(--danger); }
+
+/* --- pills -------------------------------------------------------------- */
+.pill {
+  display: inline-block;
+  padding: .12rem .45rem;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.pill--ok   { background: #E7F6EC; border-color: #A8DCBB; color: #17603A; }
+.pill--warn { background: var(--volt-100); border-color: #E2C74A; color: #6B5A00; }
+.pill--bad  { background: #FBEAE7; border-color: #E9B3AA; color: #8E2617; }
+.pill--info { background: var(--bg-sunken); border-color: var(--border-strong); color: var(--ink-600); }
+
+/* --- tables ------------------------------------------------------------- */
+.table-wrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.table th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: .4rem .55rem;
+  border-bottom: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+.table td {
+  padding: .5rem .55rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.table tbody tr:hover { background: var(--bg-alt); }
+.table .is-numeric { text-align: right; font-variant-numeric: tabular-nums; }
+.table__main { font-weight: 600; }
+.table__sub { display: block; font-size: .72rem; color: var(--text-faint); }
+.table a { color: inherit; }
+
+.thumb { width: 34px; height: 34px; object-fit: contain; background: var(--bg-alt); flex: none; }
+.thumb--empty { display: block; border: 1px dashed var(--border-strong); }
+
+/* On a phone a nine-column table is unreadable however it scrolls, so each
+   row becomes a small card and every cell carries its own label. The columns
+   marked .is-narrow are the ones that are not worth the vertical space. */
+@media (max-width: 720px) {
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table thead { display: none; }
+  .table tr {
+    border: 1px solid var(--border);
+    margin-bottom: .55rem;
+    padding: .3rem .55rem;
+    background: var(--surface);
+  }
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 0;
+    padding: .25rem 0;
+    text-align: left;
+  }
+  .table td::before {
+    content: attr(data-label);
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    flex: none;
+  }
+  .table td.is-numeric { text-align: right; }
+  .table td.is-narrow { display: none; }
+}
+
+/* --- pager -------------------------------------------------------------- */
+.pager {
+  display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+  padding-top: .75rem; margin-top: .25rem; border-top: 1px solid var(--border);
+}
+.pager__count { font-size: .76rem; color: var(--text-muted); margin: 0; }
+.pager__buttons { margin-left: auto; display: flex; gap: .4rem; }
+
+/* --- toolbar ------------------------------------------------------------ */
+.toolbar {
+  display: flex; gap: .5rem; flex-wrap: wrap; align-items: center;
+  margin-bottom: .85rem;
+}
+.toolbar .f__input { width: auto; min-width: 0; }
+.toolbar__search { flex: 1 1 220px; }
+.toolbar__filters { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* ============================================================== forms === */
+
+.f { margin-bottom: .95rem; }
+.f__label {
+  display: block;
+  margin-bottom: .25rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: .78rem;
+  letter-spacing: -.005em;
+  color: var(--ink);
+}
+.f__req { color: var(--danger); }
+.f__input {
+  width: 100%;
+  padding: .5rem .6rem;
+  font: inherit;
+  font-size: .85rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+}
+.f__input:focus-visible { outline: none; border-color: var(--ink); box-shadow: var(--ring); }
+.f__input[type='number'] { font-variant-numeric: tabular-nums; }
+textarea.f__input { line-height: 1.55; resize: vertical; }
+.f__hint { margin: .25rem 0 0; font-size: .73rem; color: var(--text-muted); }
+.f__error { margin: .25rem 0 0; font-size: .73rem; color: var(--danger); font-weight: 600; }
+.f.is-invalid .f__input { border-color: var(--danger); }
+.f__check { display: flex; gap: .5rem; align-items: flex-start; font-size: .82rem; cursor: pointer; }
+.f__check input { margin-top: .2rem; flex: none; }
+.f__row { display: flex; gap: .5rem; align-items: flex-start; }
+.f__row > .f { flex: 1; }
+.form-grid { display: grid; gap: 0 .9rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.form-actions {
+  display: flex; gap: .5rem; flex-wrap: wrap; align-items: center;
+  padding-top: .9rem; margin-top: .35rem; border-top: 1px solid var(--border);
+}
+.fieldset { border: 0; padding: 0; margin: 0 0 .35rem; }
+.fieldset__legend {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0;
+  margin-bottom: .5rem;
+}
+
+/* --- image picker ------------------------------------------------------- */
+.picker {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; min-height: 148px; padding: .75rem;
+  background: var(--bg-alt); border: 1px dashed var(--border-strong); cursor: pointer;
+}
+.picker.is-over { border-color: var(--ink); background: var(--volt-100); }
+.picker img { max-height: 190px; width: auto; object-fit: contain; }
+.picker__empty { font-size: .8rem; color: var(--text-faint); text-align: center; }
+.picker__file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* ============================================================== states === */
+
+.state { padding: 2.25rem 1rem; text-align: center; }
+.state__title { font-family: var(--font-display); font-size: 1rem; font-weight: 800; margin: 0 0 .3rem; }
+.state__text { font-size: .84rem; color: var(--text-muted); margin: 0 auto .8rem; max-width: 46ch; }
+.state--error { border: 1px solid #E9B3AA; background: #FDF6F5; }
+.state--error .state__title { color: #8E2617; }
+
+.spinner {
+  display: inline-block; width: 18px; height: 18px; margin-bottom: .5rem;
+  border: 2px solid var(--border-strong); border-top-color: var(--ink);
+  border-radius: 50%; animation: pk-spin .7s linear infinite;
+}
+@keyframes pk-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2s; } }
+
+/* ============================================================== toasts === */
+
+.toasts {
+  position: fixed; z-index: 90; bottom: 1rem; right: 1rem;
+  display: grid; gap: .5rem; width: min(360px, calc(100vw - 2rem));
+}
+.toast {
+  display: flex; gap: .6rem; align-items: flex-start;
+  padding: .6rem .7rem; font-size: .82rem;
+  background: var(--ink); color: #fff; box-shadow: var(--shadow-md);
+  border-left: 3px solid var(--volt);
+}
+.toast--error { border-left-color: #FF6B57; }
+.toast__text { flex: 1; }
+.toast__close {
+  background: none; border: 0; color: inherit; opacity: .7;
+  font-size: 1.05rem; line-height: 1; cursor: pointer; padding: 0 .1rem;
+}
+.toast__close:hover { opacity: 1; }
+@media (max-width: 520px) {
+  .toasts { left: 1rem; right: 1rem; bottom: 1rem; width: auto; }
+}
+
+/* ============================================================== dialog === */
+
+.dialog {
+  border: 1px solid var(--border-strong);
+  padding: 1.2rem;
+  width: min(420px, calc(100vw - 2rem));
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+}
+.dialog::backdrop { background: rgba(16, 16, 16, .45); }
+.dialog__title { font-family: var(--font-display); font-size: 1rem; font-weight: 800; margin: 0 0 .4rem; }
+.dialog__body { font-size: .85rem; color: var(--text-muted); margin: 0 0 1rem; }
+.dialog__actions { display: flex; gap: .5rem; justify-content: flex-end; }
+
+.btn--danger { --btn-bg: var(--danger); --btn-fg: #fff; --btn-bd: var(--danger); }
+
+/* =============================================================== login === */
+
+.page-login { display: grid; place-items: center; min-height: 100vh; padding: 1.25rem; }
+.login { width: 100%; display: grid; place-items: center; }
+.login__card {
+  width: min(400px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.75rem 1.5rem 1.4rem;
+  box-shadow: var(--shadow-md);
+}
+.login__brand { margin-bottom: 1.4rem; }
+.login__wordmark {
+  display: block; font-family: var(--font-display); font-weight: 800;
+  font-size: 1.3rem; letter-spacing: .17em; color: var(--ink);
+}
+.login__sub {
+  display: block; font-family: var(--font-mono); font-size: .62rem;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--accent-600);
+  margin-top: .1rem;
+}
+.login__title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; margin: 0 0 .2rem; }
+.login__lead { font-size: .82rem; color: var(--text-muted); margin: 0 0 1.3rem; }
+.login__form { display: block; }
+.login__go { width: 100%; justify-content: center; margin-top: .3rem; }
+.login__reveal { position: relative; display: flex; }
+.login__reveal .f__input { padding-right: 3.6rem; }
+.login__eye {
+  position: absolute; right: .1rem; top: 50%; transform: translateY(-50%);
+  background: none; border: 0; cursor: pointer;
+  font-size: .72rem; font-weight: 700; color: var(--text-muted);
+  padding: .4rem .55rem;
+}
+.login__eye:hover { color: var(--ink); }
+.login__msg {
+  font-size: .8rem; font-weight: 600; padding: .55rem .65rem; margin: 0 0 .9rem;
+  background: #FBEAE7; border-left: 3px solid var(--danger); color: #8E2617;
+}
+.login__msg--warn { background: var(--volt-100); border-left-color: var(--volt-600); color: #6B5A00; }
+.login__note {
+  margin: 1.3rem 0 0; padding-top: 1rem; border-top: 1px solid var(--border);
+  font-size: .75rem; color: var(--text-faint);
+}
+.login__back { margin: .7rem 0 0; font-size: .75rem; }
+.login__back a { color: var(--text-muted); }
+
+/* ============================================================== setup ==== */
+
+.setup { max-width: 620px; margin: 3rem auto; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); }
+.setup__title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; margin: 0 0 .4rem; }
+.setup__lead { font-size: .86rem; color: var(--text-muted); }
+.setup__steps { font-size: .84rem; color: var(--text-muted); line-height: 1.8; padding-left: 1.2rem; }
+.setup__steps li { list-style: decimal; }
+.setup__note { font-size: .78rem; color: var(--text-faint); border-top: 1px solid var(--border); padding-top: .9rem; margin-bottom: 1rem; }
+.setup code, .console-code {
+  font-family: var(--font-mono); font-size: .85em;
+  background: var(--bg-sunken); padding: .1em .35em;
+}
+
+/* ============================================================= details === */
+
+.dl { display: grid; grid-template-columns: auto 1fr; gap: .3rem .9rem; font-size: .83rem; margin: 0; }
+.dl dt { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); padding-top: .2rem; }
+.dl dd { margin: 0; }
+.dl dd.is-numeric { font-variant-numeric: tabular-nums; }
+
+.hero-figure {
+  display: grid; place-items: center; background: var(--bg-alt);
+  border: 1px solid var(--border); padding: 1rem; min-height: 200px;
+}
+.hero-figure img { max-height: 260px; width: auto; object-fit: contain; }
+
+.big-number {
+  font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+  letter-spacing: -.03em; line-height: 1.05;
+}
+.big-number__sub { display: block; font-family: var(--font-sans); font-size: .8rem; font-weight: 400; color: var(--text-muted); letter-spacing: 0; margin-top: .15rem; }
+
+.muted { color: var(--text-muted); }
+.faint { color: var(--text-faint); }
+.small { font-size: .78rem; }
+.mono { font-family: var(--font-mono); font-size: .78rem; }
+.nowrap { white-space: nowrap; }
+.numeric { font-variant-numeric: tabular-nums; }
+.pos { color: #17603A; font-weight: 600; }
+.neg { color: var(--danger); font-weight: 600; }
+
+/* Print: reports should come off a printer as a report, not as a screenshot
+   of an application. Requirement 15 asks for printable reports and this is
+   the whole of what that needs. */
+@media print {
+  .shell__side, .shell__top, .toolbar, .pager, .toasts, .form-actions { display: none !important; }
+  .shell__main { margin: 0; padding: 0; max-width: none; }
+  .card { border: 0; padding: 0; }
+  .table { font-size: 10pt; }
+  .table td, .table th { border-color: #999; }
+  a[href]::after { content: ''; }
+}

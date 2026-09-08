@@ -149,7 +149,11 @@ export async function newPage(port = 9222) {
       const out = [];
       for (const e of events) {
         if (e.method === 'Log.entryAdded' && ['error'].includes(e.params.entry.level)) {
-          out.push(`${e.params.entry.source}: ${e.params.entry.text}`);
+          // The URL is included because the text alone ("Failed to load
+          // resource: 400") cannot be told apart from a failure a test caused
+          // deliberately — which is the only thing a caller can filter on.
+          const { source, text, url } = e.params.entry;
+          out.push(`${source}: ${text}${url ? ` [${url}]` : ''}`);
         }
         if (e.method === 'Runtime.exceptionThrown') {
           out.push(`js: ${e.params.exceptionDetails.exception?.description || 'exception'}`);

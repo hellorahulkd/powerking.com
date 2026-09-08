@@ -1,0 +1,32 @@
+/**
+ * ============================================================================
+ *  ADMIN CONSOLE ROUTES
+ * ============================================================================
+ *  Shared by build.js, which emits a file for each of these, and
+ *  scripts/check.js, which verifies that it did and that none of them leaked
+ *  into the sitemap. One list, so the two cannot disagree about what exists.
+ * ============================================================================
+ */
+
+/**
+ * Every screen of the inventory console. One real HTML file each, so a
+ * bookmark or a refresh lands where it should without needing JavaScript to
+ * have run first; `page` names the module in assets/console/app.js that fills
+ * it in once the session has been checked.
+ *
+ * A record id travels in the query string — /admin/products/view/?id=… —
+ * because a static host cannot serve /admin/products/<uuid>/. vercel.json
+ * rewrites the tidier path onto the same file where the site is deployed on
+ * Vercel; nothing in the application knows or cares which one it arrived by.
+ *
+ * None of these are added to the sitemap and all of them carry noindex.
+ *
+ * A route appears here only once the module that fills it exists —
+ * scripts/check.js asserts that pairing — so the site never publishes a link
+ * to a screen that loads and then does nothing.
+ */
+export const CONSOLE_ROUTES = [
+  { path: '/admin/', page: 'dashboard', title: 'Dashboard' },
+];
+
+export default CONSOLE_ROUTES;

@@ -30,6 +30,9 @@ import { aboutPage } from './src/pages/about.js';
 import { contactPage } from './src/pages/contact.js';
 import { brandsPage, privacyPage, notFoundPage } from './src/pages/misc.js';
 import { adminPage } from './src/pages/admin.js';
+import { consolePage, loginPage } from './src/templates/console.js';
+import { CONSOLE_ROUTES } from './src/config/admin-routes.js';
+import { supabaseConfig, envModule, serviceRoleKeyMisplaced } from './src/config/supabase.config.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(ROOT, 'dist');
@@ -174,8 +177,13 @@ ${urls}
 
 function robots() {
   const base = siteConfig.domain.replace(/\/+$/, '');
+  // /admin/ is disallowed to keep the console out of search results, which is
+  // tidiness rather than security: robots.txt is a request, and anyone may
+  // still open the page. It shows a sign-in form and nothing else until
+  // Supabase authorises a session.
   return `User-agent: *
 Allow: /
+Disallow: /admin/
 
 Sitemap: ${base}/sitemap.xml
 `;
@@ -280,11 +288,24 @@ async function build() {
     add('/brands/', '0.6');
   }
 
-  // The catalogue editor. Deliberately not passed to add(): it is a tool for
-  // the people who run the shop, so it stays out of the sitemap and carries a
-  // noindex. It is not hidden — a static host cannot hide a file — and it does
-  // not need to be, because GitHub authorises every write, not this page.
-  await emit('/admin/', adminPage());
+  // --- the private tools ----------------------------------------------------
+  // None of these are passed to add(): they are tools for the people who run
+  // the shop, so they stay out of the sitemap, carry a noindex and are
+  // disallowed in robots.txt. That is not what protects them — a static host
+  // cannot hide a file, and hiding is not a permission system. What protects
+  // them is that they hold nothing: every byte of data arrives from Supabase,
+  // authorised by Row Level Security against the reader's own session.
+  await emit('/admin/login/', loginPage());
+  for (const route of CONSOLE_ROUTES) {
+    await emit(route.path, consolePage(route));
+  }
+
+  // The original GitHub-backed catalogue editor, kept and moved rather than
+  // replaced. It writes product copy and photographs straight into this
+  // repository, which is a different job from stock control and is still the
+  // fastest way to do it — and it keeps working if Supabase is ever
+  // unreachable, because it does not use it.
+  await emit('/admin/catalogue/', adminPage());
 
   // 404.html is served by GitHub Pages for any unknown path.
   await emit('/404.html', notFoundPage());
@@ -330,12 +351,31 @@ async function build() {
   await cp(path.join(ROOT, 'src/assets/js/slider.js'), path.join(DIST, 'assets/slider.js'));
   await cp(path.join(ROOT, 'src/assets/js/admin.js'), path.join(DIST, 'assets/admin.js'));
   await cp(path.join(ROOT, 'src/assets/js/enquiry.js'), path.join(DIST, 'assets/enquiry.js'));
-  // Loaded only by /admin/, so the shop's own tool costs a shopper nothing.
+  // Loaded only by /admin/catalogue/, so the shop's own tool costs a shopper
+  // nothing.
   await writeFile(
     path.join(DIST, 'assets/admin.css'),
     stripCssComments(await readFile(path.join(ROOT, 'src/assets/css/admin.css'), 'utf8')),
     'utf8',
   );
+  await writeFile(
+    path.join(DIST, 'assets/console.css'),
+    stripCssComments(await readFile(path.join(ROOT, 'src/assets/css/console.css'), 'utf8')),
+    'utf8',
+  );
+
+  // The console's modules, copied as-is: they are ES modules the browser
+  // imports from each other by relative path, so the directory shape has to
+  // survive. No bundling, which also means one changed screen invalidates one
+  // cached file rather than all of them.
+  await cp(path.join(ROOT, 'src/assets/js/console'), path.join(DIST, 'assets/console'), {
+    recursive: true,
+  });
+
+  // The Supabase project URL and anon key, written as a module the console
+  // imports. Both are public by design; the service-role key is never read.
+  // See src/config/supabase.config.js for why that is safe.
+  await writeFile(path.join(DIST, 'assets/console/env.js'), envModule(), 'utf8');
 
   // public/ is copied last so anything there (CNAME, favicon, images) wins.
   await copyDir(path.join(ROOT, 'public'), DIST);
@@ -348,7 +388,7 @@ async function build() {
   await writeFile(path.join(DIST, '.nojekyll'), '', 'utf8');
 
   /* ------------------------------------------------------------ report -- */
-  log(`  ✓ ${routes.length + 1} pages built in ${Date.now() - started}ms`);
+  log(`  ✓ ${routes.length + CONSOLE_ROUTES.length + 3} pages built in ${Date.now() - started}ms`);
   log(`      ${products.length} products · ${categories.length} categories · ${brands.length} brands`);
   log(`      output: dist/`);
 
@@ -356,6 +396,19 @@ async function build() {
     log('\n  ! Warnings:');
     for (const w of warnings) log(`      • ${w}`);
   }
+
+  if (serviceRoleKeyMisplaced) {
+    log('\n  ! SUPABASE_ANON_KEY looks like a service-role key.');
+    log('      It has NOT been written into the build. A service-role key bypasses');
+    log('      Row Level Security entirely and must never reach a browser. Use the');
+    log('      anon / publishable key from Project Settings → API instead.');
+  }
+  log(
+    supabaseConfig.configured
+      ? `      inventory: connected to ${supabaseConfig.url}`
+      : '      inventory: not configured — /admin/ explains what is missing,\n' +
+        '                 and the public catalogue is running from data/*.json',
+  );
 
   const missing = configChecklist();
   if (missing.length) {

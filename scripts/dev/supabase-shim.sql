@@ -14,15 +14,24 @@ create schema if not exists storage;
 create table auth.users (
   id uuid primary key default gen_random_uuid(),
   email text unique,
+  -- The real GoTrue keeps a bcrypt hash here. The local rig keeps a scrypt
+  -- one, because it only has to prove that a password check happens at all;
+  -- nothing in this file is ever applied to a Supabase project.
+  encrypted_password text,
   raw_user_meta_data jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
--- Supabase reads the JWT from a request-local GUC; the shim reads the same
--- one, so the policies under test are the policies that ship.
+-- Supabase's own definition, copied rather than approximated: PostgREST 9 and
+-- earlier set one GUC per claim, 10 and later set the whole claims object as
+-- JSON, and Supabase reads both. The tests drive a real PostgREST, so getting
+-- this wrong would mean testing policies that never fire.
 create or replace function auth.uid() returns uuid
 language sql stable as $$
-  select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
+  select coalesce(
+    nullif(current_setting('request.jwt.claim.sub', true), ''),
+    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
+  )::uuid
 $$;
 
 create table storage.buckets (
