@@ -39,6 +39,8 @@ export const CONSOLE_ROUTES = [
   { path: '/admin/suppliers/view/', page: 'supplier-view', title: 'Supplier' },
   { path: '/admin/categories/',     page: 'categories',    title: 'Categories' },
   { path: '/admin/brands/',         page: 'brands',        title: 'Brands' },
+  { path: '/admin/reports/',        page: 'reports',       title: 'Reports' },
+  { path: '/admin/settings/',       page: 'settings',      title: 'Settings' },
 ];
 
 export default CONSOLE_ROUTES;

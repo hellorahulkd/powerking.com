@@ -673,6 +673,144 @@ SUITES.taxonomy = async (page, base, rig) => {
     /managers and admins/i.test(await page.eval(`return ${text('.state--error .state__text')};`) || ''));
 };
 
+SUITES.reports = async (page, base, rig) => {
+  group('Reports');
+  await clearSession(page);
+  await signIn(page, base, USERS[0]);
+
+  const productId = rig.psql(`select id from public.products where sku = 'PK-60'`);
+  rig.psqlAs('admin@powerking.test', `
+    update public.products set cost_price = 400, units_per_carton = 20 where id = '${productId}';
+    select public.record_stock_movement('${productId}'::uuid, 'STOCK_IN', 250, p_unit_cost => 400);
+    select public.record_stock_movement('${productId}'::uuid, 'STOCK_OUT', 245,
+      p_customer_name => 'Ram Traders');
+  `);
+
+  await page.goto(`${base}/admin/reports/`);
+  await until(page, `!!document.querySelector('#results tbody tr')`, { label: 'the inventory report' });
+  check('the inventory report values stock at cost',
+    /2,000/.test(await page.eval(`return ${text('#results tbody tr')};`) || ''),
+    await page.eval(`return ${text('#results tbody tr')};`));
+  check('and says what the page adds up to, labelled as this page',
+    /this page:/.test(await page.eval(`return ${text('#summary')};`) || ''),
+    await page.eval(`return ${text('#summary')};`));
+
+  // Low stock: 5 left against a threshold of 10.
+  await page.eval(`
+    [...document.querySelectorAll('button')].find(b => b.textContent === 'Low stock').click();
+    return true;
+  `);
+  await until(page, `new URLSearchParams(location.search).get('report') === 'low'`,
+    { label: 'the low stock report' });
+  await until(page, `!document.querySelector('#results .spinner')`, { label: 'the reload' });
+  const lowText = await page.eval(`return ${text('#results')};`);
+  check('the low stock report finds the product below its reorder level',
+    /PK-60/.test(lowText || ''), (lowText || '').slice(0, 120));
+
+  await page.eval(`
+    [...document.querySelectorAll('button')].find(b => b.textContent === 'Out of stock').click();
+    return true;
+  `);
+  await until(page, `new URLSearchParams(location.search).get('report') === 'out'`,
+    { label: 'the out of stock report' });
+  await until(page, `!document.querySelector('#results .spinner')`, { label: 'the reload' });
+  check('the out-of-stock report excludes a product that has five left',
+    !/PK-60/.test(await page.eval(`return ${text('#results')};`) || ''));
+
+  await page.eval(`
+    [...document.querySelectorAll('button')].find(b => b.textContent === 'Stock movements').click();
+    return true;
+  `);
+  await until(page, `!!document.querySelector('#results tbody tr')`, { label: 'the movement report' });
+  check('the movement report lists both movements',
+    (await page.eval(`return document.querySelectorAll('#results tbody tr').length;`)) === 2);
+
+  // Filter by type, through the real query.
+  await page.eval(`
+    const sel = [...document.querySelectorAll('#filters select')]
+      .find(s => [...s.options].some(o => o.value === 'STOCK_OUT'));
+    sel.value = 'STOCK_OUT';
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  `);
+  await until(page, `document.querySelectorAll('#results tbody tr').length === 1`,
+    { label: 'the type filter' });
+  const movementRow = await page.eval(`return ${text('#results tbody tr')};`);
+  check('filtering by movement type narrows to that type',
+    /Stock out/.test(movementRow) && /Ram Traders/.test(movementRow), movementRow);
+  check('and the filter is in the URL so the report can be sent as a link',
+    (await page.eval(`return new URLSearchParams(location.search).get('type');`)) === 'STOCK_OUT');
+
+  // A date range that excludes everything must say so rather than showing all.
+  await page.eval(`
+    const from = document.querySelector('#filters input[type=date]');
+    from.value = '2030-01-01';
+    from.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  `);
+  await until(page, `!!document.querySelector('#results .state--empty')`, { label: 'the empty state' });
+  check('a date range with nothing in it says so',
+    /No movements match/i.test(await page.eval(`return ${text('#results .state__title')};`) || ''));
+};
+
+SUITES.settings = async (page, base, rig) => {
+  group('Settings');
+  await clearSession(page);
+  await signIn(page, base, USERS[0]);
+  await page.goto(`${base}/admin/settings/`);
+  await until(page, `!!document.querySelector('#people tbody tr')`, { label: 'the people table' });
+
+  check('everybody with access is listed',
+    (await page.eval(`return document.querySelectorAll('#people tbody tr').length;`)) === 3);
+  check('the last active admin cannot be disabled',
+    (await page.eval(`
+      const row = [...document.querySelectorAll('#people tbody tr')]
+        .find(tr => /Ama Admin/.test(tr.textContent));
+      return row.querySelector('button')?.disabled;
+    `)) === true);
+
+  // Promote a member of staff, and check it in the database rather than on
+  // the screen — the database is what decides what they can do.
+  await page.eval(`
+    const row = [...document.querySelectorAll('#people tbody tr')]
+      .find(tr => /Sita Staff/.test(tr.textContent));
+    const sel = row.querySelector('select');
+    sel.value = 'manager';
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  `);
+  await until(page, `!!document.querySelector('.toast')`, { label: 'the confirmation' });
+  check('an admin can promote somebody, and it reaches the database',
+    rig.psql(`select role from public.profiles where email = 'staff@powerking.test'`) === 'manager');
+
+  rig.psqlAs('admin@powerking.test',
+    `update public.profiles set role = 'staff' where email = 'staff@powerking.test';`);
+
+  check('storage locations are listed',
+    /Main Warehouse/.test(await page.eval(`return ${text('#locations')};`) || ''));
+
+  const stockCard = await page.eval(`
+    const c = [...document.querySelectorAll('.card')].find(c =>
+      /public catalogue says about stock/.test(c.querySelector('.card__title')?.textContent || ''));
+    return c ? c.textContent : null;
+  `);
+  check('the public stock wording is configurable', Boolean(stockCard));
+  check('and states plainly that exact quantities are never published',
+    /never published/.test(stockCard || ''));
+
+  group('Settings and lesser roles');
+  await clearSession(page);
+  await signIn(page, base, USERS[1]);
+  await page.goto(`${base}/admin/settings/`);
+  await until(page, `!!document.querySelector('#people tbody tr')`, { label: 'the people table' });
+  check('a manager can see who has access',
+    (await page.eval(`return document.querySelectorAll('#people tbody tr').length;`)) === 3);
+  check('but cannot change anybody\'s role',
+    (await page.eval(`return document.querySelectorAll('#people tbody select').length;`)) === 0);
+  check('and is not offered the public stock setting',
+    !/public catalogue says about stock/.test(await page.eval(`return document.body.textContent;`) || ''));
+};
+
 SUITES.deactivated = async (page, base, rig) => {
   group('A deactivated account');
   await clearSession(page);
