@@ -2072,5 +2072,24 @@
     "tags": [
       "Multiplugs"
     ]
+  },
+  {
+    "id": 289,
+    "name": "PowerKing 345 3M USB Multiplug",
+    "slug": "powerking-345-3m-usb-multiplug",
+    "brand": "PowerKing 345 USB Multiplug",
+    "category": "Power & Multiplugs",
+    "description": "Keep your devices powered and your space organized with the PowerKing 345 USB Multiplug. Designed for everyday convenience, it combines multiple power outlets with USB charging ports, making it easy to power your devices from one place.\n\n✅ Multiple power outlets\n🔋 Built-in USB charging\n💪 Strong & practical design\n🏠 Perfect for home, office & workspace\n⚡ Convenient power for your everyday needs\n\nPowerKing 345 USB — Plug in. Power up. Stay connected.",
+    "image": "/images/products/powerking-345-3m-usb-multiplug.jpg",
+    "gallery": [],
+    "packSize": "70",
+    "priceCarton": 320,
+    "pricePiece": 330,
+    "sku": "PowerKing 345 USB Multiplug",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplugs"
+    ]
   }
 ]
