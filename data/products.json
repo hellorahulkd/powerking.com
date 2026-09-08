@@ -2163,5 +2163,24 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 294,
+    "name": "U20 Ice cooler is a high-performance",
+    "slug": "u20-ice-cooler-is-a-high-performance",
+    "brand": "U20 Ice cooler is a high-performance",
+    "category": "Phone Coolers",
+    "description": "The U20 Ice cooler is a high-performance semi conductor mobile phone cooler designed to keep your smartphone cool during heavy gaming, live streaming, or intense multitasking. Featuring a 2-in-1 magnetic and clip attachment system, it delivers instant \"ice-cooling sensation\" thermal relief to prevent frame drops, overheating, and battery drain. Its lightweight, zero-burden design coupled with smart temperature control ensures smooth performance without added weight to your device.\nKey Specifications\n Product Model: NeePho NP-C01\n Cooling Tech: Semiconductor Semiconductor Ice-Cooling Plate\n Attachment Method: 2-in-1 Magnetic Attachment & Back Clip\n Features: Smart Temperature Control, Real Freeze Cooling, Quiet Fan Operation\n Weight: ~65 g – 80 g (ultra-lightweight, zero-burden design)\n Dimensions: ~6.0 cm x 6.0 cm x 2.4 cm (compact circular design)\n Interface: Type-C USB Input\n Package Includes: NeePho NP-C01 Radiator, Braided Type-C Power Cable, Magnetic Plate / Accessories, User Manual",
+    "image": "/images/products/u20-ice-cooler-is-a-high-performance.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 650,
+    "pricePiece": 675,
+    "sku": "U 20 Ice cooler",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "U20 Phone cooler"
+    ]
   }
 ]
