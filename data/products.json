@@ -2091,5 +2091,24 @@
     "tags": [
       "Multiplugs"
     ]
+  },
+  {
+    "id": 290,
+    "name": "PowerKing 345 5M USB Multiplug",
+    "slug": "powerking-345-5m-usb-multiplug",
+    "brand": "PowerKing 345 USB Multiplug",
+    "category": "Power & Multiplugs",
+    "description": "⚡ **Go Further with PowerKing 345 USB – 5M!** 🔌\n\nNeed extra reach? The **PowerKing 345 USB 5-Meter Multiplug** gives you the flexibility to power your devices from a distance while keeping charging convenient and organized.\n\n🔌 Multiple power outlets\n🔋 Convenient USB charging\n📏 **5-meter long cable**\n💪 Durable & practical design\n🏠 Ideal for home, office, shop & workspace\n\n**More reach. More convenience. More PowerKing. ⚡**",
+    "image": "/images/products/powerking-345-5m-usb-multiplug.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 370,
+    "pricePiece": 370,
+    "sku": "Powerking 345 USB",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Multiplugs"
+    ]
   }
 ]
