@@ -43,7 +43,7 @@ function field(id, label, control, hint = '') {
 }
 
 function text(id, { placeholder = '', type = 'text' } = {}) {
-  return `<input class="af__input" id="${esc(id)}" type="${esc(type)}" placeholder="${esc(placeholder)}" autocomplete="off">`;
+  return `<input class="af__input" id="${esc(id)}" type="${esc(type)}"${type === 'number' ? ' inputmode="numeric" min="1" step="1"' : ''} placeholder="${esc(placeholder)}" autocomplete="off">`;
 }
 
 function checkbox(id, label, hint) {
@@ -196,10 +196,11 @@ export function adminPage() {
 
     <div class="bulk__pick">
       <label class="admin__photo admin__photo--wide" id="bulk-drop" for="bulk-files">
-        <span class="admin__photo-empty">Click, or drop photos here</span>
+        <span class="admin__photo-empty">Tap to choose photos, or drop them here</span>
       </label>
       <input class="af__file" id="bulk-files" type="file" multiple
-             accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
+             accept="image/jpeg,image/png,image/webp" aria-label="Choose product photos">
+      <p class="af__hint">On your phone, choose Photo Library or take a photo. Photos are resized before uploading.</p>
     </div>
 
     <div class="af" id="bulk-shared" hidden>
@@ -245,24 +246,24 @@ export function adminPage() {
           <span class="af__label">Photo</span>
           <label class="admin__photo" id="f-image-drop" for="f-image">
             <img id="f-image-preview" alt="" hidden>
-            <span class="admin__photo-empty" id="f-image-empty">Click, or drop a photo here</span>
+            <span class="admin__photo-empty" id="f-image-empty">Tap to choose a photo, or drop it here</span>
           </label>
           <input class="af__file" id="f-image" type="file"
-                 accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif">
+                 accept="image/jpeg,image/png,image/webp" aria-label="Choose photo">
+          <p class="admin__msg" id="photo-msg" role="status" aria-live="polite"></p>
           <p class="af__actions-inline">
             <button type="button" class="btn btn--ghost btn--sm" id="f-read" hidden>Read the box</button>
             <span class="af__hint af__hint--inline" id="f-read-note"></span>
           </p>
           <p class="af__hint">
-            Resized to a 600&nbsp;×&nbsp;600 tile on white to match the rest of the
-            catalogue, so a photo straight off a phone is fine. Uploaded when you save.
-            iPhone HEIC photos open in Safari; Chrome cannot read that format and
-            will say so with the way round it.
+            On your phone, choose Photo Library or take a photo. We resize it
+            for the catalogue and upload it when you save. If an iPhone photo
+            will not open, try choosing it from Photo Library in Safari.
           </p>
         </div>
 
         ${field('f-sku', 'Model / SKU', text('f-sku', { placeholder: 'K21' }), 'The model number on the box. Searchable.')}
-        ${field('f-packsize', 'Pack size', text('f-packsize', { placeholder: '20 pcs per carton' }), 'How many come in a carton. This is the first thing a wholesale buyer asks and it is empty on every product so far.')}
+        ${field('f-packsize', 'Pack size', text('f-packsize', { placeholder: '20 pcs per carton' }), 'How many pieces come in a carton.')}
         ${field('f-price-carton', 'Price per carton (Rs.)', text('f-price-carton', { placeholder: '12500', type: 'number' }), 'Numbers only — no "Rs." and no commas. The site formats it as <code>Rs. 12,500</code>. Leave blank and the product shows "Price on enquiry".')}
         ${field('f-price-piece', 'Price per loose piece (Rs.)', text('f-price-piece', { placeholder: '650', type: 'number' }), 'The loose-piece rate is a different number from the carton rate — fill in both so a buyer sees the difference.')}
         ${field('f-tags', 'Extra search words', text('f-tags', { placeholder: 'bluetooth, party, rgb' }), 'Comma separated. Words a buyer might search that are not already in the name or description.')}

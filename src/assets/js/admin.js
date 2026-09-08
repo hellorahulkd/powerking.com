@@ -42,6 +42,8 @@
     pendingReadable: null,  // a larger rendering of the same photo, for reading
     pendingCategories: [],  // categories invented in the form, saved with it
     bulk: [],               // rows waiting in the "Add many" pane
+    photoVersion: 0, photoBusy: false, photoError: '', editConflict: false,
+    bulkBusy: false, bulkCategories: [], saving: false,
   };
 
   /* ------------------------------------------------------------- helpers -- */
@@ -49,10 +51,39 @@
   var $ = function (id) { return document.getElementById(id); };
 
   function show(pane) {
+    if (pane !== 'pane-edit') cancelPhoto();
     ['pane-auth', 'pane-work', 'pane-edit', 'pane-bulk'].forEach(function (id) {
       $(id).hidden = id !== pane;
     });
     window.scrollTo(0, 0);
+  }
+
+  // A decoder may finish after the editor has moved to a different product.
+  function cancelPhoto() {
+    state.photoVersion++;
+    state.photoBusy = false;
+    state.photoError = '';
+    say($('photo-msg'), '');
+    $('save').disabled = state.saving;
+  }
+
+  var lockedControls = [];
+  function lockControls() {
+    Array.prototype.forEach.call(root.querySelectorAll('input, select, textarea, button'), function (el) {
+      if (lockedControls.some(function (item) { return item.el === el; })) return;
+      lockedControls.push({ el: el, disabled: el.disabled });
+      el.disabled = true;
+    });
+  }
+  function saving(active) {
+    state.saving = active;
+    if (active) {
+      lockControls();
+    } else {
+      lockedControls.forEach(function (item) { item.el.disabled = item.disabled; });
+      lockedControls = [];
+      $('save').disabled = state.photoBusy || !!state.photoError || state.editConflict;
+    }
   }
 
   function say(el, message, kind) {
@@ -118,13 +149,13 @@
     });
   }
 
-  function contentsUrl(path) {
+  function contentsUrl(path, ref) {
     return '/repos/' + OWNER + '/' + REPO + '/contents/' + path
-      + '?ref=' + encodeURIComponent(BRANCH);
+      + '?ref=' + encodeURIComponent(ref || BRANCH);
   }
 
-  function readJson(path) {
-    return gh(contentsUrl(path)).then(function (file) {
+  function readJson(path, ref) {
+    return gh(contentsUrl(path, ref)).then(function (file) {
       return { json: JSON.parse(base64ToText(file.content)), sha: file.sha };
     });
   }
@@ -165,6 +196,7 @@
   }
 
   function signOut() {
+    if (state.saving) return;
     token = '';
     try { localStorage.removeItem(STORE); } catch (e) { /* private mode */ }
     state.products = null;
@@ -243,6 +275,10 @@
   };
 
   function openEditor(product) {
+    if (state.saving || state.bulkBusy) return;
+    cancelPhoto();
+    state.editConflict = false;
+    slugTouched = false;
     state.editing = product;
     state.pendingImage = null;
     state.pendingReadable = null;
@@ -295,6 +331,7 @@
   function newCategoryHere() { newCategoryHereFor($('edit-msg')); }
 
   function newCategoryHereFor(msgEl) {
+    if (state.saving) return;
     var name = (window.prompt('New category name\n\ne.g. Trolley Speakers') || '').trim();
     if (!name) return;
 
@@ -320,9 +357,10 @@
       return;
     }
 
-    state.pendingCategories.push({
-      name: name, slug: slugifyCategory(name), description: description,
-    });
+    var category = { name: name, slug: slugifyCategory(name), description: description };
+    var bad = categoryProblem(category);
+    if (bad) { say(msgEl, bad, 'warn'); return; }
+    state.pendingCategories.push(category);
     renderCategoryOptions(name);
     say(msgEl, '"' + name + '" will be created when you save.', 'ok');
   }
@@ -332,7 +370,7 @@
     var empty = $('f-image-empty');
     img.hidden = !src;
     empty.hidden = !!src;
-    empty.textContent = 'Click, or drop a photo here';
+    empty.textContent = 'Tap to choose a photo, or drop it here';
     if (!src) { img.removeAttribute('src'); return; }
     // A just-saved photo is not on the site yet, so its URL 404s for a minute.
     img.onerror = function () {
@@ -350,13 +388,14 @@
     var canvas = document.createElement('canvas');
     canvas.width = S; canvas.height = S;
     var g = canvas.getContext('2d');
+    if (!g) throw new Error('Not enough memory to prepare this photo. Try a smaller photo.');
     g.fillStyle = TILE.background;
     g.fillRect(0, 0, S, S);
     var r = Math.min(S / width, S / height);
     var w = width * r, h = height * r;
     g.imageSmoothingQuality = 'high';
     g.drawImage(source, (S - w) / 2, (S - h) / 2, w, h);
-    return canvas.toDataURL('image/jpeg', TILE.quality);
+    return finishCanvas(canvas, TILE.quality);
   }
 
   /**
@@ -376,9 +415,25 @@
     var canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     var g = canvas.getContext('2d');
+    if (!g) throw new Error('Not enough memory to prepare this photo. Try a smaller photo.');
+    g.fillStyle = TILE.background;
+    g.fillRect(0, 0, w, h);
     g.imageSmoothingQuality = 'high';
     g.drawImage(source, 0, 0, w, h);
-    return canvas.toDataURL('image/jpeg', 0.9);
+    return finishCanvas(canvas, 0.9);
+  }
+
+  function finishCanvas(canvas, quality) {
+    try {
+      var result = canvas.toDataURL('image/jpeg', quality);
+      if (result.indexOf('data:image/jpeg;base64,') !== 0) {
+        throw new Error('The photo could not be resized. Try a smaller photo.');
+      }
+      return result;
+    } finally {
+      // Safari can keep canvas backing stores alive after JS drops the reference.
+      canvas.width = 0; canvas.height = 0;
+    }
   }
 
   /** Is this one of the formats an iPhone shoots by default? */
@@ -390,37 +445,44 @@
    * Decode once, hand back both renderings.
    *
    * Two decoders, because they do not cover the same formats.
-   * createImageBitmap hands the file to the browser's own image pipeline,
-   * which on Safari reads the HEIC an iPhone shoots by default; <img> does not
-   * always. Chrome reads HEIC in neither, so a HEIC opened there fails
-   * whatever we do — hence the message saying so in words a shopkeeper can act
-   * on rather than "not an image this browser can open".
+   * The picker requests JPEG/PNG/WebP so Apple devices can transcode HEIC.
+   * Raw files dropped from elsewhere still need a native decoder; support
+   * varies by browser, so the fallback must fail with a useful message.
    */
   function prepare(file) {
+    if (!file || file.size === 0) return Promise.reject(new Error('That photo is empty. Choose it again from your photo library.'));
     function both(source, width, height) {
+      if (!width || !height) throw cannotRead(file);
       return { tile: paintTile(source, width, height),
                readable: paintReadable(source, width, height) };
     }
 
     var viaBitmap = typeof createImageBitmap === 'function'
-      ? createImageBitmap(file).then(function (bmp) {
-          var out = both(bmp, bmp.width, bmp.height);
-          if (bmp.close) bmp.close();
-          return out;
+      ? Promise.resolve().then(function () { return createImageBitmap(file); }).then(function (bmp) {
+          try { return both(bmp, bmp.width, bmp.height); }
+          finally { if (bmp.close) bmp.close(); }
         })
       : Promise.reject(new Error('no createImageBitmap'));
 
     return viaBitmap.catch(function () {
       return new Promise(function (resolve, reject) {
-        var reader = new FileReader();
-        reader.onerror = function () { reject(new Error('That file could not be read.')); };
-        reader.onload = function () {
-          var img = new Image();
-          img.onerror = function () { reject(cannotRead(file)); };
-          img.onload = function () { resolve(both(img, img.width, img.height)); };
-          img.src = reader.result;
+        // A blob URL avoids a second full-size, base64 copy of a phone photo.
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        var timer = setTimeout(function () { cleanup(); reject(cannotRead(file)); }, 30000);
+        function cleanup() {
+          clearTimeout(timer);
+          img.onload = null; img.onerror = null;
+          img.removeAttribute('src');
+          URL.revokeObjectURL(url);
+        }
+        img.onerror = function () { cleanup(); reject(cannotRead(file)); };
+        img.onload = function () {
+          try { resolve(both(img, img.naturalWidth || img.width, img.naturalHeight || img.height)); }
+          catch (err) { reject(err); }
+          finally { cleanup(); }
         };
-        reader.readAsDataURL(file);
+        img.src = url;
       });
     });
   }
@@ -432,12 +494,10 @@
 
   function cannotRead(file) {
     if (isAppleFormat(file)) {
-      return new Error('This is an iPhone HEIC photo and this browser cannot open '
-        + 'that format. Two ways round it: on a Mac, right-click the photo in '
-        + 'Finder → Quick Actions → Convert Image → JPEG, then choose the JPEG. '
-        + 'Or set the iPhone to shoot JPEG from now on: Settings → Camera → '
-        + 'Formats → Most Compatible. Safari can open HEIC directly if you would '
-        + 'rather open this page there.');
+      return new Error('This HEIC photo could not be opened. On an iPhone, open '
+        + 'this admin page in Safari, tap Choose photo, and select Photo Library. '
+        + 'If it still fails, select a JPEG copy or take a new photo. For future '
+        + 'JPEG photos: Settings → Camera → Formats → Most Compatible.');
     }
     return new Error('That file is not an image this browser can open. '
       + 'JPEG, PNG and WebP all work.');
@@ -813,15 +873,24 @@
   var bulkKey = 0;
 
   function bulkAddFiles(files) {
+    if (state.saving || state.bulkBusy) return Promise.resolve();
     var list = Array.prototype.slice.call(files || []);
-    if (!list.length) return;
+    if (!list.length) return Promise.resolve();
+    state.bulkBusy = true;
+    saving(true);
     say($('bulk-msg'), 'Preparing ' + list.length
       + (list.length === 1 ? ' photo…' : ' photos…'));
 
     var done = 0, failed = [];
     var staged = [];
-    var work = list.map(function (file) {
-      return prepare(file).then(function (rendered) {
+    // Phone originals can decode to hundreds of megabytes each. Never hold
+    // an entire batch of decoded bitmaps at once, or sort by finish time.
+    var work = Promise.resolve();
+    list.forEach(function (file, index) {
+      work = work.then(function () {
+        say($('bulk-msg'), 'Preparing photo ' + (index + 1) + ' of ' + list.length + '…');
+        return prepare(file);
+      }).then(function (rendered) {
         var row = {
           // A plain counter. Date.now() + Math.random() looked unique and is
           // not: the sum is past the precision where the fraction survives, so
@@ -829,7 +898,7 @@
           // one row's fields are read into the other's.
           key: 'b' + (++bulkKey),
           name: nameFromFile(file.name),
-          category: '', description: '', brand: '', sku: '',
+          category: $('bulk-category').value, description: '', brand: '', sku: '',
           packSize: '', priceCarton: '', pricePiece: '',
           image: rendered.tile,
           readable: rendered.readable,   // larger, for reading only; never saved
@@ -843,13 +912,19 @@
       });
     });
 
-    Promise.all(work).then(function () {
+    return work.then(function () {
+      harvestBulk();
       renderBulk();
       say($('bulk-msg'), failed.length
         ? done + ' added. ' + failed.length + ' could not be read: ' + failed.join(' | ')
         : done + (done === 1 ? ' photo ready.' : ' photos ready.'),
         failed.length ? 'warn' : 'ok');
-      if (done && visionReady()) readRows(staged);
+      if (done && visionReady()) return readRows(staged);
+    }).catch(function (err) {
+      say($('bulk-msg'), err.message, 'warn');
+    }).then(function () {
+      state.bulkBusy = false;
+      saving(false);
     });
   }
 
@@ -863,6 +938,7 @@
 
     function next() {
       if (i >= rows.length) {
+        harvestBulk();
         renderBulk();
         say($('bulk-msg'), failures.length
           ? 'Read ' + read + ' of ' + rows.length + '. ' + failures.join(' | ')
@@ -870,18 +946,20 @@
           : 'Read ' + read + ' of ' + rows.length + ' from the photos. '
               + 'Everything filled in is marked — check it before saving.',
           failures.length ? 'warn' : 'ok');
-        return;
+        return Promise.resolve();
       }
       var row = rows[i++];
       say($('bulk-msg'), 'Reading photo ' + i + ' of ' + rows.length + '…');
-      readTheBox(row.readable).then(function (fields) {
+      return readTheBox(row.readable).then(function (fields) {
+        harvestBulk();
         applyRead(row, fields);
+        renderBulk();
         read++;
       }).catch(function (err) {
         failures.push(err.message);
       }).then(next);
     }
-    next();
+    return next();
   }
 
   /** Fill only what is still empty: anything a person typed wins over
@@ -948,13 +1026,14 @@
         + '<input class="af__input' + mark('brand') + '" data-bk="brand" placeholder="Brand" value="' + escapeAttr(row.brand) + '">'
         + '<input class="af__input' + mark('sku') + '" data-bk="sku" placeholder="Model / SKU" value="' + escapeAttr(row.sku) + '">'
         + '<input class="af__input' + mark('packSize') + '" data-bk="packSize" placeholder="20 pcs per carton" value="' + escapeAttr(row.packSize) + '">'
-        + '<input class="af__input" data-bk="priceCarton" type="number" placeholder="Carton Rs." value="' + escapeAttr(row.priceCarton) + '">'
-        + '<input class="af__input" data-bk="pricePiece" type="number" placeholder="Piece Rs." value="' + escapeAttr(row.pricePiece) + '">'
+        + '<input class="af__input" data-bk="priceCarton" type="number" inputmode="numeric" min="1" step="1" placeholder="Carton Rs." value="' + escapeAttr(row.priceCarton) + '">'
+        + '<input class="af__input" data-bk="pricePiece" type="number" inputmode="numeric" min="1" step="1" placeholder="Piece Rs." value="' + escapeAttr(row.pricePiece) + '">'
         + '</div>'
         + '</div>'
         + '<button type="button" class="btn btn--ghost btn--sm" data-bk-remove="' + k + '">Remove</button>'
         + '</div>';
     }).join('');
+    if (state.saving) lockControls();
   }
 
   /** Read the rows back out of the DOM into state, so nothing typed is lost
@@ -999,6 +1078,7 @@
   }
 
   function bulkSave() {
+    if (state.saving || state.bulkBusy) return;
     harvestBulk();
     if (!state.bulk.length) return;
 
@@ -1027,7 +1107,7 @@
       return;
     }
 
-    $('bulk-save').disabled = true;
+    saving(true);
     var total = drafts.length;
 
     // Categories first, then every photo, then the catalogue once. The
@@ -1046,6 +1126,7 @@
         state.categories = nextCats;
         state.categoriesSha = res.content.sha;
         state.pendingCategories = [];
+        state.bulkCategories = [];
         renderCategories();
       });
     }
@@ -1075,6 +1156,7 @@
       });
     }).then(function () {
       state.bulk = [];
+      state.bulkCategories = [];
       renderBulk();
       renderList();
       show('pane-work');
@@ -1084,27 +1166,40 @@
       if (err.status === 409) return reloadAfterConflict($('bulk-msg'));
       say($('bulk-msg'), err.message, 'warn');
     }).then(function () {
-      $('bulk-save').disabled = false;
+      saving(false);
     });
   }
 
   /* ---------------------------------------------------------------- saving -- */
 
   function reloadAfterConflict(el) {
-    say(el, 'Someone else saved a change while this was open. Reloading the '
-      + 'catalogue so nothing is overwritten — reopen the product and redo this edit.', 'warn');
-    return load();
+    if (el.id === 'edit-msg') state.editConflict = true;
+    var message = 'Someone else saved a change while this was open. '
+      + 'Reopen the product from the list and redo this edit using the latest catalogue.';
+    say(el, message, 'warn');
+    return load().then(function () { say(el, message, 'warn'); }).catch(function () {
+      say(el, 'The catalogue changed, but could not be reloaded. Check your connection and reload this page before saving.', 'warn');
+    });
   }
 
   function saveProduct(ev) {
     ev.preventDefault();
+    if (state.saving) return;
+    if (state.editConflict) {
+      say($('edit-msg'), 'Reopen the product from the list before saving. Another editor has changed the catalogue.', 'warn');
+      return;
+    }
+    if (state.photoBusy || state.photoError) {
+      say($('edit-msg'), state.photoBusy ? 'Wait for the photo to finish preparing.'
+        : state.photoError + ' Choose a readable photo before saving.', 'warn');
+      return;
+    }
     var product = collect();
     var bad = problems(product);
     if (bad.length) { say($('edit-msg'), bad.join(' '), 'warn'); return; }
 
-    var save = $('save');
     var unchanged = false;
-    save.disabled = true;
+    saving(true);
     say($('edit-msg'), 'Saving…');
 
     // Order matters, and it is not arbitrary. A category invented in this
@@ -1174,15 +1269,18 @@
       if (err.status === 409) return reloadAfterConflict($('edit-msg'));
       say($('edit-msg'), err.message, 'warn');
     }).then(function () {
-      save.disabled = false;
+      saving(false);
     });
   }
 
   function deleteProduct() {
+    if (state.saving || state.photoBusy) return;
     var product = state.editing;
     if (!product) return;
     if (!window.confirm('Delete "' + product.name + '"?\n\nThe page and its link '
       + 'disappear from the site. The photo file stays in the repository.')) return;
+
+    saving(true);
 
     var next = state.products.filter(function (p) { return p.id !== product.id; });
     say($('edit-msg'), 'Deleting…');
@@ -1200,10 +1298,71 @@
     }).catch(function (err) {
       if (err.status === 409) return reloadAfterConflict($('edit-msg'));
       say($('edit-msg'), err.message, 'warn');
-    });
+    }).then(function () { saving(false); });
   }
 
   /* ------------------------------------------------------------ categories -- */
+
+  function categoryProblem(category, oldName) {
+    if (!category.name || !category.slug) return 'Use a category name with letters or numbers.';
+    if (!category.description) return 'Add a description for this category.';
+    if (allCategories().some(function (c) {
+      return c.name !== oldName && (squash(c.name) === squash(category.name) || c.slug === category.slug);
+    })) return 'There is already a category with that name or web address.';
+    if (state.products.some(function (p) { return p.slug === category.slug; })) {
+      return 'That category web address is already used by a product. Choose a different name.';
+    }
+    if (category.slug === 'page') return 'That web address is reserved for catalogue pages. Choose another name.';
+    return '';
+  }
+
+  function conflict() {
+    var err = new Error('The catalogue changed while you were editing. Reload and try again.');
+    err.status = 409;
+    return err;
+  }
+
+  // Renaming a used category must publish both files together. Blob/tree
+  // creation does not change the branch; only the final fast-forward does.
+  function writeCategoryChange(nextCategories, nextProducts, message) {
+    var base = '/repos/' + OWNER + '/' + REPO;
+    var ref = 'heads/' + BRANCH;
+    var head, treeSha, shas = {};
+    var files = [{ path: CATEGORIES, json: nextCategories }];
+    if (nextProducts) files.push({ path: PRODUCTS, json: nextProducts });
+    return gh(base + '/git/ref/' + ref).then(function (r) {
+      head = r.object.sha;
+      return Promise.all([readJson(CATEGORIES, head), readJson(PRODUCTS, head), gh(base + '/git/commits/' + head)]);
+    }).then(function (r) {
+      if (r[0].sha !== state.categoriesSha || r[1].sha !== state.productsSha) throw conflict();
+      treeSha = r[2].tree.sha;
+      return Promise.all(files.map(function (file) {
+        return gh(base + '/git/blobs', { method: 'POST', body: {
+          content: textToBase64(JSON.stringify(file.json, null, 2) + '\n'), encoding: 'base64',
+        } }).then(function (blob) {
+          shas[file.path] = blob.sha;
+          return { path: file.path, mode: '100644', type: 'blob', sha: blob.sha };
+        });
+      }));
+    }).then(function (entries) {
+      return gh(base + '/git/trees', { method: 'POST', body: { base_tree: treeSha, tree: entries } });
+    }).then(function (tree) {
+      return gh(base + '/git/commits', { method: 'POST', body: { message: message, tree: tree.sha, parents: [head] } });
+    }).then(function (commit) {
+      return gh(base + '/git/refs/' + ref, { method: 'PATCH', body: { sha: commit.sha, force: false } })
+        .catch(function (err) {
+          // GitHub reports a concurrent non-fast-forward as 422, distinct
+          // from validation failures in the blob/tree creation steps.
+          if (err.status === 422) {
+            return gh(base + '/git/ref/' + ref).then(function (r) {
+              if (r.object.sha !== head) throw conflict();
+              throw err;
+            });
+          }
+          throw err;
+        });
+    }).then(function () { return shas; });
+  }
 
   function renderCategories() {
     $('cat-list').innerHTML = state.categories.map(function (c) {
@@ -1224,25 +1383,16 @@
   /** Writes both files when a rename moves products, so the catalogue is never
    *  committed in a state where a product names a category that is gone. */
   function commitCategories(nextCategories, nextProducts, message) {
+    if (state.saving) return Promise.resolve();
+    saving(true);
     say($('work-msg'), 'Saving…');
-    return writeFile(
-      CATEGORIES,
-      textToBase64(JSON.stringify(nextCategories, null, 2) + '\n'),
-      message,
-      state.categoriesSha,
-    ).then(function (res) {
+    return writeCategoryChange(nextCategories, nextProducts, message).then(function (shas) {
       state.categories = nextCategories;
-      state.categoriesSha = res.content.sha;
-      if (!nextProducts) return null;
-      return writeFile(
-        PRODUCTS,
-        textToBase64(JSON.stringify(nextProducts, null, 2) + '\n'),
-        message + ' (move products)',
-        state.productsSha,
-      ).then(function (r2) {
+      state.categoriesSha = shas[CATEGORIES];
+      if (nextProducts) {
         state.products = nextProducts;
-        state.productsSha = r2.content.sha;
-      });
+        state.productsSha = shas[PRODUCTS];
+      }
     }).then(function () {
       renderCategories();
       renderList();
@@ -1250,10 +1400,11 @@
     }).catch(function (err) {
       if (err.status === 409) return reloadAfterConflict($('work-msg'));
       say($('work-msg'), err.message, 'warn');
-    });
+    }).then(function () { saving(false); });
   }
 
   function addCategory() {
+    if (state.saving) return;
     var name = (window.prompt('New category name') || '').trim();
     if (!name) return;
     if (state.categories.some(function (c) { return c.name === name; })) {
@@ -1264,19 +1415,23 @@
       + 'this shows on the category page and in search results.') || '').trim();
     if (!description) { say($('work-msg'), 'A category needs a description.', 'warn'); return; }
 
-    var next = state.categories.concat([{
-      name: name, slug: slugifyCategory(name), description: description,
-    }]);
+    var category = { name: name, slug: slugifyCategory(name), description: description };
+    var bad = categoryProblem(category);
+    if (bad) { say($('work-msg'), bad, 'warn'); return; }
+    var next = state.categories.concat([category]);
     commitCategories(next, null, 'Add the ' + name + ' category');
   }
 
   function renameCategory(oldName) {
+    if (state.saving) return;
     var current = state.categories.find(function (c) { return c.name === oldName; });
     var name = (window.prompt('Category name', oldName) || '').trim();
     if (!name) return;
     var description = (window.prompt('Description', current.description) || '').trim();
     if (!description) { say($('work-msg'), 'A category needs a description.', 'warn'); return; }
     if (name === oldName && description === current.description) return;
+    var bad = categoryProblem({ name: name, slug: slugifyCategory(name), description: description }, oldName);
+    if (bad) { say($('work-msg'), bad, 'warn'); return; }
 
     var nextCategories = state.categories.map(function (c) {
       return c.name === oldName
@@ -1293,6 +1448,7 @@
   }
 
   function deleteCategory(name) {
+    if (state.saving) return;
     var count = state.products.filter(function (p) { return p.category === name; }).length;
     if (count) {
       say($('work-msg'), '"' + name + '" still holds ' + count
@@ -1422,7 +1578,8 @@
 
   /* --- bulk add ---------------------------------------------------------- */
   $('bulk-open').addEventListener('click', function () {
-    state.pendingCategories = [];
+    if (state.saving) return;
+    state.pendingCategories = state.bulkCategories;
     renderBulk();
     say($('bulk-msg'), '');
     show('pane-bulk');
@@ -1505,9 +1662,12 @@
 
   $('bulk-save').addEventListener('click', bulkSave);
   $('bulk-clear').addEventListener('click', function () {
+    if (state.saving || state.bulkBusy) return;
     if (!state.bulk.length) return;
     if (!window.confirm('Discard these ' + state.bulk.length + ' rows?')) return;
     state.bulk = [];
+    state.pendingCategories = [];
+    state.bulkCategories = state.pendingCategories;
     renderBulk();
     say($('bulk-msg'), '');
   });
@@ -1540,23 +1700,41 @@
   });
 
   function usePhoto(file) {
-    if (!file) return;
-    say($('edit-msg'), 'Preparing the photo…');
-    prepare(file).then(function (rendered) {
+    if (!file || state.saving) return Promise.resolve();
+    var version = ++state.photoVersion;
+    state.photoBusy = true;
+    state.photoError = '';
+    $('save').disabled = true;
+    photoStatus('Preparing the photo…');
+    return prepare(file).then(function (rendered) {
+      if (version !== state.photoVersion) return;
       state.pendingImage = rendered.tile.split(',')[1];
       state.pendingReadable = rendered.readable;
       setPreview(rendered.tile);
-      say($('edit-msg'), visionReady()
+      photoStatus(visionReady()
         ? 'Photo ready. It uploads when you save — or press "Read the box" to '
           + 'fill in what is printed on it.'
         : 'Photo ready. It uploads when you save.', 'ok');
     }).catch(function (err) {
-      say($('edit-msg'), err.message, 'warn');
+      if (version !== state.photoVersion) return;
+      state.photoError = err.message;
+      photoStatus(err.message, 'warn');
+    }).then(function () {
+      if (version !== state.photoVersion) return;
+      state.photoBusy = false;
+      $('save').disabled = !!state.photoError;
     });
+  }
+
+  function photoStatus(message, kind) {
+    say($('photo-msg'), message, kind);
+    say($('edit-msg'), message, kind);
   }
 
   $('f-image').addEventListener('change', function () {
     usePhoto($('f-image').files[0]);
+    // Selecting the same file after a failure must fire change again.
+    $('f-image').value = '';
   });
 
   // Dropping a photo straight onto the box. The default drop behaviour is to

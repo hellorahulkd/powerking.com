@@ -64,7 +64,8 @@
 textarea.af__input { line-height: 1.55; resize: vertical; }
 .af__hint { margin: .3rem 0 0; font-size: .78rem; color: var(--text-faint); line-height: 1.5; }
 .af__hint code { font-size: .95em; }
-.af__file { display: block; margin-top: .6rem; font-size: var(--step--1); }
+.af__file { display: block; width: 100%; max-width: 100%; margin-top: .6rem; font-size: var(--step--1); }
+.af__file::file-selector-button { min-height: 44px; margin-right: .5rem; cursor: pointer; }
 .af__check {
   display: flex; gap: .55rem; align-items: flex-start; margin-bottom: .7rem;
   font-size: var(--step--1); color: var(--text-muted); cursor: pointer;
@@ -163,6 +164,13 @@ textarea.af__input { line-height: 1.55; resize: vertical; }
   .admin__pane { padding: 1.1rem; }
   .admin__toolbar { flex-direction: column; align-items: stretch; }
   .admin__row { flex-wrap: wrap; }
+  /* 16px inputs avoid Safari zooming the whole form when the keyboard opens. */
+  .af__input { font-size: 1rem; min-height: 44px; }
+  .admin .btn, .admin__tab, .admin__back { min-height: 44px; }
+  .af__row { flex-wrap: wrap; }
+  .af__row .af__input { flex-basis: 100%; }
+  .bulk__fields { flex-basis: 100%; }
+  .admin__row-name, .admin__row-meta, .admin__msg { overflow-wrap: anywhere; }
 }
 
 /* --- a control and its button on one line --- */

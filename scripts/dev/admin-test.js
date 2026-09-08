@@ -43,6 +43,7 @@ try {
 window.__gh = {
   calls: [],
   nextStatus: null,          // force one response to fail, for the conflict path
+  head: 'head-1', blobs: {}, trees: {}, commits: {},
   files: {
     'data/products.json':   { sha: 'products-sha-1',   text: ${JSON.stringify(JSON.stringify(products, null, 2) + '\n')} },
     'data/categories.json': { sha: 'categories-sha-1', text: ${JSON.stringify(JSON.stringify(categories, null, 2) + '\n')} },
@@ -79,6 +80,31 @@ window.__gh = {
     var p = u.pathname;
     if (p === '/user') return reply(200, { login: 'testuser' });
     if (p === '/repos/${owner}/${repo}') return reply(200, { permissions: { push: true } });
+
+    // Category changes stage blobs, then publish a single tree/commit.
+    var gitPath = p.split('/git/')[1];
+    if (gitPath) {
+      var body = opts.body ? JSON.parse(opts.body) : {};
+      var key = 'git-' + window.__gh.calls.length;
+      if (gitPath.indexOf('ref/heads/') === 0) return reply(200, { object: { sha: window.__gh.head } });
+      if (method === 'GET' && gitPath.indexOf('commits/') === 0) return reply(200, { tree: { sha: 'base-tree' } });
+      if (gitPath === 'blobs') {
+        window.__gh.blobs[key] = new TextDecoder().decode(
+          Uint8Array.from(atob(body.content), function (c) { return c.charCodeAt(0); }));
+        return reply(201, { sha: key });
+      }
+      if (gitPath === 'trees') { window.__gh.trees[key] = body.tree; return reply(201, { sha: key }); }
+      if (gitPath === 'commits') { window.__gh.commits[key] = body; return reply(201, { sha: key }); }
+      if (method === 'PATCH' && gitPath.indexOf('refs/heads/') === 0) {
+        var commit = window.__gh.commits[body.sha];
+        if (body.force || commit.parents[0] !== window.__gh.head) return reply(422, { message: 'Not a fast forward' });
+        window.__gh.trees[commit.tree].forEach(function (entry) {
+          window.__gh.files[entry.path] = { sha: entry.sha, text: window.__gh.blobs[entry.sha] };
+        });
+        window.__gh.head = body.sha;
+        return reply(200, { object: { sha: body.sha } });
+      }
+    }
 
     var m = p.match(/^\\/repos\\/${owner}\\/${repo}\\/contents\\/(.+)$/);
     if (m) {
@@ -294,8 +320,8 @@ console.log('\nPhotos');
   `);
   check('clicking anywhere on a row opens that product', r.open === true);
   check('the photo box is itself the file picker', r.isLabel === true, JSON.stringify(r));
-  check('the picker offers iPhone photos as well as JPEG and PNG',
-    /heic/i.test(r.accepts || '') && /jpeg/i.test(r.accepts || ''), r.accepts);
+  check('the picker requests JPEG/PNG/WebP so Safari can convert phone photos',
+    r.accepts === 'image/jpeg,image/png,image/webp', r.accepts);
 
   // A file the browser cannot decode, labelled as an iPhone photo. Chrome
   // cannot read HEIC, so this is the message a real one produces there.
@@ -507,13 +533,11 @@ console.log('\nCategories');
       ? 'Renamed for the test.' : 'Loudspeakers';
     document.querySelector('[data-cat-edit="Speakers"]').click();
     await new Promise(r => setTimeout(r, 400));
-    const puts = window.__gh.calls.filter(c => c.method === 'PUT').slice(-2);
-    const read = b => JSON.parse(new TextDecoder().decode(
-      Uint8Array.from(atob(b), c => c.charCodeAt(0))));
+    const tree = window.__gh.calls.filter(c => c.url.endsWith('/git/trees')).slice(-1)[0];
     return {
-      paths: puts.map(p => new URL(p.url).pathname.split('/contents/')[1]),
-      cats: read(puts[0].body.content),
-      prods: read(puts[1].body.content),
+      paths: tree.body.tree.map(entry => entry.path),
+      cats: JSON.parse(window.__gh.files['data/categories.json'].text),
+      prods: JSON.parse(window.__gh.files['data/products.json'].text),
     };
   `);
   check('a rename writes both the categories and the products',
