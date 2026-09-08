@@ -35,6 +35,10 @@ export const CONSOLE_ROUTES = [
   { path: '/admin/inventory/stock-in/',   page: 'stock-in',   title: 'Stock in' },
   { path: '/admin/inventory/stock-out/',  page: 'stock-out',  title: 'Stock out' },
   { path: '/admin/inventory/adjustment/', page: 'adjustment', title: 'Stock adjustment' },
+  { path: '/admin/suppliers/',      page: 'suppliers',     title: 'Suppliers' },
+  { path: '/admin/suppliers/view/', page: 'supplier-view', title: 'Supplier' },
+  { path: '/admin/categories/',     page: 'categories',    title: 'Categories' },
+  { path: '/admin/brands/',         page: 'brands',        title: 'Brands' },
 ];
 
 export default CONSOLE_ROUTES;

@@ -524,6 +524,155 @@ SUITES.stock = async (page, base, rig) => {
     !/PK-60/.test(await page.eval(`return ${text('#results')};`) || ''));
 };
 
+SUITES.taxonomy = async (page, base, rig) => {
+  group('Categories');
+  await clearSession(page);
+  await signIn(page, base, USERS[0]);
+  await page.goto(`${base}/admin/categories/`);
+  await until(page, `!!document.querySelector('#results tbody tr')`, { label: 'the category table' });
+
+  check('every seeded category is listed',
+    (await page.eval(`return document.querySelectorAll('#results tbody tr').length;`)) === 10);
+  // Asserted against the database rather than "there is a number somewhere in
+  // the row": a count that is present but wrong is the failure worth catching.
+  const speakerCount = rig.psql(
+    `select count(*) from public.products p join public.categories c on c.id = p.category_id
+     where c.slug = 'speakers'`);
+  const speakerCell = await page.eval(`
+    const tr = [...document.querySelectorAll('#results tbody tr')]
+      .find(t => (t.children[0]?.textContent || '').startsWith('Speakers'));
+    return tr ? tr.children[2].textContent.trim() : null;
+  `);
+  check('the product count beside a category is the real one',
+    speakerCell === speakerCount, `showed ${speakerCell}, database says ${speakerCount}`);
+
+  // A category holding products must not be deletable.
+  await page.eval(`
+    const row = [...document.querySelectorAll('#results tbody tr')]
+      .find(tr => /Speakers/.test(tr.textContent));
+    [...row.querySelectorAll('button')].find(b => b.textContent === 'Delete').click();
+    return true;
+  `);
+  const refusal = await until(page, `(() => {
+    const t = document.querySelector('.toast--error .toast__text');
+    return t ? t.textContent.trim() : null;
+  })()`, { label: 'the refusal' });
+  check('a category holding products cannot be deleted, and says why',
+    /cannot be deleted/i.test(refusal), refusal);
+  check('and nothing was deleted',
+    rig.psql(`select count(*) from public.categories where slug = 'speakers'`) === '1');
+
+  // Adding one: the slug follows the name.
+  await page.eval(`document.getElementById('add').click(); return true;`);
+  await until(page, `!!document.querySelector('#form-slot form')`, { label: 'the form' });
+  await page.eval(`
+    const n = document.querySelector('#form-slot .f__input');
+    n.value = 'Smart Watches';
+    n.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+  check('the web address follows the name',
+    (await page.eval(`
+      return [...document.querySelectorAll('#form-slot .f')].find(f =>
+        /Web address/.test(f.querySelector('.f__label')?.textContent || ''))
+        ?.querySelector('input').value;
+    `)) === 'smart-watches');
+
+  await page.eval(`document.querySelector('#form-slot form').requestSubmit(); return true;`);
+  await until(page, `document.querySelectorAll('#results tbody tr').length === 11`,
+    { label: 'the new category' });
+  check('a new category is added and appears immediately', true);
+  check('and it reached the database',
+    rig.psql(`select name from public.categories where slug = 'smart-watches'`) === 'Smart Watches');
+
+  // An empty category can be deleted.
+  await page.eval(`
+    const row = [...document.querySelectorAll('#results tbody tr')]
+      .find(tr => /Smart Watches/.test(tr.textContent));
+    [...row.querySelectorAll('button')].find(b => b.textContent === 'Delete').click();
+    return true;
+  `);
+  await until(page, `!!document.querySelector('dialog[open]')`, { label: 'the confirmation' });
+  check('deleting an empty category asks first',
+    /holds no products/i.test(await page.eval(`return ${text('.dialog__body')};`) || ''));
+  await page.eval(`
+    [...document.querySelectorAll('.dialog__actions button')]
+      .find(b => /Delete/.test(b.textContent)).click();
+    return true;
+  `);
+  await until(page, `document.querySelectorAll('#results tbody tr').length === 10`,
+    { label: 'the deletion' });
+  check('and deletes it when confirmed',
+    rig.psql(`select count(*) from public.categories where slug = 'smart-watches'`) === '0');
+
+  group('Brands');
+  await page.goto(`${base}/admin/brands/`);
+  await until(page, `!!document.querySelector('#results tbody tr')`, { label: 'the brand table' });
+  const brandRows = await page.eval(`return document.querySelectorAll('#results tbody tr').length;`);
+  check('brands are listed with how many products each has', brandRows === 38, `${brandRows}`);
+
+  group('Suppliers');
+  await page.goto(`${base}/admin/suppliers/`);
+  await until(page, `!!document.querySelector('#results')`, { label: 'the supplier list' });
+  check('an empty supplier list says what to do',
+    /Add the first one/.test(await page.eval(`return ${text('#results .state__text')};`) || ''));
+
+  await page.eval(`
+    [...document.querySelectorAll('button')].find(b => /Add supplier/.test(b.textContent)).click();
+    return true;
+  `);
+  await until(page, `!!document.querySelector('#form-slot form')`, { label: 'the form' });
+  const fillIn = (label, value) => page.eval(`
+    const f = [...document.querySelectorAll('#form-slot .f')].find(f =>
+      (f.querySelector('.f__label')?.textContent || '').trim().replace(/\\s*\\*$/, '') === ${JSON.stringify(label)});
+    const c = f?.querySelector('input, textarea');
+    if (!c) return false;
+    c.value = ${JSON.stringify(value)};
+    c.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+  await fillIn('Name', 'ABC Electronics');
+  await fillIn('Contact person', 'Bikash Shrestha');
+  await fillIn('Email', 'not-an-email');
+  await page.eval(`document.querySelector('#form-slot form').requestSubmit(); return true;`);
+  await until(page, `document.querySelectorAll('#form-slot .f.is-invalid').length > 0`,
+    { label: 'the email check' });
+  check('a malformed email address is caught',
+    /email address/i.test(await page.eval(`return ${text('#form-slot .f.is-invalid .f__error')};`) || ''));
+
+  await fillIn('Email', 'sales@abc.example');
+  await page.eval(`document.querySelector('#form-slot form').requestSubmit(); return true;`);
+  await until(page, `!!document.querySelector('#results tbody tr')`, { label: 'the new supplier' });
+  check('a supplier is added',
+    rig.psql(`select contact_person from public.suppliers where name = 'ABC Electronics'`)
+      === 'Bikash Shrestha');
+
+  group('Supplier detail');
+  const supplierId = rig.psql(`select id from public.suppliers where name = 'ABC Electronics'`);
+  const productId = rig.psql(`select id from public.products where sku = 'PK-60'`);
+  rig.psqlAs('admin@powerking.test',
+    `select public.record_stock_movement('${productId}'::uuid, 'STOCK_IN', 120,
+       p_supplier_id => '${supplierId}'::uuid, p_unit_cost => 400,
+       p_reference_number => 'INV-1045');`);
+
+  await page.goto(`${base}/admin/suppliers/view/?id=${supplierId}`);
+  await until(page, `!!document.querySelector('.big-number')`, { label: 'the supplier page' });
+  const body = await page.eval(`return document.body.textContent;`);
+  check('the supplier page totals what has been received', /120/.test(body));
+  check('lists the products actually delivered', /PK-60/.test(body));
+  check('shows the invoice number against the delivery', /INV-1045/.test(body));
+  check('and values the spend at the unit cost entered — 120 x Rs. 400',
+    /48,000/.test(body), (body.match(/Rs\.\s*[\d,]+/g) || []).join(' '));
+
+  group('Staff and suppliers');
+  await clearSession(page);
+  await signIn(page, base, USERS[2]);
+  await page.goto(`${base}/admin/suppliers/`);
+  await until(page, `!!document.querySelector('.state--error')`, { label: 'the refusal' });
+  check('staff are not shown supplier records',
+    /managers and admins/i.test(await page.eval(`return ${text('.state--error .state__text')};`) || ''));
+};
+
 SUITES.deactivated = async (page, base, rig) => {
   group('A deactivated account');
   await clearSession(page);
