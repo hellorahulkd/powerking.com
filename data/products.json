@@ -2296,5 +2296,24 @@
     "tags": [
       "Data cables"
     ]
+  },
+  {
+    "id": 301,
+    "name": "Powerking c to c 60w Performance data cable",
+    "slug": "powerking-c-to-c-60w-performance-data-cable",
+    "brand": "Powerking",
+    "category": "Data Cables",
+    "description": "Packaging & Design Features\n Product Title: C to C Data Cable\n Connector Configuration: Features dual USB-C connectors on both ends for fast charging and data transfer between modern devices.\n Branding Details: Displays the Power King branding centered under the VIDVIE header, with matching Power King logos printed on both connector necks.\n Model Number: Updated to model CC4032C to reflect the dual Type-C specification.\n Power & Performance: Indicates Fast Charging support alongside 2.4A Power Output for reliable performance and sync capability.",
+    "image": "/images/products/powerking-c-to-c-60w-performance-data-cable.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 130,
+    "pricePiece": 130,
+    "sku": "Powerking",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Data cables"
+    ]
   }
 ]
