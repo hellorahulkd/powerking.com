@@ -381,20 +381,97 @@
     img.src = src;
   }
 
-  /** Draw a decoded image onto the catalogue's own tile: square, on white,
-   *  whole frame visible rather than cropped into. */
+  /**
+   * Where the product actually is in the photograph.
+   *
+   * A supplier's photograph is a product floating in a large backdrop, and
+   * saved as-is the catalogue card shows a small product in a mostly empty
+   * box. This finds the backdrop from the four corners — white, grey, a soft
+   * gradient, whatever the photographer used — and returns the box around
+   * everything that is not it. A photograph whose corners disagree was taken
+   * against a real scene rather than a backdrop, and is left alone: cropping
+   * one of those would cut into the picture rather than into its margin.
+   *
+   * Scanned on a small copy. A phone photograph is twelve million pixels and
+   * reading them one at a time in the browser would stall the form; 240px is
+   * plenty to find an edge, and the box is scaled back up.
+   */
+  function contentBox(source, width, height) {
+    var whole = { x: 0, y: 0, w: width, h: height, bg: null };
+    var N = 240;
+    var s = Math.min(1, N / Math.max(width, height));
+    var sw = Math.max(1, Math.round(width * s));
+    var sh = Math.max(1, Math.round(height * s));
+    var c = document.createElement('canvas');
+    c.width = sw; c.height = sh;
+    var g = c.getContext('2d', { willReadFrequently: true });
+    if (!g) return whole;
+    g.fillStyle = '#fff'; g.fillRect(0, 0, sw, sh);
+    g.drawImage(source, 0, 0, sw, sh);
+
+    var d;
+    try { d = g.getImageData(0, 0, sw, sh).data; } catch (e) { return whole; }
+    function at(x, y) { var i = (y * sw + x) * 4; return [d[i], d[i + 1], d[i + 2]]; }
+    function dist(a, b) {
+      return Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]), Math.abs(a[2] - b[2]));
+    }
+    var corners = [at(0, 0), at(sw - 1, 0), at(0, sh - 1), at(sw - 1, sh - 1)];
+    var spread = 0;
+    for (var i = 0; i < corners.length; i++) {
+      for (var j = 0; j < corners.length; j++) {
+        spread = Math.max(spread, dist(corners[i], corners[j]));
+      }
+    }
+    if (spread > 30) return whole;   // a real scene, not a backdrop
+    var bg = [0, 1, 2].map(function (k) {
+      return (corners[0][k] + corners[1][k] + corners[2][k] + corners[3][k]) / 4;
+    });
+
+    var top = sh, left = sw, right = -1, bottom = -1;
+    for (var y = 0; y < sh; y++) {
+      for (var x = 0; x < sw; x++) {
+        if (dist(at(x, y), bg) <= 26) continue;
+        if (y < top) top = y;
+        if (y > bottom) bottom = y;
+        if (x < left) left = x;
+        if (x > right) right = x;
+      }
+    }
+    if (bottom < 0) return whole;
+
+    var box = {
+      x: left / s, y: top / s,
+      w: (right - left + 1) / s, h: (bottom - top + 1) / s,
+      // Handed back so the margin left around the product can be painted the
+      // photograph's own backdrop. Filling white behind a grey-backdrop photo
+      // puts a visible seam around the product, which is worse than the
+      // margin the crop was removing.
+      bg: 'rgb(' + bg[0].toFixed(0) + ',' + bg[1].toFixed(0) + ',' + bg[2].toFixed(0) + ')',
+    };
+    // Not worth a crop, and cropping a hair off every photo for nothing loses
+    // a little of each one.
+    var gain = Math.min(width / box.w, height / box.h);
+    return gain < 1.03 ? whole : box;
+  }
+
+  /** Draw a decoded image onto the catalogue's own tile: square, cropped to
+   *  the product so the card is filled rather than mostly backdrop. */
   function paintTile(source, width, height) {
     var S = TILE.size;
     var canvas = document.createElement('canvas');
     canvas.width = S; canvas.height = S;
     var g = canvas.getContext('2d');
     if (!g) throw new Error('Not enough memory to prepare this photo. Try a smaller photo.');
-    g.fillStyle = TILE.background;
+    var box = contentBox(source, width, height);
+    g.fillStyle = box.bg || TILE.background;
     g.fillRect(0, 0, S, S);
-    var r = Math.min(S / width, S / height);
-    var w = width * r, h = height * r;
+    var pad = S * 0.02;
+    var avail = S - pad * 2;
+    var r = Math.min(avail / box.w, avail / box.h);
+    var w = box.w * r, h = box.h * r;
     g.imageSmoothingQuality = 'high';
-    g.drawImage(source, (S - w) / 2, (S - h) / 2, w, h);
+    g.drawImage(source, box.x, box.y, box.w, box.h,
+      (S - w) / 2, (S - h) / 2, w, h);
     return finishCanvas(canvas, TILE.quality);
   }
 

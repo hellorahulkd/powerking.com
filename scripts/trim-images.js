@@ -31,10 +31,16 @@
  * - Touch one where the scan finds almost nothing, or nearly everything. Both
  *   mean the scan failed rather than that the picture is unusual, and a bad
  *   crop is worse than a wide margin.
- * - Change any file name, so nothing in data/products.json has to move.
+ * - Spend bytes a crop has not earned. Re-encoding costs weight — flat vector
+ *   art rendered to PNG cost seven times its original size to gain a tenth of
+ *   its scale — and a catalogue read on Nepali mobile data cannot pay that.
+ * - Change any file name, so nothing in data/products.json has to move. That
+ *   also means it must re-encode in the format the name promises: writing
+ *   JPEG bytes into a .png leaves the server sending image/png for a JPEG,
+ *   which browsers sniff past but stricter clients are entitled to reject.
  */
 import { writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launch, newPage } from './dev/cdp.js';
@@ -43,8 +49,20 @@ import { products } from '../src/data/products.js';
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PUBLIC = path.join(ROOT, 'public');
 
-/** Anything lighter than this on all three channels counts as background. */
-const WHITE = 246;
+/**
+ * How far a pixel has to be from the backdrop colour to count as the product.
+ *
+ * "Near-white" was too narrow a definition of backdrop and the first pass
+ * proved it: a speaker photographed on a grey gradient has no white in it at
+ * all, so the scan found content in every corner and cropped nothing, while
+ * the card still showed a small product in a large empty frame. The backdrop
+ * is now whatever the four corners agree on — white, grey, a soft gradient —
+ * and only a photograph whose corners disagree (a real shop shelf) is left
+ * alone, which is the right answer for those.
+ */
+const TOLERANCE = 26;
+/** How much the corners may differ from each other and still be a backdrop. */
+const CORNER_AGREEMENT = 30;
 /**
  * How much bigger the product has to end up before the file is rewritten.
  *
@@ -54,15 +72,31 @@ const WHITE = 246;
  * What matters is the scale the product is drawn at. Below this, re-encoding
  * would cost quality and win nothing.
  */
-const MIN_GAIN = 1.15;
+const MIN_GAIN = 1.03;
 /** Below this, the scan found nothing sensible — a blank or near-blank file. */
 const FILL_MIN = 0.002;
 /** Above this the scan found the whole frame, so there was no margin to cut. */
 const FILL_MAX = 0.995;
 /** Breathing room left around the product, as a fraction of the square. */
-const MARGIN = 0.04;
+const MARGIN = 0.02;
 const SIZE = 600;
-const QUALITY = 0.9;
+/**
+ * JPEG quality. Cropping enlarges the product, so a re-encode costs bytes
+ * even as it removes pixels; at 0.9 the worst photograph doubled in weight.
+ * 0.85 is indistinguishable on a product photograph and gives most of that
+ * back — this catalogue is read on phones on Nepali mobile data.
+ */
+const QUALITY = 0.85;
+
+/**
+ * How much bigger the file may get, per unit of scale the product gains.
+ *
+ * A crop that makes the product 70% bigger has earned some weight; one that
+ * makes it 10% bigger has not earned seven times the bytes. Written as an
+ * allowance rather than a flat cap so a photograph with a genuinely huge
+ * margin still gets cropped.
+ */
+const BYTES_PER_GAIN = 4;
 
 const write = process.argv.includes('--write');
 
@@ -83,6 +117,11 @@ for (const url of wanted) {
   // Loaded from the dev server by its own URL rather than shipped in as a
   // data URL: a 70KB photograph becomes a 95KB string inside the expression,
   // and doing that 87 times over the debugging protocol stalls the run.
+  // Re-encode as whatever the file name says it is. A PNG kept as a PNG
+  // costs more bytes for a photograph, but the alternative is a file whose
+  // contents and Content-Type disagree.
+  const mime = /\.png$/i.test(file) ? 'image/png' : 'image/jpeg';
+
   const result = await page.eval(`
     const img = await new Promise((res) => {
       const i = new Image();
@@ -104,11 +143,35 @@ for (const url of wanted) {
     g.drawImage(img, 0, 0);
 
     const d = g.getImageData(0, 0, c.width, c.height).data;
+    const at = (x, y) => { const i = (y * c.width + x) * 4; return [d[i], d[i+1], d[i+2]]; };
+    const dist = (a, b) => Math.max(
+      Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]), Math.abs(a[2] - b[2]));
+
+    // The backdrop, taken from the four corners rather than assumed to be
+    // white. A patch, not a pixel, so one stray speck cannot define it.
+    const patch = (x0, y0) => {
+      let r = 0, gg = 0, b = 0, n = 0;
+      for (let y = y0; y < y0 + 6; y++) {
+        for (let x = x0; x < x0 + 6; x++) {
+          const p = at(x, y); r += p[0]; gg += p[1]; b += p[2]; n++;
+        }
+      }
+      return [r / n, gg / n, b / n];
+    };
+    const corners = [
+      patch(0, 0), patch(c.width - 6, 0),
+      patch(0, c.height - 6), patch(c.width - 6, c.height - 6),
+    ];
+    const spread = Math.max(...corners.map((a) => Math.max(...corners.map((b) => dist(a, b)))));
+    if (spread > ${CORNER_AGREEMENT}) {
+      return { skip: 'photographed against a real scene, not a backdrop' };
+    }
+    const bg = [0, 1, 2].map((k) => corners.reduce((t, p) => t + p[k], 0) / 4);
+
     let top = c.height, left = c.width, right = -1, bottom = -1;
     for (let y = 0; y < c.height; y++) {
       for (let x = 0; x < c.width; x++) {
-        const i = (y * c.width + x) * 4;
-        if (d[i] > ${WHITE} && d[i+1] > ${WHITE} && d[i+2] > ${WHITE}) continue;
+        if (dist(at(x, y), bg) <= ${TOLERANCE}) continue;
         if (y < top) top = y;
         if (y > bottom) bottom = y;
         if (x < left) left = x;
@@ -133,13 +196,16 @@ for (const url of wanted) {
     const out = document.createElement('canvas');
     out.width = ${SIZE}; out.height = ${SIZE};
     const o = out.getContext('2d');
-    o.fillStyle = '#fff'; o.fillRect(0, 0, ${SIZE}, ${SIZE});
+    // Paint the backdrop the photograph's own colour, so the margin left
+    // around the product matches the picture instead of banding against it.
+    o.fillStyle = 'rgb(' + bg.map(Math.round).join(',') + ')';
+    o.fillRect(0, 0, ${SIZE}, ${SIZE});
     o.imageSmoothingQuality = 'high';
     const w = cw * scale, h = ch * scale;
     o.drawImage(img, left, top, cw, ch, (${SIZE} - w) / 2, (${SIZE} - h) / 2, w, h);
     return {
       fill, gain,
-      data: out.toDataURL('image/jpeg', ${QUALITY}),
+      data: out.toDataURL(${JSON.stringify(mime)}, ${QUALITY}),
     };
   `);
 
@@ -149,14 +215,25 @@ for (const url of wanted) {
     continue;
   }
 
+  const bytes = Buffer.from(result.data.split(',')[1], 'base64');
+  const before = statSync(file).size;
+  const growth = bytes.length / before;
+  const allowed = 1 + (result.gain - 1) * BYTES_PER_GAIN;
+  if (growth > allowed) {
+    skipped++;
+    process.stdout.write(
+      `  skipped   ${url}\n`
+      + `            ${result.gain.toFixed(1)}x bigger would cost `
+      + `${growth.toFixed(1)}x the bytes\n`);
+    continue;
+  }
+
   process.stdout.write(
-    `  ${result.gain.toFixed(1)}x bigger  ${url}\n`);
+    `  ${result.gain.toFixed(1)}x bigger  ${url}  `
+    + `(${(before / 1024).toFixed(0)}KB → ${(bytes.length / 1024).toFixed(0)}KB)\n`);
   trimmed++;
 
-  if (write) {
-    const b64 = result.data.split(',')[1];
-    await writeFile(file, Buffer.from(b64, 'base64'));
-  }
+  if (write) await writeFile(file, bytes);
 }
 
 proc.kill();

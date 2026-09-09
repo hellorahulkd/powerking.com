@@ -1,5 +1,5 @@
 import { siteConfig, whatsappMessages, ENQUIRY_MAX } from '../config/site.config.js';
-import { esc, whatsappUrl, hasWhatsApp, formatPrice } from '../lib/html.js';
+import { esc, whatsappUrl, hasWhatsApp, formatPrice, packSizeLabel } from '../lib/html.js';
 import { icon } from './icons.js';
 
 /** Attributes shared by every WhatsApp link so analytics can track them. */
@@ -203,19 +203,22 @@ function badges(product) {
 }
 
 /**
- * The card shows the carton rate, since that is what a wholesale buyer scans
- * a listing for, and marks it as the carton rate so it is not mistaken for a
- * per-piece price. A product with no carton rate falls back to the piece rate
- * rather than showing nothing, and one with neither says so plainly.
+ * The price on a card is the price of one piece.
+ *
+ * It used to lead with the carton rate, and every product in the catalogue
+ * had a single-piece figure sitting in the carton field — so the card showed
+ * "Rs. 390 per carton" for a product that costs Rs. 390 each. The piece rate
+ * leads now, and a carton rate only shows if somebody has actually entered
+ * one that differs.
  */
 function cardPrice(product) {
-  const carton = formatPrice(product.priceCarton);
   const piece = formatPrice(product.pricePiece);
-  if (carton) {
-    return `<p class="card__price">${esc(carton)}<span class="card__price-unit">per carton</span></p>`;
-  }
+  const carton = formatPrice(product.priceCarton);
   if (piece) {
     return `<p class="card__price">${esc(piece)}<span class="card__price-unit">per piece</span></p>`;
+  }
+  if (carton) {
+    return `<p class="card__price">${esc(carton)}<span class="card__price-unit">per carton</span></p>`;
   }
   return '<p class="card__price card__price--ask">Price on enquiry</p>';
 }
@@ -257,7 +260,7 @@ export function productCard(product, { eager = false, location = 'product_card' 
   <div class="card__body">
     <p class="card__eyebrow">${esc(product.category)}</p>
     <h3 class="card__title"><a href="${esc(url)}">${esc(product.name)}</a></h3>
-    ${product.packSize ? `<p class="card__meta">${esc(product.packSize)}</p>` : ''}
+    ${product.packSize ? `<p class="card__meta">${esc(packSizeLabel(product.packSize))}</p>` : ''}
     ${cardPrice(product)}
   </div>
   <div class="card__actions">

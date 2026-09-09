@@ -89,6 +89,17 @@ export function footer() {
     </div>
   </div>
 
+  <!--
+    The one place every page ends. A buyer who lands on a single product from
+    a search never reads the catalogue lead, and the number on a card is the
+    piece rate, so the distinction has to be somewhere they cannot miss it.
+  -->
+  <div class="container footer__note">
+    <p><strong>About our prices.</strong> Every price on this site is the wholesale
+    rate for a <strong>single piece</strong>. Carton prices are different — send us an
+    enquiry to ask for the carton rate, the minimum order and delivery.</p>
+  </div>
+
   <div class="container footer__bar">
     <p>&copy; ${year} PowerKing Nepal. All rights reserved.</p>
     <ul>

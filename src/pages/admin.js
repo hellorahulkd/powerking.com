@@ -42,8 +42,16 @@ function field(id, label, control, hint = '') {
 </div>`;
 }
 
-function text(id, { placeholder = '', type = 'text' } = {}) {
-  return `<input class="af__input" id="${esc(id)}" type="${esc(type)}"${type === 'number' ? ' inputmode="numeric" min="1" step="1"' : ''} placeholder="${esc(placeholder)}" autocomplete="off">`;
+/**
+ * `numeric` asks for a number without making the field a number input. A
+ * number input silently discards anything it cannot parse, so opening an
+ * older product whose pack size reads "40 Pcs Cartoon" would blank the field
+ * and the next save would commit the loss. A text field with a number pad
+ * asks for the same thing and keeps what is already there.
+ */
+function text(id, { placeholder = '', type = 'text', numeric = false } = {}) {
+  const num = type === 'number' || numeric;
+  return `<input class="af__input" id="${esc(id)}" type="${esc(numeric ? 'text' : type)}"${num ? ' inputmode="numeric"' : ''}${type === 'number' ? ' min="1" step="1"' : ''} placeholder="${esc(placeholder)}" autocomplete="off">`;
 }
 
 function checkbox(id, label, hint) {
@@ -263,9 +271,9 @@ export function adminPage() {
         </div>
 
         ${field('f-sku', 'Model / SKU', text('f-sku', { placeholder: 'K21' }), 'The model number on the box. Searchable.')}
-        ${field('f-packsize', 'Pack size', text('f-packsize', { placeholder: '20 pcs per carton' }), 'How many pieces come in a carton.')}
-        ${field('f-price-carton', 'Price per carton (Rs.)', text('f-price-carton', { placeholder: '12500', type: 'number' }), 'Numbers only — no "Rs." and no commas. The site formats it as <code>Rs. 12,500</code>. Leave blank and the product shows "Price on enquiry".')}
-        ${field('f-price-piece', 'Price per loose piece (Rs.)', text('f-price-piece', { placeholder: '650', type: 'number' }), 'The loose-piece rate is a different number from the carton rate — fill in both so a buyer sees the difference.')}
+        ${field('f-packsize', 'Pieces per carton', text('f-packsize', { placeholder: '48', numeric: true }), 'Just the number — how many pieces come in one carton. The site writes it out as "48 pieces per carton", so a bare number on a card never leaves a buyer wondering what it counts.')}
+        ${field('f-price-piece', 'Price for ONE piece (Rs.)', text('f-price-piece', { placeholder: '650', type: 'number' }), 'The price of a single unit — this is the price the site shows on the card and the product page. Numbers only: no "Rs." and no commas. Leave it blank and the product reads "Price on enquiry".')}
+        ${field('f-price-carton', 'Price for a WHOLE carton (Rs.)', text('f-price-carton', { placeholder: '12500', type: 'number' }), 'The total for one full carton — a much larger number than the piece price. <strong>Leave this blank unless you really mean it</strong>: blank is right, and the site then tells buyers to ask for the carton rate. The old wording invited the same number in both boxes, and all 62 priced products ended up showing a single-piece price labelled "per carton".')}
         ${field('f-tags', 'Extra search words', text('f-tags', { placeholder: 'bluetooth, party, rgb' }), 'Comma separated. Words a buyer might search that are not already in the name or description.')}
 
         <div class="af">

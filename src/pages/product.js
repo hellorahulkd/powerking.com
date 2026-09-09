@@ -1,7 +1,7 @@
 import { siteConfig } from '../config/site.config.js';
 import {
   esc, absoluteUrl, whatsappUrl, jsonForScript, metaDescription, socialImage,
-  formatPrice,
+  formatPrice, packSizeLabel,
 } from '../lib/html.js';
 import { layout } from '../templates/layout.js';
 import {
@@ -20,23 +20,28 @@ function priceBlock(product) {
   const carton = formatPrice(product.priceCarton);
   const piece = formatPrice(product.pricePiece);
   if (!carton && !piece) {
-    return '<p class="enquiry__price">Contact us for wholesale pricing</p>';
+    return '<p class="enquiry__price">Price on enquiry</p>';
   }
+  const pack = packSizeLabel(product.packSize);
   const rows = [
-    carton && `<div class="price"><span class="price__label">Per carton</span>
-      <span class="price__value">${esc(carton)}</span></div>`,
     piece && `<div class="price"><span class="price__label">Per piece</span>
       <span class="price__value">${esc(piece)}</span></div>`,
+    carton && `<div class="price"><span class="price__label">Per carton</span>
+      <span class="price__value">${esc(carton)}</span></div>`,
   ].filter(Boolean).join('');
   return `<div class="prices">${rows}</div>
     <p class="enquiry__pricenote">
-      ${carton && piece
-        ? 'The carton rate and the loose-piece rate are different — the carton rate is the better one.'
-        : carton
-          ? 'Carton rate. Loose pieces are priced differently — ask us.'
-          : 'Loose-piece rate. Buying by the carton is priced differently — ask us.'}
-      Wholesale rates. Send an enquiry to confirm stock, the minimum order
-      and delivery.
+      ${pack ? `Sold ${esc(pack)}. ` : ''}${
+        carton && piece
+          ? 'Both rates are wholesale, and they are different numbers — the '
+            + 'carton rate is not the piece rate multiplied out.'
+          : carton
+            ? 'That is the wholesale rate for a full carton. Loose pieces are '
+              + 'priced differently — send an enquiry for the piece rate.'
+            : 'That is the wholesale rate for one piece. Buying by the carton is '
+              + 'priced differently — send an enquiry for the carton rate.'
+      }
+      Send an enquiry to confirm stock, the minimum order and delivery.
     </p>`;
 }
 
@@ -88,9 +93,9 @@ function compareSection(product, siblings) {
   const all = [product, ...siblings];
   const rows = [
     ['Brand', (p) => p.brand],
-    ['Carton price', (p) => formatPrice(p.priceCarton)],
     ['Piece price', (p) => formatPrice(p.pricePiece)],
-    ['Pack size', (p) => p.packSize],
+    ['Carton price', (p) => formatPrice(p.priceCarton)],
+    ['Pack size', (p) => packSizeLabel(p.packSize)],
     ['SKU', (p) => p.sku],
     ['Availability', (p) => (p.available === false ? 'Currently unavailable' : 'Available')],
   ];
@@ -227,9 +232,9 @@ export function productPage({ product, related }) {
         <dl class="pd__specs">
           ${specRow('Brand', product.brand)}
           ${specRow('Category', product.category)}
-          ${specRow('Pack Size', product.packSize)}
-          ${specRow('Carton Price', formatPrice(product.priceCarton))}
+          ${specRow('Pack Size', packSizeLabel(product.packSize))}
           ${specRow('Piece Price', formatPrice(product.pricePiece))}
+          ${specRow('Carton Price', formatPrice(product.priceCarton))}
           ${specRow('SKU', product.sku)}
         </dl>
 

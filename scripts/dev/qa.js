@@ -223,14 +223,16 @@ async function main() {
 
   /* --------------------------------------------------------- 1e. prices -- */
   // Prices are the one thing on this site a buyer will act on, so what is
-  // rendered has to be what is stored — and a product with no price must say
-  // so rather than showing a figure nobody quoted.
+  // rendered has to be what is stored — and it has to say what the figure is
+  // FOR. Every priced product used to show its single-piece rate labelled
+  // "per carton", which is the most expensive kind of wrong a catalogue can be.
   process.stdout.write('\nPrices\n');
   {
     const page = await newPage(port);
     await page.setViewport(1280, 900, false);
-    const priced = products.find((p) => Number(p.priceCarton) > 0);
+    const priced = products.find((p) => Number(p.pricePiece) > 0);
     const unpriced = products.find((p) => !Number(p.priceCarton) && !Number(p.pricePiece));
+    const packed = products.find((p) => /^\d+$/.test(String(p.packSize || '').trim()));
 
     if (unpriced) {
       await page.goto(`${BASE}/products/${unpriced.slug}/`);
@@ -251,14 +253,53 @@ async function main() {
         values: [...document.querySelectorAll('.price__value')].map(e => e.textContent.trim()),
         note: (document.querySelector('.enquiry__pricenote') || {}).textContent || '',
       };`);
-      check('a priced product shows the carton rate and says it is the carton rate',
-        r.labels.includes('Per carton'), r.labels.join(', '));
-      check('the two rates are named as different things',
-        /different/i.test(r.note), r.note.slice(0, 70));
+      check('a priced product names the rate as the price of one piece',
+        r.labels.includes('Per piece'), r.labels.join(', '));
+      // Nothing in the catalogue carries a real carton rate, so nothing may
+      // claim to: the page has to send the buyer to ask instead.
+      check('and tells the buyer the carton rate is a different number to ask for',
+        /carton/i.test(r.note) && /(enquir|ask)/i.test(r.note), r.note.slice(0, 90));
       check('prices are written in rupees with Nepali grouping',
         r.values.every((v) => /^Rs\. [\d,]+$/.test(v)), r.values.join(' | '));
+
+      // The card is where the mislabelling was actually seen.
+      await page.goto(`${BASE}/products/`);
+      const card = await page.eval(`
+        const c = [...document.querySelectorAll('[data-product]')]
+          .find(x => x.querySelector('.card__price:not(.card__price--ask)'));
+        if (!c) return { none: true };
+        return {
+          unit: c.querySelector('.card__price-unit').textContent.trim(),
+          price: c.querySelector('.card__price').textContent.trim(),
+        };
+      `);
+      check('a card says the price is per piece, not per carton',
+        card.unit === 'per piece', JSON.stringify(card));
     } else {
       check('no product carries an invented price', true);
+    }
+
+    // The footer is the only place every page ends. A buyer who lands on one
+    // product from a search never reads the catalogue lead, so the piece /
+    // carton distinction has to close every page, not just the ones that
+    // happen to introduce it.
+    for (const url of ['/', '/products/', `/products/${priced ? priced.slug : products[0].slug}/`]) {
+      await page.goto(BASE + url);
+      const note = await page.eval(`
+        return (document.querySelector('.footer__note') || {}).textContent || '';
+      `);
+      check(`${url} ends with the note that carton prices differ`,
+        /single piece/i.test(note) && /carton/i.test(note) && /enquir/i.test(note),
+        note.trim().slice(0, 80));
+    }
+
+    if (packed) {
+      await page.goto(`${BASE}/products/${packed.slug}/`);
+      const r = await page.eval(`return document.body.textContent;`);
+      // "48" on its own tells a buyer nothing about what is being counted.
+      check('a bare pack-size number is written out as pieces per carton',
+        r.includes(`${packed.packSize} pieces per carton`),
+        `looking for "${packed.packSize} pieces per carton"`);
     }
     await page.close();
   }

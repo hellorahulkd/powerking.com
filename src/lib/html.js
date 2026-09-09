@@ -75,6 +75,22 @@ export function formatPrice(value) {
   return `${symbol} ${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(n)}`;
 }
 
+/**
+ * How many come in a carton, said in words.
+ *
+ * The field is filled in by hand and most entries are a bare number — "48",
+ * "100" — which renders on a card as a number with nothing to say what it
+ * counts. Anything that is only digits gets the unit put on it; anything
+ * where somebody wrote their own words is left exactly as they wrote it.
+ */
+export function packSizeLabel(value) {
+  const raw = String(value == null ? '' : value).trim();
+  if (!raw) return '';
+  if (!/^\d+$/.test(raw)) return raw;
+  const n = Number(raw);
+  return `${n} ${n === 1 ? 'piece' : 'pieces'} per carton`;
+}
+
 /** Render a value, or a clearly-marked placeholder when it is missing. */
 export function orPlaceholder(value, placeholderLabel) {
   const v = String(value ?? '').trim();

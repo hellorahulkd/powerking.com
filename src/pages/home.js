@@ -14,13 +14,13 @@ import { productCard, whatsappButton } from '../templates/components.js';
 /** The carousel's price line. Every price on the site is a wholesale rate, so
  *  the slide says the rate rather than inviting a request for one. */
 function slidePrice(p) {
-  const carton = formatPrice(p.priceCarton);
   const piece = formatPrice(p.pricePiece);
-  if (carton) {
-    return `<p class="slide__price">${esc(carton)} <span>per carton, wholesale</span></p>`;
-  }
+  const carton = formatPrice(p.priceCarton);
   if (piece) {
     return `<p class="slide__price">${esc(piece)} <span>per piece, wholesale</span></p>`;
+  }
+  if (carton) {
+    return `<p class="slide__price">${esc(carton)} <span>per carton, wholesale</span></p>`;
   }
   return '<p class="slide__price">Price on enquiry</p>';
 }
@@ -321,9 +321,9 @@ function ctaSection() {
     <div>
       <h2 class="cta__title">Ready to order?</h2>
       <p class="cta__body">
-        Every price on this site is the wholesale rate, and the carton rate is
-        not the loose-piece rate. Put what you need on an enquiry and send it
-        over — we will confirm stock, the minimum order and how it reaches you.
+        Every price on this site is the wholesale rate for a single piece.
+        Carton rates are different — put what you need on an enquiry and ask,
+        and we will confirm the carton rate, stock and how it reaches you.
       </p>
     </div>
     <div class="cta__actions">

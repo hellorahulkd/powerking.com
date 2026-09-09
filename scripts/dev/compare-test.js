@@ -7,6 +7,7 @@
  */
 import { launch, newPage } from './cdp.js';
 import { products } from '../../src/data/products.js';
+import { packSizeLabel } from '../../src/lib/html.js';
 
 const BASE = process.env.BASE || 'http://localhost:4321';
 let pass = 0;
@@ -137,9 +138,11 @@ const card = await page.eval(`
 check('card no longer repeats the description', card.desc === false);
 check('the card shows a price line', card.price === true);
 check('card no longer shows the SKU', card.sku === false);
-check('card keeps the name, and the pack size when there is one',
-  card.title === true && card.meta === packed.packSize,
-  JSON.stringify({ ...card, expected: packed.packSize }));
+// A bare "48" on a card told a buyer nothing — the card now spells out what
+// the number counts, so the expectation is the written label, not the field.
+check('card keeps the name, and the pack size written out when there is one',
+  card.title === true && card.meta === packSizeLabel(packed.packSize),
+  JSON.stringify({ ...card, expected: packSizeLabel(packed.packSize) }));
 
 console.log('\n' + '-'.repeat(56));
 console.log(fails.length ? `  ${pass} passed, ${fails.length} FAILED` : `  All ${pass} compare checks passed`);
