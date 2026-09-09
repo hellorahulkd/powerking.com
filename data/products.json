@@ -2277,5 +2277,24 @@
     "tags": [
       "Data cables"
     ]
+  },
+  {
+    "id": 300,
+    "name": "Powerking Cable 30w C to iphone",
+    "slug": "powerking-cable-30w-c-to-iphone",
+    "brand": "Powerking",
+    "category": "Data Cables",
+    "description": "Packaging & Design Features\n Product Title: Type-C to iPhone Data Cable\n Connector Configuration: Features a Lightning connector on one end and a USB-C (Type-C) connector on the other, designed for modern fast-charging adapters and Apple devices.\n Branding Details: Highlighting the \"Power King\" series under the VIDVIE branding, with printed logo placement on the USB-C connector housing.\n Model Number: Updated to model code CC4031I to distinguish the Type-C variant from standard USB-A models.\n Charging & Data Capabilities: Built for high-speed power delivery (PD) and reliable data transfer between USB-C laptops/adapters and iPhone devices.",
+    "image": "/images/products/powerking-cable-30w-c-to-iphone.jpg",
+    "gallery": [],
+    "packSize": "130",
+    "priceCarton": 130,
+    "pricePiece": 130,
+    "sku": "Powerking",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Data cables"
+    ]
   }
 ]
