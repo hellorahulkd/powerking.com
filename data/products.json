@@ -2258,5 +2258,24 @@
     "tags": [
       "Data cables"
     ]
+  },
+  {
+    "id": 299,
+    "name": "Power King iPhone Data Cable",
+    "slug": "power-king-iphone-data-cable",
+    "brand": "Powerkig",
+    "category": "Data Cables",
+    "description": "🔌 Power King iPhone Data Cable\n\nModel: CB4031I\n\nPower King iPhone Data Cable is designed for reliable charging and data transfer for compatible iPhone and Lightning devices. Its durable construction makes it suitable for everyday use at home, office, travel, or business.\n\nKey Features:\n\n* ⚡ Fast Charging Support\n* 🔋 Up to 2.4A Power Output\n* 💻 Data Transfer Support\n* 🔌 USB-A to Lightning Connector\n* 🛡️ Durable & Reliable Build\n* 📱 Compatible with Lightning Devices\n* 📦 Model: CB4031I\n\nProduct Type: USB-A to Lightning Data Cable\nBrand: Power King\nConnector: USB-A to Lightning\nUse: Charging & Data Transfer 🔌 Power King iPhone Data Cable\n\nModel: CB4031I\n\nPower King iPhone Data Cable is designed for reliable charging and data transfer for compatible iPhone and Lightning devices. Its durable construction makes it suitable for everyday use at home, office, travel, or business.\n\nKey Features:\n\n* ⚡ Fast Charging Support\n* 🔋 Up to 2.4A Power Output\n* 💻 Data Transfer Support\n* 🔌 USB-A to Lightning Connector\n* 🛡️ Durable & Reliable Build\n* 📱 Compatible with Lightning Devices\n* 📦 Model: CB4031I\n\nProduct Type: USB-A to Lightning Data Cable\nBrand: Power King\nConnector: USB-A to Lightning\nUse: Charging & Data Transfer",
+    "image": "/images/products/power-king-iphone-data-cable.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 100,
+    "pricePiece": 100,
+    "sku": "Power King iPhone Data Cable",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Data cables"
+    ]
   }
 ]
