@@ -2391,5 +2391,24 @@
     "tags": [
       "Data cables"
     ]
+  },
+  {
+    "id": 306,
+    "name": "Ewa cable Good quality",
+    "slug": "ewa-cable-good-quality",
+    "brand": "Ewa",
+    "category": "Data Cables",
+    "description": "Product Details & Technical Specifications\n Brand & Model: EWA-60 Fast Data Cable\n Connector Configuration: USB-A to Micro-USB (with gold-plated internal contacts for enhanced conductivity)\n Power & Performance: High-speed output for fast charging and rapid data transfer\n Build Material: Premium white TPE flexible casing with reinforced strain-relief joints\n Safety Features: Built-in Smart Chip protection for over-current, over-voltage, and temperature control\n Packaging: Retail box with custom graphics, specifications, and model branding",
+    "image": "/images/products/ewa-cable-good-quality.jpg",
+    "gallery": [],
+    "packSize": "1000",
+    "priceCarton": 60,
+    "pricePiece": 60,
+    "sku": "Ewa cable",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "data cable"
+    ]
   }
 ]
