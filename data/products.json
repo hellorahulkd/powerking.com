@@ -2353,5 +2353,24 @@
     "tags": [
       "data cables"
     ]
+  },
+  {
+    "id": 304,
+    "name": "Sky Dolphin S61V Fast Data Cable Type c",
+    "slug": "sky-dolphin-s61v-fast-data-cable-type-c",
+    "brand": "Powerking",
+    "category": "Data Cables",
+    "description": "Sky Dolphin S61V Fast Data Cable Type cSpecifications\n Brand & Model: Sky Dolphin S61V\n Connector Type: USB-A to Micro-USB (Type-B)\n Charging Speed: 2.4A Max Fast Charging\n Data Sync: Supports high-speed data transfer between devices and PCs\n Cable Length: 100 cm (1 Meter)\n Build Quality: Flexible PVC/TPE jacket with integrated chevron-patterned strain relief guards on both connector plugs to prevent bending damage\n Compatibility: Suitable for Micro-USB Android smartphones, Bluetooth speakers, power banks, and other rechargeable accessories",
+    "image": "/images/products/sky-dolphin-s61v-fast-data-cable-type-c.jpg",
+    "gallery": [],
+    "packSize": "1000",
+    "priceCarton": 28,
+    "pricePiece": 28,
+    "sku": "Powerking type c",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "Data cables"
+    ]
   }
 ]
