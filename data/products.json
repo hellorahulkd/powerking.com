@@ -2220,5 +2220,24 @@
     "tags": [
       "Phone coolers"
     ]
+  },
+  {
+    "id": 297,
+    "name": "Power King  Vidvee V8 Data Cable",
+    "slug": "power-king-vidvee-v8-data-cable",
+    "brand": "Powerking",
+    "category": "Data Cables",
+    "description": "Power King V8 Data Cable\n\nModel: CB4031V\n\nPower King V8 is a reliable Micro-USB data & charging cable designed for everyday charging and data transfer. It supports up to 3A power output and is suitable for compatible smartphones, Android devices, power banks, speakers and other Micro-USB devices.\n\nKey Features:\n\n* ⚡ Fast Charging Support\n* 🔋 Up to 3A Power Output\n* 💻 Data Transfer Support\n* 🔌 USB-A to Micro-USB Connector\n* 🛡️ Durable & Reliable Build\n* 📱 Compatible with Micro-USB Devices\n* 📦 Model: CB4031V\n\nProduct Type: USB-A to Micro-USB Data Cable\nBrand: Power King\nConnector: USB-A to Micro-USB",
+    "image": "/images/products/power-king-vidvee-v8-data-cable.jpg",
+    "gallery": [],
+    "packSize": "75",
+    "priceCarton": 75,
+    "pricePiece": 75,
+    "sku": "Power King  Vidvee V8 Data Cable",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Data cables"
+    ]
   }
 ]
