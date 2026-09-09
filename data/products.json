@@ -2315,5 +2315,24 @@
     "tags": [
       "Data cables"
     ]
+  },
+  {
+    "id": 302,
+    "name": "Powerking 65w Performance cable",
+    "slug": "powerking-65w-performance-cable",
+    "brand": "Powerking 65w",
+    "category": "Data Cables",
+    "description": "Product Presentation & Key Highlights\n Product Title: Power King 65W Fast Data Cable\n Connector Type: USB-A to Type-C full metal design, specifically featuring Type-C output availability.\n Power & Performance: Supports up to 65W power transmission with a high-current rating of 5.0A for fast charging and data synchronization.\n Cable Specifications: Standard 1-meter length with high-durability tensile wire and reinforced metal connector housing.\n Retail Pricing: Displayed with clear promotional messaging highlighting \"Only Type-C Available\" at a retail price of Rs 75.",
+    "image": "/images/products/powerking-65w-performance-cable.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 85,
+    "pricePiece": 85,
+    "sku": "Powerking 65w",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "data cables"
+    ]
   }
 ]
