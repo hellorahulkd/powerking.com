@@ -2367,7 +2367,7 @@
     "priceCarton": 28,
     "pricePiece": 28,
     "sku": "Powerking type c",
-    "featured": true,
+    "featured": false,
     "available": true,
     "tags": [
       "Data cables"
