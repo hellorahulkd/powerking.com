@@ -2348,7 +2348,7 @@
     "priceCarton": 18,
     "pricePiece": 18,
     "sku": "V8",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": [
       "data cables"
