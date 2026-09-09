@@ -34,6 +34,20 @@ async function fresh(path = '/products/') {
   await page.goto(BASE + path);
 }
 
+/**
+ * Rupees the way the site writes them: Rs. 1,45,000 — last three digits, then
+ * pairs. Written out here rather than imported so the test is checking the
+ * shipped formatting against an independent statement of the rule, not
+ * against the same function twice.
+ */
+function rupees(n) {
+  const d = String(Math.round(n));
+  let head = d.slice(0, -3);
+  let out = d.slice(-3);
+  while (head.length > 2) { out = head.slice(-2) + ',' + out; head = head.slice(0, -2); }
+  return siteConfig.currency.symbol + ' ' + (head ? head + ',' + out : out);
+}
+
 const message = () => page.eval(`
   const href = document.getElementById('enq-send').href;
   return decodeURIComponent((href.split('?text=')[1] || ''));
@@ -117,23 +131,117 @@ console.log('\nThe message that reaches WhatsApp');
     built.text.trim().endsWith(whatsappMessages.list.closing));
   check('every selected product is named in the message',
     built.names.every((n) => built.text.includes(n)), built.names.join(' | '));
+  // Each quantity is labelled with what it is, because the two are priced
+  // differently and the shop reads this on a phone.
   check('quantities carry the unit they were given in',
-    /\(12 cartons\)/.test(built.text) && /\(1 piece\)/.test(built.text),
+    /Cartons: 12\b/.test(built.text) && /Loose: 1 pcs\b/.test(built.text),
     built.text);
   check('a box left at zero is not mentioned in the message',
-    !/0 cartons/.test(built.text) && !/0 pieces/.test(built.text), built.text);
+    !/Cartons: 0\b/.test(built.text) && !/Loose: 0\b/.test(built.text), built.text);
   check('the list is numbered in the order it was built',
     built.text.indexOf('1. ' + built.names[0]) !== -1
     && built.text.indexOf('2. ' + built.names[1]) !== -1);
 
-  // "1 cartons" is the kind of thing a buyer notices and a shop does not.
   const singular = await page.eval(`
     const q = document.querySelector('.enq__row [data-cartons]');
     q.value = '1'; q.dispatchEvent(new Event('input', { bubbles: true }));
     return decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1]);
   `);
-  check('a quantity of one reads as a singular unit',
-    /\(1 carton\)/.test(singular) && !/\(1 cartons\)/.test(singular));
+  check('a quantity of one is still labelled, not left bare',
+    /Cartons: 1\b/.test(singular), singular);
+}
+
+console.log('\nThe message arrives with the arithmetic done');
+{
+  // The shop was receiving "20 cartons + 200 pieces" and having to look the
+  // rate up and multiply it out before it could reply. The site knows the
+  // piece rate, so the message carries the total.
+  const priced = products.find(
+    (p) => Number(p.pricePiece) > 0 && /^\d+$/.test(String(p.packSize || '').trim()));
+  const unpriced = products.find((p) => !Number(p.pricePiece) && !Number(p.priceCarton));
+
+  if (priced) {
+    await fresh(`/products/${priced.slug}/`);
+    const r = await page.eval(`
+      document.querySelector('[data-enq-add]').click();
+      document.getElementById('enq-open').click();
+      await new Promise(r => setTimeout(r, 200));
+      const row = document.querySelector('.enq__row');
+      const set = (sel, v) => {
+        const el = row.querySelector(sel);
+        el.value = v; el.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      set('[data-cartons]', '10');
+      set('[data-pieces]', '100');
+      return {
+        text: decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1] || ''),
+        total: document.getElementById('enq-total').textContent,
+      };
+    `);
+    const pack = Number(priced.packSize);
+    const rate = Number(priced.pricePiece);
+    const line = rupees(rate * 100);
+
+    check('a carton count is spelled out in pieces',
+      r.text.includes(`Cartons: 10 (${pack} pcs each = ${pack * 10} pcs)`), r.text);
+    check('loose pieces are costed at the listed piece rate',
+      r.text.includes(`Loose: 100 pcs x ${rupees(rate)} = ${line}`), r.text);
+    check('the message carries a total for the loose pieces',
+      r.text.includes(`Loose pieces at your listed rate: ${line}`), r.text);
+    // The site publishes one rate — the price of a single piece. A carton is
+    // not that multiplied out, so nothing here may quote a carton total.
+    check('cartons ask for a rate rather than inventing one',
+      /Carton rates are not listed/.test(r.text)
+      && !new RegExp('Cartons:[^\\n]*Rs\\.').test(r.text), r.text);
+    check('the panel shows the same total before it is sent',
+      r.total.includes(line), r.total);
+    check('rupees are grouped the way the site groups them',
+      r.text.includes(rupees(rate)), `${rupees(rate)} | ${r.text.slice(0, 120)}`);
+  }
+
+  if (unpriced) {
+    await fresh(`/products/${unpriced.slug}/`);
+    const r = await page.eval(`
+      document.querySelector('[data-enq-add]').click();
+      document.getElementById('enq-open').click();
+      await new Promise(r => setTimeout(r, 200));
+      const el = document.querySelector('.enq__row [data-pieces]');
+      el.value = '5'; el.dispatchEvent(new Event('input', { bubbles: true }));
+      return decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1] || '');
+    `);
+    check('a product with no price asks rather than showing a figure',
+      /Loose: 5 pcs - price on enquiry/.test(r) && !/Rs\./.test(r), r);
+  }
+}
+
+console.log('\nWho the buyer is');
+{
+  // A carton buyer and someone wanting three pieces need different answers on
+  // price, minimum order and delivery. Asked once, in the message.
+  await fresh();
+  const r = await page.eval(`
+    document.querySelector('[data-enq-add]').click();
+    document.getElementById('enq-open').click();
+    await new Promise(r => setTimeout(r, 200));
+    const business = decodeURIComponent(
+      document.getElementById('enq-send').href.split('?text=')[1] || '');
+    const personal = document.querySelector('#enq-who input[value="personal"]');
+    personal.checked = true;
+    personal.dispatchEvent(new Event('change', { bubbles: true }));
+    const after = decodeURIComponent(
+      document.getElementById('enq-send').href.split('?text=')[1] || '');
+    return { business: business, personal: after, stored: localStorage.getItem('pk-enquiry-who') };
+  `);
+  check('the enquiry defaults to a business buyer, which is what this shop supplies',
+    /Buying for: my shop or business/.test(r.business), r.business.slice(-120));
+  check('choosing "myself" says so in the message',
+    /Buying for: myself/.test(r.personal), r.personal.slice(-120));
+  check('and the choice is remembered for the next enquiry', r.stored === 'personal', r.stored);
+
+  const kept = await page.eval(`
+    return document.querySelector('#enq-who input[value="personal"]').checked;
+  `);
+  check('the panel shows the remembered choice', kept === true);
 }
 
 console.log('\nGuarding the quantity');
@@ -298,8 +406,8 @@ console.log('\nA carton and loose pieces on the same line');
   `);
   check('a row holds cartons and pieces at the same time',
     both.stored.cartons === 1 && both.stored.pieces === 10, JSON.stringify(both.stored));
-  check('the message says both, joined',
-    /\(1 carton \+ 10 pieces\)/.test(both.text), both.text);
+  check('the message says both, on their own labelled lines',
+    /Cartons: 1\b/.test(both.text) && /Loose: 10 pcs/.test(both.text), both.text);
   check('both boxes are labelled in the panel',
     both.labels.join(',') === 'Cartons,Pieces', both.labels.join(','));
   check('the row shows the product photo',
@@ -335,7 +443,7 @@ console.log('\nA row with no quantity at all');
              text: decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1] || '') };
   `);
   check('filling one of the two boxes clears the warning',
-    fixed.flagged === 0 && /\(4 pieces\)/.test(fixed.text), JSON.stringify(fixed));
+    fixed.flagged === 0 && /Loose: 4 pcs/.test(fixed.text), JSON.stringify(fixed));
 }
 
 console.log('\nA list saved before the two boxes existed');

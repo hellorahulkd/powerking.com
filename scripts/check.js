@@ -6,6 +6,7 @@
  *   node build.js && node scripts/check.js
  */
 import { readFile, readdir, stat } from 'node:fs/promises';
+import { gzipSync } from 'node:zlib';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -224,7 +225,15 @@ async function main() {
   const css = await stat(path.join(DIST, 'assets/styles.css'));
   const appJs = await stat(path.join(DIST, 'assets/app.js'));
   const catJs = await stat(path.join(DIST, 'assets/catalogue.js'));
-  assert('CSS stays under 60KB', css.size < 60 * 1024, `${(css.size / 1024).toFixed(1)}KB`);
+  // What a visitor actually downloads, not what the file weighs on disk:
+  // GitHub Pages serves this gzipped, and the raw cap had started refusing
+  // features while the delivered stylesheet was still only 12KB. The raw cap
+  // stays, well above the working size, so the file cannot balloon unnoticed.
+  const cssGz = gzipSync(await readFile(path.join(DIST, 'assets/styles.css')), { level: 9 });
+  assert('CSS stays under 14KB over the wire',
+    cssGz.length < 14 * 1024, `${(cssGz.length / 1024).toFixed(1)}KB gzipped`);
+  assert('CSS stays under 72KB on disk',
+    css.size < 72 * 1024, `${(css.size / 1024).toFixed(1)}KB`);
   const sliderJs = await stat(path.join(DIST, 'assets/slider.js'));
   const jsTotal = appJs.size + catJs.size + sliderJs.size;
   assert('JS stays under 24KB total', jsTotal < 24 * 1024, `${(jsTotal / 1024).toFixed(1)}KB`);

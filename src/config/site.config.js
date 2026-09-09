@@ -167,8 +167,11 @@ export const whatsappMessages = {
   // between these two lines by the enquiry list.
   list: {
     greeting: 'Hi PowerKing Nepal, I would like to enquire about the following:',
+    // The list now carries the arithmetic at the listed piece rate, and asks
+    // for carton rates itself when the buyer wants cartons — so this closes on
+    // what is left over rather than asking again for prices already on screen.
     closing:
-      'Please confirm stock, the minimum order and delivery for these.',
+      'Please confirm stock, the minimum order and delivery.',
   },
 };
 

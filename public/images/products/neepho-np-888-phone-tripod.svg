@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Illustration of NeePho NP-888 2-in-1 Phone Tripod">
-  <rect width="800" height="800" fill="#FFFFFF"/>
-  
+  <rect x="-800" y="-800" width="2400" height="2400" fill="#FFFFFF"/>
+  <g id="art">
     <ellipse cx="400" cy="654" rx="205" ry="16" fill="#000" opacity=".07"/>
     <path d="M400 474 L254 640" fill="none" stroke="#3A3A42" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M400 474 L546 640" fill="none" stroke="#3A3A42" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
@@ -11,5 +11,5 @@
     <rect x="392" y="262" width="16" height="46" rx="6" fill="#26262C"/>
     <rect x="328" y="146" width="144" height="122" rx="12" fill="#26262C"/>
     <rect x="340" y="158" width="120" height="98" rx="8" fill="#8FB9D6"/>
-    <rect x="328" y="132" width="144" height="16" rx="6" fill="#5A5A64"/>
+    <rect x="328" y="132" width="144" height="16" rx="6" fill="#5A5A64"/></g>
 </svg>

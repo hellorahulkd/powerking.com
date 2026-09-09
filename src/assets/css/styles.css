@@ -1101,6 +1101,17 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
   transition: background-color .15s, color .15s, border-color .15s;
 }
 .footer__social a:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+/* One row, not a stacked block. The panel is a fixed-height column and the
+   product list lives on whatever is left: on a 620px-tall laptop window a
+   two-line question took the list down to 44px and pushed Send out of the
+   dialog entirely. Wraps to two lines on a narrow phone and no further. */
+.enq__who {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .8rem;
+  margin: 0 1.25rem .5rem; font-size: var(--step--1);
+}
+.enq__who > span { color: var(--text-muted); }
+.enq__who label { display: inline-flex; align-items: center; gap: .3rem; }
+
 .footer__note {
   margin-top: 2.5rem; padding: .9rem 1.1rem;
   border: 1px solid var(--border); background: var(--bg);
@@ -1299,7 +1310,7 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
      overflow hidden there was then no way to scroll to the button at all. */
   display: flex; flex-direction: column;
 }
-.enq__head, .enq__lead, .enq__empty, .enq__more, .enq__note, .enq__foot { flex: none; }
+.enq__head, .enq__lead, .enq__who, .enq__empty, .enq__more, .enq__note, .enq__foot { flex: none; }
 .enq::backdrop { background: rgba(16,16,16,.55); }
 .enq__head {
   display: flex; align-items: center; gap: 1rem;
@@ -1487,7 +1498,12 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
   .enq__lead, .enq__fine { display: none; }
   .enq__head { padding: .7rem 1rem .5rem; }
   .enq__list { padding-inline: 1rem; min-height: 5rem; }
-  .enq__more { margin: .5rem 1rem 0; }
+  /* "Add more products" is the one line here that is not needed to finish the
+     enquiry, and on a window this short its 28px is the difference between
+     Send being inside the panel and being clipped out of reach. */
+  .enq__more { display: none; }
+  .enq__note { margin-top: .4rem; }
+  .enq__who { margin: 0 1rem .35rem; }
   .enq__foot { padding: .7rem 1rem .8rem; }
   .enq__row { gap: .4rem; padding: .45rem; }
 }

@@ -85,11 +85,19 @@ function productTile(product) {
 `;
   }
 
+  // The backdrop is drawn far wider than the frame on purpose: rasterize.js
+  // tightens the viewBox onto #art so the drawing fills the tile the way a
+  // photograph does, and a rect that stopped at 800 would leave the zoomed-in
+  // view with bare corners.
+  //
+  // #art is the handle it measures. Only this branch carries one — the
+  // category-name fallback below is already set at full size and has no
+  // margin to take out.
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Illustration of ${esc(
     product.name,
   )}">
-  <rect width="800" height="800" fill="#FFFFFF"/>
-  ${art}
+  <rect x="-800" y="-800" width="2400" height="2400" fill="#FFFFFF"/>
+  <g id="art">${art}</g>
 </svg>
 `;
 }

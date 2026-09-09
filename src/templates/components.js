@@ -45,13 +45,22 @@ export function whatsappButton({
 }
 
 /**
- * What the enquiry list needs in order to show a product without fetching
- * anything: its identity, its name and its picture. Emitted by every control
+ * What the enquiry list needs in order to show a product, and price it,
+ * without fetching anything: its identity, its name, its picture, the price
+ * of one piece and how many pieces come in a carton. Emitted by every control
  * that can put something on the list, from one place so they cannot drift.
+ *
+ * The two numbers are what let the message arrive with the arithmetic already
+ * done — the shop was receiving "20 cartons + 200 pieces" and having to look
+ * the rate up and multiply it out before it could reply.
  */
 function enqData(product) {
+  const price = Number(product.pricePiece) > 0 ? Number(product.pricePiece) : '';
+  const pack = /^\d+$/.test(String(product.packSize || '').trim())
+    ? String(product.packSize).trim() : '';
   return `data-enq-slug="${esc(product.slug)}" data-enq-name="${esc(product.name)}"`
-    + ` data-enq-image="${esc(product.image)}"`;
+    + ` data-enq-image="${esc(product.image)}"`
+    + ` data-enq-price="${esc(price)}" data-enq-pack="${esc(pack)}"`;
 }
 
 /**
@@ -95,6 +104,7 @@ export function enquiryList() {
   return `<div class="enq-bar" id="enq-bar" hidden
      data-greeting="${esc(greeting)}" data-closing="${esc(closing)}"
      data-number="${esc(hasWhatsApp() ? String(siteConfig.whatsappNumber).trim() : '')}"
+     data-symbol="${esc(siteConfig.currency.symbol)}"
      data-max="${ENQUIRY_MAX}">
   <p class="enq-bar__count" id="enq-count" role="status" aria-live="polite"></p>
   <div class="enq-bar__actions">
@@ -112,6 +122,20 @@ export function enquiryList() {
     Put as many products as you like on this list, say how many of each, and
     send it all in one WhatsApp message. ${esc(siteConfig.supplyTerms)}
   </p>
+  <!--
+    Asked here rather than left for the shop to work out from the quantities.
+    A carton buyer and someone wanting three pieces need different answers on
+    price, minimum order and delivery, and the first message is where that
+    question costs nothing to ask.
+  -->
+  <div class="enq__who" id="enq-who" role="radiogroup" aria-labelledby="enq-who-q">
+    <span id="enq-who-q">This is for:</span>
+    <label><input type="radio" name="enq-who" value="business" checked>
+      <span>my shop or business</span></label>
+    <label><input type="radio" name="enq-who" value="personal">
+      <span>myself, a few pieces</span></label>
+  </div>
+
   <ul class="enq__list" id="enq-list"></ul>
 
   <div class="enq__empty" id="enq-empty" hidden>
@@ -132,6 +156,9 @@ export function enquiryList() {
   <p class="enq__more" id="enq-more">
     <a href="/products/">Add more products →</a>
   </p>
+  <!-- Styled as a note because that is what it is: the same class keeps it
+       inside .enq__lead's flex sizing and hides it while it is empty. -->
+  <p class="enq__note" id="enq-total" hidden></p>
   <p class="enq__note" id="enq-note" role="status" aria-live="polite"></p>
   <div class="enq__foot">
     <a class="btn btn--whatsapp btn--lg btn--block" id="enq-send"
@@ -140,8 +167,9 @@ export function enquiryList() {
       ${icon('whatsapp', { size: 20 })}<span>Send on WhatsApp</span>
     </a>
     <p class="enq__fine">
-      Opens WhatsApp with the list and quantities already written out. Nothing
-      is ordered until we reply with pricing.
+      Opens WhatsApp with the list, the quantities and the total at our listed
+      piece rate already written out. Carton rates are different — we confirm
+      those when we reply. Nothing is ordered here.
     </p>
   </div>
 </dialog>`;

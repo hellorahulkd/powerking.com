@@ -23,6 +23,14 @@ import { launch, newPage } from './dev/cdp.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+/**
+ * Breathing room left around a product drawing, as a fraction of its longer
+ * side. Matches the margin scripts/trim-images.js leaves around a cropped
+ * photograph, so a drawn tile and a photographed one sit at the same weight
+ * beside each other in the grid.
+ */
+const MARGIN = 0.02;
+
 const CANDIDATES = [
   process.env.CHROME_BIN,
   '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
@@ -77,9 +85,32 @@ async function rasterize(page, svgPath, outPath, width, height) {
 
   await page.setViewport(width, height, false);
   await page.goto(`file://${htmlPath}`);
+  // Crop to the drawing.
+  //
+  // The product tiles are composed centred in an 800x800 box, which leaves a
+  // wide margin — on a catalogue card the drawing then sat small in a mostly
+  // empty tile next to photographs that fill theirs edge to edge. Measuring
+  // #art here and tightening the viewBox onto it costs nothing (it is the
+  // same vector redrawn at a larger scale, not a crop of pixels) and needs no
+  // per-drawing constant. Tiles without an #art group — the category-name
+  // fallback, the logo, the icons — are captured exactly as composed.
   await page.eval(`
     await document.fonts.ready;
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const svg = document.querySelector('svg');
+    const art = svg && svg.querySelector('#art');
+    if (art) {
+      const b = art.getBBox();
+      if (b.width > 0 && b.height > 0) {
+        // Square, so a wide drawing is not stretched to fit a square tile.
+        const side = Math.max(b.width, b.height) * ${1 + MARGIN * 2};
+        const cx = b.x + b.width / 2;
+        const cy = b.y + b.height / 2;
+        svg.setAttribute('viewBox',
+          (cx - side / 2) + ' ' + (cy - side / 2) + ' ' + side + ' ' + side);
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      }
+    }
     return 1;
   `);
   await page.screenshot(outPath);
@@ -107,8 +138,12 @@ async function main() {
   // a webfont, so the raster is what the site actually displays. The .svg is
   // only present for generated tiles, so a real photograph is never rasterised
   // over — see the matching note in gen-images.js.
+  // Only for a product actually showing the raster. A product given a real
+  // photograph often still has its old generated .svg sitting beside it, and
+  // rasterising that would rewrite a .png nothing displays.
   for (const p of products) {
-    const svg = path.join(ROOT, 'public', p.image.replace(/\.(png|jpe?g|webp)$/i, '.svg'));
+    if (!/\.png$/i.test(p.image || '')) continue;
+    const svg = path.join(ROOT, 'public', p.image.replace(/\.png$/i, '.svg'));
     if (!existsSync(svg)) continue;
     jobs.push([svg, svg.replace(/\.svg$/, '.png'), 600, 600]);
   }
