@@ -19,7 +19,7 @@ export const siteConfig = {
   legalName: 'PowerKing Nepal',
   tagline: 'Electronics Wholesale & Supply',
   shortDescription:
-    'Wholesale electronics distribution in Nepal — speakers, headphones, earbuds, chargers, data cables, multiplugs and mobile accessories. Browse the catalogue and enquire on WhatsApp for trade pricing, availability and minimum order quantities.',
+    'Wholesale electronics distribution in Nepal — speakers, headphones, earbuds, chargers, data cables, multiplugs and mobile accessories. Wholesale rates by the carton or in loose pieces; enquire on WhatsApp to confirm stock and delivery.',
 
   // --- Money -----------------------------------------------------------------
   // Prices are entered as plain numbers and formatted here. The locale is
@@ -168,7 +168,7 @@ export const whatsappMessages = {
   list: {
     greeting: 'Hi PowerKing Nepal, I would like to enquire about the following:',
     closing:
-      'Please send wholesale pricing, availability and minimum order quantities.',
+      'Please confirm stock, the minimum order and delivery for these.',
   },
 };
 

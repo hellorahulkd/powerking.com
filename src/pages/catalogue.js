@@ -184,7 +184,7 @@ export function cataloguePage({ products, categories, brands, page = 1 }) {
 ${pageHead({
   eyebrow: 'Product Catalogue',
   title: 'Our Products',
-  lead: 'The full PowerKing Nepal range, supplied by the carton or in loose pieces. Add what you need to an enquiry and we will confirm trade pricing on WhatsApp.',
+  lead: 'The full PowerKing Nepal range at wholesale rates, supplied by the carton or in loose pieces — the two are priced differently. Add what you need to an enquiry and send it on WhatsApp.',
   crumbs,
 })}
 ${catGrid}

@@ -92,6 +92,10 @@
      --header-h is what every sticky offset and scroll-margin uses, so it has
      to stay the real rendered height — qa.js asserts that it does. */
   --stripe-h: 6px;
+  /* The bar pinned to the bottom of a phone. Everything that must not end up
+     underneath it — the page's own last line, the enquiry bar, the enquiry
+     panel — measures itself against this. */
+  --tabbar-h: 3.65rem;
   --header-bar-h: 82px;
   --header-h: calc(var(--header-bar-h) + var(--stripe-h) + 1px);
   --ring: 0 0 0 3px rgba(244, 196, 0, .55);
@@ -363,13 +367,6 @@ code {
   .mobile-menu { display: none !important; }
 }
 
-/* --------------------------------------------------------------- notice -- */
-.notice {
-  background: var(--volt-100); border-bottom: 1px solid #EFE4B8;
-  color: #6B5A00; font-size: var(--step--1); padding: .75rem 0;
-}
-.notice strong { color: #4E4200; font-weight: 700; }
-
 /* --------------------------------------------------------- hero slider -- */
 .hero-slider { position: relative; background: var(--bg-alt); overflow: hidden; }
 
@@ -576,7 +573,7 @@ code {
 .cat-face__shot {
   display: grid; place-items: center; width: 5.5rem; height: 5.5rem;
   border-radius: 50%; overflow: hidden;
-  background: var(--bg-alt); border: 2px solid var(--border);
+  background: #fff; border: 2px solid var(--border);
   transition: border-color .18s, transform .18s;
 }
 @media (min-width: 700px) { .cat-face__shot { width: 7rem; height: 7rem; } }
@@ -786,10 +783,14 @@ code {
 /* No padding. The uploaded tile is already the product centred on white with
    whatever margin the supplier's photo carries; adding 1.1rem on top of that
    shrank a 175px box to a 139px picture, and on a phone that reads as a small
-   product floating in a large empty card. */
+   product floating in a large empty card.
+   White, not grey: a studio photograph is a product on white, and a white
+   picture on a grey box draws a visible white rectangle inside the card —
+   which is the "white parts on both sides" a tall product appears to have.
+   Matching the ground makes the letterbox disappear instead. */
 .card__media {
   display: grid; place-items: center; aspect-ratio: 1 / 1;
-  background: var(--bg-alt); overflow: hidden;
+  background: #fff; overflow: hidden;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 /* contain, not cover: a product photograph must never be cropped. */
@@ -809,14 +810,12 @@ code {
   font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
 }
 .badge--out { background: #FBE9E6; color: var(--danger); border: 1px solid #F1C9C2; }
-.badge--float { position: absolute; top: .75rem; left: .75rem; }
 .card__body { padding: .7rem .75rem .3rem; flex: 1; }
 .card__eyebrow {
   display: flex; flex-wrap: wrap; align-items: center; gap: .3rem;
   margin: 0 0 .2rem; font-size: .66rem; font-weight: 650;
   text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint);
 }
-.card__cat:hover { color: var(--primary); text-decoration: underline; }
 /* Two lines, then an ellipsis. A four-line product name made one card in a
    row twice the height of its neighbour and pushed everything below it down
    a screen. */
@@ -853,7 +852,7 @@ code {
   .pd-gallery { position: sticky; top: calc(var(--header-h) + 1.25rem); }
 }
 .pd-gallery__main {
-  position: relative; aspect-ratio: 1 / 1; background: var(--bg-sunken);
+  position: relative; aspect-ratio: 1 / 1; background: #fff;
   border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
 }
 .pd-gallery__main img { width: 100%; height: 100%; object-fit: cover; }
@@ -1000,7 +999,34 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
 .brand-block__head p { margin: .15rem 0 0; font-size: var(--step--1); color: var(--text-faint); }
 
 /* ------------------------------------------------------------------ cta -- */
-.cta { background: var(--bg-alt); color: var(--text); padding: 3.5rem 0; }
+.cta {
+  position: relative; overflow: hidden;
+  background: var(--bg-alt); color: var(--text); padding: 3.5rem 0;
+}
+.cta__inner { position: relative; z-index: 1; }
+
+/* Marks drifting behind the closing band. Decoration, so: wide screens only,
+   never in the way of a pointer, and still for anyone who asked for less
+   motion. */
+.cta-marks { display: none; }
+@media (min-width: 1000px) {
+  .cta-marks {
+    display: block; position: absolute; inset: 0;
+    pointer-events: none; color: var(--ink);
+  }
+  .cta-mark { position: absolute; opacity: .09; will-change: transform; }
+  .cta-mark--1 { right: 30%; top: 18%; animation: cta-drift 11s ease-in-out infinite; }
+  .cta-mark--2 { right: 17%; bottom: 16%; animation: cta-drift 14s ease-in-out infinite 1.6s; }
+  .cta-mark--3 { right: 5%;  bottom: 8%;  animation: cta-drift 9s  ease-in-out infinite .8s; }
+}
+@keyframes cta-drift {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%  { transform: translate3d(0, -14px, 0) rotate(4deg); }
+  to   { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-mark { animation: none; }
+}
 .cta--slim { padding: 2.25rem 0; }
 .cta__inner { display: grid; gap: 1.5rem; align-items: center; }
 @media (min-width: 860px) { .cta__inner { grid-template-columns: minmax(0, 1.4fr) auto; gap: 2.5rem; } }
@@ -1246,6 +1272,14 @@ body.has-enquiry .wa-float { opacity: 0; pointer-events: none; transform: scale(
 body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
 
 /* --- the panel --- */
+/* A closed dialog is hidden by the browser's own `dialog:not([open])` rule —
+   but that rule lives in the user-agent stylesheet, and ANY author
+   declaration outranks it, whatever the specificity. `display: flex` below is
+   an author declaration, so it was un-hiding the panel: a closed enquiry
+   panel rendered in the page on every visit, at the foot of the page where
+   the pinned bar cut it in half. Restated here as an author rule so the
+   cascade lands the right way round. */
+.enq:not([open]) { display: none; }
 .enq {
   width: min(34rem, calc(100vw - 2rem)); max-height: 85vh;
   padding: 0; border: 1px solid var(--border-strong); background: var(--bg);
@@ -1556,11 +1590,27 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
 
 /* Room for the bar, so it never covers the last line of a page. */
 @media (max-width: 899px) {
-  body { padding-bottom: 3.65rem; }
+  body { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
   /* The floating bubble and the Enquire tab are the same control; only the
      tab is shown where the tab bar exists. */
   .wa-float { display: none; }
   /* The enquiry bar stacks above the tab bar rather than over it. */
-  .enq-bar { bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
+  .enq-bar { bottom: calc(var(--tabbar-h) + .5rem + env(safe-area-inset-bottom)); }
+
+  /* The panel too. Centred by the browser it ran under the bar, and where
+     showModal is unavailable the dialog falls back to sitting in the page's
+     own flow, which put its last lines behind the bar entirely. Pinning it
+     above the bar fixes both, and on a phone the bottom is where a thumb is
+     anyway. */
+  .enq {
+    position: fixed; margin: 0; width: auto;
+    left: .5rem; right: .5rem; top: auto;
+    bottom: calc(var(--tabbar-h) + .5rem + env(safe-area-inset-bottom));
+    /* Only the pinned bar has to be cleared. Subtracting the header as well
+       left 320px on a 480px-tall phone, which is less than the panel's own
+       head and footer, and Send fell outside it again. */
+    max-height: calc(100vh - var(--tabbar-h) - 1.5rem);
+    max-height: calc(100dvh - var(--tabbar-h) - 1.5rem);
+  }
 }
 @media print { .tabbar { display: none; } }

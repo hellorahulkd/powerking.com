@@ -468,6 +468,36 @@ console.log('\nClearing and removing');
     JSON.stringify(cleared));
 }
 
+console.log('\nThe panel is not on the page until it is opened');
+{
+  // It was. `dialog:not([open]) { display: none }` lives in the user-agent
+  // stylesheet, and any author declaration outranks that whatever its
+  // specificity — so `.enq { display: flex }` un-hid the closed panel, and it
+  // rendered in the page on every visit, at the foot where the pinned bar cut
+  // it in half. Nothing else here would have caught it: every other check
+  // opens the panel first.
+  const page = await newPage(port);
+  for (const [w, h] of [[402, 874], [1280, 800]]) {
+    await page.setViewport(w, h, w < 900);
+    for (const url of ['/', '/products/', `/products/${products[0].slug}/`]) {
+      await page.goto(BASE + url);
+      const r = await page.eval(`
+        const d = document.getElementById('enq-dialog');
+        const box = d.getBoundingClientRect();
+        return {
+          open: d.open,
+          display: getComputedStyle(d).display,
+          painted: box.width > 0 || box.height > 0,
+        };
+      `);
+      check(`${url} at ${w}px — the closed panel is not rendered`,
+        r.open === false && r.display === 'none' && r.painted === false,
+        JSON.stringify(r));
+    }
+  }
+  await page.close();
+}
+
 console.log('\nWithout JavaScript, and alongside the rest of the page');
 {
   await fresh();

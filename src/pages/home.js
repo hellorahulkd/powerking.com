@@ -1,5 +1,5 @@
 import { siteConfig } from '../config/site.config.js';
-import { esc } from '../lib/html.js';
+import { esc, formatPrice } from '../lib/html.js';
 import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
 import { productCard, whatsappButton } from '../templates/components.js';
@@ -11,6 +11,20 @@ import { productCard, whatsappButton } from '../templates/components.js';
  * with a thumb on a phone, keyboard-scrolls, and still works with JavaScript
  * off — the arrows, dots and auto-advance are enhancements layered on top.
  */
+/** The carousel's price line. Every price on the site is a wholesale rate, so
+ *  the slide says the rate rather than inviting a request for one. */
+function slidePrice(p) {
+  const carton = formatPrice(p.priceCarton);
+  const piece = formatPrice(p.pricePiece);
+  if (carton) {
+    return `<p class="slide__price">${esc(carton)} <span>per carton, wholesale</span></p>`;
+  }
+  if (piece) {
+    return `<p class="slide__price">${esc(piece)} <span>per piece, wholesale</span></p>`;
+  }
+  return '<p class="slide__price">Price on enquiry</p>';
+}
+
 function heroSlider(featured) {
   const slides = featured
     .map((p, i) => {
@@ -27,7 +41,7 @@ function heroSlider(featured) {
         <p class="slide__eyebrow">${esc(p.brand)} · ${esc(p.category)}</p>
         <h2 class="slide__title"><a href="${esc(url)}">${esc(p.name)}</a></h2>
         ${specs ? `<ul class="slide__specs">${specs}</ul>` : ''}
-        <p class="slide__price">Contact us for wholesale pricing</p>
+        ${slidePrice(p)}
         <div class="slide__actions">
           <a class="btn btn--primary btn--lg" href="${esc(url)}">View Product</a>
           ${whatsappButton({
@@ -99,7 +113,8 @@ function intro() {
       <p class="intro__lead">
         Speakers, earbuds, headphones, chargers, data cables, multiplugs and
         mobile accessories. Browse the catalogue, then message us on WhatsApp
-        for trade pricing, stock and minimum order quantities.
+        at wholesale rates, by the carton or in loose pieces. Send us an
+        enquiry to confirm stock and arrange delivery.
       </p>
     </div>
     <div class="intro__actions">
@@ -283,14 +298,32 @@ function videoSection() {
 </section>`;
 }
 
+/**
+ * Three marks drifting behind the closing call to action, on wide screens
+ * only. A phone has no room to spare and no attention to spend on decoration;
+ * a laptop has both, and the band was a flat rectangle of colour.
+ *
+ * Each drifts on its own slow cycle so they never line up into a pattern, and
+ * the whole thing stops dead for anyone who has asked their system for less
+ * motion.
+ */
+function ctaMarks() {
+  const marks = ['carton', 'truck', 'speaker'];
+  return `<div class="cta-marks" aria-hidden="true">
+    ${marks.map((m, i) => `<span class="cta-mark cta-mark--${i + 1}">${icon(m, { size: 40 })}</span>`).join('')}
+  </div>`;
+}
+
 function ctaSection() {
   return `<section class="cta">
+  ${ctaMarks()}
   <div class="container cta__inner">
     <div>
-      <h2 class="cta__title">Need wholesale pricing?</h2>
+      <h2 class="cta__title">Ready to order?</h2>
       <p class="cta__body">
-        Send us a message with the products you need. We will reply with trade
-        pricing, current availability and minimum order quantities.
+        Every price on this site is the wholesale rate, and the carton rate is
+        not the loose-piece rate. Put what you need on an enquiry and send it
+        over — we will confirm stock, the minimum order and how it reaches you.
       </p>
     </div>
     <div class="cta__actions">

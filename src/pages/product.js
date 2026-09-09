@@ -35,8 +35,8 @@ function priceBlock(product) {
         : carton
           ? 'Carton rate. Loose pieces are priced differently — ask us.'
           : 'Loose-piece rate. Buying by the carton is priced differently — ask us.'}
-      Trade prices, and they move with the market, so confirm on WhatsApp
-      before you order.
+      Wholesale rates. Send an enquiry to confirm stock, the minimum order
+      and delivery.
     </p>`;
 }
 
@@ -181,7 +181,7 @@ function compareSection(product, siblings) {
     </div>
     <p class="compare__note">
       Prices are quoted on enquiry. Message us with the products you are
-      comparing and we will send trade pricing for each.
+      comparing and we will confirm stock and delivery for each.
     </p>
   </div>
 </section>`;
