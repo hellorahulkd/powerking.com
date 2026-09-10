@@ -850,7 +850,9 @@
     "description": "Cylindrical portable wireless speaker in a fabric wrap, with an RGB ring around the front port and a moulded carry loop. Type-C charging, a TF card slot and a DC5V input. Supplied in black and purple.",
     "image": "/images/products/kisonli-k27-portable-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "50",
+    "priceCarton": 990,
+    "pricePiece": 990,
     "sku": "K27",
     "featured": false,
     "available": true,
@@ -861,9 +863,7 @@
       "tf card",
       "fabric",
       "kisonli"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 239,
