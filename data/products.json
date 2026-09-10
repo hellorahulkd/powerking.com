@@ -724,7 +724,9 @@
     "description": "Olive-green wireless speaker with a carry handle, a front LED flashlight, a fold-out phone stand and a 740mm telescopic antenna. [CONFIRM MODEL NUMBER — the carton prints it as both YG-A151 and YG-AYS1.]",
     "image": "/images/products/migle-yg-a151-wireless-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "40",
+    "priceCarton": 925,
+    "pricePiece": 925,
     "sku": "YG-A151",
     "featured": false,
     "available": true,
@@ -735,9 +737,7 @@
       "flashlight",
       "portable",
       "migle"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 234,
