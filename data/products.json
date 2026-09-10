@@ -2237,5 +2237,24 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 312,
+    "name": "Ewa Type-C performance earphones",
+    "slug": "ewa-type-c-performance-earphones",
+    "brand": "Ewa Type-C performance earphones",
+    "category": "Mobile Accessories",
+    "description": "Ewa Type-C performance earphones\nEnjoy clear, immersive audio with the VIDVIE In-Ear Headset. Designed for everyday convenience, this headset features a modern Type-C connector, ergonomic ear tips for comfortable long-term wear, and a built-in microphone for hands-free calls and online meetings.\n USB Type-C Connector: Plug-and-play digital connection compatible with modern Android smartphones, tablets, and laptops.\n Ergonomic In-Ear Fit: Soft silicone ear tips provide passive noise isolation and a comfortable seal for extended listening sessions.\n In-Line Remote & Mic: Easily switch between music playback and incoming calls with simple, integrated cable controls.\n Clear Audio Tuning: Balanced acoustic drivers deliver crisp highs, clean mid-tones, and punchy bass across all music genres.\n Durable Cable Design: Flexible, tangle-resistant cord built to withstand daily wear, travel, and everyday use.",
+    "image": "/images/products/ewa-type-c-performance-earphones.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 275,
+    "pricePiece": 275,
+    "sku": "EWA",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Earphones"
+    ]
   }
 ]
