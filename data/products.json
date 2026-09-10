@@ -399,29 +399,6 @@
     ]
   },
   {
-    "id": 215,
-    "name": "J-iPOK P353 Rugged Portable Speaker",
-    "slug": "j-ipok-p353-portable-speaker",
-    "brand": "J-iPOK",
-    "category": "Speakers",
-    "description": "Rugged red-and-black portable speaker with a moulded roll cage, top carry handle and a telescopic antenna.",
-    "image": "/images/products/j-ipok-p353-portable-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "P353",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "rugged",
-      "portable",
-      "handle",
-      "antenna",
-      "outdoor"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 216,
     "name": "J-iPOK P338 Car Bluetooth Speaker",
     "slug": "j-ipok-p338-car-speaker",
