@@ -399,33 +399,6 @@
     ]
   },
   {
-    "id": 210,
-    "name": "LP V78 Good Bass Solar Speaker 10W",
-    "slug": "lp-v78-solar-speaker",
-    "brand": "LP",
-    "category": "Speakers",
-    "description": "10W solar-energy speaker with a 74cm telescopic antenna, side light and removable carry belt. FM radio, TF card and USB on a 1800mAh battery.",
-    "image": "/images/products/lp-v78-solar-speaker.jpg",
-    "gallery": [
-      "/images/products/lp-v78-solar-speaker-specs.jpg"
-    ],
-    "packSize": "",
-    "sku": "V78",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "solar",
-      "10w",
-      "fm radio",
-      "74cm antenna",
-      "side light",
-      "1800mah",
-      "good bass"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 211,
     "name": "LP V90 Good Bass Speaker 10W with RGB",
     "slug": "lp-v90-speaker",
