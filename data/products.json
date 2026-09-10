@@ -698,7 +698,9 @@
     "description": "Rugged 8W portable speaker with a solar panel let into the top, an LED floodlight at one end and a built-in microphone. Telescopic FM antenna and a USB port on the top panel. Supplied in black, blue and red.",
     "image": "/images/products/j-ipok-p617-solar-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "50",
+    "priceCarton": 850,
+    "pricePiece": 850,
     "sku": "P617",
     "featured": false,
     "available": true,
@@ -710,9 +712,7 @@
       "built-in mic",
       "rugged",
       "8w"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 231,
