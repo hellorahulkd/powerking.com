@@ -2201,5 +2201,24 @@
     "tags": [
       "earphones"
     ]
+  },
+  {
+    "id": 310,
+    "name": "Apple EarPods – Lightning Connector Type c connector 2in1",
+    "slug": "apple-earpods-lightning-connector-type-c-connector-2in1",
+    "brand": "Apple EarPods – Lightning Connector Type c connector 2in1",
+    "category": "Mobile Accessories",
+    "description": "Apple EarPods – Lightning Connector Type c\n\n* 🎧 Clear & Balanced Sound\n* 🎙️ Built-in Microphone for calls and voice recording\n* 🔌 Lightning Connector – compatible with Lightning-port iPhones/iPads\n* 🤍 Lightweight & Comfortable for everyday use\n* 📦 Premium Apple-style Packaging\n* 🎵 Ideal for music, calls, videos & daily use",
+    "image": "/images/products/apple-earpods-lightning-connector-type-c-connector-2in1.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 325,
+    "pricePiece": 325,
+    "sku": "Earphones 2in1",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "earphones"
+    ]
   }
 ]
