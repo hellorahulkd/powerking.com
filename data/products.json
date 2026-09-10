@@ -774,7 +774,9 @@
     "description": "Solar-charging wireless speaker rated 8W x 2, with Bluetooth 5.3, FM radio, USB playback, TF card, a built-in flashlight and a rechargeable battery. Carry handle and a detachable shoulder strap.",
     "image": "/images/products/lp-v71-solar-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "40",
+    "priceCarton": 800,
+    "pricePiece": 800,
     "sku": "V71",
     "featured": false,
     "available": true,
@@ -786,9 +788,7 @@
       "tf card",
       "flashlight",
       "outdoor"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 236,
