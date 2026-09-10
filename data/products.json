@@ -479,7 +479,9 @@
     "description": "Stereo pair of USB-powered desktop gaming speakers, each with an RGB colour-light ring set into the grille and an in-line volume control on the lead. The carton lists colourful light, stereo sound, USB power and volume control.",
     "image": "/images/products/kisonli-x9bt-gaming-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "40",
+    "priceCarton": 1150,
+    "pricePiece": 1150,
     "sku": "X9BT",
     "featured": false,
     "available": true,
@@ -490,9 +492,7 @@
       "desktop",
       "stereo",
       "bluetooth"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 224,
