@@ -254,11 +254,14 @@ async function main() {
         note: (document.querySelector('.enquiry__pricenote') || {}).textContent || '',
       };`);
       check('a priced product names the rate as the price of one piece',
-        r.labels.includes('Per piece'), r.labels.join(', '));
-      // Nothing in the catalogue carries a real carton rate, so nothing may
-      // claim to: the page has to send the buyer to ask instead.
-      check('and tells the buyer the carton rate is a different number to ask for',
-        /carton/i.test(r.note) && /(enquir|ask)/i.test(r.note), r.note.slice(0, 90));
+        r.labels.includes('One piece'), r.labels.join(', '));
+      // Both published rates are per piece — one loose, one inside a full
+      // carton — so the page has to say which of the two it is showing.
+      // "Per carton" read as the price of a whole carton, which it is not.
+      check('a carton rate is labelled as a per-piece rate, not a carton total',
+        r.labels.every((l) => l !== 'Per carton'), r.labels.join(', '));
+      check('and the note tells the buyer what the carton figure means',
+        /carton/i.test(r.note), r.note.slice(0, 100));
       check('prices are written in rupees with Nepali grouping',
         r.values.every((v) => /^Rs\. [\d,]+$/.test(v)), r.values.join(' | '));
 

@@ -14,10 +14,11 @@ import {
  * top of "cheapest first" answers nobody's question.
  */
 export function listPrice(product) {
+  // The loose single-piece rate, which is the one number a card shows. Sorting
+  // on anything else would order the listing by a figure the reader cannot
+  // see on it.
   const piece = Number(product.pricePiece);
-  if (piece > 0) return piece;
-  const carton = Number(product.priceCarton);
-  return carton > 0 ? carton : 0;
+  return piece > 0 ? piece : 0;
 }
 
 /**

@@ -56,11 +56,16 @@ export function whatsappButton({
  */
 function enqData(product) {
   const price = Number(product.pricePiece) > 0 ? Number(product.pricePiece) : '';
+  // Also a per-piece rate — what one piece costs inside a full carton — so a
+  // carton total is arithmetic the page can do rather than a number to ask
+  // for. See priceBlock() in src/pages/product.js.
+  const cartonRate = Number(product.priceCarton) > 0 ? Number(product.priceCarton) : '';
   const pack = /^\d+$/.test(String(product.packSize || '').trim())
     ? String(product.packSize).trim() : '';
   return `data-enq-slug="${esc(product.slug)}" data-enq-name="${esc(product.name)}"`
     + ` data-enq-image="${esc(product.image)}"`
-    + ` data-enq-price="${esc(price)}" data-enq-pack="${esc(pack)}"`;
+    + ` data-enq-price="${esc(price)}" data-enq-carton="${esc(cartonRate)}"`
+    + ` data-enq-pack="${esc(pack)}"`;
 }
 
 /**
@@ -80,13 +85,16 @@ export function enquiryAdd(product, { label = false, pin = false } = {}) {
     : (pin ? 'enq-add enq-add--pin' : 'btn btn--ghost btn--icon enq-add');
   // A bare "+" told a first-time visitor nothing, so both variants say what
   // they do in words. The pinned one stays small enough for a two-up phone grid.
-  const on = label ? 'Add to my enquiry list' : 'Add';
-  const off = label ? 'In your enquiry list' : 'Added';
+  //
+  // "Select" rather than "Add": pressing it opens the quantity panel rather
+  // than quietly appending a line somewhere, and "Add" promised the opposite.
+  const on = label ? 'Select this product' : 'Select';
+  const off = label ? 'On your enquiry' : 'Selected';
   return `<button type="button" class="${cls}" hidden
     data-enq-add ${enqData(product)}
     aria-pressed="false"
-    title="Add to your enquiry list"
-    aria-label="Add ${esc(product.name)} to your enquiry list">
+    title="Select and choose a quantity"
+    aria-label="Select ${esc(product.name)} and choose a quantity">
     <span class="enq-add__on">${icon('plus', { size: label ? 20 : 15 })}<span class="enq-add__word">${on}</span></span>
     <span class="enq-add__off">${icon('check', { size: label ? 20 : 15 })}<span class="enq-add__word">${off}</span></span>
   </button>`;
@@ -167,9 +175,9 @@ export function enquiryList() {
       ${icon('whatsapp', { size: 20 })}<span>Send on WhatsApp</span>
     </a>
     <p class="enq__fine">
-      Opens WhatsApp with the list, the quantities and the total at our listed
-      piece rate already written out. Carton rates are different — we confirm
-      those when we reply. Nothing is ordered here.
+      Opens WhatsApp with the list, the quantities and the total already
+      written out. Nothing is ordered here — we reply to confirm stock and
+      delivery first.
     </p>
   </div>
 </dialog>`;
@@ -231,24 +239,18 @@ function badges(product) {
 }
 
 /**
- * The price on a card is the price of one piece.
+ * The price on a card is the loose single-piece rate. Only that.
  *
- * It used to lead with the carton rate, and every product in the catalogue
- * had a single-piece figure sitting in the carton field — so the card showed
- * "Rs. 390 per carton" for a product that costs Rs. 390 each. The piece rate
- * leads now, and a carton rate only shows if somebody has actually entered
- * one that differs.
+ * There are two rates and they are both per piece: what one piece costs, and
+ * what a piece costs when you take a full carton. A card has room for one
+ * number, and showing whichever happened to be filled in meant two cards side
+ * by side could be quoting different things. The second rate belongs on the
+ * product page, where there is room to say which is which.
  */
 function cardPrice(product) {
   const piece = formatPrice(product.pricePiece);
-  const carton = formatPrice(product.priceCarton);
-  if (piece) {
-    return `<p class="card__price">${esc(piece)}<span class="card__price-unit">per piece</span></p>`;
-  }
-  if (carton) {
-    return `<p class="card__price">${esc(carton)}<span class="card__price-unit">per carton</span></p>`;
-  }
-  return '<p class="card__price card__price--ask">Price on enquiry</p>';
+  if (!piece) return '<p class="card__price card__price--ask">Price on enquiry</p>';
+  return `<p class="card__price">${esc(piece)}<span class="card__price-unit">per piece</span></p>`;
 }
 
 /**
@@ -276,8 +278,7 @@ export function productCard(product, { eager = false, location = 'product_card' 
   data-product
   data-brand="${esc(product.brand)}"
   data-category="${esc(product.category)}"
-  data-price="${esc(Number(product.pricePiece) > 0 ? product.pricePiece
-    : Number(product.priceCarton) > 0 ? product.priceCarton : '')}"
+  data-price="${esc(Number(product.pricePiece) > 0 ? product.pricePiece : '')}"
   data-search="${esc(haystack)}">
   <div class="card__media">
     <img src="${esc(product.image)}" alt="" width="400" height="400"

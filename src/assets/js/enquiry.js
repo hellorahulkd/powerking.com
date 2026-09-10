@@ -88,6 +88,7 @@
           name: it.name,
           image: typeof it.image === 'string' ? it.image : '',
           price: money(it.price),
+          cartonRate: money(it.cartonRate),
           pack: money(it.pack),
           cartons: clampQty(it.cartons),
           pieces: clampQty(it.pieces),
@@ -170,15 +171,29 @@
   }
 
   /**
-   * The loose pieces on a line, costed at the rate the site quoted.
+   * What a line comes to, at the rates the site publishes.
    *
-   * Only the loose pieces. The site lists one rate — the price of a single
-   * piece — and a carton is not that rate multiplied out, so multiplying it
-   * out for cartons would put a number in the shop's inbox that nobody
-   * quoted. Cartons ask instead.
+   * Both rates are per piece: `price` is what one loose piece costs and
+   * `cartonRate` is what a piece costs inside a full carton. So a carton is
+   * arithmetic — rate x pieces-per-carton x cartons — not a number to ask
+   * for. Anything the site has not published stays 0 and the line says so
+   * rather than guessing.
    */
   function looseTotal(it) {
     return it.price > 0 && it.pieces > 0 ? it.price * it.pieces : 0;
+  }
+
+  function cartonTotal(it) {
+    return it.cartonRate > 0 && it.pack > 0 && it.cartons > 0
+      ? it.cartonRate * it.pack * it.cartons : 0;
+  }
+
+  function lineTotal(it) { return looseTotal(it) + cartonTotal(it); }
+
+  /** True when a line has a quantity the site cannot put a price against. */
+  function lineIncomplete(it) {
+    return (it.pieces > 0 && !(it.price > 0))
+      || (it.cartons > 0 && !(it.cartonRate > 0 && it.pack > 0));
   }
 
   /**
@@ -194,21 +209,23 @@
   function messageLines(it, i) {
     var out = [(i + 1) + '. ' + it.name];
 
-    if (it.cartons > 0) {
-      var line = '   Cartons: ' + it.cartons;
-      // Spelling the pieces out matters: "10 cartons" is not a quantity until
-      // both sides agree how many pieces that is.
-      if (it.pack > 0) {
-        line += ' (' + it.pack + ' pcs each = ' + (it.cartons * it.pack) + ' pcs)';
-      }
-      out.push(line);
-    }
-
+    // Loose first, cartons under it — the same order as the panel, so the
+    // shop reads the message in the shape the buyer filled it in.
     if (it.pieces > 0) {
       var loose = '   Loose: ' + it.pieces + ' pcs';
       out.push(it.price > 0
         ? loose + ' x ' + rupees(it.price) + ' = ' + rupees(looseTotal(it))
         : loose + ' - price on enquiry');
+    }
+
+    if (it.cartons > 0) {
+      var line = '   Cartons: ' + it.cartons;
+      // Spelling the pieces out matters: "10 cartons" is not a quantity until
+      // both sides agree how many pieces that is.
+      if (it.pack > 0) line += ' (' + it.pack + ' pcs each = ' + (it.cartons * it.pack) + ' pcs)';
+      out.push(it.cartonRate > 0 && it.pack > 0
+        ? line + ' x ' + rupees(it.cartonRate) + ' = ' + rupees(cartonTotal(it))
+        : line + ' - carton rate on enquiry');
     }
 
     return out.join('\n');
@@ -218,20 +235,14 @@
     var parts = [GREETING, ''];
     parts.push(items.map(messageLines).join('\n\n'));
 
-    var total = items.reduce(function (t, it) { return t + looseTotal(it); }, 0);
-    var cartons = items.filter(function (it) { return it.cartons > 0; }).length;
-    var unpriced = items.filter(function (it) {
-      return it.pieces > 0 && !(it.price > 0);
-    }).length;
+    var total = items.reduce(function (t, it) { return t + lineTotal(it); }, 0);
+    var missing = items.filter(lineIncomplete).length;
 
     var summary = [];
-    if (total > 0) {
-      summary.push('Loose pieces at your listed rate: ' + rupees(total)
-        + (unpriced ? ' (plus ' + unpriced + ' with no price listed)' : ''));
-    }
-    if (cartons > 0) {
-      summary.push('Carton rates are not listed on the site — please quote them for '
-        + amount(cartons, 'product', 'products') + '.');
+    if (total > 0) summary.push('Total at your listed rates: ' + rupees(total));
+    if (missing > 0) {
+      summary.push('Please quote a rate for '
+        + amount(missing, 'product', 'products') + ' the site does not price.');
     }
     if (summary.length) parts.push('', summary.join('\n'));
 
@@ -304,34 +315,49 @@
     sendEl.hidden = empty;
     document.querySelector('.enq__fine').hidden = empty;
 
-    listEl.innerHTML = items.map(function (it, i) {
+    listEl.innerHTML = items.map(function (it) {
       var id = escAttr(it.slug);
-      // Two boxes rather than a number and a unit menu: the shop supplies both
-      // ways, so a buyer wanting a carton AND a few loose pieces can say so on
-      // one line instead of adding the product twice.
-      function box(kind, label, value) {
+      // Loose pieces first and cartons under them: most buyers want a number
+      // of pieces, and a carton is the larger commitment they scroll down to.
+      // Each box says what one of its units costs, so the arithmetic below is
+      // something the reader can check rather than take on trust.
+      function box(kind, label, hint, value) {
         return '<span class="enq__box">'
           + '<label class="enq__box-label" for="' + kind + '-' + id + '">' + label + '</label>'
           + '<input class="enq__num" id="' + kind + '-' + id + '" type="number"'
           + ' inputmode="numeric" min="0" max="9999" step="1" value="' + value + '"'
           + ' data-' + kind + ' aria-label="' + label + ' of ' + escAttr(it.name) + '">'
+          + (hint ? '<span class="enq__hint">' + hint + '</span>' : '')
           + '</span>';
       }
+
+      var looseHint = it.price > 0 ? esc(rupees(it.price)) + ' each' : 'price on enquiry';
+      var cartonHint = it.pack > 0
+        ? esc(String(it.pack)) + ' pcs' + (it.cartonRate > 0
+          ? ' &middot; ' + esc(rupees(it.cartonRate)) + ' each' : '')
+        : 'carton size on enquiry';
+
       return '<li class="enq__row" data-slug="' + id + '">'
         + (it.image
           ? '<img class="enq__thumb" src="' + escAttr(it.image) + '" alt="" width="56" height="56"'
             + ' loading="lazy" decoding="async"'
             + ' onerror="this.style.visibility=\'hidden\'">'
           : '<span class="enq__thumb enq__thumb--none" aria-hidden="true"></span>')
-        + '<span class="enq__main">'
+        // Flat children, not a nested column: the boxes and the amount are
+        // laid out across the row's full width, and nesting them beside the
+        // thumbnail left each rate wrapping to one word a line on a phone.
         + '<span class="enq__name">' + esc(it.name) + '</span>'
-        + '<span class="enq__qty">' + box('cartons', 'Cartons', it.cartons)
-        + box('pieces', 'Pieces', it.pieces) + '</span>'
-        + '</span>'
         + '<button type="button" class="enq__remove" data-remove'
         + ' aria-label="Remove ' + escAttr(it.name) + ' from the enquiry list">Remove</button>'
+        + '<span class="enq__qty">'
+        + box('pieces', 'Loose pieces', looseHint, it.pieces)
+        + box('cartons', 'Cartons', cartonHint, it.cartons)
+        + '</span>'
+        + '<span class="enq__line" data-line></span>'
         + '</li>';
     }).join('');
+
+    for (var n = 0; n < items.length; n++) renderLine(items[n]);
 
     sendEl.href = sendHref();
     renderWho();
@@ -339,6 +365,36 @@
     say(items.length >= MAX
       ? 'That is the most one message can carry. Send these, then start another list.'
       : '');
+  }
+
+  /**
+   * What one line comes to, under its own quantity boxes and in bold.
+   *
+   * Written on its own rather than through renderList(), which rebuilds every
+   * row: this runs on each keystroke, and rebuilding would pull the caret out
+   * of the number being typed.
+   */
+  function renderLine(it) {
+    var row = listEl.querySelector('[data-slug="' + cssEscape(it.slug) + '"]');
+    var el = row && row.querySelector('[data-line]');
+    if (!el) return;
+    var bits = [];
+    if (it.pieces > 0) {
+      bits.push(it.price > 0
+        ? it.pieces + ' x ' + esc(rupees(it.price))
+        : it.pieces + ' loose &mdash; price on enquiry');
+    }
+    if (it.cartons > 0) {
+      bits.push(it.pack > 0 && it.cartonRate > 0
+        ? it.cartons + ' carton' + (it.cartons === 1 ? '' : 's')
+          + ' (' + (it.cartons * it.pack) + ' pcs x ' + esc(rupees(it.cartonRate)) + ')'
+        : it.cartons + ' carton' + (it.cartons === 1 ? '' : 's') + ' &mdash; rate on enquiry');
+    }
+    var total = lineTotal(it);
+    el.innerHTML = bits.length
+      ? bits.join(' + ') + (total > 0
+        ? '<strong class="enq__amount">' + esc(rupees(total)) + '</strong>' : '')
+      : '';
   }
 
   /**
@@ -351,11 +407,17 @@
   function renderTotal() {
     var el = document.getElementById('enq-total');
     if (!el) return;
-    var total = items.reduce(function (t, it) { return t + looseTotal(it); }, 0);
-    var cartons = items.filter(function (it) { return it.cartons > 0; }).length;
+    var total = items.reduce(function (t, it) { return t + lineTotal(it); }, 0);
+    var missing = items.filter(lineIncomplete).length;
     var bits = [];
-    if (total > 0) bits.push('Loose pieces: <strong>' + esc(rupees(total)) + '</strong>');
-    if (cartons > 0) bits.push('carton rates quoted when we reply');
+    if (total > 0) {
+      bits.push('Total at our listed rates: <strong class="enq__amount">'
+        + esc(rupees(total)) + '</strong>');
+    }
+    if (missing > 0) {
+      bits.push(missing + (missing === 1 ? ' product needs' : ' products need')
+        + ' a rate from us');
+    }
     el.innerHTML = bits.join(' &middot; ');
     el.hidden = bits.length === 0;
   }
@@ -379,8 +441,12 @@
       name: el.getAttribute('data-enq-name'),
       image: el.getAttribute('data-enq-image') || '',
       price: money(el.getAttribute('data-enq-price')),
+      cartonRate: money(el.getAttribute('data-enq-carton')),
       pack: money(el.getAttribute('data-enq-pack')),
-      cartons: 1, pieces: 0,
+      // Both at zero: the panel opens on the loose-pieces box asking for a
+      // number, and a pre-filled "1 carton" nobody chose is the kind of
+      // quantity that reaches the shop by accident.
+      cartons: 0, pieces: 0,
     };
   }
 
@@ -403,6 +469,9 @@
     items.push(itemFrom(btn));
     save(); render();
     track('enquiry_add', { product: name, items: items.length });
+    // Selecting a product is the start of saying how many, not the end of it:
+    // the panel opens on the row just added, with the loose-pieces box ready.
+    openPanel('select', slug);
   }
 
   var flashTimer = null;
@@ -428,14 +497,20 @@
     if (add) { ev.preventDefault(); toggle(add); }
   });
 
-  function openPanel(from) {
+  function openPanel(from, slug) {
     renderList();
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
-    // Land on the quantity for whatever was just added, so "how many?" is the
-    // obvious next thing rather than something to go hunting for.
-    var first = listEl.querySelector('[data-cartons]');
-    if (first) { first.focus(); first.select(); }
+    // Land on the quantity for whatever was just selected, so "how many?" is
+    // the obvious next thing rather than something to go hunting for. Loose
+    // pieces, because that is the box a buyer reaches for first.
+    var row = slug ? listEl.querySelector('[data-slug="' + cssEscape(slug) + '"]') : null;
+    var first = (row || listEl).querySelector('[data-pieces]');
+    if (first) {
+      if (row && row.scrollIntoView) row.scrollIntoView({ block: 'nearest' });
+      first.focus();
+      first.select();
+    }
     track('enquiry_open', { items: items.length, from: from || 'bar' });
   }
 
@@ -463,7 +538,7 @@
       save(); render();
       track('enquiry_add', { product: opener.getAttribute('data-enq-name'), items: items.length });
     }
-    openPanel(slug ? 'product_cta' : 'floating_button');
+    openPanel(slug ? 'product_cta' : 'floating_button', slug);
   });
 
   var whoEl = document.getElementById('enq-who');
@@ -501,6 +576,7 @@
     if (ev.target.hasAttribute('data-pieces')) items[at].pieces = clampQty(ev.target.value);
     row.classList.remove('is-empty');
     save();
+    renderLine(items[at]);
     // Only the link and the total need updating — re-rendering the list here
     // would pull the caret out of the number the reader is still typing into.
     sendEl.href = sendHref();
@@ -542,7 +618,7 @@
       say(blank.length === 1
         ? 'How many of ' + blank[0].name + '? Fill in cartons, pieces, or both.'
         : 'Fill in cartons or pieces for the ' + blank.length + ' highlighted products.');
-      var first = listEl.querySelector('.is-empty [data-cartons]');
+      var first = listEl.querySelector('.is-empty [data-pieces]');
       if (first) { first.focus(); first.select(); }
       return;
     }
@@ -554,6 +630,23 @@
       products: items.map(function (i) { return i.name; }).join(' | '),
     });
   });
+
+  /**
+   * The control for a product anywhere on this page.
+   *
+   * Past the first screenful the catalogue keeps its cards in an inert
+   * <template>, which document.querySelector does not descend into. A saved
+   * list holding one of those products found nothing and kept whatever gaps
+   * it had — and since the listing is ordered cheapest first, the products
+   * with no price are exactly the ones sitting in that tail.
+   */
+  function findControl(slug) {
+    var sel = '[data-enq-slug="' + cssEscape(slug) + '"]';
+    var el = document.querySelector(sel);
+    if (el) return el;
+    var tail = document.getElementById('catalogue-tail');
+    return tail && tail.content ? tail.content.querySelector(sel) : null;
+  }
 
   /** Slugs are [a-z0-9-] by construction, but a selector should not assume it. */
   function cssEscape(value) {
@@ -575,7 +668,7 @@
     var changed = false;
     items.forEach(function (it) {
       if (it.image && it.price !== undefined && it.pack !== undefined) return;
-      var control = document.querySelector('[data-enq-slug="' + cssEscape(it.slug) + '"]');
+      var control = findControl(it.slug);
       if (!control) return;
       var src = control.getAttribute('data-enq-image');
       if (src && !it.image) { it.image = src; changed = true; }

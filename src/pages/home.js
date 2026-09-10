@@ -14,15 +14,12 @@ import { productCard, whatsappButton } from '../templates/components.js';
 /** The carousel's price line. Every price on the site is a wholesale rate, so
  *  the slide says the rate rather than inviting a request for one. */
 function slidePrice(p) {
+  // The loose piece rate, same as every card. The carton rate is also a
+  // per-piece number, so showing it here without room to say so would read as
+  // the same thing at a different price.
   const piece = formatPrice(p.pricePiece);
-  const carton = formatPrice(p.priceCarton);
-  if (piece) {
-    return `<p class="slide__price">${esc(piece)} <span>per piece, wholesale</span></p>`;
-  }
-  if (carton) {
-    return `<p class="slide__price">${esc(carton)} <span>per carton, wholesale</span></p>`;
-  }
-  return '<p class="slide__price">Price on enquiry</p>';
+  if (!piece) return '<p class="slide__price">Price on enquiry</p>';
+  return `<p class="slide__price">${esc(piece)} <span>per piece, wholesale</span></p>`;
 }
 
 function heroSlider(featured) {

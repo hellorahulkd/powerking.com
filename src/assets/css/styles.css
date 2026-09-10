@@ -1333,7 +1333,7 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
   display: flex; flex-direction: column; gap: .5rem;
 }
 .enq__row {
-  display: grid; gap: .6rem; align-items: center;
+  display: grid; gap: .35rem .6rem; align-items: center;
   grid-template-columns: auto 1fr auto;
   padding: .6rem; background: var(--bg-alt);
   border: 1.5px solid transparent;
@@ -1345,24 +1345,45 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
   background: var(--bg); border: 1px solid var(--border);
 }
 .enq__thumb--none { display: block; }
-.enq__main { min-width: 0; display: flex; flex-direction: column; gap: .4rem; }
+/* Picture, name and Remove share the top line; the quantity boxes and the
+   amount take the row's whole width underneath. */
+.enq__thumb, .enq__name, .enq__remove { grid-row: 1; }
+.enq__qty, .enq__line { grid-column: 1 / -1; }
 .enq__name {
+  min-width: 0;
   font-family: var(--font-display); font-weight: 800; font-size: .88rem;
   line-height: 1.25; letter-spacing: -.01em;
 }
-.enq__qty { display: flex; gap: .5rem; align-items: flex-end; flex-wrap: wrap; }
-.enq__box { display: flex; flex-direction: column; gap: .15rem; }
+/* Stacked, loose pieces above cartons — a buyer reaches for a number of
+   pieces first, and a carton is the larger commitment underneath it. Side by
+   side the two boxes and their rates squeezed into two words a line on a
+   phone, with the amount below broken mid-number. */
+.enq__qty { display: flex; flex-direction: column; gap: .3rem; }
+.enq__box { display: flex; align-items: center; gap: .45rem; }
 .enq__box-label {
-  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .1em;
+  width: 5.6rem; flex: none;
+  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .08em;
   text-transform: uppercase; color: var(--text-faint);
 }
 .enq__num {
-  width: 4.6rem; padding: .35rem .45rem; font: inherit; font-size: var(--step--1);
+  width: 4.2rem; flex: none; padding: .35rem .45rem; font: inherit; font-size: var(--step--1);
   font-variant-numeric: tabular-nums;
   border: 1.5px solid var(--border-strong); background: var(--bg); color: var(--text);
 }
 .enq__num:focus {
   outline: none; border-color: var(--accent); box-shadow: var(--ring);
+}
+/* What one of this box's units costs, right under the box asking how many —
+   so the amount below is something the reader can check, not take on trust. */
+.enq__hint { flex: 1; min-width: 0; font-size: .68rem; color: var(--text-faint); }
+/* The line's arithmetic, and its total in bold on its own line: the figure a
+   buyer is deciding on should not be the smallest thing on the row, and it
+   must never break across two lines mid-number. */
+.enq__line { display: block; margin-top: .4rem; font-size: .72rem; color: var(--text-muted); }
+.enq__line:empty { display: none; }
+.enq__amount {
+  display: block; margin-top: .1rem;
+  font-size: var(--step-1); color: var(--ink); white-space: nowrap;
 }
 .enq__remove {
   align-self: start;
@@ -1483,9 +1504,7 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
 @media (max-width: 420px) {
   .enq__row { grid-template-columns: 44px 1fr auto; gap: .5rem; }
   .enq__thumb { width: 44px; height: 44px; }
-  .enq__qty { flex-wrap: nowrap; }
-  .enq__box { flex: 1; min-width: 0; }
-  .enq__num { width: 100%; }
+  .enq__box-label { width: 4.8rem; }
   .enq__remove { font-size: .72rem; padding: .2rem; }
 }
 

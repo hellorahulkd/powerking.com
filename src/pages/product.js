@@ -23,24 +23,43 @@ function priceBlock(product) {
     return '<p class="enquiry__price">Price on enquiry</p>';
   }
   const pack = packSizeLabel(product.packSize);
+  const packCount = /^\d+$/.test(String(product.packSize || '').trim())
+    ? Number(product.packSize) : 0;
+
+  // Both figures are per piece. The second is what a piece costs once you
+  // take a whole carton, which is a different question from what a carton
+  // costs — and labelling it "Per carton" made it read as a carton total.
   const rows = [
-    piece && `<div class="price"><span class="price__label">Per piece</span>
+    piece && `<div class="price"><span class="price__label">One piece</span>
       <span class="price__value">${esc(piece)}</span></div>`,
-    carton && `<div class="price"><span class="price__label">Per carton</span>
+    carton && `<div class="price"><span class="price__label">Per piece, by the carton</span>
       <span class="price__value">${esc(carton)}</span></div>`,
   ].filter(Boolean).join('');
+
+  const saving = Number(product.pricePiece) > 0 && Number(product.priceCarton) > 0
+    && Number(product.priceCarton) < Number(product.pricePiece);
+  const cartonTotal = packCount && Number(product.priceCarton) > 0
+    ? formatPrice(packCount * Number(product.priceCarton)) : '';
+
+  let note;
+  if (carton && piece) {
+    note = saving
+      ? `Take a full carton and each piece costs ${esc(carton)} instead of ${esc(piece)}.`
+      : `The rate is the same loose or by the carton.`;
+    if (cartonTotal) {
+      note += ` A carton of ${packCount} works out at ${esc(cartonTotal)}.`;
+    }
+  } else if (piece) {
+    note = 'That is the rate for one loose piece. Taking a full carton is '
+      + 'priced differently — send an enquiry for the carton rate.';
+  } else {
+    note = 'That is the rate per piece when you take a full carton. Loose '
+      + 'pieces are priced differently — send an enquiry for the loose rate.';
+  }
+
   return `<div class="prices">${rows}</div>
     <p class="enquiry__pricenote">
-      ${pack ? `Sold ${esc(pack)}. ` : ''}${
-        carton && piece
-          ? 'Both rates are wholesale, and they are different numbers — the '
-            + 'carton rate is not the piece rate multiplied out.'
-          : carton
-            ? 'That is the wholesale rate for a full carton. Loose pieces are '
-              + 'priced differently — send an enquiry for the piece rate.'
-            : 'That is the wholesale rate for one piece. Buying by the carton is '
-              + 'priced differently — send an enquiry for the carton rate.'
-      }
+      ${pack ? `Sold ${esc(pack)}. ` : ''}${note}
       Send an enquiry to confirm stock, the minimum order and delivery.
     </p>`;
 }
@@ -93,8 +112,8 @@ function compareSection(product, siblings) {
   const all = [product, ...siblings];
   const rows = [
     ['Brand', (p) => p.brand],
-    ['Piece price', (p) => formatPrice(p.pricePiece)],
-    ['Carton price', (p) => formatPrice(p.priceCarton)],
+    ['One piece', (p) => formatPrice(p.pricePiece)],
+    ['Per piece, by the carton', (p) => formatPrice(p.priceCarton)],
     ['Pack size', (p) => packSizeLabel(p.packSize)],
     ['SKU', (p) => p.sku],
     ['Availability', (p) => (p.available === false ? 'Currently unavailable' : 'Available')],
@@ -233,8 +252,8 @@ export function productPage({ product, related }) {
           ${specRow('Brand', product.brand)}
           ${specRow('Category', product.category)}
           ${specRow('Pack Size', packSizeLabel(product.packSize))}
-          ${specRow('Piece Price', formatPrice(product.pricePiece))}
-          ${specRow('Carton Price', formatPrice(product.priceCarton))}
+          ${specRow('One Piece', formatPrice(product.pricePiece))}
+          ${specRow('Per Piece, By The Carton', formatPrice(product.priceCarton))}
           ${specRow('SKU', product.sku)}
         </dl>
 

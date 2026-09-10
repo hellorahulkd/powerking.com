@@ -54,8 +54,10 @@ const shape = await page.eval(`
 `);
 check('comparison table renders', !shape.missing);
 check('this product plus its category siblings appear', shape.cols === 2, `${shape.cols} columns`);
+// Both price rows are per piece — one loose, one inside a full carton — so
+// neither may be labelled in a way that reads as the price of a whole carton.
 check('rows compare the specs that matter',
-  ['Brand', 'Carton price', 'Piece price', 'Pack size', 'SKU', 'Availability', 'Enquire']
+  ['Brand', 'One piece', 'Per piece, by the carton', 'Pack size', 'SKU', 'Availability', 'Enquire']
     .every((r) => shape.rowHeaders.includes(r)), shape.rowHeaders.join(', '));
 check('column headers are scoped for screen readers', shape.colScoped === true);
 check('table has a caption', shape.caption === true);

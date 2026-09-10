@@ -30,7 +30,14 @@ await page.setViewport(1280, 900, false);
 /** Every test starts from an empty list, whatever the last one left behind. */
 async function fresh(path = '/products/') {
   await page.goto(BASE + path);
-  await page.eval(`localStorage.removeItem('pk-enquiry'); return 1;`);
+  // Both keys: the buyer-type answer is remembered across enquiries on
+  // purpose, so a test that left it on "personal" would otherwise decide the
+  // default for whatever ran next.
+  await page.eval(`
+    localStorage.removeItem('pk-enquiry');
+    localStorage.removeItem('pk-enquiry-who');
+    return 1;
+  `);
   await page.goto(BASE + path);
 }
 
@@ -84,9 +91,11 @@ console.log('\nSelecting products');
   check('a selected control reports itself pressed', added.pressed === 'true');
   check('a selected control offers to remove, not add again',
     /^Remove /.test(added.label), added.label);
-  check('the selection is stored as one carton, no loose pieces',
+  // Nothing is pre-filled: selecting opens the panel asking how many, and a
+  // quantity nobody chose is the kind that reaches the shop by accident.
+  check('a selection starts with no quantity at all, waiting to be told',
     added.stored.length === 2
-    && added.stored.every((i) => i.cartons === 1 && i.pieces === 0),
+    && added.stored.every((i) => i.cartons === 0 && i.pieces === 0),
     JSON.stringify(added.stored));
   check('each stored product carries its picture',
     added.stored.every((i) => /^\/images\/products\//.test(i.image || '')),
@@ -156,8 +165,11 @@ console.log('\nThe message arrives with the arithmetic done');
   // The shop was receiving "20 cartons + 200 pieces" and having to look the
   // rate up and multiply it out before it could reply. The site knows the
   // piece rate, so the message carries the total.
+  // Needs both published rates and a pack size, so every branch of the
+  // arithmetic is exercised on one line.
   const priced = products.find(
-    (p) => Number(p.pricePiece) > 0 && /^\d+$/.test(String(p.packSize || '').trim()));
+    (p) => Number(p.pricePiece) > 0 && Number(p.priceCarton) > 0
+      && /^\d+$/.test(String(p.packSize || '').trim()));
   const unpriced = products.find((p) => !Number(p.pricePiece) && !Number(p.priceCarton));
 
   if (priced) {
@@ -180,21 +192,29 @@ console.log('\nThe message arrives with the arithmetic done');
     `);
     const pack = Number(priced.packSize);
     const rate = Number(priced.pricePiece);
+    const cartonRate = Number(priced.priceCarton);
     const line = rupees(rate * 100);
 
     check('a carton count is spelled out in pieces',
       r.text.includes(`Cartons: 10 (${pack} pcs each = ${pack * 10} pcs)`), r.text);
+    // Loose pieces are what a buyer reaches for first, in the panel and here.
+    check('loose pieces come before cartons in the message',
+      r.text.indexOf('Loose:') < r.text.indexOf('Cartons:'), r.text);
     check('loose pieces are costed at the listed piece rate',
       r.text.includes(`Loose: 100 pcs x ${rupees(rate)} = ${line}`), r.text);
-    check('the message carries a total for the loose pieces',
-      r.text.includes(`Loose pieces at your listed rate: ${line}`), r.text);
+    check('the message carries one total for everything on the list',
+      r.text.includes(`Total at your listed rates: ${rupees(rate * 100 + cartonRate * pack * 10)}`),
+      r.text);
     // The site publishes one rate — the price of a single piece. A carton is
     // not that multiplied out, so nothing here may quote a carton total.
-    check('cartons ask for a rate rather than inventing one',
-      /Carton rates are not listed/.test(r.text)
-      && !new RegExp('Cartons:[^\\n]*Rs\\.').test(r.text), r.text);
+    // Both published rates are per piece — what one costs loose, and what one
+    // costs inside a full carton — so a carton total is multiplication, not a
+    // number to ask for.
+    check('a carton is costed from the published per-piece carton rate',
+      r.text.includes(`Cartons: 10 (${pack} pcs each = ${pack * 10} pcs) x ${rupees(cartonRate)}`)
+      && r.text.includes(rupees(cartonRate * pack * 10)), r.text);
     check('the panel shows the same total before it is sent',
-      r.total.includes(line), r.total);
+      r.total.includes(rupees(rate * 100 + cartonRate * pack * 10)), r.total);
     check('rupees are grouped the way the site groups them',
       r.text.includes(rupees(rate)), `${rupees(rate)} | ${r.text.slice(0, 120)}`);
   }
@@ -297,7 +317,7 @@ console.log('\nMoving between pages');
   `);
   check('the product page offers the same control', onProduct.present && !onProduct.hidden);
   check('on a product page it is a labelled button, not an icon',
-    /enquiry list/i.test(onProduct.label), onProduct.label);
+    /select this product|on your enquiry/i.test(onProduct.label), onProduct.label);
   check('it reflects whether this product is already in the list',
     onProduct.pressed === (product.name === kept.stored ? 'true' : 'false'),
     JSON.stringify({ pressed: onProduct.pressed, page: product.name, inList: kept.stored }));
@@ -324,7 +344,7 @@ console.log('\nThe Enquire buttons ask how many first');
         href,
         open: document.getElementById('enq-dialog').open,
         rows: document.querySelectorAll('.enq__row').length,
-        onQty: document.activeElement.hasAttribute('data-cartons'),
+        onQty: document.activeElement.hasAttribute('data-pieces'),
         name: (document.querySelector('.enq__name') || {}).textContent,
         matches: b.getAttribute('data-enq-name'),
       };
@@ -333,7 +353,7 @@ console.log('\nThe Enquire buttons ask how many first');
       !r.missing && r.open === true && r.rows === 1, JSON.stringify(r));
     check(`the ${where} button puts its own product on the list`,
       r.name === r.matches, JSON.stringify({ got: r.name, want: r.matches }));
-    check(`the ${where} button lands on the quantity box`, r.onQty === true);
+    check(`the ${where} button lands on the loose-pieces box`, r.onQty === true);
     check(`without JavaScript the ${where} button is still a WhatsApp link`,
       /^https:\/\/wa\.me\//.test(r.href || ''), r.href);
   }
@@ -370,8 +390,8 @@ console.log('\nSaying what the buttons do, in words');
     const off = pin.querySelector('.enq-add__off').textContent.trim();
     return { on, off, bar: null };
   `);
-  check('the card control says "Add", not just a plus sign',
-    /add/i.test(words.on) && /added/i.test(words.off), JSON.stringify(words));
+  check('the card control says what it does, not just a plus sign',
+    /select/i.test(words.on) && /selected/i.test(words.off), JSON.stringify(words));
 
   const bar = await page.eval(`
     document.querySelector('.enq-add--pin').click();
@@ -408,8 +428,8 @@ console.log('\nA carton and loose pieces on the same line');
     both.stored.cartons === 1 && both.stored.pieces === 10, JSON.stringify(both.stored));
   check('the message says both, on their own labelled lines',
     /Cartons: 1\b/.test(both.text) && /Loose: 10 pcs/.test(both.text), both.text);
-  check('both boxes are labelled in the panel',
-    both.labels.join(',') === 'Cartons,Pieces', both.labels.join(','));
+  check('both boxes are labelled in the panel, loose pieces first',
+    both.labels.join(',') === 'Loose pieces,Cartons', both.labels.join(','));
   check('the row shows the product photo',
     /^\/images\/products\//.test(both.thumb || ''), both.thumb);
 }
@@ -428,7 +448,7 @@ console.log('\nA row with no quantity at all');
     return {
       note: document.getElementById('enq-note').textContent,
       flagged: document.querySelectorAll('.enq__row.is-empty').length,
-      focused: document.activeElement.hasAttribute('data-cartons'),
+      focused: document.activeElement.hasAttribute('data-pieces'),
       navigated: location.href !== before,
     };
   `);
