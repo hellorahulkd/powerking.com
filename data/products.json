@@ -1932,9 +1932,9 @@
     "gallery": [],
     "packSize": "80",
     "priceCarton": "",
-    "pricePiece": 165,
+    "pricePiece": 170,
     "sku": "Powerking 5m",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": [
       "Multiplugs"
