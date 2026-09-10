@@ -1953,7 +1953,7 @@
     "priceCarton": "",
     "pricePiece": 185,
     "sku": "Yellow 10m",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": [
       "Multiplugs"
