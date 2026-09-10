@@ -31,6 +31,7 @@ export const CONSOLE_ROUTES = [
   { path: '/admin/products/new/',  page: 'product-form', title: 'Add product' },
   { path: '/admin/products/edit/', page: 'product-form', title: 'Edit product' },
   { path: '/admin/products/view/', page: 'product-view', title: 'Product' },
+  { path: '/admin/products/import/', page: 'product-import', title: 'Import products' },
   { path: '/admin/inventory/',            page: 'inventory',  title: 'Inventory' },
   { path: '/admin/inventory/stock-in/',   page: 'stock-in',   title: 'Stock in' },
   { path: '/admin/inventory/stock-out/',  page: 'stock-out',  title: 'Stock out' },

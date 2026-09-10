@@ -855,6 +855,120 @@ SUITES.deactivated = async (page, base, rig) => {
     `update public.profiles set is_active = true where email = 'staff@powerking.test';`);
 };
 
+SUITES.import = async (page, base, rig) => {
+  group('CSV import');
+  await clearSession(page);
+  await signIn(page, base, USERS[0]);
+  await page.goto(`${base}/admin/products/import/`);
+  await until(page, `!!document.querySelector('input[type=file]')`, { label: 'the import form' });
+
+  /** Hand the page a CSV without touching the filesystem. */
+  const dropCsv = (csv) => page.eval(`
+    const input = document.querySelector('input[type=file]');
+    const file = new File([${JSON.stringify(csv)}], 'products.csv', { type: 'text/csv' });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  `);
+
+  const header =
+    'SKU,Product Name,Brand,Category,Description,Units Per Carton,Cost Price,' +
+    'Wholesale Price,Retail Price,Minimum Order Quantity,Low Stock Threshold,Opening Stock';
+
+  // A file where several things are wrong in several different ways.
+  await dropCsv([
+    header,
+    'IMP-1,Good Speaker One,Kisonli,Speakers,"Fine, with a comma",20,400,550,750,1,10,100',
+    ',Missing SKU Product,Kisonli,Speakers,,20,400,550,750,1,10,0',
+    'IMP-1,Duplicate Of Row One,Kisonli,Speakers,,20,400,550,750,1,10,0',
+    'IMP-4,Bad Price,Kisonli,Speakers,,20,-5,550,750,1,10,0',
+    'IMP-5,Unknown Category,Kisonli,Nonexistent Category,,20,400,550,750,1,10,0',
+    'IMP-6,Not A Number,Kisonli,Speakers,,twenty,400,550,750,1,10,0',
+    'PK-60,Clashes With Existing,Kisonli,Speakers,,20,400,550,750,1,10,0',
+  ].join('\n'));
+
+  await until(page, `!!document.querySelector('#preview .table tbody tr')`,
+    { label: 'the preview' });
+
+  const notes = await page.eval(`
+    return [...document.querySelectorAll('#preview tbody tr')].map(tr =>
+      [...tr.children].map(td => td.textContent.trim()).join(' | '));
+  `);
+  check('every row is previewed before anything is written',
+    notes.length === 7, `${notes.length} rows`);
+  check('a comma inside a quoted description does not break the parse',
+    notes[0].includes('Good Speaker One'), notes[0]);
+  check('a missing SKU is reported', /No SKU/.test(notes[1]), notes[1]);
+  check('a SKU repeated within the file is reported, naming the other row',
+    /repeats row 2/.test(notes[2]), notes[2]);
+  check('a negative price is reported', /cannot be negative/i.test(notes[3]), notes[3]);
+  check('an unknown category is reported', /Unknown category/i.test(notes[4]), notes[4]);
+  check('a quantity that is not a number is reported', /not a number/i.test(notes[5]), notes[5]);
+  check('a SKU that already exists in the system is reported',
+    /already exists/i.test(notes[6]), notes[6]);
+
+  check('and the import button refuses to run while any row is wrong',
+    (await page.eval(`return document.getElementById('do-import').disabled;`)) === true);
+  check('saying so rather than just being greyed out',
+    /Fix the problems first/.test(await page.eval(`return ${text('#do-import')};`) || ''));
+  check('nothing was written',
+    rig.psql(`select count(*) from public.products where sku like 'IMP-%'`) === '0');
+
+  group('A clean import');
+  await dropCsv([
+    header,
+    'IMP-1,Import One,Kisonli,Speakers,"Fine, with a comma",20,400,550,750,1,10,100',
+    'IMP-2,Import Two,Kisonli,Speakers,,12,300,420,600,2,5,0',
+  ].join('\n'));
+  await until(page, `!!document.querySelector('#preview .table tbody tr')`, { label: 'the preview' });
+  check('a clean file enables the import',
+    (await page.eval(`return document.getElementById('do-import').disabled;`)) === false);
+  check('and says how many it would import',
+    /Import 2 products/.test(await page.eval(`return ${text('#do-import')};`) || ''));
+
+  await page.eval(`document.getElementById('do-import').click(); return true;`);
+  await until(page, `!!document.querySelector('dialog[open]')`, { label: 'the confirmation' });
+  await page.eval(`
+    [...document.querySelectorAll('.dialog__actions button')]
+      .find(b => /Import/.test(b.textContent)).click();
+    return true;
+  `);
+  await until(page, `location.pathname === '/admin/products/'`,
+    { label: 'the products list', timeout: 12000 });
+
+  check('both products were created',
+    rig.psql(`select count(*) from public.products where sku in ('IMP-1','IMP-2')`) === '2');
+  check('the opening stock landed on the right one',
+    rig.psql(`select quantity from public.product_stock where sku = 'IMP-1'`) === '100');
+  check('and is in the ledger as a stock-in, not conjured into the inventory',
+    rig.psql(`select quantity from public.stock_movement_log
+              where product_sku = 'IMP-1' and movement_type = 'STOCK_IN'`) === '100');
+  check('a product with no opening stock has none',
+    rig.psql(`select quantity from public.product_stock where sku = 'IMP-2'`) === '0');
+  check('units per carton came across',
+    rig.psql(`select units_per_carton from public.products where sku = 'IMP-2'`) === '12');
+
+  group('All or nothing');
+  // Two good rows and one the database will refuse for a reason the local
+  // check cannot see: the same SKU twice, differing only by case.
+  expectFailure(/rpc\/import_products/);
+  await page.goto(`${base}/admin/products/import/`);
+  await until(page, `!!document.querySelector('input[type=file]')`, { label: 'the form' });
+  await dropCsv([
+    header,
+    'IMP-10,Batch One,Kisonli,Speakers,,20,400,550,750,1,10,0',
+    'IMP-11,Batch Two,Kisonli,Speakers,,20,400,550,750,1,10,0',
+    'imp-10,Batch Three,Kisonli,Speakers,,20,400,550,750,1,10,0',
+  ].join('\n'));
+  await until(page, `!!document.querySelector('#preview tbody tr')`, { label: 'the preview' });
+  check('a SKU repeated in a different case is caught as the same SKU',
+    (await page.eval(`return document.getElementById('do-import').disabled;`)) === true);
+  check('and none of that batch was written',
+    rig.psql(`select count(*) from public.products where sku ilike 'IMP-1_'`) === '0');
+};
+
 SUITES.publicCatalogue = async (page, base, rig) => {
   group('The public catalogue, built from Supabase');
 

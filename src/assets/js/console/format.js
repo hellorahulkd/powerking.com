@@ -185,6 +185,44 @@ export function toCsv(columns, rows) {
   return `﻿${head}\n${body}\n`;
 }
 
+/**
+ * RFC 4180 CSV, parsed character by character.
+ *
+ * A regex split on commas is wrong for the first field that contains one, and
+ * a product description containing a comma is not an edge case — it is most
+ * of them. Handles quoted fields, doubled quotes inside them, and CRLF.
+ */
+export function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let quoted = false;
+  // A byte-order mark from Excel would otherwise become part of the first
+  // header, and "﻿SKU" matches nothing.
+  const src = text.replace(/^﻿/, '');
+
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (quoted) {
+      if (c === '"') {
+        if (src[i + 1] === '"') { field += '"'; i++; }
+        else quoted = false;
+      } else field += c;
+      continue;
+    }
+    if (c === '"') { quoted = true; continue; }
+    if (c === ',') { row.push(field); field = ''; continue; }
+    if (c === '\r') continue;
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; continue; }
+    field += c;
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+
+  // Rows that are entirely empty are what a trailing newline and a stray
+  // blank line in a spreadsheet look like. They are not products.
+  return rows.filter((r) => r.some((cell) => String(cell).trim() !== ''));
+}
+
 export function downloadCsv(filename, csv) {
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);

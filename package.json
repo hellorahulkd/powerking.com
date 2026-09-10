@@ -12,7 +12,11 @@
     "dev": "node build.js && node serve.js",
     "serve": "node serve.js",
     "check": "node build.js && node scripts/check.js",
-    "import": "node scripts/import-products.js"
+    "test": "node --test scripts/dev/unit-test.js",
+    "test:db": "scripts/dev/db-up.sh && scripts/dev/db-test.sh",
+    "test:console": "scripts/dev/db-up.sh && node scripts/dev/console-test.js",
+    "import": "node scripts/import-products.js",
+    "seed:sql": "node scripts/seed-from-json.js"
   },
   "keywords": [
     "wholesale",
