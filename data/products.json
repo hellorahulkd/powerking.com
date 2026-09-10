@@ -2048,7 +2048,7 @@
     "priceCarton": "",
     "pricePiece": 440,
     "sku": "PowerKing B26 PD Heavy Multiplug",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": [
       "Multiplugs"
