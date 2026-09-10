@@ -399,31 +399,6 @@
     ]
   },
   {
-    "id": 212,
-    "name": "LP V102 Good Bass Speaker 8W with RGB Ring",
-    "slug": "lp-v102-speaker",
-    "brand": "LP",
-    "category": "Speakers",
-    "description": "8W loud-stereo speaker with a circular RGB ring on the face and a slot that stands a phone up. FM radio, Type-C, USB, TF card, 1200mAh, with a wrist strap.",
-    "image": "/images/products/lp-v102-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "V102",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "8w",
-      "rgb",
-      "phone stand",
-      "fm radio",
-      "type c",
-      "1200mah",
-      "good bass"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 213,
     "name": "LP V86 Mini Good Bass Speaker 8W",
     "slug": "lp-v86-mini-speaker",
