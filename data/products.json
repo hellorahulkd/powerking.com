@@ -824,7 +824,9 @@
     "description": "Twin 10-inch X.BASS trolley speaker printed 3000W P.M.P.O, with a horn tweeter on top and a full RGB ring around each driver. Two wireless microphones and a remote are supplied; the carton icon strip shows TF card support. The box carries a chevron mark but no readable brand name.",
     "image": "/images/products/ss-10-trolley-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "1",
+    "priceCarton": 13750,
+    "pricePiece": 13750,
     "sku": "SS-10",
     "featured": true,
     "available": true,
@@ -837,9 +839,7 @@
       "remote",
       "pmpo",
       "party"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 238,
