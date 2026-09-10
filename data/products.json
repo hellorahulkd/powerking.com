@@ -375,28 +375,6 @@
     ]
   },
   {
-    "id": 207,
-    "name": "Kisonli Q2 Mini Music Speaker",
-    "slug": "kisonli-q2-mini-speaker",
-    "brand": "Kisonli",
-    "category": "Speakers",
-    "description": "Compact mains-shaped mini speaker with a top carry handle — the counter-price entry in the Kisonli range.",
-    "image": "/images/products/kisonli-q2-mini-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "Q2",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "mini",
-      "portable",
-      "handle",
-      "entry"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 208,
     "name": "Kisonli B3 Solar Car Music Speaker",
     "slug": "kisonli-b3-solar-car-speaker",
