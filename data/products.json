@@ -375,30 +375,6 @@
     ]
   },
   {
-    "id": 206,
-    "name": "Kisonli KS-1992 Music Portable Speaker",
-    "slug": "kisonli-ks-1992-music-speaker",
-    "brand": "Kisonli",
-    "category": "Speakers",
-    "description": "Capsule-shaped stereo speaker with a phone stand moulded into the top. Bluetooth, AUX, TF card and USB, with a wrist strap.",
-    "image": "/images/products/kisonli-ks-1992-music-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "KS-1992",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "stereo",
-      "aux",
-      "tf card",
-      "usb",
-      "phone stand",
-      "strap"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 207,
     "name": "Kisonli Q2 Mini Music Speaker",
     "slug": "kisonli-q2-mini-speaker",
