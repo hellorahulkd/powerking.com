@@ -2157,12 +2157,14 @@
     "image": "/images/products/powerking-3-port-back-heavy-multiplug-3m.jpg",
     "gallery": [],
     "packSize": "48",
-    "priceCarton": "",
-    "pricePiece": 390,
+    "priceCarton": 390,
+    "pricePiece": 400,
     "sku": "PowerKing 3-Port Back Heavy Multiplug – 3M*",
     "featured": false,
     "available": true,
-    "tags": []
+    "tags": [
+      "multiplugs"
+    ]
   },
   {
     "id": 294,
