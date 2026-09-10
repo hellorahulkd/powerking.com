@@ -675,7 +675,9 @@
     "description": "KTV party speaker printed 16W P.M.P.O, with two RGB-lit driver rings set into the top panel and two wireless microphones in the box.",
     "image": "/images/products/kisonli-g24-ktv-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "20",
+    "priceCarton": 2275,
+    "pricePiece": 2275,
     "sku": "G24",
     "featured": true,
     "available": true,
@@ -687,9 +689,7 @@
       "rgb",
       "16w",
       "kisonli"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 232,
