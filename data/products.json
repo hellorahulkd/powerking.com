@@ -408,6 +408,8 @@
     "image": "/images/products/j-ipok-p338-car-speaker.jpg",
     "gallery": [],
     "packSize": "",
+    "priceCarton": 700,
+    "pricePiece": 700,
     "sku": "P338",
     "featured": false,
     "available": true,
@@ -417,9 +419,7 @@
       "solar",
       "gift",
       "bluetooth"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 217,
