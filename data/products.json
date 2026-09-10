@@ -399,31 +399,6 @@
     ]
   },
   {
-    "id": 213,
-    "name": "LP V86 Mini Good Bass Speaker 8W",
-    "slug": "lp-v86-mini-speaker",
-    "brand": "LP",
-    "category": "Speakers",
-    "description": "8W loud-stereo mini speaker with an RGB light bar, phone stand and a 74cm telescopic antenna. FM radio, USB, TF card, Type-C, 1800mAh.",
-    "image": "/images/products/lp-v86-mini-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "V86 Mini",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "8w",
-      "mini",
-      "rgb",
-      "phone stand",
-      "fm radio",
-      "74cm antenna",
-      "good bass"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 215,
     "name": "J-iPOK P353 Rugged Portable Speaker",
     "slug": "j-ipok-p353-portable-speaker",
