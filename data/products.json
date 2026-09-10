@@ -454,8 +454,10 @@
     "description": "Wood-finish cabinet speaker on a stand with a wired microphone input, AUX and USB inputs, FM radio and a remote control. No model number is printed on the unit.",
     "image": "/images/products/dpus-wooden-trolley-speaker.jpg",
     "gallery": [],
-    "packSize": "",
-    "sku": "",
+    "packSize": "1",
+    "priceCarton": 8500,
+    "pricePiece": 8500,
+    "sku": "1",
     "featured": false,
     "available": true,
     "tags": [
@@ -466,9 +468,7 @@
       "aux",
       "mic input",
       "stand"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 223,
