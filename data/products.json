@@ -799,7 +799,9 @@
     "description": "Twin 8-inch trolley speaker rated 20W x 2 on a 4500mAh battery, with full-face RGB lighting and two wireless microphones in the box. Carton marked \"Super Bass Speaker\".",
     "image": "/images/products/sing-e-zqs8268-trolley-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "8",
+    "priceCarton": 6500,
+    "pricePiece": 6500,
     "sku": "ZQS8268",
     "featured": false,
     "available": true,
@@ -811,9 +813,7 @@
       "4500mah",
       "party",
       "8 inch"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 237,
