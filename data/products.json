@@ -422,30 +422,6 @@
     ]
   },
   {
-    "id": 217,
-    "name": "WSJAR WS-105 6x6 Car Speaker",
-    "slug": "wsjar-ws-105-car-speaker",
-    "brand": "WSJAR",
-    "category": "Speakers",
-    "description": "Six-wheel pickup-shaped Bluetooth speaker with a spare tyre on the bed. Plays from USB devices and TF cards.",
-    "image": "/images/products/wsjar-ws-105-car-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "WS-105",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "car speaker",
-      "novelty",
-      "usb",
-      "tf card",
-      "gift",
-      "pickup"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 218,
     "name": "BOOMSBOX3 Joyous Sound Wireless Speaker",
     "slug": "boomsbox3-joyous-sound-speaker",
