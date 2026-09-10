@@ -212,6 +212,8 @@
     "image": "/images/products/powerking-p-h32e-30000mah-power-bank.jpg",
     "gallery": [],
     "packSize": "",
+    "priceCarton": 1900,
+    "pricePiece": 1950,
     "sku": "P-H32E",
     "featured": true,
     "available": true,
@@ -223,9 +225,7 @@
       "built-in cable",
       "powerking",
       "four outputs"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 111,
