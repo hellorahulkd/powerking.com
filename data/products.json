@@ -361,6 +361,8 @@
     "image": "/images/products/kisonli-k19-20w-speaker.jpg",
     "gallery": [],
     "packSize": "",
+    "priceCarton": 2350,
+    "pricePiece": 2350,
     "sku": "K19",
     "featured": false,
     "available": true,
@@ -370,9 +372,7 @@
       "portable",
       "handle",
       "tws"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 205,
