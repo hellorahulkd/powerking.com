@@ -2182,5 +2182,24 @@
     "tags": [
       "Earphones"
     ]
+  },
+  {
+    "id": 309,
+    "name": "Apple EarPods – Lightning Connector",
+    "slug": "apple-earpods-lightning-connector",
+    "brand": "Apple EarPods – Lightning Connector",
+    "category": "Mobile Accessories",
+    "description": "Apple EarPods – Lightning Connector\n\n* 🎧 Clear & Balanced Sound\n* 🎙️ Built-in Microphone for calls and voice recording\n* 🔌 Lightning Connector – compatible with Lightning-port iPhones/iPads\n* 🤍 Lightweight & Comfortable for everyday use\n* 📦 Premium Apple-style Packaging\n* 🎵 Ideal for music, calls, videos & daily use",
+    "image": "/images/products/apple-earpods-lightning-connector.jpg",
+    "gallery": [],
+    "packSize": "500",
+    "priceCarton": 275,
+    "pricePiece": 275,
+    "sku": "Powerking",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "earphones"
+    ]
   }
 ]
