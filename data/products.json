@@ -874,7 +874,9 @@
     "description": "Compact USB 2.0 desktop speaker pair, powered and driven from a single USB lead with an in-line volume control.",
     "image": "/images/products/kisonli-a-110-usb-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "50",
+    "priceCarton": 475,
+    "pricePiece": 450,
     "sku": "A-110",
     "featured": false,
     "available": true,
@@ -884,9 +886,7 @@
       "computer speaker",
       "kisonli",
       "volume control"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 240,
