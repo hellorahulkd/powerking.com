@@ -421,30 +421,6 @@
     ]
   },
   {
-    "id": 209,
-    "name": "Kisonli B2 Car Gift Speaker",
-    "slug": "kisonli-b2-car-gift-speaker",
-    "brand": "Kisonli",
-    "category": "Speakers",
-    "description": "Off-roader-shaped speaker sold as a children\\u2019s gift line, with solar charging, stereo playback and a flashlight.",
-    "image": "/images/products/kisonli-b2-car-gift-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "B2",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "car speaker",
-      "solar",
-      "gift",
-      "children",
-      "flashlight",
-      "novelty"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 210,
     "name": "LP V78 Good Bass Solar Speaker 10W",
     "slug": "lp-v78-solar-speaker",
