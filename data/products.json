@@ -504,6 +504,8 @@
     "image": "/images/products/wsjar-e-8808-trolley-speaker.jpg",
     "gallery": [],
     "packSize": "",
+    "priceCarton": "",
+    "pricePiece": "",
     "sku": "E-8808",
     "featured": false,
     "available": true,
@@ -514,9 +516,7 @@
       "led",
       "8.5 inch",
       "party"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 225,
