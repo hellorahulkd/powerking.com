@@ -422,30 +422,6 @@
     ]
   },
   {
-    "id": 218,
-    "name": "BOOMSBOX3 Joyous Sound Wireless Speaker",
-    "slug": "boomsbox3-joyous-sound-speaker",
-    "brand": "[CONFIRM BRAND]",
-    "category": "Speakers",
-    "description": "Barrel-shaped Hi-Fi speaker with a moulded carry handle, TWS pairing to a second unit, a colour lamp and a 3000mAh battery.",
-    "image": "/images/products/boomsbox3-joyous-sound-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "BOOMSBOX3",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "tws",
-      "hi fi",
-      "3000mah",
-      "handle",
-      "colour lamp",
-      "portable"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 219,
     "name": "NDR C8 High-Power Outdoor Trolley Speaker",
     "slug": "ndr-high-power-outdoor-speaker",
