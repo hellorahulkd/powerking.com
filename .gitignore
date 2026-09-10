@@ -4,5 +4,9 @@ node_modules/
 *.log
 .env
 .env.*
+# ...but the template must be committed: it is how anybody cloning this knows
+# which two variables to set. `.env.*` above would otherwise swallow it, which
+# it silently did until somebody checked.
+!.env.example
 .vercel
 .build/

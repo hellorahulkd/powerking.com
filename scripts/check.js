@@ -227,6 +227,22 @@ async function main() {
   assert('robots.txt points at the sitemap', robots.includes(`${base}/sitemap.xml`));
   assert('robots.txt asks crawlers to leave /admin/ alone', /Disallow:\s*\/admin\//.test(robots));
 
+  /* --------------------------------------------------- repository state -- */
+  // .env.example is how anybody cloning this knows which two variables to set.
+  // The `.env.*` line in .gitignore silently swallowed it for a while, so this
+  // checks the file is present rather than assuming it.
+  assert('.env.example is in the repository', existsSync(path.join(ROOT, '.env.example')));
+  const envExample = await readFile(path.join(ROOT, '.env.example'), 'utf8');
+  assert('.env.example names both variables',
+    /SUPABASE_URL=/.test(envExample) && /SUPABASE_ANON_KEY=/.test(envExample));
+  assert('.env.example holds placeholders, not real values',
+    !/eyJ[A-Za-z0-9_-]{20,}\./.test(envExample) &&
+    !/https:\/\/[a-z0-9]{20}\.supabase\.co/.test(envExample));
+  const gitignore = await readFile(path.join(ROOT, '.gitignore'), 'utf8');
+  for (const rule of ['.env', 'dist/', '.build/']) {
+    assert(`.gitignore excludes ${rule}`, gitignore.includes(rule));
+  }
+
   /* ------------------------------------------------ inventory console -- */
   // The console's own assets. A missing module here is a screen that loads
   // and then does nothing, which is the failure mode hardest to notice.
