@@ -276,6 +276,8 @@ export function productCard(product, { eager = false, location = 'product_card' 
   data-product
   data-brand="${esc(product.brand)}"
   data-category="${esc(product.category)}"
+  data-price="${esc(Number(product.pricePiece) > 0 ? product.pricePiece
+    : Number(product.priceCarton) > 0 ? product.priceCarton : '')}"
   data-search="${esc(haystack)}">
   <div class="card__media">
     <img src="${esc(product.image)}" alt="" width="400" height="400"

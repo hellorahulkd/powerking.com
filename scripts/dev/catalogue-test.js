@@ -164,6 +164,102 @@ check('cards reference the sprite instead of inlining paths', sprite.uses > 0, J
 check('the sprite itself takes up no space', sprite.space === '0x0', sprite.space);
 check('sprite icons still render at their intended size', sprite.painted > 0, JSON.stringify(sprite));
 
+console.log('\nSorting');
+{
+  /** Prices in listing order — what CSS Grid actually paints, not DOM order. */
+  const listed = () => page.eval(`
+    return [...document.querySelectorAll('#product-grid [data-product]')]
+      .filter((c) => !c.hidden)
+      .sort((a, b) => Number(a.style.order) - Number(b.style.order))
+      .map((c) => Number(c.getAttribute('data-price')) || 0);
+  `);
+  const choose = (value) => page.eval(`
+    const s = document.getElementById('sort-order');
+    s.value = ${JSON.stringify(value)};
+    s.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise((r) => requestAnimationFrame(r));
+    return 1;
+  `);
+  const ordered = (prices, dir) => prices.every(
+    (v, i) => i === 0 || (dir > 0 ? v >= prices[i - 1] : v <= prices[i - 1]));
+
+  await page.goto(`${BASE}/products/`);
+
+  // The served page is already in the default order, so a reader without
+  // JavaScript, a crawler and page 2 all get the same answer. If this drifts
+  // from the script's default the listing visibly reshuffles on load.
+  const served = await page.eval(`
+    const cards = [...document.querySelectorAll('#product-grid [data-product]')];
+    return cards.map((c) => Number(c.getAttribute('data-price')) || 0);
+  `);
+  const servedPriced = served.filter((v) => v > 0);
+  check('the page is served cheapest first, before any script runs',
+    ordered(servedPriced, 1) && servedPriced.length > 1,
+    servedPriced.slice(0, 6).join(', '));
+  check('and the script leaves that order alone on load',
+    (await listed()).join() === served.join());
+
+  const asc = await listed();
+  check('cheapest first puts every priced product in ascending order',
+    ordered(asc.filter((v) => v > 0), 1), asc.slice(0, 6).join(', '));
+
+  await choose('price-desc');
+  const desc = await listed();
+  check('dearest first reverses it', ordered(desc.filter((v) => v > 0), -1),
+    desc.slice(0, 6).join(', '));
+
+  // The window holds 48 cards; the priciest product is well past that in
+  // catalogue order, so this only passes if the sort reaches into the tail
+  // rather than reordering the cards that happened to be rendered.
+  const dearest = await page.eval(`
+    const t = document.getElementById('catalogue-tail');
+    const all = [...document.querySelectorAll('#product-grid [data-product]')]
+      .concat(t ? [...t.content.querySelectorAll('[data-product]')] : []);
+    return Math.max(...all.map((c) => Number(c.getAttribute('data-price')) || 0));
+  `);
+  check('a sort reaches the whole catalogue, not just the rendered window',
+    desc[0] === dearest, `${desc[0]} vs ${dearest}`);
+
+  // "Price on enquiry" at the top of "cheapest first" answers nobody.
+  const lastPriced = (a) => a.map((v) => v > 0).lastIndexOf(true);
+  const firstUnpriced = (a) => a.findIndex((v) => v === 0);
+  check('products with no price never lead a price sort',
+    [asc, desc].every((a) => firstUnpriced(a) === -1 || firstUnpriced(a) > lastPriced(a)));
+
+  // A sort and a filter are different questions; answering one must not
+  // discard the other.
+  await page.eval(`
+    const sel = document.getElementById('category-filter');
+    sel.value = 'Speakers';
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise((r) => requestAnimationFrame(r));
+    return 1;
+  `);
+  const filtered = await listed();
+  check('the chosen order survives filtering to a category',
+    ordered(filtered.filter((v) => v > 0), -1) && filtered.length > 0,
+    filtered.slice(0, 5).join(', '));
+
+  // Shareable, and it survives a reload.
+  await page.goto(`${BASE}/products/?sort=price-desc`);
+  const fromUrl = await page.eval(`
+    return { value: document.getElementById('sort-order').value,
+             shown: !document.getElementById('sort-wrap').hidden };
+  `);
+  check('an order can be linked to with ?sort=', fromUrl.value === 'price-desc', fromUrl.value);
+  check('and the control is only shown once the script can answer it',
+    fromUrl.shown === true);
+
+  // A hand-edited parameter must not be able to empty the page.
+  await page.goto(`${BASE}/products/?sort=nonsense`);
+  const junk = await page.eval(`
+    return { shown: document.querySelectorAll('#product-grid [data-product]:not([hidden])').length,
+             value: document.getElementById('sort-order').value };
+  `);
+  check('an unknown ?sort= falls back rather than emptying the listing',
+    junk.shown > 0 && junk.value === 'price-asc', JSON.stringify(junk));
+}
+
 console.log('\n' + '-'.repeat(56));
 console.log(fails.length ? `  ${pass} passed, ${fails.length} FAILED` : `  All ${pass} catalogue checks passed`);
 fails.forEach((f) => console.log(`  ✗ ${f}`));

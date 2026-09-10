@@ -235,8 +235,17 @@ async function main() {
   assert('CSS stays under 72KB on disk',
     css.size < 72 * 1024, `${(css.size / 1024).toFixed(1)}KB`);
   const sliderJs = await stat(path.join(DIST, 'assets/slider.js'));
+  // Budgeted the same way as the stylesheet: what a visitor downloads, not
+  // what the files weigh on disk. The raw cap stays, well above the working
+  // size, so the bundle cannot balloon unnoticed.
   const jsTotal = appJs.size + catJs.size + sliderJs.size;
-  assert('JS stays under 24KB total', jsTotal < 24 * 1024, `${(jsTotal / 1024).toFixed(1)}KB`);
+  const jsGz = (await Promise.all(['app.js', 'catalogue.js', 'slider.js'].map(
+    async (f) => gzipSync(await readFile(path.join(DIST, 'assets', f)), { level: 9 }).length,
+  ))).reduce((a, b) => a + b, 0);
+  assert('JS stays under 11KB over the wire',
+    jsGz < 11 * 1024, `${(jsGz / 1024).toFixed(1)}KB gzipped`);
+  assert('JS stays under 32KB on disk',
+    jsTotal < 32 * 1024, `${(jsTotal / 1024).toFixed(1)}KB`);
 
   const homeDoc = await html('/');
   assert('home page loads no third-party scripts when analytics is unset',

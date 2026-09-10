@@ -43,28 +43,78 @@
   function collect(nodes, placed) {
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
+      var price = Number(el.getAttribute('data-price'));
       entries.push({
         el: el,
         placed: placed,
+        pos: entries.length,          // catalogue order, for a stable sort
         hay: el.getAttribute('data-search') || '',
         cat: el.getAttribute('data-category') || '',
         brand: el.getAttribute('data-brand') || '',
+        // 0 for a product with no published price. Those never lead a price
+        // order in either direction — see order() below.
+        price: isFinite(price) && price > 0 ? price : 0,
       });
     }
   }
   collect(grid.querySelectorAll('[data-product]'), true);
   if (template) collect(template.content.querySelectorAll('[data-product]'), false);
 
-  // Cards arrive in the grid in match order, not catalogue order, so pin each
-  // one's position explicitly. CSS Grid honours `order`, so the listing always
-  // reads in the order the build laid it out.
-  for (var e = 0; e < entries.length; e++) entries[e].el.style.order = e;
+  /**
+   * Sorting, without a second card renderer.
+   *
+   * Cards arrive in the grid in match order rather than listing order, so
+   * each one's position is pinned explicitly — CSS Grid honours `order`, so
+   * the listing reads in the order chosen here whatever order the DOM holds.
+   * Re-ordering is therefore just recomputing these numbers over a re-sorted
+   * copy of `entries`; no card is ever rebuilt or moved for a sort.
+   *
+   * Must agree with SORTS in src/pages/catalogue.js, which orders the served
+   * page. The catalogue-test checks the two agree by reading the rendered
+   * order rather than by trusting either copy.
+   */
+  var SORTS = {
+    'price-asc': function (a, b) { return a.price - b.price; },
+    'price-desc': function (a, b) { return b.price - a.price; },
+    'name-asc': function (a, b) { return name(a).localeCompare(name(b)); },
+    featured: function (a, b) { return a.pos - b.pos; },
+  };
+  var BY_PRICE = { 'price-asc': 1, 'price-desc': 1 };
+
+  function name(entry) {
+    var el = entry.el.querySelector('.card__title');
+    return el ? el.textContent.trim() : '';
+  }
+
+  /** `entries`, in the order the listing should read. */
+  var order = entries.slice();
+
+  function resort() {
+    var compare = SORTS[state.sort] || SORTS.featured;
+    // Sort a copy carrying its catalogue position, so equal keys keep the
+    // order the shop entered them in rather than whatever the engine does.
+    var stable = function (a, b) { return compare(a, b) || a.pos - b.pos; };
+    if (BY_PRICE[state.sort]) {
+      // A product with no published price has no place in a price order, so
+      // it follows every priced one instead of sitting at either extreme.
+      var priced = [], rest = [];
+      for (var i = 0; i < entries.length; i++) {
+        (entries[i].price > 0 ? priced : rest).push(entries[i]);
+      }
+      order = priced.sort(stable).concat(rest.sort(function (a, b) { return a.pos - b.pos; }));
+    } else {
+      order = entries.slice().sort(stable);
+    }
+    for (var j = 0; j < order.length; j++) order[j].el.style.order = j;
+  }
 
   // Windowed listing: how many matching cards are allowed in the DOM at once.
   var STEP = grid.querySelectorAll('[data-product]').length || 48;
   var shown = STEP;
 
-  var state = { q: '', category: '', brand: '' };
+  // Must match DEFAULT_SORT in src/pages/catalogue.js — the served page is
+  // already in this order, so the first render must not reshuffle it.
+  var state = { q: '', category: '', brand: '', sort: 'price-asc' };
   var searchTimer = null;
 
   function track(name, params) {
@@ -94,8 +144,11 @@
     var terms = q ? q.split(' ') : [];
     var total = 0;
 
-    for (var i = 0; i < entries.length; i++) {
-      var entry = entries[i];
+    // Walked in listing order, not catalogue order, so the window holds the
+    // first N of what the reader asked to see — the twenty cheapest, not the
+    // twenty cheapest among the first twenty.
+    for (var i = 0; i < order.length; i++) {
+      var entry = order[i];
       // Every term must match — so "coca cola" narrows rather than widens.
       var ok = true;
       for (var t = 0; t < terms.length; t++) {
@@ -244,6 +297,36 @@
     });
   }
 
+  /* ----------------------------------------------------------- sorting -- */
+  var sortSelect = document.getElementById('sort-order');
+  var sortWrap = document.getElementById('sort-wrap');
+  if (sortSelect && sortWrap) {
+    // Served hidden: the static site cannot answer ?sort= on its own, so the
+    // control only appears once there is something here to answer it.
+    sortWrap.hidden = false;
+
+    var wanted = new URLSearchParams(window.location.search).get('sort');
+    if (wanted && SORTS[wanted]) { state.sort = wanted; sortSelect.value = wanted; }
+
+    sortSelect.addEventListener('change', function () {
+      if (!SORTS[sortSelect.value]) return;
+      state.sort = sortSelect.value;
+      resort();
+      refilter();
+      // In the URL so an order can be linked and survives a reload. replace,
+      // not push: the back button should leave the catalogue, not walk back
+      // through every ordering the reader tried.
+      try {
+        var url = new URL(window.location.href);
+        if (state.sort === 'price-asc') url.searchParams.delete('sort');
+        else url.searchParams.set('sort', state.sort);
+        window.history.replaceState(null, '', url);
+      } catch (e) { /* older browser, or a file:// page — the sort still works */ }
+      track('catalogue_sort', { sort: state.sort, page: window.location.pathname });
+      grid.scrollIntoView({ block: 'start' });
+    });
+  }
+
   /* ---------------------------------------------------- brand filtering -- */
   if (brandSelect) {
     brandSelect.addEventListener('change', function () {
@@ -275,5 +358,6 @@
       .replace(/^-+|-+$/g, '');
   }
 
+  resort();
   apply();
 })();

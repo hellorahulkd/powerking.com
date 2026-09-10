@@ -6,6 +6,71 @@ import {
 } from '../templates/components.js';
 
 /**
+ * The number a card shows, as a number — the key every price sort works on.
+ *
+ * Whichever rate the card is displaying, so the listing sorts by the figure
+ * the reader can actually see. `0` means no price is published; those never
+ * lead a price sort in either direction, because "Price on enquiry" at the
+ * top of "cheapest first" answers nobody's question.
+ */
+export function listPrice(product) {
+  const piece = Number(product.pricePiece);
+  if (piece > 0) return piece;
+  const carton = Number(product.priceCarton);
+  return carton > 0 ? carton : 0;
+}
+
+/**
+ * How the listing can be ordered.
+ *
+ * `key` is what the URL and the <select> carry; `compare` returns 0 for
+ * "leave these in catalogue order", which is what keeps every sort stable —
+ * two products at the same price stay in the order the shop entered them.
+ *
+ * Mirrored in src/assets/js/catalogue.js, which re-sorts in the browser; the
+ * catalogue-test asserts the two agree by checking the rendered order rather
+ * than by trusting either copy.
+ */
+export const SORTS = [
+  {
+    key: 'price-asc',
+    label: 'Price: low to high',
+    // A product with no published price has no place in a price order, so it
+    // goes after every priced one rather than at either extreme.
+    byPrice: true,
+    compare: (a, b) => listPrice(a) - listPrice(b),
+  },
+  { key: 'price-desc', label: 'Price: high to low', byPrice: true, compare: (a, b) => listPrice(b) - listPrice(a) },
+  { key: 'name-asc', label: 'Name: A to Z', compare: (a, b) => a.name.localeCompare(b.name) },
+  { key: 'featured', label: 'Featured first', compare: () => 0 },
+];
+
+/**
+ * The order a visitor gets before touching anything.
+ *
+ * Cheapest first: this is a wholesale catalogue and the first question a buyer
+ * asks is what it costs. It is the served order too, not just a default the
+ * script applies, so a reader without JavaScript and a crawler both see it.
+ */
+export const DEFAULT_SORT = 'price-asc';
+
+/**
+ * Order a listing. Unknown keys fall back to the catalogue's own order rather
+ * than throwing, so a hand-edited ?sort= cannot produce an empty page.
+ */
+export function sortProducts(products, key = DEFAULT_SORT) {
+  const sort = SORTS.find((s) => s.key === key);
+  if (!sort) return [...products];
+  // Array.prototype.sort is stable, so equals keep catalogue order and no
+  // tie-break is needed. A to Z is one list; a price order is two, priced
+  // then unpriced.
+  if (!sort.byPrice) return [...products].sort(sort.compare);
+  const priced = products.filter((p) => listPrice(p) > 0).sort(sort.compare);
+  const unpriced = products.filter((p) => listPrice(p) === 0);
+  return [...priced, ...unpriced];
+}
+
+/**
  * Search/filter toolbar. Rendered as a real <form> so it degrades gracefully:
  * without JS it simply submits ?q= and the page still lists every product.
  */
@@ -39,6 +104,12 @@ function toolbar(categories, brands, activeCategory) {
     .map((b) => `<option value="${esc(b)}">${esc(b)}</option>`)
     .join('');
 
+  const sortOptions = SORTS.map(
+    (o) => `<option value="${esc(o.key)}"${
+      o.key === DEFAULT_SORT ? ' selected' : ''
+    }>${esc(o.label)}</option>`,
+  ).join('');
+
   return `<div class="toolbar" id="toolbar">
   <div class="container">
     <form class="toolbar__search" role="search" id="search-form" action="/products/" method="get">
@@ -64,6 +135,19 @@ function toolbar(categories, brands, activeCategory) {
         <select id="brand-filter">
           <option value="">All brands</option>
           ${brandOptions}
+        </select>
+      </div>
+      <!--
+        Sorting is the one control here the static site cannot answer on its
+        own: every other filter narrows a list the server already sent, but a
+        different order is a different page. So the served order is the
+        default, and this re-orders it in the browser. Without JavaScript the
+        select is not shown at all rather than offered and ignored.
+      -->
+      <div class="toolbar__select toolbar__sort" id="sort-wrap" hidden>
+        <label class="sr-only" for="sort-order">Sort products</label>
+        <select id="sort-order">
+          ${sortOptions}
         </select>
       </div>
     </div>
@@ -154,7 +238,11 @@ function pager(page, totalPages, basePath) {
 /**
  * The full catalogue index at /products/.
  */
-export function cataloguePage({ products, categories, brands, page = 1 }) {
+export function cataloguePage({ products: all, categories, brands, page = 1 }) {
+  // Ordered here rather than in the browser, so the served HTML, every
+  // paginated page and a reader without JavaScript all agree on what comes
+  // first. The script re-orders from this same starting point.
+  const products = sortProducts(all, DEFAULT_SORT);
   const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
   const path = page === 1 ? '/products/' : `/products/page/${page}/`;
   const crumbs = [
@@ -237,7 +325,8 @@ ${toolbar(categories, brands, null)}
  * A single category page, e.g. /products/beverages/.
  * Pre-filtered server-side so it is indexable on its own.
  */
-export function categoryPage({ category, products, categories, brands, page = 1 }) {
+export function categoryPage({ category, products: all, categories, brands, page = 1 }) {
+  const products = sortProducts(all, DEFAULT_SORT);
   const base = `/products/${category.slug}/`;
   const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
   const path = page === 1 ? base : `${base}page/${page}/`;
