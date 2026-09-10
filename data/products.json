@@ -1913,9 +1913,9 @@
     "gallery": [],
     "packSize": "100",
     "priceCarton": "",
-    "pricePiece": 140,
+    "pricePiece": 145,
     "sku": "Yellow 3meter",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": [
       "Multiplugs"
