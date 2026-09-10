@@ -399,31 +399,6 @@
     ]
   },
   {
-    "id": 211,
-    "name": "LP V90 Good Bass Speaker 10W with RGB",
-    "slug": "lp-v90-speaker",
-    "brand": "LP",
-    "category": "Speakers",
-    "description": "10W loud-stereo speaker built around a 4-inch driver, with an RGB light strip and a 74cm telescopic antenna. FM radio, USB, TF card, Type-C, 1800mAh.",
-    "image": "/images/products/lp-v90-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "V90",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "10w",
-      "4 inch",
-      "rgb",
-      "fm radio",
-      "type c",
-      "1800mah",
-      "good bass"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 212,
     "name": "LP V102 Good Bass Speaker 8W with RGB Ring",
     "slug": "lp-v102-speaker",
