@@ -527,7 +527,9 @@
     "description": "Fabric-wrapped 40W portable speaker with a moulded carry loop, in navy with lime trim. The carton is printed 40W.",
     "image": "/images/products/kisonli-k21-40w-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "12",
+    "priceCarton": 3425,
+    "pricePiece": 3450,
     "sku": "K21",
     "featured": false,
     "available": true,
@@ -537,9 +539,7 @@
       "fabric",
       "bluetooth",
       "kisonli"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 226,
