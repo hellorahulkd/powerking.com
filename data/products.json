@@ -625,7 +625,9 @@
     "description": "Portable trolley speaker with an 8-inch woofer and a 3-inch tweeter, printed P.M.P.O 10000W. Supplied with a wired microphone and stand, a wireless microphone, a remote and a manual. The carton carries no brand name — only the model SS-1.",
     "image": "/images/products/ss-1-portable-trolley-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "1",
+    "priceCarton": 10500,
+    "pricePiece": 10500,
     "sku": "SS-1",
     "featured": false,
     "available": true,
@@ -637,9 +639,7 @@
       "remote",
       "pmpo",
       "party"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 230,
