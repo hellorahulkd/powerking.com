@@ -2163,5 +2163,24 @@
     "featured": false,
     "available": true,
     "tags": []
+  },
+  {
+    "id": 308,
+    "name": "Powerking E-7++ Stereo Premium Sound Earphones",
+    "slug": "powerking-e-7-stereo-premium-sound-earphones",
+    "brand": "Powerking E-7++ Stereo Premium Sound Earphones",
+    "category": "Mobile Accessories",
+    "description": "Powerking E-7++ Stereo Premium Sound Earphones\nExperience rich, immersive audio with the Powerking E-7++ Stereo Earphones. Designed with gold-accented metal housing, these wired in-ear headphones combine premium aesthetics with dynamic audio driver tuning to deliver crystal-clear highs and punchy bass for everyday listening.\n Hi-Fi Stereo Sound: Precision-tuned drivers ensure enhanced acoustic clarity, balanced mid-tones, and deep bass output.\n Ergonomic In-Ear Design: Angled noise-isolating silicone tips provide a secure, comfortable seal to minimize ambient background noise.\n In-Line Mic & Controls: Integrated control button allows seamless hands-free calling and convenient music playback management.\n Universal 3.5mm Gold-Plated Jack: Guarantees stable audio transmission and wide compatibility with smartphones, laptops, PCs, and tablets.\n Reinforced Tangle-Free Cable: Durable, high-flex wiring engineered to resist knotting and withstand daily wear and tear.",
+    "image": "/images/products/powerking-e-7-stereo-premium-sound-earphones.jpg",
+    "gallery": [],
+    "packSize": "1000",
+    "priceCarton": 90,
+    "pricePiece": 90,
+    "sku": "Powerking E-7++ Stereo Premium Sound Earphones",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Earphones"
+    ]
   }
 ]
