@@ -136,7 +136,9 @@ const productColumns = (opts = {}) => [
     : null,
   { label: 'Cartons', numeric: true, narrow: true, cell: (r) => {
       const c = cartons(r.quantity, r.units_per_carton);
-      return c.hasCartons ? c.text : '—';
+      // Nothing in stock has no carton reading. "0 units" in a column
+      // headed Cartons answers a question nobody asked.
+      return c.hasCartons && r.quantity > 0 ? c.text : '—';
     } },
   { label: 'Cost price', numeric: true, narrow: true, cell: (r) => money(r.cost_price) },
   { label: 'Inventory value', numeric: true, cell: (r) => money(r.inventory_value) },
@@ -314,7 +316,7 @@ export default async function reports({ me, root }) {
               : 'That is the good version of this report.',
           ),
         }),
-        rows.length
+        rows.length && (state.page > 0 || (total ?? rows.length) > PAGE_SIZE)
           ? pagination({ page: state.page, pageSize: PAGE_SIZE, total,
               onPage: (p) => { state.page = p; writeState(state); draw(); window.scrollTo(0, 0); } })
           : null,

@@ -107,8 +107,17 @@ export const productById = (id) =>
 export const productRow = (id) =>
   selectOne('products', { select: '*', id: `eq.${id}` });
 
-/** Recent movements, newest first. Used by the dashboard and by the reports. */
-export async function recentMovements({ limit = 10, productId, params = {} } = {}) {
+/**
+ * Recent movements, newest first.
+ *
+ * `page` asks for a counted page, so the caller gets a real total and its
+ * pager can say "1–20 of 34" and disable Next on the last page. Without a
+ * range PostgREST sends no Content-Range, the total is null, and a pager
+ * showing one row still offers a Next that leads nowhere.
+ */
+export async function recentMovements({
+  limit = 10, page = null, productId, params = {},
+} = {}) {
   const query = {
     select:
       'id,created_at,movement_type,quantity,signed_quantity,quantity_after,reference_number,' +
@@ -119,6 +128,9 @@ export async function recentMovements({ limit = 10, productId, params = {} } = {
     ...params,
   };
   if (productId) query.product_id = `eq.${productId}`;
-  const { rows, total } = await select('stock_movement_log', { params: query });
+  const range = page === null
+    ? undefined
+    : { from: page * limit, to: page * limit + limit - 1 };
+  const { rows, total } = await select('stock_movement_log', { params: query, range });
   return { rows, total };
 }

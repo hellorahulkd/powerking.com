@@ -64,6 +64,15 @@ function organizationSchema() {
  * @param {string} [o.scripts]    Extra <script> tags before </body>.
  * @param {string} [o.activeNav]  Nav key to highlight.
  * @param {boolean} [o.noindex]
+ * @param {boolean} [o.siteCss]   false for the inventory console, which ships
+ *   its own complete stylesheet and must not inherit the public site's
+ *   component classes. See the note at the top of src/assets/css/base.css.
+ * @param {string} [o.mainAttrs]  Extra attributes for the <main> element.
+ *   This layout always provides the page's one <main id="main">, so a page
+ *   that needs a class or a data attribute on it puts it here rather than
+ *   emitting a <main> of its own — which nested one inside the other, gave
+ *   the document two elements with id="main", and left
+ *   document.querySelector('main') pointing at the wrong one.
  */
 export function layout(o) {
   const {
@@ -79,6 +88,8 @@ export function layout(o) {
     scripts = '',
     activeNav = '',
     noindex = false,
+    mainAttrs = '',
+    siteCss = true,
     // The admin panel is a tool, not a page of the site: it wants the design
     // tokens and nothing else — no nav, no footer, no WhatsApp button, no
     // marketing analytics, and no social preview for a page nobody shares.
@@ -124,8 +135,7 @@ ${noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<meta name="
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/styles.css">
-${headExtra}
+${siteCss ? '<link rel="stylesheet" href="/assets/styles.css">\n' : ''}${headExtra}
 <script type="application/ld+json">${jsonForScript(
     allSchema.length === 1 ? allSchema[0] : allSchema,
   )}</script>
@@ -134,7 +144,7 @@ ${analytics()}
 <body class="${esc(bodyClass)}">
 ${iconSprite()}
 ${chrome ? '<a class="skip-link" href="#main">Skip to main content</a>\n' + header(activeNav) : ''}
-<main id="main">
+<main id="main"${mainAttrs ? ` ${mainAttrs}` : ''}>
 ${body}
 </main>
 ${chrome ? footer() : ''}

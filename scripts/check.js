@@ -130,8 +130,24 @@ async function main() {
       // What actually matters for a page nobody should find in Google.
       assert(`${rel} is noindex`, /<meta name="robots" content="noindex/.test(doc));
       assert(`${rel} names the module that fills it in`, /<main[^>]+data-page="[a-z-]+"/.test(doc));
+      // One <main>, and one id="main". A page that emitted its own nested
+      // inside the layout's gave the document two elements with the same id,
+      // and document.querySelector('main') then returned the wrong one — the
+      // header title rendered blank for a while because of exactly that.
+      assert(`${rel} has exactly one <main>`, (doc.match(/<main[\s>]/g) || []).length === 1,
+        `${(doc.match(/<main[\s>]/g) || []).length} found`);
+      assert(`${rel} has exactly one id="main"`, (doc.match(/id="main"/g) || []).length === 1);
       assert(`${rel} loads the console as a module`,
         /<script type="module" src="\/assets\/console\/app\.js">/.test(doc));
+      // The console must not load the public site's stylesheet. It did once,
+      // for the design tokens, and silently inherited .card and .toolbar from
+      // the marketing pages — a sticky filter bar offset by a header that is
+      // not there, and cards that clipped their own dropdowns. The tokens now
+      // live in base.css, which both stylesheets are built from.
+      assert(`${rel} does not load the public stylesheet`,
+        !/href="\/assets\/styles\.css"/.test(doc));
+      assert(`${rel} loads the console stylesheet`,
+        /href="\/assets\/console\.css"/.test(doc));
       assert(`${rel} says something useful without JavaScript`, /<noscript>/.test(doc));
       // A shell that shipped data would be a shell that leaked it. Everything
       // on these screens arrives from Supabase, authorised per reader.
@@ -161,6 +177,9 @@ async function main() {
       assert(`${rel} description is unique`, !descriptions.has(desc));
       descriptions.add(desc);
     }
+
+    assert(`${rel} has exactly one <main>`, (doc.match(/<main[\s>]/g) || []).length === 1,
+      `${(doc.match(/<main[\s>]/g) || []).length} found`);
 
     // No unescaped template leftovers.
     assert(`${rel} has no unrendered template placeholders`,
@@ -282,6 +301,15 @@ async function main() {
   // files it points at live in public/fonts and are copied separately. If
   // scripts/fetch-fonts.js was never run, the build would still succeed and
   // the site would silently fall back to system fonts — catch that here.
+  // Both stylesheets are built from base.css, so both must carry the tokens
+  // and the button system; neither may carry the other's components.
+  const consoleCss = await readFile(path.join(DIST, 'assets/console.css'), 'utf8');
+  assert('the console stylesheet carries the design tokens', /--volt:/.test(consoleCss));
+  assert('the console stylesheet carries the button system', /\.btn--primary/.test(consoleCss));
+  assert('the console stylesheet declares its own fonts', /@font-face/.test(consoleCss));
+  assert('the console stylesheet has none of the public site chrome',
+    !/\.site-header|\.site-footer|\.wa-float|\.card__media/.test(consoleCss));
+
   const builtCss = await readFile(path.join(DIST, 'assets/styles.css'), 'utf8');
   const fontUrls = [...builtCss.matchAll(/url\('(\/fonts\/[^']+)'\)/g)].map((m) => m[1]);
   assert('stylesheet declares @font-face rules', /@font-face/.test(builtCss));

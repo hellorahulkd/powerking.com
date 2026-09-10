@@ -29,7 +29,6 @@ import { layout } from './layout.js';
  */
 export function consolePage({ page, title, path, description }) {
   const body = `
-<main class="shell__main" id="main" data-page="${esc(page)}" data-title="${esc(title)}">
   <noscript>
     <div class="state state--error">
       <h3 class="state__title">JavaScript is switched off</h3>
@@ -38,8 +37,7 @@ export function consolePage({ page, title, path, description }) {
         catalogue at <a href="/">powerkingnepal.com</a> works without it.
       </p>
     </div>
-  </noscript>
-</main>`;
+  </noscript>`;
 
   return layout({
     title,
@@ -49,6 +47,11 @@ export function consolePage({ page, title, path, description }) {
     chrome: false,
     bodyClass: 'page-console',
     body,
+    mainAttrs: `class="shell__main" data-page="${esc(page)}" data-title="${esc(title)}"`,
+    // One stylesheet, not two. console.css already carries the fonts and the
+    // shared foundation; loading the public site's on top of it is what used
+    // to give the console a sticky toolbar and clipping cards.
+    siteCss: false,
     headExtra: '<link rel="stylesheet" href="/assets/console.css">',
     scripts: '<script type="module" src="/assets/console/app.js"></script>',
   });
@@ -61,7 +64,6 @@ export function consolePage({ page, title, path, description }) {
  */
 export function loginPage() {
   const body = `
-<main class="login" id="main">
   <div class="login__card">
     <div class="login__brand">
       <span class="login__wordmark">PWRKNG</span>
@@ -103,8 +105,7 @@ export function loginPage() {
       still active.
     </p>
     <p class="login__back"><a href="/">← PowerKing Nepal website</a></p>
-  </div>
-</main>`;
+  </div>`;
 
   return layout({
     title: 'Sign in',
@@ -116,6 +117,8 @@ export function loginPage() {
     chrome: false,
     bodyClass: 'page-login',
     body,
+    mainAttrs: 'class="login"',
+    siteCss: false,
     headExtra: '<link rel="stylesheet" href="/assets/console.css">',
     scripts: '<script type="module" src="/assets/console/login.js"></script>',
   });

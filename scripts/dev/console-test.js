@@ -190,6 +190,15 @@ SUITES.dashboard = async (page, base, rig) => {
   await clearSession(page);
   await signIn(page, base, USERS[0]);
 
+  // The header title comes from the <main data-title>. It was blank for a
+  // while because the page emitted a second <main id="main"> nested inside
+  // the layout's, and querySelector('main') found the outer one.
+  check('the header names the page',
+    (await page.eval(`return ${text('#page-title')};`)) === 'Dashboard',
+    await page.eval(`return ${text('#page-title')};`));
+  check('and there is exactly one <main>',
+    (await page.eval(`return document.querySelectorAll('main').length;`)) === 1);
+
   const kpis = await page.eval(`
     return [...document.querySelectorAll('.kpi')].map(k => ({
       label: k.querySelector('.kpi__label').textContent.trim(),
@@ -387,6 +396,10 @@ SUITES.products = async (page, base, rig) => {
     /Full cartons/.test(shown) && /Loose units/.test(shown));
 
   await until(page, `!!document.querySelector('#history .table tbody tr')`, { label: 'the history' });
+  // One movement is not a page of movements. A pager offering Next on a
+  // single row is a promise the data cannot keep.
+  check('a single page of history shows no paging controls',
+    (await page.eval(`return document.querySelectorAll('#history .pager').length;`)) === 0);
   const historyRow = await page.eval(`return ${text('#history tbody tr')};`);
   check('the opening stock appears in the history as a real movement',
     /Stock in/.test(historyRow) && /\+247/.test(historyRow), historyRow);
@@ -1089,6 +1102,125 @@ SUITES.publicCatalogue = async (page, base, rig) => {
 
   // Put the site back on Supabase for whatever runs next.
   await build({ SUPABASE_URL: rig.url, SUPABASE_ANON_KEY: rig.anonKey });
+};
+
+SUITES.mobile = async (page, base, rig) => {
+  group('On a phone');
+  // Requirement 28, driven rather than assumed: a staff member opens /admin/,
+  // finds a product, records stock, submits, sees confirmation — on a 360px
+  // screen, which is what most of this shop's staff will be holding.
+  await page.setViewport(360, 740, true);
+  await clearSession(page);
+  await signIn(page, base, USERS[2]);
+
+  check('the sidebar is off-screen by default, not squeezing the page',
+    (await page.eval(`
+      const side = document.querySelector('.shell__side');
+      return side.getBoundingClientRect().right <= 0;
+    `)) === true);
+  // Measured against documentElement.clientWidth, NOT window.innerWidth.
+  // When content overflows, a mobile browser widens the layout viewport to
+  // fit it — innerWidth then reports 454 on a 390px screen, every element
+  // "fits", and the check passes while half the controls are off the side.
+  // clientWidth stays the real width. scrollWidth is no good either: an
+  // ancestor with overflow:hidden clips the overflow and the document
+  // reports no scroll at all.
+  const overflowing = async () => page.eval(`
+    const width = document.documentElement.clientWidth;
+    return [...document.querySelectorAll('.shell__main *')]
+      .filter(e => {
+        const b = e.getBoundingClientRect();
+        return b.width > 0 && b.right > width + 1;
+      })
+      .slice(0, 5)
+      .map(e => e.tagName.toLowerCase() + '.' + String(e.className).split(' ')[0] +
+        ' (' + Math.round(e.getBoundingClientRect().right) + ' > ' + width + ')');
+  `);
+  const over1 = await overflowing();
+  check('nothing reaches past the right edge of the screen',
+    over1.length === 0, over1.join(', '));
+
+  check('the KPI cards stack rather than shrinking to nothing',
+    (await page.eval(`
+      const w = [...document.querySelectorAll('.kpi')].map(k => Math.round(k.getBoundingClientRect().width));
+      return Math.min(...w) > 250;
+    `)) === true,
+    await page.eval(`return [...document.querySelectorAll('.kpi')].map(k => Math.round(k.getBoundingClientRect().width)).join(',');`));
+
+  // Open the drawer and navigate, as a person would.
+  await page.eval(`document.querySelector('.shell__burger').click(); return true;`);
+  await until(page, `document.querySelector('.shell__side').getBoundingClientRect().left >= 0`,
+    { label: 'the drawer' });
+  check('the menu button opens the drawer', true);
+  check('and the button says whether it is open',
+    (await page.eval(`return document.querySelector('.shell__burger').getAttribute('aria-expanded');`))
+      === 'true');
+
+  await page.eval(`
+    [...document.querySelectorAll('.nav__link')].find(a => a.textContent.trim() === 'Stock in').click();
+    return true;
+  `);
+  await until(page, `location.pathname === '/admin/inventory/stock-in/'`, { label: 'stock in' });
+  await until(page, `!!document.querySelector('form')`, { label: 'the form' });
+
+  // Find a product by typing, as a person would.
+  await page.eval(`
+    const box = document.querySelector('input[type=search]');
+    box.value = 'PK-60';
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+  await until(page, `!!document.querySelector('.picker-result')`, { label: 'search results' });
+  check('searching finds the product on a phone', true);
+  await page.eval(`document.querySelector('.picker-result').click(); return true;`);
+  await until(page, `!!document.querySelector('.f .table__main')`, { label: 'the chosen product' });
+
+  await page.eval(`
+    const q = [...document.querySelectorAll('.f')].find(f =>
+      /^Quantity/.test((f.querySelector('.f__label')?.textContent || '').trim()))
+      ?.querySelector('input');
+    q.value = '48';
+    q.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  `);
+  check('the quantity box asks for a numeric keypad',
+    (await page.eval(`
+      return [...document.querySelectorAll('.f')].find(f =>
+        /^Quantity/.test((f.querySelector('.f__label')?.textContent || '').trim()))
+        ?.querySelector('input').getAttribute('inputmode');
+    `)) === 'numeric');
+
+  await page.eval(`document.querySelector('form').requestSubmit(); return true;`);
+  await until(page, `!!document.querySelector('#receipt .big-number')`, { label: 'the confirmation' });
+  check('a staff member can record stock from a phone, start to finish',
+    /0 → 48/.test(await page.eval(`return ${text('#receipt .big-number')};`) || ''),
+    await page.eval(`return ${text('#receipt .big-number')};`));
+  check('and the database agrees',
+    rig.psql(`select quantity from public.inventory where product_id =
+      (select id from public.products where sku = 'PK-60')`) === '48');
+
+  const over2 = await overflowing();
+  check('still nothing off the side of the screen after all that',
+    over2.length === 0, over2.join(', '));
+
+  group('Wide tables on a narrow screen');
+  await page.goto(`${base}/admin/inventory/`);
+  await until(page, `!!document.querySelector('#results tbody tr')`, { label: 'the inventory table' });
+  check('a ten-column table becomes a stack of labelled rows',
+    (await page.eval(`
+      const td = document.querySelector('#results tbody td');
+      return getComputedStyle(td).display === 'flex';
+    `)) === true);
+  check('and each cell still says which column it is',
+    (await page.eval(`
+      const td = document.querySelector('#results tbody td');
+      return getComputedStyle(td, '::before').content.replace(/"/g, '');
+    `))?.length > 0);
+  const over3 = await overflowing();
+  check('a ten-column table fits the screen too',
+    over3.length === 0, over3.join(', '));
+
+  await page.setViewport(1280, 900, false);
 };
 
 SUITES.unconfigured = async (page, base) => {

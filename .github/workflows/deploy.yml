@@ -9,6 +9,12 @@ on:
     branches: [claude/powerking-nepal-website-tave3g]
   # Lets you re-deploy by hand from the Actions tab without pushing a commit.
   workflow_dispatch:
+  # The public catalogue is pre-rendered, so an edit made in /admin/ reaches
+  # the website on the next build. A push triggers one; this makes sure the
+  # site is never more than a day behind even in a week when nobody pushes.
+  # 01:15 UTC is about 07:00 in Kathmandu — before the shop opens.
+  schedule:
+    - cron: '15 1 * * *'
 
 permissions:
   contents: read
@@ -67,8 +73,21 @@ jobs:
 
       # No `npm install` — the build has zero dependencies on purpose, so
       # there is nothing to install, audit or break.
+      #
+      # The two Supabase values are repository VARIABLES rather than secrets,
+      # and that is the honest place for them: they are compiled into a public
+      # website, so calling them secrets would make them harder to look at
+      # rather than harder to obtain. The anon key identifies the project and
+      # nothing more — Row Level Security decides what it may read. Secrets are
+      # accepted too, for anyone who prefers them.
+      #
+      # With neither set the build still succeeds, reading the catalogue from
+      # data/*.json. A site that cannot reach its database is still a site.
       - name: Build the site
         run: node build.js
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY || secrets.SUPABASE_ANON_KEY }}
 
       - name: Verify the build output
         run: node scripts/check.js

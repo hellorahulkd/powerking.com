@@ -201,13 +201,36 @@
   margin-bottom: .75rem;
 }
 .card__head .btn { margin-left: auto; }
+/* When the actions are a group rather than a single button, the group is
+   what gets pushed right — otherwise only the first button moves and the
+   rest sit against the title. */
+.card__head > .row:last-child { margin-left: auto; }
+.card__head > .row:last-child .btn { margin-left: 0; }
 .card__link { font-size: .78rem; margin-left: auto; }
 
 .grid { display: grid; gap: .85rem; }
 .grid--kpi { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
-.grid--2 { grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+/* minmax(0, …) rather than 330px directly: a grid track sized from its
+   content cannot shrink below it, and a card holding a wide table then pushes
+   the whole page sideways on a phone. */
+.grid--2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); }
 .stack { display: grid; gap: .85rem; }
 .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+
+/* ── THE min-width: auto TRAP ──────────────────────────────────────────────
+   A grid or flex child will not shrink below its own min-content width
+   unless told to. A card holding a ten-column table therefore grows wider
+   than the screen, the browser widens the layout viewport to fit it, and
+   every control ends up half off the side of a phone — while
+   window.innerWidth cheerfully reports that everything fits, because the
+   viewport it is reporting is the widened one.
+
+   These four lines are what stop that. They are load-bearing.
+   ------------------------------------------------------------------------ */
+.stack > *,
+.grid > *,
+.row > *,
+.card { min-width: 0; }
 .row--end { justify-content: flex-end; }
 .spacer { flex: 1; }
 
@@ -284,6 +307,11 @@ a.kpi:hover { border-color: var(--border-strong); }
 .table .is-numeric { text-align: right; font-variant-numeric: tabular-nums; }
 .table__main { font-weight: 600; }
 .table__sub { display: block; font-size: .72rem; color: var(--text-faint); }
+/* Product names run long — "314 Powerking Colorful Series Socket Extension
+   3M 5M 9M" — and a long unbroken cell is the other way a table pushes a
+   page sideways. */
+.table td, .table th { overflow-wrap: anywhere; }
+.table td > a, .table td > .row { min-width: 0; }
 .table a { color: inherit; }
 
 .thumb { width: 34px; height: 34px; object-fit: contain; background: var(--bg-alt); flex: none; }
@@ -336,8 +364,11 @@ a.kpi:hover { border-color: var(--border-strong); }
   margin-bottom: .85rem;
 }
 .toolbar .f__input { width: auto; min-width: 0; }
-.toolbar__search { flex: 1 1 220px; }
-.toolbar__filters { display: flex; gap: .5rem; flex-wrap: wrap; }
+.toolbar__search { flex: 1 1 220px; min-width: 0; }
+.toolbar__filters { display: flex; gap: .5rem; flex-wrap: wrap; min-width: 0; max-width: 100%; }
+/* A <select> is sized by its widest option unless stopped, and "All active
+   products" is wider than a phone once it sits beside another one. */
+.toolbar__filters > .f__input { flex: 1 1 150px; min-width: 0; max-width: 100%; }
 
 /* ============================================================== forms === */
 

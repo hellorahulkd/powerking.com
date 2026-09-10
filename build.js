@@ -352,8 +352,16 @@ async function build() {
   // Font declarations are prepended to the stylesheet rather than @import-ed,
   // so the page still needs only one CSS request.
   const fontCss = await readFile(path.join(ROOT, 'src/assets/css/fonts.css'), 'utf8');
+  // base.css is the shared foundation — tokens, reset, type, buttons — and is
+  // prepended to both stylesheets. Nothing else is shared: see the note at the
+  // top of base.css for the bug that splitting it fixed.
+  const baseCss = await readFile(path.join(ROOT, 'src/assets/css/base.css'), 'utf8');
   const siteCss = await readFile(path.join(ROOT, 'src/assets/css/styles.css'), 'utf8');
-  await writeFile(path.join(DIST, 'assets/styles.css'), stripCssComments(`${fontCss}\n${siteCss}`), 'utf8');
+  await writeFile(
+    path.join(DIST, 'assets/styles.css'),
+    stripCssComments(`${fontCss}\n${baseCss}\n${siteCss}`),
+    'utf8',
+  );
   await cp(path.join(ROOT, 'src/assets/js/app.js'), path.join(DIST, 'assets/app.js'));
   await cp(path.join(ROOT, 'src/assets/js/catalogue.js'), path.join(DIST, 'assets/catalogue.js'));
   await cp(path.join(ROOT, 'src/assets/js/slider.js'), path.join(DIST, 'assets/slider.js'));
@@ -366,9 +374,15 @@ async function build() {
     stripCssComments(await readFile(path.join(ROOT, 'src/assets/css/admin.css'), 'utf8')),
     'utf8',
   );
+  // The console's stylesheet is complete on its own: fonts, the shared
+  // foundation, then the console. It does NOT include styles.css, which is
+  // what keeps the marketing pages' .card and .toolbar out of it.
   await writeFile(
     path.join(DIST, 'assets/console.css'),
-    stripCssComments(await readFile(path.join(ROOT, 'src/assets/css/console.css'), 'utf8')),
+    stripCssComments(
+      `${fontCss}\n${baseCss}\n` +
+      (await readFile(path.join(ROOT, 'src/assets/css/console.css'), 'utf8')),
+    ),
     'utf8',
   );
 

@@ -332,7 +332,8 @@ export default async function products({ me, root }) {
               : null,
           ),
         }),
-        rows.length
+        // A single page of results needs no paging controls.
+        rows.length && (state.page > 0 || (total ?? rows.length) > PAGE_SIZE)
           ? pagination({
               page: state.page,
               pageSize: PAGE_SIZE,

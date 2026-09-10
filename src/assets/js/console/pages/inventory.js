@@ -160,7 +160,9 @@ export default async function inventory({ me, root }) {
         text: integer(r.available_quantity) }) },
     { label: 'Cartons', numeric: true, narrow: true, cell: (r) => {
         const c = cartons(r.quantity, r.units_per_carton);
-        return c.hasCartons ? c.text : '—';
+        // Nothing in stock has no carton reading. "0 units" in a column
+        // headed Cartons answers a question nobody asked.
+        return c.hasCartons && r.quantity > 0 ? c.text : '—';
       } },
     { label: 'Status', cell: (r) => el('div.row', {}, [
         stockBadge(r.stock_status),
@@ -200,7 +202,8 @@ export default async function inventory({ me, root }) {
           caption: 'Inventory',
           empty: empty('Nothing matches', 'Try a different search, or clear the filters.'),
         }),
-        rows.length
+        // A single page of results needs no paging controls.
+        rows.length && (state.page > 0 || (total ?? rows.length) > PAGE_SIZE)
           ? pagination({ page: state.page, pageSize: PAGE_SIZE, total,
               onPage: (p) => { state.page = p; writeState(state); load(); window.scrollTo(0, 0); } })
           : null,

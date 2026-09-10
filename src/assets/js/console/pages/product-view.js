@@ -47,7 +47,7 @@ async function history(productId, page, onPage) {
   const { rows, total } = await recentMovements({
     productId,
     limit: HISTORY_PAGE,
-    params: { offset: page * HISTORY_PAGE },
+    page,
   });
 
   const rendered = table(
@@ -78,7 +78,8 @@ async function history(productId, page, onPage) {
 
   return el('div', {}, [
     rendered,
-    rows.length
+    // Only worth a pager when there is more than one page of history.
+    rows.length && (page > 0 || (total ?? rows.length) > HISTORY_PAGE)
       ? pagination({ page, pageSize: HISTORY_PAGE, total, onPage })
       : null,
   ]);
