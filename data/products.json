@@ -598,7 +598,9 @@
     "description": "Wireless speaker moulded as an off-road SUV, with a solar panel across the roof and an RGB light bar along the grille. Rated 10W; the carton icon strip shows TF card, USB, TWS pairing and FM radio, and a wireless microphone is supplied.",
     "image": "/images/products/j-ipok-p378s-solar-car-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "30",
+    "priceCarton": 1125,
+    "pricePiece": 1150,
     "sku": "P378S",
     "featured": false,
     "available": true,
@@ -611,9 +613,7 @@
       "tws",
       "fm",
       "10w"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 227,
