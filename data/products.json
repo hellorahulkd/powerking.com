@@ -700,7 +700,9 @@
     "description": "Compact USB 2.0 desktop speaker pair. The carton states 3W x 2 output, 4 ohm impedance, a 20Hz-20KHz frequency response and a signal-to-noise ratio of 75dB or better.",
     "image": "/images/products/kisonli-t-004-usb-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "20",
+    "priceCarton": 850,
+    "pricePiece": 850,
     "sku": "T-004",
     "featured": false,
     "available": true,
@@ -711,9 +713,7 @@
       "3w",
       "kisonli",
       "6971353070045"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 233,
