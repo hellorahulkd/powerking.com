@@ -576,7 +576,9 @@
     "description": "Barrel-body outdoor subwoofer rated 20W, wrapped in mesh fabric with a braided rope carry handle and an RGB-lit passive radiator at one end. The carton is printed \"Outdoor Portable Music Subwoofer\".",
     "image": "/images/products/kisonli-k40-20w-subwoofer.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "40",
+    "priceCarton": 1175,
+    "pricePiece": 1175,
     "sku": "K40",
     "featured": true,
     "available": true,
@@ -587,9 +589,7 @@
       "rgb",
       "portable",
       "rope handle"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 228,
