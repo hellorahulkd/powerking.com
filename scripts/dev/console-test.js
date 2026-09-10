@@ -1104,6 +1104,71 @@ SUITES.publicCatalogue = async (page, base, rig) => {
   await build({ SUPABASE_URL: rig.url, SUPABASE_ANON_KEY: rig.anonKey });
 };
 
+SUITES.hardening = async (page, base, rig) => {
+  group('Untrusted input');
+  await clearSession(page);
+  await signIn(page, base, USERS[0]);
+
+  // A record id arrives in the query string, so it is untrusted. Anything
+  // that is not a UUID should produce "that does not exist", not a database
+  // error read out to the user.
+  for (const junk of [
+    'not-a-uuid',
+    'eq.null',
+    '00000000-0000-0000-0000-000000000000',
+    '%27%20or%20%271%27%3D%271',
+    '<script>alert(1)</script>',
+  ]) {
+    await page.goto(`${base}/admin/products/view/?id=${junk}`);
+    await until(page, `!!document.querySelector('.state--error, .big-number')`,
+      { label: `a clean answer for ${junk}` });
+    const message = await page.eval(`return ${text('.state--error .state__text')};`);
+    check(`a junk product id (${junk.slice(0, 22)}) is answered plainly`,
+      /does not exist|no product was named/i.test(message || ''), message);
+    check('and nothing raw from the database is shown',
+      !/PGRST|postgres|22P02|syntax|invalid input/i.test(message || ''), message);
+  }
+
+  // Script in a product name must be text on the page, never markup. The
+  // console builds DOM nodes rather than HTML strings, which is why.
+  const cat = rig.psql(`select id from public.categories where slug = 'speakers'`);
+  rig.psqlAs('admin@powerking.test', `
+    select public.create_product(jsonb_build_object(
+      'sku', 'XSS-1',
+      'name', '<img src=x onerror="window.__pwned=1">Speaker',
+      'slug', 'xss-test-product',
+      'category_id', '${cat}'), 0);`);
+
+  await page.goto(`${base}/admin/products/?q=XSS-1`);
+  await until(page, `!!document.querySelector('#results tbody tr')`, { label: 'the product' });
+  check('a script in a product name is rendered as text, not markup',
+    (await page.eval(`return window.__pwned === undefined;`)) === true);
+  check('and the name is shown literally',
+    /<img src=x/.test(await page.eval(`return ${text('#results tbody tr')};`) || ''),
+    await page.eval(`return ${text('#results tbody tr')};`));
+  check('no injected element was created',
+    (await page.eval(`return document.querySelectorAll('#results img[src="x"]').length;`)) === 0);
+
+  // And on the product page, and in the WhatsApp link built from it.
+  const xssId = rig.psql(`select id from public.products where sku = 'XSS-1'`);
+  await page.goto(`${base}/admin/products/view/?id=${xssId}`);
+  await until(page, `!!document.querySelector('.big-number')`, { label: 'the product page' });
+  check('the same holds on the product page',
+    (await page.eval(`return window.__pwned === undefined;`)) === true);
+
+  group('What a signed-out browser can reach');
+  // The screens hold no data of their own. Signed out, they must show nothing
+  // beyond the shell — and the HTML shipped to the browser must contain no
+  // product data at all, because it is a static file anybody can fetch.
+  const shell = await page.eval(`
+    const res = await fetch('/admin/inventory/');
+    return await res.text();
+  `);
+  check('an admin page is a shell with no data baked into it',
+    !/cost_price|wholesale_price|PK-60|supplier/i.test(shell));
+  check('and carries a noindex', /noindex/.test(shell));
+};
+
 SUITES.mobile = async (page, base, rig) => {
   group('On a phone');
   // Requirement 28, driven rather than assumed: a staff member opens /admin/,

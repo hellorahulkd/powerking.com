@@ -12,7 +12,7 @@
  */
 
 import {
-  el, mount, table, badge, empty, errorState, loading, param, setTitle,
+  el, mount, table, badge, empty, errorState, loading, idParam, setTitle,
 } from '../ui.js';
 import { money, integer, dateTime, MOVEMENT_LABELS } from '../format.js';
 import { can } from '../session.js';
@@ -28,7 +28,7 @@ function dl(pairs) {
 }
 
 export default async function supplierView({ me, root }) {
-  const id = param('id');
+  const id = idParam();
   if (!can('manageSuppliers', me.role)) {
     mount(root, errorState({ message: 'Supplier records are available to managers and admins.' }));
     return;

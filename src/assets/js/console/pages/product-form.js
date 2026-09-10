@@ -17,7 +17,7 @@
 
 import {
   el, mount, field, input, textarea, select as selectEl, checkbox, loading, errorState,
-  toast, toastError, setFieldError, clearFieldErrors, submitting, param, setTitle, $,
+  toast, toastError, setFieldError, clearFieldErrors, submitting, idParam, setTitle, $,
 } from '../ui.js';
 import { slugify } from '../format.js';
 import { can } from '../session.js';
@@ -166,7 +166,7 @@ const FIELD_FOR_CODE = {
 /* -------------------------------------------------------------- render ---- */
 
 export default async function productForm({ me, root }) {
-  const id = param('id');
+  const id = idParam();
   const isNew = !id;
 
   if (!can('manageProducts', me.role)) {

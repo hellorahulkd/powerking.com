@@ -361,6 +361,26 @@ export function param(name) {
   return new URLSearchParams(location.search).get(name) || '';
 }
 
+/**
+ * A record id from the URL, or ''.
+ *
+ * Every id in this system is a UUID, so anything else is either a typo or
+ * somebody probing. Rejecting it here means the screen says "that does not
+ * exist" instead of passing the string into a PostgREST filter and showing
+ * whatever the database says about it.
+ *
+ * This is tidiness, not the security boundary: Row Level Security decides what
+ * any id can reach, and a crafted one cannot read a row the caller is not
+ * entitled to. But a query string is untrusted input and should be checked
+ * where it enters, not where it lands.
+ */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function idParam(name = 'id') {
+  const value = param(name);
+  return UUID.test(value) ? value : '';
+}
+
 export function setTitle(text) {
   const heading = document.getElementById('page-title');
   if (heading) heading.textContent = text;

@@ -24,7 +24,7 @@
 
 import {
   el, mount, field, input, textarea, select as selectEl, loading, errorState, empty,
-  toast, toastError, setFieldError, clearFieldErrors, submitting, debounce, param, thumb, $,
+  toast, toastError, setFieldError, clearFieldErrors, submitting, debounce, idParam, thumb, $,
 } from '../ui.js';
 import { integer, stockText, cartons, todayInput, money, priceOrDash } from '../format.js';
 import { locations, suppliers, searchProducts, productById } from '../data.js';
@@ -268,7 +268,7 @@ export async function stockForm({ me, root }, options) {
   ]);
 
   mount(root, form);
-  await picker.preselect(param('product'));
+  await picker.preselect(idParam('product'));
   if (!picker.value) picker.control.focus();
 
   form.addEventListener('submit', async (e) => {

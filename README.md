@@ -9,7 +9,25 @@ It is a **catalogue, not a shop**: there are no customer accounts, no cart, no
 checkout and no online payments. Visitors browse products and enquire on
 WhatsApp, where pricing and minimum order quantities are agreed.
 
+Behind it, at **/admin/**, is a private stock control system — products,
+inventory, movements, suppliers and reports — built on Supabase. The two share
+one database, so the catalogue a customer reads and the stock the shop counts
+are the same records.
+
+```
+        Public catalogue                 Inventory console
+     (pre-rendered HTML)                    (/admin/*)
+              │                                 │
+              │ read at build time              │ read and write, live
+              ▼                                 ▼
+        ┌──────────────────────────────────────────┐
+        │              Supabase / Postgres         │
+        │   one product list · one source of truth  │
+        └──────────────────────────────────────────┘
+```
+
 **Live site:** https://powerkingnepal.com
+**Inventory:** https://powerkingnepal.com/admin/
 
 ---
 
@@ -17,16 +35,21 @@ WhatsApp, where pricing and minimum order quantities are agreed.
 
 | I want to… | Do this |
 | --- | --- |
-| **Add a product or a category** | **Open [powerkingnepal.com/admin/](https://powerkingnepal.com/admin/), sign in, fill in the form** |
-| Add many products at once | A spreadsheet — see [§1](#1-how-to-add-a-product) |
-| Change a price | The same admin panel — carton and piece rates are separate fields |
+| **Record stock coming in or going out** | **[/admin/inventory/stock-in/](https://powerkingnepal.com/admin/inventory/stock-in/) — works on a phone** |
+| See what is running low | [/admin/](https://powerkingnepal.com/admin/) — the dashboard says so |
+| **Add a product or a category** | **[/admin/products/new/](https://powerkingnepal.com/admin/products/new/)** |
+| Add many products at once | A spreadsheet — [/admin/products/import/](https://powerkingnepal.com/admin/products/import/) |
+| Change a price | The same product form — cost, wholesale, carton and retail are separate fields |
+| Give someone access | Invite them in Supabase, then set their role at [/admin/settings/](https://powerkingnepal.com/admin/settings/) — see [§14](#14-creating-the-first-admin-user) |
+| Edit product photos and copy | [/admin/catalogue/](https://powerkingnepal.com/admin/catalogue/) — the original editor, unchanged |
 | Change the WhatsApp number | `whatsappNumber` in [`src/config/site.config.js`](src/config/site.config.js) |
 | Add Google Analytics | `googleAnalyticsId` in the same config file |
 | Change phone/email/address | Same config file |
 | Publish changes | The admin panel does it for you. Otherwise `git push` to `main` |
 
-Everything about the business lives in **one config file**. You never need to
-edit HTML.
+Business details — phone, address, WhatsApp number, colours — live in **one
+config file**. Products and stock live in **Supabase**. You never need to edit
+HTML.
 
 ---
 
@@ -47,14 +70,46 @@ edit HTML.
 12. [Removing the sample products](#12-removing-the-sample-products)
 13. [What still needs your input](#13-what-still-needs-your-input)
 
+**The inventory system**
+
+14. [Creating the first admin user](#14-creating-the-first-admin-user)
+15. [Setting up Supabase from scratch](#15-setting-up-supabase-from-scratch)
+16. [Environment variables](#16-environment-variables)
+17. [Database migrations](#17-database-migrations)
+18. [Using the inventory console](#18-using-the-inventory-console)
+19. [Importing products from a spreadsheet](#19-importing-products-from-a-spreadsheet)
+20. [Backing up the database](#20-backing-up-the-database)
+21. [Running the tests](#21-running-the-tests)
+
+Deeper explanations live in [`docs/INVENTORY.md`](docs/INVENTORY.md) (how stock
+works) and [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) (how it ships).
+
 ---
 
 ## 0. The admin panel
 
-**[powerkingnepal.com/admin/](https://powerkingnepal.com/admin/)** — sign in and
-edit the catalogue from any browser, including a phone. Add and edit products,
-upload photos, and add, rename or remove categories. Saving commits the change
-to this repository; the site rebuilds and is live in about a minute.
+There are two tools behind `/admin/`, and they do different jobs.
+
+### The inventory console — `/admin/`
+
+Stock control. Products, quantities, stock in and out, adjustments, suppliers,
+categories, brands and reports, all backed by Supabase. Sign in with an email
+and password; access is by role — admin, manager or staff. Changes are live in
+the database immediately and reach the public website on the next build.
+
+This is documented in full from [§14](#14-creating-the-first-admin-user)
+onwards, and how the stock logic works is in
+[`docs/INVENTORY.md`](docs/INVENTORY.md).
+
+### The catalogue editor — `/admin/catalogue/`
+
+The original tool, unchanged and still useful: product copy and photographs,
+written straight into this repository through the GitHub API. It reads the box
+with an AI vision key if you give it one, and it keeps working when Supabase is
+unreachable, because it does not use it.
+
+It is authorised by GitHub rather than by a password — the section below is
+about this tool.
 
 ### How the login works, and what it does not do
 
@@ -705,6 +760,305 @@ The build prints this list every time. Currently outstanding:
 ## Future additions
 
 The structure is ready for, but does not yet include: PDF catalogues and
-brochures, dealer login, live inventory, enquiry forms, multiple WhatsApp
-numbers, a Nepali/English language switch, and a CMS or admin dashboard.
-These were deliberately left out to keep the first version simple and fast.
+brochures, dealer login, enquiry forms, multiple WhatsApp numbers, and a
+Nepali/English language switch. Stock reservations are half-built on purpose —
+the column, the constraint and the check in `record_stock_movement()` all exist
+and are exercised, so switching them on is a feature rather than an audit.
+
+
+# The inventory system
+
+Everything from here is about `/admin/` — the private stock control system.
+How stock actually works is explained in
+[`docs/INVENTORY.md`](docs/INVENTORY.md); how it deploys is in
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). This section is the practical
+setup.
+
+---
+
+## 14. Creating the first admin user
+
+There is **no public sign-up**, and no "create user" button in the console.
+That is deliberate: creating an auth account needs Supabase's service-role
+key, which bypasses every security rule in the database. This site has no
+server, so it has nowhere safe to keep one — and a key that can read every cost
+price and every supplier is not a key to ship to a browser for the sake of
+saving a few clicks a year.
+
+So the first user is created in the Supabase dashboard:
+
+1. **Authentication → Users → Add user → Create new user.**
+2. Enter the email and a password. Tick **Auto Confirm User**, or they will be
+   stuck at "email not confirmed".
+3. That is all. A trigger creates their profile automatically.
+
+**The first user to exist becomes an admin.** Not because of anything they
+typed — because a system whose first user was Staff would have nobody able to
+promote anyone. Every user after that starts as Staff.
+
+### Adding everybody else
+
+1. Invite them the same way in the Supabase dashboard.
+2. In the console, **Settings → People**, set their role.
+
+/admin/settings/ links straight to the right Supabase page, so this is two
+tabs rather than a search.
+
+### Removing access
+
+**Settings → People → Disable.** They are locked out on their next request —
+`auth_role()` returns null for a deactivated profile, so every policy refuses
+them, and their session is cleared the next time they load a page. Their stock
+movements stay in the history, which is the point of a history.
+
+The last active admin cannot be disabled or demoted (`PK_LAST_ADMIN`). A system
+nobody can administer is not a safer system.
+
+---
+
+## 15. Setting up Supabase from scratch
+
+Fifteen minutes, once.
+
+1. **Create a project** at [supabase.com](https://supabase.com). Any region;
+   Singapore or Mumbai is closest to Nepal.
+2. **Run the migrations.** SQL Editor → paste each file from
+   `supabase/migrations/` **in filename order** → Run. There are five. They are
+   idempotent, so running one twice is harmless.
+3. **Load the catalogue.** SQL Editor → paste
+   `supabase/seed/0001_catalogue_from_json.sql` → Run. This is the real
+   87-product catalogue from `data/products.json`, not demo data. Every
+   statement is `ON CONFLICT DO NOTHING` on a natural key, so running it twice
+   adds nothing and overwrites nothing you have since edited.
+4. **Create the first user** — [§14](#14-creating-the-first-admin-user).
+5. **Set the environment variables** where the site is built —
+   [§16](#16-environment-variables).
+6. **Rebuild.** The build log should say `catalogue: read from Supabase`.
+
+### What the seed deliberately does not do
+
+* **No opening stock.** Every product starts at zero and no movement is
+  invented. Nobody has counted this stock yet, and a made-up number in an audit
+  ledger is worse than an empty one. Count it and record it through Stock in,
+  or as an adjustment with the reason "Physical count correction".
+* **No cost prices.** They have never been recorded anywhere, so they are zero
+  and the inventory valuation reads zero until you enter them. An honest zero
+  rather than a guess.
+* **Brands are de-duplicated but not corrected.** "PowerKing" and "Powerking"
+  are merged; a few products whose brand field holds a whole product name are
+  imported as-is, because that is real data and cleaning it is the shop's call.
+
+Regenerate the seed after editing the JSON files with `npm run seed:sql`.
+
+---
+
+## 16. Environment variables
+
+Two, both public:
+
+```sh
+cp .env.example .env      # then fill in the two values
+```
+
+| Variable | Where |
+| --- | --- |
+| `SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
+| `SUPABASE_ANON_KEY` | the same page → Project API keys → `anon` / publishable |
+
+**Neither is a secret**, and this is worth being clear about rather than
+cautious about. The anon key identifies the project; Row Level Security in
+Postgres decides what any holder of it may read. It is *designed* to be shipped
+to browsers, and it cannot be avoided — the browser needs it to reach the
+database at all.
+
+**What must never appear anywhere in this repository:**
+
+* the **service-role key** — it bypasses Row Level Security completely
+* the database password or a `postgres://` connection string
+* any personal access token
+
+The build refuses to publish a service-role key even if one is pasted into
+`SUPABASE_ANON_KEY` by mistake: it decodes the JWT, sees `role: service_role`,
+drops it and says so. `scripts/check.js` then re-checks the built output, so
+it would fail CI as well.
+
+With neither variable set the build still succeeds — the catalogue is read from
+`data/products.json` and `/admin/` renders a page explaining what is missing.
+
+Where to set them for deployment: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
+---
+
+## 17. Database migrations
+
+```
+supabase/migrations/
+  20260908090000_inventory_core.sql      tables, constraints, indexes, triggers
+  20260908090100_rls_policies.sql        roles and every access rule
+  20260908090200_stock_functions.sql     record_stock_movement() and friends
+  20260908090300_public_catalogue.sql    the public projection and admin views
+  20260908090400_storage.sql             the image bucket and its policies
+supabase/seed/
+  0001_catalogue_from_json.sql           the real catalogue (generated)
+```
+
+Run them in filename order in the SQL Editor. Each is idempotent.
+
+### Changing the schema
+
+Add a new file rather than editing an existing one — `YYYYMMDDHHMMSS_what.sql`
+— so a project already migrated can catch up by running only what is new. Then
+prove it before it reaches production:
+
+```sh
+scripts/dev/db-up.sh        # local Postgres + PostgREST, once
+npm run test:db             # every migration, then the business rules
+```
+
+That runs the real migrations against a real PostgreSQL and asserts all fifteen
+critical business rules. It never touches a Supabase project.
+
+---
+
+## 18. Using the inventory console
+
+| Screen | What it is for |
+| --- | --- |
+| `/admin/` | dashboard — stock, value, what is low, what is out, what happened |
+| `/admin/products/` | the catalogue, with stock beside each line |
+| `/admin/products/new/` | add a product, with optional opening stock |
+| `/admin/inventory/` | the stock overview, filterable every way |
+| `/admin/inventory/stock-in/` | a delivery arrived |
+| `/admin/inventory/stock-out/` | goods sold or shipped |
+| `/admin/inventory/adjustment/` | the shelf and the system disagree |
+| `/admin/suppliers/` | who supplies what, and what has been bought |
+| `/admin/reports/` | inventory, movements, low stock, out of stock — CSV and print |
+| `/admin/settings/` | people, locations, and what the public is told about stock |
+
+### The three things worth knowing
+
+**Stock is never typed over.** There is no editable quantity field anywhere,
+by design. Stock changes through Stock in, Stock out or an Adjustment, and each
+one writes a permanent record of who, what, when and why. The database enforces
+this — see [`docs/INVENTORY.md`](docs/INVENTORY.md).
+
+**Products are deactivated, not deleted.** A product that has ever moved stock
+cannot be deleted; the database refuses, because the reports are made of that
+history. Deactivating takes it off the public site and keeps everything else.
+
+**Cartons are shown, not calculated by hand.** 247 units at 20 per carton reads
+as "12 cartons + 7 units" everywhere it appears.
+
+### On a phone
+
+The console is built for it. A staff member can open `/admin/`, search a
+product, record stock in or out and see the confirmation on a 360px screen —
+which is tested on every run, not assumed. Tables become labelled cards, the
+sidebar becomes a drawer, and quantity fields ask for the numeric keypad.
+
+---
+
+## 19. Importing products from a spreadsheet
+
+**/admin/products/import/** — save the sheet as CSV, choose it, and read the
+preview before anything is written.
+
+Columns (only SKU, Product Name and Category are required):
+
+```
+SKU, Product Name, Brand, Category, Description, Units Per Carton,
+Cost Price, Wholesale Price, Carton Price, Retail Price,
+Minimum Order Quantity, Low Stock Threshold, Opening Stock
+```
+
+Download a template from the page itself. Common alternative headings are
+understood — "MOQ", "Reorder level", "Qty", "Pcs per carton".
+
+**Nothing is written until the whole file has passed.** The preview reports,
+per row: a missing SKU, a SKU repeated inside the file (naming the other row),
+a SKU already in the system, an unknown category or brand, a negative price, a
+quantity that is not a number. If any row is wrong, the whole file is refused —
+there is no state where half a spreadsheet has been imported.
+
+Opening stock above zero is recorded as a real stock-in movement, so day one
+appears in the history like every other change.
+
+Unknown categories and brands are an error by default. Tick **Create
+categories and brands that do not exist yet** to have them created instead; the
+preview then says exactly which.
+
+### Exporting
+
+Products, inventory and stock movements all export to CSV — from the list
+screens and from Reports, with whatever filters are applied. Reports also
+print: the print stylesheet drops the sidebar and the controls, so what comes
+off the printer is a report.
+
+---
+
+## 20. Backing up the database
+
+Supabase takes automatic daily backups on paid plans. On the free plan, and as
+a second copy regardless, take your own.
+
+### The whole database
+
+```sh
+# Connection string: Supabase → Project Settings → Database → Connection string
+pg_dump "$DATABASE_URL" --clean --if-exists -f powerking-$(date +%F).sql
+```
+
+Keep it somewhere that is not the same account as the database. **Never commit
+it** — it contains cost prices and supplier details, and the connection string
+is a credential.
+
+Restore into an empty project with:
+
+```sh
+psql "$DATABASE_URL" -f powerking-2026-09-10.sql
+```
+
+### Just the data, for peace of mind
+
+The console's CSV exports — products, inventory, and the full stock movement
+history — are a readable backup that anybody can open, and enough to
+reconstruct the catalogue by hand. Take one before anything large, like an
+import of two hundred products.
+
+### What is already backed up
+
+`data/products.json`, `data/categories.json` and every product photograph in
+`public/images/` are in this git repository, with their full history. That is
+the fallback the build uses when Supabase is unreachable, and it is why this
+site cannot be taken down by a database outage.
+
+---
+
+## 21. Running the tests
+
+```sh
+npm test              # 25 unit tests — carton maths, CSV. ~0.1s
+npm run check         # build the site, then 2549 assertions about the output
+npm run test:db       # every migration + the business rules, on real Postgres
+npm run test:console  # the console end to end, in a real browser
+```
+
+`test:db` and `test:console` need a local PostgreSQL. `scripts/dev/db-up.sh`
+sets one up and fetches PostgREST; both scripts call it. Neither ever touches a
+Supabase project.
+
+### What the console tests actually run against
+
+Not mocks. `scripts/dev/console-rig.js` stands up real PostgreSQL, real
+PostgREST over the real migrations, and a small stand-in for Supabase Auth, on
+one origin with the built site. When a test asserts that staff cannot reach
+adjustments, the reason they cannot is the same reason they could not in
+production.
+
+`scripts/dev/db-race.sh` is worth running after any change to the stock
+functions: twenty concurrent sessions competing for the last ten units, with
+exactly ten expected to succeed.
+
+The public site keeps its own suites — `scripts/dev/qa.js`,
+`catalogue-test.js`, `enquiry-test.js`, `slider-test.js`, `compare-test.js` and
+`admin-test.js` — which need `node serve.js` running.

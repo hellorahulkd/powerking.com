@@ -15,7 +15,7 @@
 
 import {
   el, mount, table, badge, stockBadge, empty, errorState, loading, pagination,
-  param, setTitle, thumb, confirmDialog, toast, toastError,
+  idParam, setTitle, thumb, confirmDialog, toast, toastError,
 } from '../ui.js';
 import {
   money, priceOrDash, integer, cartons, dateTime, relative,
@@ -149,7 +149,7 @@ async function hardDelete(product) {
 /* --------------------------------------------------------------- render --- */
 
 export default async function productView({ me, root }) {
-  const id = param('id');
+  const id = idParam();
   if (!id) {
     mount(root, errorState({ message: 'No product was named in the address.' }));
     return;

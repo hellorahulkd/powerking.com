@@ -77,8 +77,13 @@ export function queryFor(state, { pageSize = PAGE_SIZE } = {}) {
   if (state.category) params.category_id = `eq.${state.category}`;
   if (state.brand) params.brand_id = `eq.${state.brand}`;
   // locations is a text[] on the view, so this is a containment test rather
-  // than an equality one — a product can sit in more than one place.
-  if (state.location) params.locations = `cs.{"${state.location}"}`;
+  // than an equality one — a product can sit in more than one place. The name
+  // is escaped for the quoted-array syntax: a warehouse called 5" Rack would
+  // otherwise close the string early and produce a filter nobody wrote.
+  if (state.location) {
+    const name = state.location.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    params.locations = `cs.{"${name}"}`;
+  }
 
   const term = state.search.trim().replace(/[(),*]/g, ' ').trim();
   if (term) params.or = `(name.ilike.*${term}*,sku.ilike.*${term}*)`;
