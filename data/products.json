@@ -375,29 +375,6 @@
     ]
   },
   {
-    "id": 205,
-    "name": "Kisonli SC-23 10W Speaker with Flashlight",
-    "slug": "kisonli-sc-23-speaker",
-    "brand": "Kisonli",
-    "category": "Speakers",
-    "description": "10W portable speaker on a 1800mAh battery, with a built-in flashlight and a folding carry handle.",
-    "image": "/images/products/kisonli-sc-23-speaker.jpg",
-    "gallery": [],
-    "packSize": "",
-    "sku": "SC-23",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "10w",
-      "1800mah",
-      "flashlight",
-      "portable",
-      "handle"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 206,
     "name": "Kisonli KS-1992 Music Portable Speaker",
     "slug": "kisonli-ks-1992-music-speaker",
