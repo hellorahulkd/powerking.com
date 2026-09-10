@@ -600,7 +600,9 @@
     "description": "Eight-inch multimedia trolley speaker with a pull handle and wheels, printed P.M.P.O 10000W on the carton. A wireless microphone and a remote are supplied. Box marked \"HiFi System\" and \"Super high power\".",
     "image": "/images/products/sing-e-jqs908s-trolley-speaker.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "4",
+    "priceCarton": 4250,
+    "pricePiece": 4250,
     "sku": "JQS908S",
     "featured": false,
     "available": true,
@@ -612,9 +614,7 @@
       "8 inch",
       "pmpo",
       "party"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 229,
