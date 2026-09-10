@@ -20,8 +20,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { siteConfig } from './src/config/site.config.js';
-import { products as rawProducts } from './src/data/products.js';
-import { categories } from './src/data/categories.js';
+import { loadCatalogue } from './src/data/catalogue.js';
 import { slugifyCategory } from './src/templates/components.js';
 import { homePage } from './src/pages/home.js';
 import { cataloguePage, categoryPage, PAGE_SIZE } from './src/pages/catalogue.js';
@@ -47,7 +46,7 @@ const errors = [];
  * Catch the mistakes that are easy to make when adding a product by hand,
  * before they reach production.
  */
-function validate(products) {
+function validate(products, categories) {
   const seenIds = new Set();
   const seenSlugs = new Set();
   const categoryNames = new Set(categories.map((c) => c.name));
@@ -65,19 +64,22 @@ function validate(products) {
       errors.push(`${where}: slug "${p.slug}" must be lowercase letters, numbers and hyphens only`);
     }
     if (p.category && !categoryNames.has(p.category)) {
-      errors.push(
-        `${where}: category "${p.category}" is not defined in src/data/categories.js`,
-      );
+      errors.push(`${where}: category "${p.category}" is not one of the known categories`);
     }
     // Reserved: a product slug that collides with a category slug would
     // overwrite the category page, since both live under /products/.
     if (categories.some((c) => c.slug === p.slug)) {
       errors.push(`${where}: slug "${p.slug}" collides with a category page URL`);
     }
-    if (p.image && !p.image.startsWith('/')) {
-      errors.push(`${where}: image "${p.image}" must start with "/" (e.g. /images/products/x.jpg)`);
+    // Two kinds of image are legitimate. A path into public/ is a photo
+    // committed to this repository; an https URL is one uploaded through
+    // /admin/ and served from Supabase Storage. Anything else is a mistake
+    // that would render as a broken image.
+    if (p.image && !p.image.startsWith('/') && !/^https:\/\//.test(p.image)) {
+      errors.push(
+        `${where}: image "${p.image}" must start with "/" or be an https URL`);
     }
-    if (p.image && !existsSync(path.join(ROOT, 'public', p.image))) {
+    if (p.image && p.image.startsWith('/') && !existsSync(path.join(ROOT, 'public', p.image))) {
       warnings.push(`${where}: image not found at public${p.image} — the card shows a fallback`);
     }
   }
@@ -231,8 +233,14 @@ async function build() {
   const started = Date.now();
   log('\n  PowerKing Nepal — building site\n');
 
-  const products = [...rawProducts];
-  validate(products);
+  // Supabase if it is configured and reachable, data/*.json otherwise. The
+  // pages below cannot tell which, and do not need to.
+  const catalogue = await loadCatalogue();
+  const products = catalogue.products;
+  const categories = catalogue.categories;
+  for (const note of catalogue.notes) warnings.push(note);
+
+  validate(products, categories);
   if (errors.length) {
     log('  ✗ Build failed. Fix these problems in src/data/products.js:\n');
     for (const e of errors) log(`      • ${e}`);
@@ -380,6 +388,24 @@ async function build() {
   // public/ is copied last so anything there (CNAME, favicon, images) wins.
   await copyDir(path.join(ROOT, 'public'), DIST);
 
+  // What this build was actually made from. scripts/check.js reads it rather
+  // than re-reading the catalogue, so it verifies the site that exists rather
+  // than a site built from whatever the database says a moment later.
+  // Outside dist/, so it is never published.
+  await mkdir(path.join(ROOT, '.build'), { recursive: true });
+  await writeFile(
+    path.join(ROOT, '.build/manifest.json'),
+    JSON.stringify({
+      builtAt: new Date().toISOString(),
+      source: catalogue.source,
+      supabaseConfigured: supabaseConfig.configured,
+      products,
+      categories,
+      consoleRoutes: CONSOLE_ROUTES.map((r) => r.path),
+    }, null, 2),
+    'utf8',
+  );
+
   // --- generated files ------------------------------------------------------
   await writeFile(path.join(DIST, 'sitemap.xml'), sitemap(routes), 'utf8');
   await writeFile(path.join(DIST, 'robots.txt'), robots(), 'utf8');
@@ -390,6 +416,9 @@ async function build() {
   /* ------------------------------------------------------------ report -- */
   log(`  ✓ ${routes.length + CONSOLE_ROUTES.length + 3} pages built in ${Date.now() - started}ms`);
   log(`      ${products.length} products · ${categories.length} categories · ${brands.length} brands`);
+  log(catalogue.source === 'supabase'
+    ? '      catalogue: read from Supabase'
+    : '      catalogue: read from data/*.json');
   log(`      output: dist/`);
 
   if (warnings.length) {

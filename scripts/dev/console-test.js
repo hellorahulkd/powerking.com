@@ -17,9 +17,13 @@
  * ============================================================================
  */
 
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+const execFileAsync = promisify(execFile);
 import { launch, newPage } from './cdp.js';
 import { startRig } from './console-rig.js';
 import { CONSOLE_ROUTES } from '../../src/config/admin-routes.js';
@@ -48,6 +52,27 @@ function check(label, ok, detail = '') {
 }
 
 function group(name) { process.stdout.write(`\n  ${name}\n`); }
+
+/**
+ * Build the site, optionally pointed at the rig.
+ *
+ * Asynchronous, and that is not a style choice. The rig's HTTP server runs in
+ * THIS process, so execFileSync would block the event loop that has to answer
+ * the build's requests to it: the child would sit there until its own timeout
+ * and fall back to the JSON catalogue, and the test would report that the
+ * Supabase path does not work when in fact it had never been given a chance
+ * to. Cost an hour; worth a comment.
+ */
+async function build(env = {}) {
+  await execFileAsync('node', ['build.js'], {
+    cwd: ROOT,
+    env: { ...process.env, ...env },
+    maxBuffer: 8 * 1024 * 1024,
+  });
+}
+
+const readManifest = async () =>
+  JSON.parse(await readFile(path.join(ROOT, '.build/manifest.json'), 'utf8'));
 
 /**
  * Network failures a test caused on purpose — a wrong password, a duplicate
@@ -830,11 +855,133 @@ SUITES.deactivated = async (page, base, rig) => {
     `update public.profiles set is_active = true where email = 'staff@powerking.test';`);
 };
 
+SUITES.publicCatalogue = async (page, base, rig) => {
+  group('The public catalogue, built from Supabase');
+
+  // Make the database differ from data/products.json in ways that must show
+  // up on the public site: one product hidden, one renamed, one out of stock.
+  rig.psqlAs('admin@powerking.test', `
+    update public.products set is_active = false where sku = 'PK-60';
+    update public.products set name = 'Renamed By The Database'
+      where slug = 'kisonli-k21-professional';
+    update public.products set units_per_carton = 20, low_stock_threshold = 10,
+      wholesale_price = 550, carton_price = 9800, cost_price = 400
+      where sku = 'K27';
+  `);
+  const k27 = rig.psql(`select id from public.products where sku = 'K27'`);
+  rig.psqlAs('admin@powerking.test',
+    `select public.record_stock_movement('${k27}'::uuid, 'STOCK_IN', 5);`);
+
+  await build({ SUPABASE_URL: rig.url, SUPABASE_ANON_KEY: rig.anonKey });
+
+  const manifest = await readManifest();
+  check('the build read the catalogue from Supabase', manifest.source === 'supabase',
+    manifest.source);
+  check('and an inactive product is not in it',
+    !manifest.products.some((p) => p.sku === 'PK-60'));
+  check('while the rest are', manifest.products.length === 86, `${manifest.products.length}`);
+
+  // Checked on the product's own page rather than on /products/: the listing
+  // is paged, so "not on page one" would look like "not renamed".
+  const renamed = manifest.products.find((p) => p.name === 'Renamed By The Database');
+  check('a rename in the database reaches the built catalogue', Boolean(renamed));
+  await page.goto(`${base}/products/${renamed?.slug}/`);
+  await until(page, `!!document.querySelector('h1')`, { label: 'the product page' });
+  check('and is the heading on its public page',
+    (await page.eval(`return ${text('h1')};`)) === 'Renamed By The Database');
+
+  await page.goto(`${base}/products/`);
+  await until(page, `document.querySelectorAll('.card').length > 0`, { label: 'the catalogue' });
+
+  // Rule 13 and rule 8, on the page a customer actually sees.
+  const html = await page.eval(`return document.documentElement.outerHTML;`);
+  check('a deactivated product is nowhere on the public catalogue',
+    !/PK-60 120W Fast Charger/.test(html));
+  check('no cost price is anywhere in the page',
+    !/\b400\b/.test(html.replace(/[?&]text=[^"']*/g, '')) || !/cost/i.test(html));
+  check('no stock quantity is published',
+    !/data-(stock|quantity|available)=/.test(html));
+
+  const k27Slug = manifest.products.find((p) => p.sku === 'K27')?.slug;
+  check('the low-stock product is in the built catalogue', Boolean(k27Slug), String(k27Slug));
+  await page.goto(`${base}/products/${k27Slug}/`);
+  const productHtml = await page.eval(`return document.documentElement.outerHTML;`);
+  const productText = await page.eval(`return document.body.textContent;`);
+  check('a low-stock product says so in words, not numbers',
+    /Low stock/i.test(productText), (productText.match(/stock[^.]{0,40}/i) || [])[0]);
+  check('and never states how many there are', !/\b5 (units|in stock|available)\b/i.test(productText));
+  check('the trade price from the database is published',
+    /9,800/.test(productText), (productText.match(/Rs\.\s*[\d,]+/g) || []).join(' '));
+  check('the pack size is derived from units per carton',
+    /20 pcs per carton/.test(productText));
+
+  // Requirement 17.
+  // Specifically the product's own enquiry button. The first wa.me link on
+  // any page is the site-wide one in the header, which names no product —
+  // asserting on that would have tested the header and called it the CTA.
+  const waLink = await page.eval(`
+    const a = document.querySelector('a[href*="wa.me"][data-wa-product]');
+    return a ? decodeURIComponent(a.getAttribute('href')) : null;
+  `);
+  const k27Name = manifest.products.find((p) => p.sku === 'K27')?.name || '';
+  check('the WhatsApp enquiry names the product',
+    waLink?.includes(k27Name) === true, waLink);
+  check('and carries the SKU', /\(SKU: K27\)/.test(waLink || ''), waLink);
+  check('and asks for price, availability and minimum order',
+    /wholesale price, availability and minimum order/i.test(waLink || ''));
+  check('a customer needs no account to send it', /^https:\/\/wa\.me\//.test(waLink || ''));
+
+  group('What the public may read directly');
+  // Not through the site — straight at the API, as anyone with the key can.
+  const probe = async (path) => {
+    const res = await fetch(`${rig.url}/rest/v1/${path}`, {
+      headers: { apikey: rig.anonKey, Authorization: `Bearer ${rig.anonKey}` },
+    });
+    return { status: res.status, body: (await res.text()).slice(0, 200) };
+  };
+  for (const [label, path] of [
+    ['products', 'products?select=cost_price'],
+    ['inventory', 'inventory?select=quantity'],
+    ['stock movements', 'stock_movements?select=*'],
+    ['suppliers', 'suppliers?select=*'],
+    ['profiles', 'profiles?select=*'],
+    ['the admin stock view', 'product_stock?select=cost_price'],
+  ]) {
+    const r = await probe(path);
+    check(`anonymous callers cannot read ${label}`, r.status >= 400, `${r.status} ${r.body}`);
+  }
+  const cat = await probe('catalogue_products?select=*&limit=1');
+  check('but can read the public catalogue view', cat.status === 200);
+  check('which carries no cost price', !/cost_price/.test(cat.body), cat.body.slice(0, 120));
+  check('and no quantity', !/"quantity"|available_quantity/.test(cat.body));
+
+  group('When the database cannot be reached');
+  // The build must not publish an empty shop because a network call failed.
+  await build({
+    SUPABASE_URL: 'http://127.0.0.1:1',      // nothing is listening there
+    SUPABASE_ANON_KEY: rig.anonKey,
+    SUPABASE_TIMEOUT_MS: '2000',
+  });
+  const offline = await readManifest();
+  check('an unreachable database falls back to the JSON catalogue',
+    offline.source === 'json', offline.source);
+  check('and still publishes every product', offline.products.length === 87,
+    `${offline.products.length}`);
+
+  await page.goto(`${base}/products/`);
+  await until(page, `document.querySelectorAll('.card').length > 0`, { label: 'the catalogue' });
+  check('the site a visitor sees is complete either way',
+    (await page.eval(`return document.querySelectorAll('.card').length;`)) > 0);
+
+  // Put the site back on Supabase for whatever runs next.
+  await build({ SUPABASE_URL: rig.url, SUPABASE_ANON_KEY: rig.anonKey });
+};
+
 SUITES.unconfigured = async (page, base) => {
   group('Not connected to a database');
   // Rebuilt without the environment variables, so this is the real page a
   // clone of this repository shows before anybody has set it up.
-  execFileSync('node', ['build.js'], { cwd: ROOT, stdio: 'pipe' });
+  await build();
   await clearSession(page);
   await page.goto(`${base}/admin/`);
   await until(page, `!!document.querySelector('.setup')`, { label: 'the setup notice' });
@@ -865,11 +1012,7 @@ async function main() {
     rig = await startRig({ users: USERS, quiet: true });
 
     // Build the site pointing at the rig, exactly as a deployment would.
-    execFileSync('node', ['build.js'], {
-      cwd: ROOT,
-      stdio: 'pipe',
-      env: { ...process.env, SUPABASE_URL: rig.url, SUPABASE_ANON_KEY: rig.anonKey },
-    });
+    await build({ SUPABASE_URL: rig.url, SUPABASE_ANON_KEY: rig.anonKey });
 
     browser = await launch(9333);
     page = await newPage(9333);
@@ -898,7 +1041,7 @@ async function main() {
     await rig?.stop();
     // Leave dist/ as a normal, unconfigured build rather than one pointing at
     // a rig that is no longer running.
-    execFileSync('node', ['build.js'], { cwd: ROOT, stdio: 'pipe' });
+    await build();
   }
 
   process.stdout.write(`\n  ${pass} passed, ${fails.length} failed\n\n`);

@@ -727,6 +727,13 @@ code {
   font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
 }
 .badge--out { background: #FBE9E6; color: var(--danger); border: 1px solid #F1C9C2; }
+/* Availability badges. Only the ones worth noticing are drawn — see badges()
+   in src/templates/components.js — so these are never a wall of colour. */
+.badge--low { background: var(--volt-100); color: #6B5A00; border: 1px solid #E2C74A; }
+.badge--ask { background: var(--bg-sunken); color: var(--text-muted); border: 1px solid var(--border-strong); }
+.badge--in  { background: #E7F6EC; color: #17603A; border: 1px solid #A8DCBB; }
+.pd__stock--low { color: #6B5A00; }
+.pd__stock--ask { color: var(--text-muted); }
 .badge--float { position: absolute; top: .75rem; left: .75rem; }
 .card__body { padding: 1.05rem 1.1rem .35rem; flex: 1; }
 .card__eyebrow {

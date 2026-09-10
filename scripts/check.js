@@ -10,8 +10,6 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { siteConfig } from '../src/config/site.config.js';
-import { products } from '../src/data/products.js';
-import { categories } from '../src/data/categories.js';
 import { PAGE_SIZE } from '../src/pages/catalogue.js';
 import { CONSOLE_ROUTES } from '../src/config/admin-routes.js';
 
@@ -20,6 +18,18 @@ const DIST = path.join(ROOT, 'dist');
 
 const failures = [];
 let checks = 0;
+
+/**
+ * What the build was made from, written by build.js.
+ *
+ * Read rather than re-derived: the catalogue may come from Supabase, and
+ * re-reading it here would check the site against whatever the database says
+ * now, not against what was actually published a second ago.
+ */
+const manifest = JSON.parse(
+  await readFile(path.join(ROOT, '.build/manifest.json'), 'utf8'),
+);
+const { products, categories } = manifest;
 
 function assert(name, condition, detail = '') {
   checks++;
@@ -51,6 +61,9 @@ async function main() {
 
   const base = siteConfig.domain.replace(/\/+$/, '');
   const files = await allHtmlFiles();
+
+  assert('the build recorded where its catalogue came from',
+    ['supabase', 'json'].includes(manifest.source), manifest.source);
 
   /* --------------------------------------------------- required files -- */
   for (const f of ['sitemap.xml', 'robots.txt', '404.html', '.nojekyll', 'CNAME',
@@ -300,6 +313,8 @@ async function main() {
 
   /* ---------------------------------------------------------- assets -- */
   for (const p of products) {
+    // An https image lives in Supabase Storage and is not in dist/ to check.
+    if (!p.image || !p.image.startsWith('/')) continue;
     assert(`image exists for "${p.name}"`, existsSync(path.join(DIST, p.image)), p.image);
   }
   const css = await stat(path.join(DIST, 'assets/styles.css'));

@@ -55,6 +55,7 @@
           return {
             slug: it.slug,
             name: it.name,
+            sku: typeof it.sku === 'string' ? it.sku : '',
             image: typeof it.image === 'string' ? it.image : '',
             cartons: wasPieces ? 0 : clampQty(it.qty),
             pieces: wasPieces ? clampQty(it.qty) : 0,
@@ -63,6 +64,9 @@
         return {
           slug: it.slug,
           name: it.name,
+          // Lists saved before the SKU was carried simply have none. The
+          // message drops the code for those lines rather than the line.
+          sku: typeof it.sku === 'string' ? it.sku : '',
           image: typeof it.image === 'string' ? it.image : '',
           cartons: clampQty(it.cartons),
           pieces: clampQty(it.pieces),
@@ -113,8 +117,14 @@
   }
 
   function buildMessage() {
+    // The SKU goes in each line for the same reason it goes in a single
+    // product enquiry: it is what whoever answers uses to find the line, and
+    // a customer reading a name off a screen will get it slightly wrong.
+    // Older saved lists have no sku, so it is optional here rather than
+    // assumed — see the migration note in load().
     var lines = items.map(function (it, i) {
-      return (i + 1) + '. ' + it.name + ' (' + quantityOf(it) + ')';
+      var label = it.sku ? it.name + ' (SKU: ' + it.sku + ')' : it.name;
+      return (i + 1) + '. ' + label + ' (' + quantityOf(it) + ')';
     });
     return GREETING + '\n\n' + lines.join('\n') + '\n\n' + CLOSING;
   }
@@ -228,6 +238,7 @@
     }
     items.push({
       slug: slug, name: name,
+      sku: btn.getAttribute('data-enq-sku') || '',
       image: btn.getAttribute('data-enq-image') || '',
       cartons: 1, pieces: 0,
     });
@@ -292,6 +303,7 @@
       items.push({
         slug: slug,
         name: opener.getAttribute('data-enq-name'),
+        sku: opener.getAttribute('data-enq-sku') || '',
         image: opener.getAttribute('data-enq-image') || '',
         cartons: 1, pieces: 0,
       });

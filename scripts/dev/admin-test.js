@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 /**
- * End-to-end checks for the catalogue admin at /admin/. Development-only.
+ * End-to-end checks for the catalogue editor at /admin/catalogue/.
+ * Development-only.
+ *
+ * It moved there when /admin/ became the inventory console. It is the same
+ * tool doing the same job — product copy and photographs, committed straight
+ * to this repository through the GitHub API — and it still works when
+ * Supabase is unreachable, because it does not use it. The inventory console
+ * has its own end-to-end suite in scripts/dev/console-test.js.
  *
  *   node build.js && node serve.js &
  *   node scripts/dev/admin-test.js
@@ -110,7 +117,7 @@ const { proc, port } = await launch();
 const page = await newPage(port);
 await page.setViewport(1280, 900, false);
 await page.preload(stub);
-await page.goto(`${BASE}/admin/`);
+await page.goto(`${BASE}/admin/catalogue/`);
 
 console.log('\nLoads without a token');
 {
@@ -130,7 +137,7 @@ console.log('\nLoads without a token');
 console.log('\nThe page carries no credential of its own');
 {
   const src = await (await fetch(`${BASE}/assets/admin.js`)).text();
-  const doc = await (await fetch(`${BASE}/admin/`)).text();
+  const doc = await (await fetch(`${BASE}/admin/catalogue/`)).text();
   // A password compared in the browser would have to be in one of these two
   // files. The whole design rests on there being nothing here to find.
   const suspicious = /(?:github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}|["'](?:password|passcode|secret)["']\s*[:=]\s*["'][^"']+["']/i;
@@ -336,7 +343,7 @@ console.log('\nPhotos');
   `);
   check('a photo dropped on the box is accepted', /Photo ready/i.test(dropped.msg), JSON.stringify(dropped));
   check('and is shown straight away, already redrawn as a tile', dropped.shown === true);
-  check('dropping does not navigate away from the form', dropped.here === '/admin/', dropped.here);
+  check('dropping does not navigate away from the form', dropped.here === '/admin/catalogue/', dropped.here);
 
   // The site publishes a minute behind the commit, so a just-saved photo 404s
   // for a while. That must not look like a failed upload.

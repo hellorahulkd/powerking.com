@@ -151,8 +151,12 @@ export const whatsappMessages = {
     'Hi PowerKing Nepal, I would like to enquire about your wholesale products.',
   contact:
     'Hi PowerKing Nepal, I would like to speak with someone about wholesale supply.',
+  // {product} is filled in by productLabel() in src/lib/html.js, which appends
+  // the SKU when the product has one — "JBL Go 4 (SKU: PK-JBL-001)". The code
+  // is the fastest way for whoever answers the phone to find the right line,
+  // and a buyer copying a name off a website will not have it otherwise.
   product:
-    'Hi PowerKing Nepal, I am interested in {product}. Could you please provide the wholesale price, availability and minimum order quantity?',
+    'Hi PowerKing Nepal, I am interested in {product}. Please provide the wholesale price, availability and minimum order quantity.',
   category:
     'Hi PowerKing Nepal, I would like to enquire about your {product} range.',
   hero:

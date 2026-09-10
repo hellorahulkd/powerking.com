@@ -40,6 +40,53 @@ export function hasWhatsApp() {
 }
 
 /**
+ * How a product is named in a message to the shop.
+ *
+ * The SKU is included when there is one, because it is the fastest way for
+ * whoever picks up the phone to find the right line — a customer typing a
+ * product name off a website will get it slightly wrong, and two speakers in
+ * the same range differ by one character. "JBL Go 4 (SKU: PK-JBL-001)".
+ */
+export function productLabel(product) {
+  const name = String(product?.name || '').trim();
+  const sku = String(product?.sku || '').trim();
+  return sku ? `${name} (SKU: ${sku})` : name;
+}
+
+/**
+ * What a shopper is told about availability.
+ *
+ * ── WHAT IS DELIBERATELY NOT HERE ────────────────────────────────────────
+ * A number. This is a wholesale business: how deep the stock is, is a
+ * negotiating position, and publishing it would tell a competitor exactly
+ * what was bought and when. The database enforces that rather than trusting
+ * this function — catalogue_products has no quantity column at all, so there
+ * is no figure here to leak. What arrives is one of four words, chosen by the
+ * `public_stock_display` setting the shop controls from /admin/settings/.
+ *
+ * A product built from data/products.json has no status at all, and falls
+ * back to the wording the site has always used.
+ *
+ * @returns {{text: string, tone: 'in'|'low'|'out'|'ask'}|null}
+ */
+export function stockNotice(product) {
+  switch (product?.stockStatus) {
+    case 'in_stock':
+      return { text: 'In stock', tone: 'in' };
+    case 'low_stock':
+      return { text: 'Low stock — please confirm quantity', tone: 'low' };
+    case 'out_of_stock':
+      return { text: 'Out of stock', tone: 'out' };
+    case 'contact':
+      return { text: 'Contact for availability', tone: 'ask' };
+    default:
+      return product?.available === false
+        ? { text: 'Currently unavailable', tone: 'out' }
+        : null;
+  }
+}
+
+/**
  * Build a WhatsApp click-to-chat URL.
  * If no number is configured yet, fall back to the contact page so the site
  * never ships a broken link.

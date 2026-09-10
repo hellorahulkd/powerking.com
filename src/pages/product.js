@@ -1,6 +1,6 @@
 import { siteConfig } from '../config/site.config.js';
 import {
-  esc, absoluteUrl, whatsappUrl, jsonForScript, metaDescription, socialImage,
+  esc, absoluteUrl, whatsappUrl, jsonForScript, metaDescription, socialImage, stockNotice,
   formatPrice,
 } from '../lib/html.js';
 import { layout } from '../templates/layout.js';
@@ -218,11 +218,20 @@ export function productPage({ product, related }) {
         </p>
         <h1 class="pd__title">${esc(product.name)}</h1>
 
-        ${
-          product.available === false
-            ? `<p class="pd__stock pd__stock--out">Currently unavailable — message us and we will let you know when it is back in stock.</p>`
-            : `<p class="pd__stock">Available for wholesale supply</p>`
-        }
+        ${(() => {
+          // Availability in words. Where it comes from Supabase it is the
+          // live position; where the catalogue is still a JSON file it is the
+          // sentence this page has always shown.
+          const notice = stockNotice(product);
+          if (!notice) return `<p class="pd__stock">Available for wholesale supply</p>`;
+          const detail = {
+            in: 'In stock — ready for wholesale supply.',
+            low: 'Low stock — message us to confirm the quantity you need.',
+            out: 'Out of stock — message us and we will let you know when it is back.',
+            ask: 'Message us for current availability and lead time.',
+          }[notice.tone];
+          return `<p class="pd__stock pd__stock--${esc(notice.tone)}">${esc(detail)}</p>`;
+        })()}
 
         <dl class="pd__specs">
           ${specRow('Brand', product.brand)}
@@ -231,6 +240,7 @@ export function productPage({ product, related }) {
           ${specRow('Carton Price', formatPrice(product.priceCarton))}
           ${specRow('Piece Price', formatPrice(product.pricePiece))}
           ${specRow('SKU', product.sku)}
+          ${specRow('Minimum Order', product.minimumOrder > 1 ? `${product.minimumOrder} pcs` : '')}
         </dl>
 
         <div class="pd__desc">

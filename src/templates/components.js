@@ -1,5 +1,7 @@
 import { siteConfig, whatsappMessages, ENQUIRY_MAX } from '../config/site.config.js';
-import { esc, whatsappUrl, hasWhatsApp, formatPrice } from '../lib/html.js';
+import {
+  esc, whatsappUrl, hasWhatsApp, formatPrice, productLabel, stockNotice,
+} from '../lib/html.js';
 import { icon } from './icons.js';
 
 /** Attributes shared by every WhatsApp link so analytics can track them. */
@@ -29,7 +31,7 @@ export function whatsappButton({
   opensList = false,
 } = {}) {
   const href = product
-    ? whatsappUrl('product', { product: product.name })
+    ? whatsappUrl('product', { product: productLabel(product) })
     : whatsappUrl('general');
   const cls = ['btn', 'btn--whatsapp', size && `btn--${size}`, block && 'btn--block']
     .filter(Boolean)
@@ -51,6 +53,7 @@ export function whatsappButton({
  */
 function enqData(product) {
   return `data-enq-slug="${esc(product.slug)}" data-enq-name="${esc(product.name)}"`
+    + ` data-enq-sku="${esc(product.sku || '')}"`
     + ` data-enq-image="${esc(product.image)}"`;
 }
 
@@ -161,12 +164,20 @@ export function floatingWhatsApp() {
 </a>`;
 }
 
-/** "SAMPLE" / "Unavailable" badges. */
+/**
+ * The availability badge on a card.
+ *
+ * "In stock" is deliberately not badged. A badge on almost every card is
+ * decoration rather than information, and the ones worth noticing — low, out,
+ * ask us — stop being noticeable when they sit among eighty that say the
+ * ordinary thing.
+ */
 function badges(product) {
-  const out = [];
-  if (product.available === false)
-    out.push('<span class="badge badge--out">Currently unavailable</span>');
-  return out.length ? `<div class="card__badges">${out.join('')}</div>` : '';
+  const notice = stockNotice(product);
+  if (!notice || notice.tone === 'in') return '';
+  return `<div class="card__badges">`
+    + `<span class="badge badge--${esc(notice.tone)}">${esc(notice.text)}</span>`
+    + `</div>`;
 }
 
 /**
@@ -233,7 +244,7 @@ export function productCard(product, { eager = false, location = 'product_card' 
       ${icon('arrow', { size: 19 })}
     </a>
     <a class="btn btn--whatsapp btn--icon"
-       href="${esc(whatsappUrl('product', { product: product.name }))}"
+       href="${esc(whatsappUrl('product', { product: productLabel(product) }))}"
        ${waAttrs(location, product)}
        data-enq-open ${enqData(product)}
        aria-label="Enquire about ${esc(product.name)} on WhatsApp"
