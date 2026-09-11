@@ -126,31 +126,6 @@
     "pricePiece": ""
   },
   {
-    "id": 108,
-    "name": "K007 Pro Vacuum Suction Magnetic Phone Mount",
-    "slug": "k007-pro-magnetic-suction-phone-mount",
-    "brand": "Kathmandu Peripherals",
-    "category": "Mobile Accessories",
-    "description": "Aluminium-alloy magnetic phone mount on a vacuum suction base, for one-handed docking and full multi-angle adjustment. Holds on smooth surfaces such as glass, dashboards and desks.",
-    "image": "/images/products/k007-pro-magnetic-suction-phone-mount.png",
-    "gallery": [],
-    "packSize": "",
-    "sku": "K007",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "phone mount",
-      "magnetic",
-      "suction",
-      "car mount",
-      "desk mount",
-      "aluminium",
-      "magsafe"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 110,
     "name": "PowerKing P-H32E 30000mAh 22.5W Fast Charge Power Bank",
     "slug": "powerking-p-h32e-30000mah-power-bank",
