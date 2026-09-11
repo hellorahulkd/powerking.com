@@ -2229,5 +2229,24 @@
     "tags": [
       "Earphones"
     ]
+  },
+  {
+    "id": 313,
+    "name": "Powerking 120W Multi-Protocol Fast Charger (Model PK-42):",
+    "slug": "powerking-120w-multi-protocol-fast-charger-model-pk-42",
+    "brand": "Powerking 120W Multi-Protocol Fast Charger (Model PK-42):",
+    "category": "Chargers & Adapters",
+    "description": "Powerking 120W Multi-Protocol Fast Charger (Model PK-42):\nPowerking 120W Turbo Power Multi-Protocol Fast Charger with Cable (PK-60)\nPower up your devices at lightning speed with the Powerking 120W Turbo Power Adapter Set. Engineered with advanced multi-protocol fast charging support, this high-output wall charger delivers optimized power across major smartphone brand standards. Included with a durable 100cm USB-A to Type-C cable, it handles both rapid charging and high-speed data transfer seamlessly.\n 120W Ultra-Fast Output: Delivers high-wattage power to charge smartphones, tablets, and compatible mobile devices rapidly.\n Multi-Protocol Fast Charging: Broad compatibility supporting SuperVOOC, Warp Charge, Dash Charge, Flash Charge, Turbo Charge, and Quick Charge standards.\n 2-in-1 Charging & Data Sync: Combines high-speed power transmission with stable data transfer capability.\n Comprehensive Multi-Protection: Built-in safety guards against overcurrent, overvoltage, short circuits, and overheating.\n Complete Ready-to-Use Kit: Includes the 120W single-port USB power adapter and a matching 100cm heavy-duty USB-A to Type-C cable.\nSpecifications\n Model: PK-60\n Input Voltage: AC 110V–220V\n Output Ratings: 5V=3A / 9V=2.77A / 12V=2.08A\n Total Max Power: 120W Max\n Port Type: Single USB-A Output\n Included Cable: 100cm USB-A to USB Type-C Cable",
+    "image": "/images/products/powerking-120w-multi-protocol-fast-charger-model-pk-42.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 375,
+    "pricePiece": 375,
+    "sku": "Powerking 120W Multi-Protocol Fast Charger (Model PK-42):",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "chargers"
+    ]
   }
 ]
