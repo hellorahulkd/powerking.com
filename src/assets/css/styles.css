@@ -580,15 +580,25 @@ code {
 .catbar__row::-webkit-scrollbar { display: none; }
 .catbar__row > li { flex: none; }
 .catbar__item {
-  display: inline-flex; align-items: center;
-  padding: .5rem 1.1rem; border-radius: 100px;
+  display: inline-flex; align-items: center; gap: .55rem;
+  /* Tighter on the left, where the picture already provides the inset. */
+  padding: .28rem 1.05rem .28rem .28rem; border-radius: 100px;
   background: var(--bg-alt); border: 1px solid transparent;
   font-family: var(--font-display); font-weight: 800;
   font-size: var(--step-0); letter-spacing: -.01em; white-space: nowrap;
   color: var(--ink); text-decoration: none;
   transition: background-color .15s, border-color .15s;
 }
+/* A category with no photograph yet is still a pill, not a pill with a hole
+   where a picture should be. */
+.catbar__item:not(:has(.catbar__shot)) { padding-left: 1.05rem; }
 .catbar__item:hover { background: var(--bg-sunken); border-color: var(--border-strong); }
+.catbar__shot {
+  display: block; width: 2.9rem; height: 2.9rem; flex: none;
+  border-radius: 50%; overflow: hidden;
+  background: #fff; border: 1px solid var(--border);
+}
+.catbar__shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* Always reachable, whatever the row is scrolled to. Outside the row's fade,
    so it reads as a control rather than as the next thing to swipe to. */
 /* `gap`, not a space in the markup: this is a flex container, so the
@@ -605,7 +615,9 @@ code {
 /* Tighter on a phone, where the bar is the width of a hand. */
 @media (max-width: 560px) {
   .catbar > .container { gap: .35rem; }
-  .catbar__item { padding: .42rem .85rem; font-size: .86rem; }
+  .catbar__item { gap: .45rem; padding: .22rem .8rem .22rem .22rem; font-size: .86rem; }
+  .catbar__item:not(:has(.catbar__shot)) { padding-left: .8rem; }
+  .catbar__shot { width: 2.4rem; height: 2.4rem; }
   /* Just "All" on a phone: the word it stands for costs a category's worth
      of the row it is there to give access to. */
   .catbar__all { padding: .4rem .7rem; font-size: .76rem; }

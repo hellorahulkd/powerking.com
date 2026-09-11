@@ -190,7 +190,7 @@ function searchStrip(products) {
  * reader without JavaScript gets a plain scrolling row, not a list printed
  * twice.
  */
-function categoryBar(allCategories, countsByCategory) {
+function categoryBar(allCategories, countsByCategory, products) {
   // Same order as the bands below, largest range first: scrolling down and
   // reading the bar left to right have to agree, or the bar is a second,
   // contradictory index of the same page.
@@ -199,19 +199,30 @@ function categoryBar(allCategories, countsByCategory) {
     .sort((a, b) => (countsByCategory[b.name] || 0) - (countsByCategory[a.name] || 0));
   if (!categories.length) return '';
 
-  // Plain pills, no thumbnail. The photo circle stuck on the left end made
-  // each item read as a tag rather than a pill, and it was the widest thing
-  // in a row whose whole job is to fit as many categories as it can.
+  // The picture on each is the first product in that category. Nothing is
+  // invented or commissioned: it is a photograph the shop already uploaded,
+  // of something actually in there.
+  const faceOf = (name) => {
+    const first = products.find((p) => p.category === name && p.image);
+    return first ? first.image : '';
+  };
+
   return `<nav class="catbar" id="categories" aria-label="Shop by category">
   <div class="container">
     <ul class="catbar__row" data-catbar-loop>
       ${categories
-        .map(
-          (c) => `<li>
+        .map((c) => {
+          const face = faceOf(c.name);
+          return `<li>
         <a class="catbar__item" href="/products/${esc(c.slug)}/"
-           data-track-category="${esc(c.name)}">${esc(c.name)}</a>
-      </li>`,
-        )
+           data-track-category="${esc(c.name)}">${
+          face
+            ? `<span class="catbar__shot"><img src="${esc(face)}" alt=""
+               width="72" height="72" loading="lazy" decoding="async"></span>`
+            : ''
+        }<span>${esc(c.name)}</span></a>
+      </li>`;
+        })
         .join('')}
     </ul>
     <!--
@@ -427,7 +438,7 @@ export function homePage({ products, categories, countsByCategory }) {
   const body = [
     searchStrip(products),
     heroSlider(featured),
-    categoryBar(categories, countsByCategory),
+    categoryBar(categories, countsByCategory, products),
     categoryBands(categories, countsByCategory, products),
     allProductsFoot(),
     // The "who we are" band is background, not what a buyer came for. It sits
