@@ -236,7 +236,9 @@
     "description": "Own-brand 15000mAh fast-charge power bank rated 22.5W with a digital percentage display, two USB-A ports and a USB-C port. The carton lists a smart chip, high-voltage protection and deformation protection.",
     "image": "/images/products/powerking-p-a211-15000mah-power-bank.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "50",
+    "priceCarton": 1300,
+    "pricePiece": 1350,
     "sku": "P-A211",
     "featured": false,
     "available": true,
@@ -248,9 +250,7 @@
       "powerking",
       "usb c",
       "smart chip"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 112,
