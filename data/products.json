@@ -126,31 +126,6 @@
     "pricePiece": ""
   },
   {
-    "id": 107,
-    "name": "Foldable Metal Tablet Holder with 360° Base",
-    "slug": "foldable-metal-tablet-holder-360",
-    "brand": "[CONFIRM BRAND]",
-    "category": "Mobile Accessories",
-    "description": "One-piece all-metal folding stand with a 360-degree rotating base, stated on the box to suit tablets from 4 to 16 inches. Folds flat to carry and opens without assembly.",
-    "image": "/images/products/foldable-metal-tablet-holder-360.png",
-    "gallery": [],
-    "packSize": "",
-    "sku": "",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "tablet stand",
-      "holder",
-      "foldable",
-      "metal",
-      "360 rotating",
-      "desk stand",
-      "ipad"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 108,
     "name": "K007 Pro Vacuum Suction Magnetic Phone Mount",
     "slug": "k007-pro-magnetic-suction-phone-mount",
