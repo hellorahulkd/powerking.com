@@ -2294,5 +2294,24 @@
     "tags": [
       "bike camera mount"
     ]
+  },
+  {
+    "id": 323,
+    "name": "Stability Motorcycle & Bike Camera Mount Scotter",
+    "slug": "stability-motorcycle-and-bike-camera-mount-scotter",
+    "brand": "Stability Motorcycle & Bike Camera Mount",
+    "category": "Bike accessories",
+    "description": "Stability Motorcycle & Bike Camera Mount Scotter\nProduct Overview\nThe Stability Motorcycle & Bike Camera Mount is a heavy-duty aluminum alloy mounting solution engineered for securing action cameras (such as GoPro) to motorcycles, bicycles, and handle grips. Featuring a dual ball-joint arm with 360-degree rotation, it allows riders to capture stable, dynamic footage from any angle during motion.\nCore Features & Highlights\n 360° Multi-Angle Rotation: Dual ball-socket joints provide unlimited positioning flexibility for portrait, landscape, or custom filming angles.\n All-Metal Aluminum Alloy Construction: Built to withstand intense road vibrations, high speeds, and outdoor weather conditions.\n Secure Locking Mechanism: Large ergonomic wing nut clamp enables quick adjustment and tightens securely to prevent shifting during rides.\n Universal Action Camera Compatibility: Equipped with a standard 2-prong mount suitable for GoPro, DJI Osmo Action, Insta360, and other action camera housing cases.\n Rearview Mirror / Handlebar Mount Base: Bracket features a dedicated mounting point designed to fit onto motorcycle mirror stalks or bolt mount points.\nDimensions & Weight Specs (L × W × H)\n Overall Mount Height (Fully Extended): ~20 cm (7.87 in)\n Base Width / Bracket Length: ~6 cm (2.36 in)\n Mount Extension Arm Length: ~9.5 cm (3.74 in)\n Package Box Dimensions (L × W × H): ~12 cm × 5 cm × 18 cm (4.72 in × 1.97 in × 7.08 in)\n Net Weight: ~220 g (0.48 lbs)",
+    "image": "/images/products/stability-motorcycle-and-bike-camera-mount-scotter.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 370,
+    "pricePiece": 375,
+    "sku": "G2",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "bike holder"
+    ]
   }
 ]
