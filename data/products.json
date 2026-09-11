@@ -1,31 +1,5 @@
 [
   {
-    "id": 101,
-    "name": "PowerKing Turbo Power PK-60 120W Fast Charger",
-    "slug": "powerking-turbo-power-pk-60-120w",
-    "brand": "PowerKing",
-    "category": "Chargers & Adapters",
-    "description": "All-protocol 120W wall charger with a single USB-A port, supplied with a 100cm USB-A to Type-C cable. Input 110-220V; output 5V/3A, 9V/2.77A or 12V/2.08A. Carries overcurrent, overvoltage, short-circuit and temperature protection, and supports Turbo Charge, Super Fast, Dash, Flash Charge, Warp, SuperVOOC and Quick Charge 4.0 handsets.",
-    "image": "/images/products/powerking-turbo-power-pk-60-120w.png",
-    "gallery": [],
-    "packSize": "",
-    "sku": "PK-60",
-    "featured": true,
-    "available": true,
-    "tags": [
-      "fast charger",
-      "120w",
-      "usb a",
-      "type c",
-      "turbo",
-      "quick charge",
-      "all protocol",
-      "6938473487001"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 102,
     "name": "PowerKing 1USB Multi Protocol Fast Charger 120W",
     "slug": "powerking-1usb-multi-protocol-fast-charger-120w",
