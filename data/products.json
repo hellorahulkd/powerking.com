@@ -2218,5 +2218,24 @@
     "tags": [
       "bike holder"
     ]
+  },
+  {
+    "id": 319,
+    "name": "Metal Alloy Phone Holder bike Scooter",
+    "slug": "metal-alloy-phone-holder-bike-scooter",
+    "brand": "Metal Alloy Phone Holder bike",
+    "category": "Bike accessories",
+    "description": "Product Description Scooter\n Product Type: Premium metal alloy phone holder designed for secure, stable device mounting.\n Material & Build: Crafted from high-grade aluminum alloy with a robust, durable construction (\"Strict\" quality standard).\n Rotation: Features 360-degree rotation capabilities for flexible viewing angles in both portrait and landscape modes.\n Compatibility & Design: Universal design suitable for a wide range of smartphones (\"Used widely\"), equipped with secure corner grips (\"Talon\") to lock the device firmly in place.\n Color Options: Available in multiple color finishes.\nDimensions\n Form Factor: Compact, lightweight desktop/mountable design tailored for standard smartphone sizes.",
+    "image": "/images/products/metal-alloy-phone-holder-bike-scooter.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 145,
+    "pricePiece": 150,
+    "sku": "Metal Alloy Phone Holder bike",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "bike scooter"
+    ]
   }
 ]
