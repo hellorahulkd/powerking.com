@@ -187,6 +187,33 @@ async function main() {
     await page.close();
   }
 
+/**
+ * A search term that lives only in one product's hidden tags.
+ *
+ * Written into the test as "ipx6" until the shop cleared that product's tags
+ * from the admin panel and four checks failed on a catalogue that was working
+ * perfectly. The point being tested is that tags are searchable at all, so
+ * the term is taken from whatever is in the catalogue now.
+ */
+function tagOnlyTerm() {
+  const visible = (p) => [p.name, p.brand, p.category, p.sku, p.packSize]
+    .join(' ').toLowerCase();
+  const counts = new Map();
+  for (const p of products) {
+    for (const word of new Set((p.tags || []).join(' ').toLowerCase().split(/[^a-z0-9]+/))) {
+      if (word.length < 4) continue;
+      counts.set(word, (counts.get(word) || 0) + 1);
+    }
+  }
+  for (const [word, n] of counts) {
+    if (n !== 1) continue;
+    // And in no product's visible text, or it is not proving anything.
+    if (products.some((p) => visible(p).includes(word))) continue;
+    return word;
+  }
+  return '';
+}
+
   /* ------------------------------------------- 1d. search from the header -- */
   process.stdout.write('\nSearch from the header\n');
   {
@@ -368,16 +395,19 @@ async function main() {
     const midWord = await search('immer');
     check('mid-word fragment ("immer") matches nothing', midWord.length === 0, midWord.join(', '));
 
-    // "ipx6" is only in a product's tags, not in anything the card shows.
-    const byTag = await search('ipx6');
-    check('search matches hidden tags ("ipx6")',
-      byTag.length === expected('ipx6') && byTag.length === 1, byTag.join(', '));
+    // A term that is only in one product's tags, never in anything its card
+    // shows — so a match proves the hidden tags are searchable.
+    const tagTerm = tagOnlyTerm();
+    const byTag = tagTerm ? await search(tagTerm) : [];
+    check(`search matches hidden tags ("${tagTerm || 'none in the catalogue'}")`,
+      tagTerm === '' || (byTag.length === expected(tagTerm) && byTag.length === 1),
+      byTag.join(', '));
 
     // Regression guard: assert the pixels, not just the `hidden` property.
     // A CSS class that sets `display` silently beats the UA [hidden] rule.
     const reallyHidden = await page.eval(`
       const i = document.getElementById('product-search');
-      i.value = 'ipx6';
+      i.value = ${JSON.stringify(tagTerm)};
       i.dispatchEvent(new Event('input', { bubbles: true }));
       const cards = [...document.querySelectorAll('[data-product]')];
       const hiddenOnes = cards.filter(c => c.hidden);
@@ -422,7 +452,7 @@ async function main() {
 
     const status = await page.eval(`
       const i = document.getElementById('product-search');
-      i.value = 'ipx6';
+      i.value = ${JSON.stringify(tagTerm)};
       i.dispatchEvent(new Event('input', { bubbles: true }));
       return document.getElementById('search-status').textContent.trim();
     `);
@@ -634,11 +664,12 @@ async function main() {
     );
 
     await page.goto(`${BASE}/products/`);
+    const term = tagOnlyTerm();
     const search = await page.eval(`
       const seen = [];
       window.gtag = (t, name, params) => { if (t === 'event') seen.push({ name, params }); };
       const i = document.getElementById('product-search');
-      i.value = 'ipx6';
+      i.value = ${JSON.stringify(term)};
       i.dispatchEvent(new Event('input', { bubbles: true }));
       await new Promise(r => setTimeout(r, 900));
       document.querySelector('[data-track-category]')?.click();
@@ -647,7 +678,8 @@ async function main() {
     check('product_search fires (debounced)', search.some(e => e.name === 'product_search'),
       JSON.stringify(search.map(e => e.name)));
     const se = search.find(e => e.name === 'product_search');
-    check('product_search carries term + result count', se?.params?.search_term === 'ipx6' && se?.params?.results === 1,
+    check('product_search carries term + result count',
+      se?.params?.search_term === term && se?.params?.results === 1,
       JSON.stringify(se?.params));
 
     await page.goto(`${BASE}/products/speakers/`);

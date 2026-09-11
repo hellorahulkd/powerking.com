@@ -22,16 +22,19 @@ const check = (name, cond, detail = '') => {
  * down: the comparison table's whole behaviour turns on how many siblings a
  * product has, and a hard-coded slug goes stale the moment the range changes.
  */
-function bySiblings(predicate) {
+function bySiblings(predicate, required = true) {
   const sizes = new Map();
   for (const p of products) sizes.set(p.category, (sizes.get(p.category) || 0) + 1);
   const hit = products.find((p) => predicate(sizes.get(p.category)));
-  if (!hit) throw new Error('no product in a category of the required size');
-  return hit.slug;
+  if (!hit && required) throw new Error('no product in a category of the required size');
+  return hit ? hit.slug : '';
 }
 const PAIRED = bySiblings((n) => n === 2);
 const CROWDED = bySiblings((n) => n >= 3);
-const LONE = bySiblings((n) => n === 1);
+// Optional: a catalogue where every category has grown past one product is a
+// healthy catalogue, not a broken test. It threw the whole suite when the
+// shop's last single-product category gained a second.
+const LONE = bySiblings((n) => n === 1, false);
 
 const { proc, port } = await launch();
 const page = await newPage(port);
@@ -112,9 +115,13 @@ check('every compared product has its own enquiry button',
   wa.count >= 2 && wa.distinct === wa.count, JSON.stringify(wa));
 
 // A category with a single product has nothing to compare against.
-await page.goto(`${BASE}/products/${LONE}/`);
-const lone = await page.eval(`return !!document.querySelector('table.compare');`);
-check('a product with no siblings shows no comparison table', lone === false);
+if (LONE) {
+  await page.goto(`${BASE}/products/${LONE}/`);
+  const lone = await page.eval(`return !!document.querySelector('table.compare');`);
+  check('a product with no siblings shows no comparison table', lone === false);
+} else {
+  console.log('  – no single-product category in the catalogue, nothing to check');
+}
 
 // Cards should now be lean.
 await page.goto(`${BASE}/products/`);
