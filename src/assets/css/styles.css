@@ -601,20 +601,28 @@ code {
 }
 .cat-strip__item:hover { background: var(--bg-sunken); color: var(--ink); }
 
+/* The catalogue lists its categories twice within 200px on the way down: once
+   as a strip of links, once as the toolbar's own chip row. The strip only
+   navigates; the chips filter in place and are always on screen because the
+   bar is sticky. Keeping both put the first product card below the fold on a
+   1440x900 laptop, so the strip gives way and the control stays. The strip is
+   untouched on every other page. */
+.page-catalogue #categories { display: none; }
+
 /* -------------------------------------------------------------- toolbar -- */
 .toolbar {
   position: sticky; top: var(--header-h); z-index: 40;
   /* Opaque for the same reason as the header: this bar sits over the moving
      catalogue, and a frosted panel that does not frost is a transparent one. */
   background: var(--bg);
-  border-bottom: 1px solid var(--border); padding: .9rem 0;
+  border-bottom: 1px solid var(--border); padding: .6rem 0;
 }
 .toolbar__search { position: relative; display: flex; align-items: center; gap: .5rem; }
 .toolbar__search input {
-  flex: 1; width: 100%; padding: .85rem 5rem .85rem 1.15rem;
+  flex: 1; width: 100%; padding: .6rem 5rem .6rem 1.15rem;
   font: inherit; font-size: var(--step-0); color: var(--text);
   background: var(--bg-alt); border: 1px solid var(--border);
-  border-radius: 100px; min-height: 52px; font-weight: 600;
+  border-radius: 100px; min-height: 44px; font-weight: 600;
   -webkit-appearance: none; appearance: none;
 }
 .toolbar__search input::-webkit-search-cancel-button { display: none; }
@@ -630,12 +638,25 @@ code {
 }
 .toolbar__clear:hover { background: var(--volt); color: var(--ink); }
 .toolbar__filters {
-  display: flex; align-items: center; gap: .6rem; margin-top: .65rem;
+  display: flex; align-items: center; gap: .5rem; margin-top: .5rem;
+  /* One row that scrolls, never a stack. Three controls stacked took 133px of
+     a phone screen to say "all, all, cheapest first". */
+  flex-wrap: nowrap; overflow-x: auto;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
+.toolbar__filters::-webkit-scrollbar { display: none; }
+/* Both scrolling rows say so the same way — see the note on .toolbar .chips. */
+.toolbar__filters { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent); }
 /* With the chips hidden the two selects are the whole row, so let them share
    it evenly instead of both shrinking to their longest option. */
 .toolbar__select { flex: 1; min-width: 0; }
-@media (min-width: 900px) { .toolbar__select { flex: none; } }
+@media (min-width: 900px) {
+  .toolbar__select { flex: none; }
+  /* Sized to its longest option, "All brands" was taking 550px of the bar and
+     leaving the chip row three categories wide. */
+  .toolbar__select select { max-width: 13rem; text-overflow: ellipsis; }
+}
 .toolbar__select select { width: 100%; }
 .chips {
   display: flex; gap: .4rem; overflow-x: auto; flex: 1;
@@ -644,16 +665,25 @@ code {
 .chips::-webkit-scrollbar { display: none; }
 /* Below 900px the chip row is a swipe with most of the categories off the
    edge and nothing on screen saying so, so the category select stands in
-   for it there. Above 900px the chips wrap and are the faster control. */
+   for it there. Above 900px the chips are the faster control.
+   They stay ONE row and scroll. Wrapping them read as tidy on a mockup and
+   cost 182px on a 1440x900 laptop — four rows of pills that pushed the first
+   product card to 948px, below the fold, on a page whose whole job is to
+   show products. One scrolling row is 44px. */
 .toolbar .chips { display: none; }
 .toolbar__cat { display: block; }
 @media (min-width: 900px) {
-  .toolbar .chips { display: flex; flex-wrap: wrap; overflow-x: visible; row-gap: .4rem; }
+  .toolbar .chips { display: flex; }
   .toolbar__cat { display: none; }
 }
 /* Grouped on a light track, the way a segmented control reads. */
 .toolbar .chips {
   background: var(--bg-alt); border-radius: 100px; padding: .3rem;
+  /* The row scrolls, so its last chip is cut mid-word at almost every width.
+     Fading the final 2rem says "there is more this way" — cut with a hard
+     edge it reads as broken rather than as scrollable. */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
 }
 @media (max-width: 899px) { .toolbar .chips { border-radius: 100px; } }
 .chip {
@@ -680,8 +710,11 @@ code {
 .toolbar__status { margin: .55rem 0 0; font-size: var(--step--1); color: var(--text-muted); min-height: 1.2em; }
 .toolbar__status:empty { display: none; }
 @media (max-width: 560px) {
-  .toolbar__filters { flex-direction: column; align-items: stretch; }
-  .toolbar__select select { width: 100%; border-radius: var(--radius-sm); }
+  /* All three share the row rather than sizing to their own text: at 390px
+     that left Sort entirely off the right edge, where nobody would look for
+     it. Narrow and readable beats complete and invisible. */
+  .toolbar__select { flex: 1 1 0; min-width: 0; }
+  .toolbar__select select { width: 100%; padding-inline: .55rem 1.5rem; }
 }
 
 /* ------------------------------------------------------------------ grid -- */
@@ -726,12 +759,6 @@ code {
     overflow: hidden;
   }
   .crumbs { margin-bottom: .5rem; }
-
-  /* The catalogue lists its categories twice on the way down: once as a strip
-     of links, once as the toolbar's own category filter. On a laptop that is
-     a signpost and a control; on a phone it is 224px of the same words twice,
-     so the strip gives way and the filter stays. */
-  .page-catalogue #categories { display: none; }
 
   .toolbar { padding: .55rem 0; }
   .toolbar__search input { min-height: 46px; padding-block: .6rem; }

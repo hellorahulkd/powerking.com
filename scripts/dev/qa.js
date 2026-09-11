@@ -690,6 +690,35 @@ async function main() {
       }
     }
 
+    // The same complaint arrived again from a laptop. The chip row wrapped to
+    // four rows of pills above 900px, and with the duplicate category strip
+    // above it the catalogue's first card started 948px down a 900px-tall
+    // window — a products page with no products on it.
+    for (const [w, h] of [[1440, 900], [1280, 800]]) {
+      await page.setViewport(w, h, false);
+      await page.goto(`${BASE}/products/`);
+      const r = await page.eval(`
+        const card = document.querySelector('[data-product]');
+        const bar = document.querySelector('.toolbar');
+        return {
+          cardTop: card ? Math.round(card.getBoundingClientRect().top) : null,
+          cards: [...document.querySelectorAll('#product-grid [data-product]')]
+            .filter((c) => c.getBoundingClientRect().top < innerHeight).length,
+          // One control tall, whatever is in it: every row here scrolls
+          // sideways rather than growing downwards.
+          chips: Math.round(document.querySelector('.chips').getBoundingClientRect().height),
+          filters: Math.round(document.querySelector('.toolbar__filters').getBoundingClientRect().height),
+          toolbar: Math.round(bar.getBoundingClientRect().height),
+        };
+      `);
+      check(`/products/ shows products on the first screen at ${w}x${h}`,
+        r.cards >= 2 && r.cardTop !== null && r.cardTop < h - 120,
+        `first card at ${r.cardTop}, ${r.cards} on screen`);
+      check(`the filter bar stays one row deep at ${w}x${h}`,
+        r.chips <= 60 && r.filters <= 60 && r.toolbar <= 150,
+        `chips ${r.chips}, filters ${r.filters}, toolbar ${r.toolbar}`);
+    }
+
     // The other half of the complaint: the picture did not fill its box, so a
     // product looked small inside a mostly empty card.
     await page.setViewport(402, 874, true);
