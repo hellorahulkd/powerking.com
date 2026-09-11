@@ -443,30 +443,6 @@
     ]
   },
   {
-    "id": 224,
-    "name": "WSJAR E-8808 8.5\" Trolley Speaker with Wireless Mic",
-    "slug": "wsjar-e-8808-trolley-speaker",
-    "brand": "WSJAR",
-    "category": "Speakers",
-    "description": "Trolley speaker with an 8.5-inch driver, rated 8W on the carton, with an LED light field across the front grille and a top control panel. A wireless microphone and a remote are supplied in the box.",
-    "image": "/images/products/wsjar-e-8808-trolley-speaker.jpg",
-    "gallery": [],
-    "packSize": "8",
-    "priceCarton": "",
-    "pricePiece": "",
-    "sku": "E-8808",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "trolley speaker",
-      "karaoke",
-      "wireless mic",
-      "led",
-      "8.5 inch",
-      "party"
-    ]
-  },
-  {
     "id": 225,
     "name": "Kisonli K21 40W Portable Speaker",
     "slug": "kisonli-k21-40w-speaker",
