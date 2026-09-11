@@ -53,5 +53,10 @@
     "name": "Microphone",
     "slug": "microphone",
     "description": "Phone microhpne,easy record audio"
+  },
+  {
+    "name": "Bike accessories",
+    "slug": "bike-accessories",
+    "description": "Bike accessories"
   }
 ]
