@@ -2123,5 +2123,24 @@
     "tags": [
       "chargers"
     ]
+  },
+  {
+    "id": 314,
+    "name": "300 Mbps Wi-Fi Signal Extender / Repeater (AP / Router)",
+    "slug": "300-mbps-wi-fi-signal-extender-repeater-ap-router",
+    "brand": "300 Mbps Wi-Fi Signal Extender / Repeater (AP / Router)",
+    "category": "Mobile Accessories",
+    "description": "300 Mbps Wi-Fi Signal Extender / Repeater (AP / Router)\nProduct Overview\nThis high-performance 300 Mbps Wi-Fi extender expands wireless network coverage to eliminate dead zones throughout homes and offices. Equipped with 6 high-gain external antennas and dual-frequency capability, it functions as a Range Extender, Access Point (AP), or Wireless Router.\nCore Features & Highlights\n 300 Mbps High-Speed Data Transfer: Delivers smooth HD streaming, online gaming, and video conferencing performance.\n 6 High-Gain External Antennas: Ensures maximum signal penetration through walls for extended range coverage.\n 3-in-1 Multi-Mode Operation: Functions as a Wi-Fi Repeater, Access Point (AP), and Mini Wireless Router.\n One-Touch WPS Encryption: Instant pairing with existing home routers via the dedicated physical WPS button.\n Ethernet Port Connection: Converts wired networks to wireless or provides a stable wired connection to smart TVs and PCs.\n Wall-Plug Design: Compact form factor plugs directly into standard wall outlets without extra cable clutter.\nDimensions & Weight Specs (L × W × H)\n Extender Unit (Antennas Folded): ~12.5 cm × 8.5 cm × 5.0 cm (4.9 in × 3.3 in × 2.0 in)\n Extender Unit (Antennas Raised): ~12.5 cm × 8.5 cm × 21.0 cm (4.9 in × 3.3 in × 8.2 in)\n RJ-45 Ethernet Cable Length: ~100 cm (39.3 in)\n Package Box Dimensions (L × W × H): ~13.5 cm × 9.5 cm × 11.5 cm (5.3 in × 3.7 in × 4.5 in)\n Net Weight: ~180 g (0.40 lbs)",
+    "image": "/images/products/300-mbps-wi-fi-signal-extender-repeater-ap-router.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 925,
+    "pricePiece": 950,
+    "sku": "300 Mbps Wi-Fi Signal Extender / Repeater (AP / Router)",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Wifi reapeater"
+    ]
   }
 ]
