@@ -156,10 +156,12 @@
     "brand": "[CONFIRM BRAND]",
     "category": "Networking",
     "description": "Wall-plug 300Mbps wireless range extender that also runs as an access point or a router, with WPS pairing, external antennas and a status LED array. An Ethernet cable is included in the box.",
-    "image": "/images/products/wifi-repeater-300mbps.png",
+    "image": "/images/products/wifi-repeater-300mbps.jpg",
     "gallery": [],
-    "packSize": "",
-    "sku": "",
+    "packSize": "50",
+    "priceCarton": 950,
+    "pricePiece": 950,
+    "sku": "300 Mbps Wi-Fi Signal Extender / Repeater (AP / Router) 6 antina",
     "featured": true,
     "available": true,
     "tags": [
@@ -171,9 +173,7 @@
       "wps",
       "wireless",
       "networking"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 201,
