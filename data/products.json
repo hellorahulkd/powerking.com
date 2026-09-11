@@ -2237,5 +2237,24 @@
     "tags": [
       "bike scooter"
     ]
+  },
+  {
+    "id": 320,
+    "name": "Metal Motorcycle Phone Mount Bike Premium quality",
+    "slug": "metal-motorcycle-phone-mount-bike-premium-quality",
+    "brand": "Metal Motorcycle Phone Mount Bike Premium quality",
+    "category": "Bike accessories",
+    "description": "Product Description Premium\n Product Type: Premium metal alloy phone holder designed for secure, stable device mounting.\n Material & Build: Crafted from high-grade aluminum alloy with a robust, durable construction (\"Strict\" quality standard).\n Rotation: Features 360-degree rotation capabilities for flexible viewing angles in both portrait and landscape modes.\n Compatibility & Design: Universal design suitable for a wide range of smartphones (\"Used widely\"), equipped with secure corner grips (\"Talon\") to lock the device firmly in place.\n Color Options: Available in multiple color finishes.\nDimensions\n Form Factor: Compact, lightweight desktop/mountable design tailored for standard smartphone sizes.",
+    "image": "/images/products/metal-motorcycle-phone-mount-bike-premium-quality.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 225,
+    "pricePiece": 225,
+    "sku": "C3 heavy",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "C3 bike"
+    ]
   }
 ]
