@@ -29,13 +29,15 @@
     "id": 102,
     "name": "PowerKing 1USB Multi Protocol Fast Charger 120W",
     "slug": "powerking-1usb-multi-protocol-fast-charger-120w",
-    "brand": "PowerKing",
+    "brand": "PowerKing 120W",
     "category": "Chargers & Adapters",
-    "description": "Single-port 120W multi-protocol fast charger sold as a 2-in-1 pack with a USB data cable, combining data transfer and high-speed charging. Full output table is not printed on the box face photographed.",
-    "image": "/images/products/powerking-1usb-multi-protocol-fast-charger-120w.png",
+    "description": "Powerking 120W Multi-Protocol Fast Charger (Model PK-60):\nPowerking 120W Turbo Power Multi-Protocol Fast Charger with Cable (PK-60)\nPower up your devices at lightning speed with the Powerking 120W Turbo Power Adapter Set. Engineered with advanced multi-protocol fast charging support, this high-output wall charger delivers optimized power across major smartphone brand standards. Included with a durable 100cm USB-A to Type-C cable, it handles both rapid charging and high-speed data transfer seamlessly.\n 120W Ultra-Fast Output: Delivers high-wattage power to charge smartphones, tablets, and compatible mobile devices rapidly.\n Multi-Protocol Fast Charging: Broad compatibility supporting SuperVOOC, Warp Charge, Dash Charge, Flash Charge, Turbo Charge, and Quick Charge standards.\n 2-in-1 Charging & Data Sync: Combines high-speed power transmission with stable data transfer capability.\n Comprehensive Multi-Protection: Built-in safety guards against overcurrent, overvoltage, short circuits, and overheating.\n Complete Ready-to-Use Kit: Includes the 120W single-port USB power adapter and a matching 100cm heavy-duty USB-A to Type-C cable.\nSpecifications\n Model: PK-60\n Input Voltage: AC 110V–220V\n Output Ratings: 5V=3A / 9V=2.77A / 12V=2.08A\n Total Max Power: 120W Max\n Port Type: Single USB-A Output\n Included Cable: 100cm USB-A to USB Type-C Cable",
+    "image": "/images/products/powerking-1usb-multi-protocol-fast-charger-120w.jpg",
     "gallery": [],
-    "packSize": "",
-    "sku": "",
+    "packSize": "100",
+    "priceCarton": 375,
+    "pricePiece": 375,
+    "sku": "P.K 60",
     "featured": false,
     "available": true,
     "tags": [
@@ -44,9 +46,7 @@
       "multi protocol",
       "2 in 1",
       "data cable"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 103,
