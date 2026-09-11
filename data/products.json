@@ -101,31 +101,6 @@
     ]
   },
   {
-    "id": 106,
-    "name": "NeePho NP-888 2-in-1 Phone Tripod",
-    "slug": "neepho-np-888-phone-tripod",
-    "brand": "NeePho",
-    "category": "Mobile Accessories",
-    "description": "Extendable aluminium tripod with a spring phone clamp, sold as a 2-in-1 that converts between tripod and handheld use. Folding legs with flip locks and a rotating head for portrait or landscape.",
-    "image": "/images/products/neepho-np-888-phone-tripod.png",
-    "gallery": [],
-    "packSize": "",
-    "sku": "NP-888",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "tripod",
-      "phone stand",
-      "neepho",
-      "2 in 1",
-      "aluminium",
-      "extendable",
-      "content creation"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 110,
     "name": "PowerKing P-H32E 30000mAh 22.5W Fast Charge Power Bank",
     "slug": "powerking-p-h32e-30000mah-power-bank",
