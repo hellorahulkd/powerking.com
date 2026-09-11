@@ -221,16 +221,31 @@ function categoryBar(allCategories, countsByCategory, products) {
       </li>`;
         })
         .join('')}
-      <li>
-        <a class="catbar__item catbar__item--all" href="/products/">All products</a>
-      </li>
     </ul>
+    <!--
+      Pinned outside the scrolling row, not the last thing in it. As a final
+      pill it was the one item you had to swipe past every other category to
+      reach — and the way to see them all is exactly what someone reaches for
+      when the row has more than fits.
+    -->
+    <a class="catbar__all" href="/products/">
+      All<span class="catbar__all-word"> categories</span>
+    </a>
   </div>
 </nav>`;
 }
 
-/** How many of a category's products a home-page band shows. */
-const BAND_SIZE = 8;
+/**
+ * How many of a category's products a home-page band shows.
+ *
+ * The leading band — the category the shop stocks most deeply — gets the
+ * bigger number, because it is the one a reader lands in and the one worth
+ * scrolling. Every band after it gets the smaller one. Data-driven rather
+ * than "Speakers gets 28": if another range overtakes it, that range leads
+ * and takes the deep band with it.
+ */
+const LEAD_BAND_SIZE = 28;
+const BAND_SIZE = 12;
 
 /**
  * Pick a band's products so they are not all the same thing.
@@ -295,7 +310,7 @@ function categoryBands(categories, countsByCategory, products) {
 
   return bands
     .map(({ c, all }, i) => {
-      const shown = spreadByBrand(sortProducts(all), BAND_SIZE);
+      const shown = spreadByBrand(sortProducts(all), i === 0 ? LEAD_BAND_SIZE : BAND_SIZE);
       const total = countsByCategory[c.name] || all.length;
       const more = total > shown.length;
       // Alternating grounds, so one band reads as ending and the next as

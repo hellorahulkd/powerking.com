@@ -563,30 +563,45 @@ code {
   position: sticky; top: var(--header-h); z-index: 39;
   background: var(--bg); border-bottom: 1px solid var(--border);
 }
+/* The row scrolls; the way to all of them does not. */
+.catbar > .container { display: flex; align-items: center; gap: .8rem; }
 .catbar__row {
-  display: flex; gap: .4rem; overflow-x: auto; padding: .4rem 0; margin: 0;
+  display: flex; gap: .4rem; overflow-x: auto; padding: .5rem 0; margin: 0;
+  flex: 1; min-width: 0;
   list-style: none;
   scrollbar-width: none; -webkit-overflow-scrolling: touch;
   /* Says "more this way" rather than ending in a chopped-off word — see the
      matching note on .toolbar .chips. */
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
 }
 .catbar__row::-webkit-scrollbar { display: none; }
 .catbar__row > li { flex: none; }
 .catbar__item {
-  display: inline-flex; align-items: center; gap: .45rem;
-  padding: .2rem .8rem .2rem .2rem; border-radius: 100px;
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .25rem .9rem .25rem .25rem; border-radius: 100px;
   background: var(--bg-alt); border: 1px solid transparent;
   font-family: var(--font-display); font-weight: 800;
-  font-size: var(--step--1); letter-spacing: -.01em; white-space: nowrap;
+  font-size: var(--step-0); letter-spacing: -.01em; white-space: nowrap;
   color: var(--ink); text-decoration: none;
   transition: background-color .15s, border-color .15s;
 }
 .catbar__item:hover { background: var(--bg-sunken); border-color: var(--border-strong); }
-.catbar__item--all { padding-left: .8rem; }
+/* Always reachable, whatever the row is scrolled to. Outside the row's fade,
+   so it reads as a control rather than as the next thing to swipe to. */
+/* `gap`, not a space in the markup: this is a flex container, so the
+   whitespace between "All" and the span is discarded and the label rendered
+   as "Allcategories". */
+.catbar__all {
+  flex: none; display: inline-flex; align-items: center; gap: .28em;
+  padding: .45rem .9rem; border-radius: 100px;
+  background: var(--ink); color: #fff; text-decoration: none;
+  font-family: var(--font-display); font-weight: 800;
+  font-size: var(--step--1); letter-spacing: -.01em; white-space: nowrap;
+}
+.catbar__all:hover { background: var(--volt); color: var(--ink); }
 .catbar__shot {
-  display: block; width: 2.1rem; height: 2.1rem; flex: none;
+  display: block; width: 2.6rem; height: 2.6rem; flex: none;
   border-radius: 50%; overflow: hidden;
   background: #fff; border: 1px solid var(--border);
 }
@@ -594,8 +609,13 @@ code {
 /* Tighter on a phone, where the bar is the width of a hand: at the desktop
    size only two categories fit before the fade. */
 @media (max-width: 560px) {
-  .catbar__item { gap: .35rem; padding: .15rem .6rem .15rem .15rem; font-size: .76rem; }
-  .catbar__shot { width: 1.7rem; height: 1.7rem; }
+  .catbar > .container { gap: .35rem; }
+  .catbar__item { gap: .4rem; padding: .2rem .7rem .2rem .2rem; font-size: .84rem; }
+  .catbar__shot { width: 2.15rem; height: 2.15rem; }
+  /* Just "All" on a phone: the word it stands for costs a category's worth
+     of the row it is there to give access to. */
+  .catbar__all { padding: .4rem .7rem; font-size: .76rem; }
+  .catbar__all-word { display: none; }
 }
 
 /* The way into a category, at the foot of its band. */

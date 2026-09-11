@@ -379,16 +379,30 @@ function tagOnlyTerm() {
       return {
         onScreen: b.top >= 0 && b.bottom <= innerHeight,
         underHeader: Math.abs(b.top - head.bottom) <= 2,
-        short: Math.round(b.height) <= 70,
+        short: Math.round(b.height) <= 84,
         // One row that scrolls sideways, never a block that wraps downwards.
         scrolls: row.scrollWidth > row.clientWidth
           || getComputedStyle(row).overflowX === 'auto',
+        ...(() => {
+          const all = bar.querySelector('.catbar__all');
+          if (!all) return { allPinned: false, allVisible: false };
+          const before = all.getBoundingClientRect().left;
+          row.scrollLeft = row.scrollWidth;
+          const after = all.getBoundingClientRect();
+          return {
+            allPinned: Math.abs(before - after.left) < 1,
+            allVisible: after.right <= b.right + 1 && after.left >= b.left,
+          };
+        })(),
       };
     `);
     check('the category bar is still on screen after scrolling past the fold',
       pinned.onScreen === true && pinned.underHeader === true, JSON.stringify(pinned));
     check('and stays one short horizontal row',
       pinned.short === true && pinned.scrolls === true, JSON.stringify(pinned));
+    // However far the row is swiped, the way to all of them stays put.
+    check('the way to every category never scrolls out of reach',
+      pinned.allPinned === true && pinned.allVisible === true, JSON.stringify(pinned));
     await page.eval(`document.scrollingElement.scrollTop = 0; return 1;`);
 
     const listed = categories.filter((c) => products.some((p) => p.category === c.name));
@@ -397,8 +411,9 @@ function tagOnlyTerm() {
     check('each band holds only its own category',
       r.bands.every((b) => b.cats.length === 1 && b.cats[0] === b.title),
       JSON.stringify(r.bands.map((b) => ({ t: b.title, c: b.cats }))).slice(0, 140));
-    check('a band shows a handful, not the whole range',
-      r.bands.every((b) => b.cards > 0 && b.cards <= 8),
+    // The leading range is worth scrolling; the ones after it are a sample.
+    check('the leading band is the deep one, the rest are samples',
+      r.bands.every((b, i) => b.cards > 0 && b.cards <= (i === 0 ? 28 : 12)),
       r.bands.map((b) => `${b.title}:${b.cards}`).join(' '));
     check('every band links to its own full category page',
       r.bands.every((b) => b.link && b.link.startsWith('/products/') && b.link !== '/products/'),
