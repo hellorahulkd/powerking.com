@@ -261,7 +261,9 @@
     "description": "Clip-on RGB fill light for phone and camera work, supplied with a fold-out stand bracket and an infrared remote. The box states multiple mode switching, suitable for various scenarios.",
     "image": "/images/products/neepho-m21-rgb-lighting-kit.jpg",
     "gallery": [],
-    "packSize": "",
+    "packSize": "100",
+    "priceCarton": 725,
+    "pricePiece": 750,
     "sku": "M21 RGB",
     "featured": false,
     "available": true,
@@ -273,9 +275,7 @@
       "remote",
       "clip on",
       "neepho"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
+    ]
   },
   {
     "id": 109,
