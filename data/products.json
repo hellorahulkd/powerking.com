@@ -2180,5 +2180,24 @@
     "tags": [
       "bike accessories"
     ]
+  },
+  {
+    "id": 317,
+    "name": "Bicycle-Moto Phone Holder Scooter",
+    "slug": "bicycle-moto-phone-holder-scooter",
+    "brand": "Bicycle-Moto Phone Holder Scooter",
+    "category": "Mobile Accessories",
+    "description": "Product Description Scooter\n Product Type: One-touch automatic lock universal phone holder designed for bicycles, motorbikes, scooters, and motorcycles.\n Locking Mechanism: Features a convenient one-touch automatically locking system for quick, secure, and effortless one-handed mounting.\n Design & Stability: Engineered with a secure clamp structure to ensure steady grip and clear vision of your device while riding.\n Rotation: Supports 360-degree rotation, allowing flexible adjustment between portrait and landscape viewing angles.\n Compatibility: Versatile handlebar mount suitable for bicycles, electric scooters, motorbikes, and motorcycles.\nDimensions & Specifications\n Holder Type: Universal handlebar mount clamp with adjustable grip width.\n Compatibility Range: Fits most standard smartphones and handlebars securely.",
+    "image": "/images/products/bicycle-moto-phone-holder-scooter.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 155,
+    "pricePiece": 160,
+    "sku": "Biomoto",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Biomoto"
+    ]
   }
 ]
