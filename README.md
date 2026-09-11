@@ -45,7 +45,8 @@ are the same records.
 | Change the WhatsApp number | `whatsappNumber` in [`src/config/site.config.js`](src/config/site.config.js) |
 | Add Google Analytics | `googleAnalyticsId` in the same config file |
 | Change phone/email/address | Same config file |
-| Publish changes | The admin panel does it for you. Otherwise `git push` to `main` |
+| Publish changes | The admin panel does it for you. Otherwise `git push` |
+| Know what this costs | Nothing — [`docs/FREE-TIER.md`](docs/FREE-TIER.md) shows the measurements |
 
 Business details — phone, address, WhatsApp number, colours — live in **one
 config file**. Products and stock live in **Supabase**. You never need to edit
@@ -82,7 +83,9 @@ HTML.
 21. [Running the tests](#21-running-the-tests)
 
 Deeper explanations live in [`docs/INVENTORY.md`](docs/INVENTORY.md) (how stock
-works) and [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) (how it ships).
+works), [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) (how it ships) and
+[`docs/FREE-TIER.md`](docs/FREE-TIER.md) (**what it costs — nothing — and how to
+keep it that way**).
 
 ---
 
@@ -822,14 +825,16 @@ Fifteen minutes, once.
 
 1. **Create a project** at [supabase.com](https://supabase.com). Any region;
    Singapore or Mumbai is closest to Nepal.
-2. **Run the migrations.** SQL Editor → paste each file from
-   `supabase/migrations/` **in filename order** → Run. There are five. They are
-   idempotent, so running one twice is harmless.
+2. **Run the schema.** SQL Editor → paste
+   [`supabase/apply/01-schema.sql`](supabase/apply/01-schema.sql) → Run. One
+   paste: it is all five migrations concatenated in order. Every statement is
+   idempotent, so it is safe on an empty project, a half-migrated one, or one
+   that is already done.
 3. **Load the catalogue.** SQL Editor → paste
-   `supabase/seed/0001_catalogue_from_json.sql` → Run. This is the real
-   87-product catalogue from `data/products.json`, not demo data. Every
-   statement is `ON CONFLICT DO NOTHING` on a natural key, so running it twice
-   adds nothing and overwrites nothing you have since edited.
+   [`supabase/apply/02-catalogue.sql`](supabase/apply/02-catalogue.sql) → Run.
+   This is the real 87-product catalogue from `data/products.json`, not demo
+   data. Every statement is `ON CONFLICT DO NOTHING` on a natural key, so
+   running it twice adds nothing and overwrites nothing you have since edited.
 4. **Create the first user** — [§14](#14-creating-the-first-admin-user).
 5. **Set the environment variables** where the site is built —
    [§16](#16-environment-variables).

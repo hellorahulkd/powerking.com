@@ -9,9 +9,25 @@ on:
     branches: [claude/powerking-nepal-website-tave3g]
   # Lets you re-deploy by hand from the Actions tab without pushing a commit.
   workflow_dispatch:
-  # The public catalogue is pre-rendered, so an edit made in /admin/ reaches
-  # the website on the next build. A push triggers one; this makes sure the
-  # site is never more than a day behind even in a week when nobody pushes.
+  # DO NOT REMOVE THIS SCHEDULE. It does two jobs.
+  #
+  # 1. The public catalogue is pre-rendered, so an edit made in /admin/ reaches
+  #    the website on the next build. A push triggers one; this makes sure the
+  #    site is never more than a day behind in a week when nobody pushes.
+  #
+  # 2. It keeps the free Supabase project awake. Supabase pauses a free project
+  #    after seven days without activity, and this build's read of the
+  #    catalogue is activity. Without it the project would pause, and /admin/
+  #    would need resuming by hand from the Supabase dashboard.
+  #
+  # If the project does pause, the public website is unaffected: the build
+  # falls back to data/products.json and publishes the whole catalogue anyway.
+  # See docs/FREE-TIER.md.
+  #
+  # One thing to know: GitHub switches off a scheduled workflow after 60 days
+  # with no repository activity, and emails the owner first. Pushing anything,
+  # or running this workflow by hand, starts it again.
+  #
   # 01:15 UTC is about 07:00 in Kathmandu — before the shop opens.
   schedule:
     - cron: '15 1 * * *'
