@@ -555,40 +555,51 @@ code {
 /* ----------------------------------------------------------- categories -- */
 /* A sideways row of round product photographs. Scrolls on a phone, wraps into
    a centred row once there is width for it. */
-.cat-row {
-  display: flex; gap: 1rem; overflow-x: auto; padding-bottom: .35rem;
-  scroll-snap-type: x proximity;
+/* The category bar: pinned under the header the whole way down the home
+   page, so a reader halfway through the speakers can still jump to cables
+   without scrolling back to the top. One row, scrolled sideways — as a block
+   of 7rem circles it was a screenful that disappeared on the first scroll. */
+.catbar {
+  position: sticky; top: var(--header-h); z-index: 39;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.catbar__row {
+  display: flex; gap: .4rem; overflow-x: auto; padding: .4rem 0; margin: 0;
+  list-style: none;
   scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  /* Says "more this way" rather than ending in a chopped-off word — see the
+     matching note on .toolbar .chips. */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
 }
-.cat-row::-webkit-scrollbar { display: none; }
-.cat-row > li { flex: none; scroll-snap-align: start; width: 5.5rem; }
-@media (min-width: 700px) {
-  .cat-row { flex-wrap: wrap; overflow-x: visible; gap: 1.25rem; }
-  .cat-row > li { width: 7rem; }
+.catbar__row::-webkit-scrollbar { display: none; }
+.catbar__row > li { flex: none; }
+.catbar__item {
+  display: inline-flex; align-items: center; gap: .45rem;
+  padding: .2rem .8rem .2rem .2rem; border-radius: 100px;
+  background: var(--bg-alt); border: 1px solid transparent;
+  font-family: var(--font-display); font-weight: 800;
+  font-size: var(--step--1); letter-spacing: -.01em; white-space: nowrap;
+  color: var(--ink); text-decoration: none;
+  transition: background-color .15s, border-color .15s;
 }
-.cat-face {
-  display: grid; justify-items: center; gap: .1rem; text-align: center;
-  text-decoration: none; color: var(--ink);
-}
-.cat-face__shot {
-  display: grid; place-items: center; width: 5.5rem; height: 5.5rem;
+.catbar__item:hover { background: var(--bg-sunken); border-color: var(--border-strong); }
+.catbar__item--all { padding-left: .8rem; }
+.catbar__shot {
+  display: block; width: 2.1rem; height: 2.1rem; flex: none;
   border-radius: 50%; overflow: hidden;
-  background: #fff; border: 2px solid var(--border);
-  transition: border-color .18s, transform .18s;
+  background: #fff; border: 1px solid var(--border);
 }
-@media (min-width: 700px) { .cat-face__shot { width: 7rem; height: 7rem; } }
-.cat-face__shot img { width: 100%; height: 100%; object-fit: cover; }
-.cat-face:hover .cat-face__shot {
-  border-color: var(--accent); transform: translateY(-2px);
+.catbar__shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Tighter on a phone, where the bar is the width of a hand: at the desktop
+   size only two categories fit before the fade. */
+@media (max-width: 560px) {
+  .catbar__item { gap: .35rem; padding: .15rem .6rem .15rem .15rem; font-size: .76rem; }
+  .catbar__shot { width: 1.7rem; height: 1.7rem; }
 }
-.cat-face__name {
-  margin-top: .4rem; font-family: var(--font-display); font-weight: 800;
-  font-size: .82rem; line-height: 1.15; letter-spacing: -.02em;
-}
-.cat-face__count {
-  font-family: var(--font-mono); font-size: .64rem; letter-spacing: .06em;
-  color: var(--text-faint); text-transform: uppercase;
-}
+
+/* The way into a category, at the foot of its band. */
+.band__foot { margin: 1.1rem 0 0; text-align: center; }
 
 .cat-strip { display: flex; flex-wrap: wrap; gap: .5rem; }
 .cat-strip__item {

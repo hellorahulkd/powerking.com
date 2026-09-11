@@ -348,15 +348,48 @@ function tagOnlyTerm() {
       const bands = [...document.querySelectorAll('[id^="cat-"]')].map((s) => ({
         id: s.id,
         title: (s.querySelector('.section__title') || {}).textContent.trim(),
-        link: (s.querySelector('a[href^="/products/"]') || {}).getAttribute('href'),
+        link: (s.querySelector('.band__foot a') || {}).getAttribute('href'),
+        linkBelowCards: (() => {
+          const foot = s.querySelector('.band__foot');
+          const last = [...s.querySelectorAll('[data-product]')].pop();
+          return !!foot && !!last
+            && foot.getBoundingClientRect().top >= last.getBoundingClientRect().bottom - 1;
+        })(),
         cards: s.querySelectorAll('[data-product]').length,
         cats: [...new Set([...s.querySelectorAll('[data-product]')]
           .map((c) => c.getAttribute('data-category')))],
-        prices: [...s.querySelectorAll('[data-product]')]
-          .map((c) => Number(c.getAttribute('data-price')) || 0),
+        brands: [...s.querySelectorAll('[data-product]')]
+          .map((c) => c.getAttribute('data-brand') || ''),
       }));
       return { bands, total: document.querySelectorAll('[data-product]').length };
     `);
+
+    // The bar is the reason a reader never has to scroll back up. Scrolled
+    // well past the fold it has to still be there, pinned under the header
+    // and not behind it.
+    const pinned = await page.eval(`
+      document.documentElement.style.scrollBehavior = 'auto';
+      document.scrollingElement.scrollTop = 2600;
+      await new Promise((r) => requestAnimationFrame(r));
+      const bar = document.querySelector('.catbar');
+      if (!bar) return { missing: true };
+      const b = bar.getBoundingClientRect();
+      const head = document.querySelector('.site-header').getBoundingClientRect();
+      const row = bar.querySelector('.catbar__row');
+      return {
+        onScreen: b.top >= 0 && b.bottom <= innerHeight,
+        underHeader: Math.abs(b.top - head.bottom) <= 2,
+        short: Math.round(b.height) <= 70,
+        // One row that scrolls sideways, never a block that wraps downwards.
+        scrolls: row.scrollWidth > row.clientWidth
+          || getComputedStyle(row).overflowX === 'auto',
+      };
+    `);
+    check('the category bar is still on screen after scrolling past the fold',
+      pinned.onScreen === true && pinned.underHeader === true, JSON.stringify(pinned));
+    check('and stays one short horizontal row',
+      pinned.short === true && pinned.scrolls === true, JSON.stringify(pinned));
+    await page.eval(`document.scrollingElement.scrollTop = 0; return 1;`);
 
     const listed = categories.filter((c) => products.some((p) => p.category === c.name));
     check('every stocked category gets its own band',
@@ -370,17 +403,38 @@ function tagOnlyTerm() {
     check('every band links to its own full category page',
       r.bands.every((b) => b.link && b.link.startsWith('/products/') && b.link !== '/products/'),
       r.bands.map((b) => b.link).join(' '));
+    // At the foot, where a reader wants it — having looked at what is there,
+    // not before seeing any of it.
+    check('the way into a category sits under its products, not above them',
+      r.bands.every((b) => b.linkBelowCards), JSON.stringify(r.bands.map((b) => b.linkBelowCards)));
     // The biggest ranges lead; the two-product ones close.
     check('bands run largest range first',
       r.bands.every((b, i) => i === 0
         || products.filter((p) => p.category === r.bands[i - 1].title).length
            >= products.filter((p) => p.category === b.title).length),
       r.bands.map((b) => b.title).join(' > '));
-    // A band and the page it links to must open on the same products.
-    check('a band is ordered cheapest first, like the catalogue it links to',
-      r.bands.every((b) => b.prices.filter((v) => v > 0)
-        .every((v, i, a) => i === 0 || v >= a[i - 1])),
-      JSON.stringify(r.bands.map((b) => b.prices)).slice(0, 140));
+    // A band is a sampler, so it is picked for variety rather than by price:
+    // the cheapest eight speakers were four LPs in a row, and the cheapest
+    // three cables were three variants of the same cable.
+    //
+    // What is asserted is what the rotation can actually promise. A category
+    // holding ten cables under three brand names cannot show eight different
+    // makes, and should not be failed for it — but it must show all three,
+    // and must lead with them rather than opening on a run of one.
+    const make = (b) => String(b || '').toLowerCase().trim().split(/\s+/)[0];
+    const makesIn = (title) =>
+      new Set(products.filter((p) => p.category === title).map((p) => make(p.brand))).size;
+    check('a band shows every make it can, before repeating any',
+      r.bands.every((b) => new Set(b.brands.map(make)).size
+        === Math.min(makesIn(b.title), b.cards)),
+      r.bands.map((b) => `${b.title}: ${new Set(b.brands.map(make)).size}/${
+        Math.min(makesIn(b.title), b.cards)}`).join(' '));
+    check('and leads with a different make on each of its first cards',
+      r.bands.every((b) => {
+        const lead = b.brands.slice(0, Math.min(makesIn(b.title), b.cards)).map(make);
+        return new Set(lead).size === lead.length;
+      }),
+      r.bands.map((b) => `${b.title}: ${b.brands.map(make).join(',')}`).join(' | ').slice(0, 170));
     await page.close();
   }
 

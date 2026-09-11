@@ -112,8 +112,11 @@ function compareSection(product, siblings) {
   const all = [product, ...siblings];
   const rows = [
     ['Brand', (p) => p.brand],
-    ['One piece', (p) => formatPrice(p.pricePiece)],
-    ['Per piece, by the carton', (p) => formatPrice(p.priceCarton)],
+    // One price only. The carton rate is a second per-piece figure, and two
+    // money rows side by side across four products was four chances to read
+    // the wrong one — the comparison is about which product, not which
+    // quantity. The carton rate is on each product's own page.
+    ['Price per piece', (p) => formatPrice(p.pricePiece)],
     ['Pack size', (p) => packSizeLabel(p.packSize)],
     ['SKU', (p) => p.sku],
     ['Availability', (p) => (p.available === false ? 'Currently unavailable' : 'Available')],

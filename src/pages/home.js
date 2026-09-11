@@ -176,20 +176,25 @@ function searchStrip(products) {
  * tile comes back on the next build.
  */
 /**
- * Categories as a row of round photographs, scrolled sideways.
+ * The category bar: small, horizontal, and pinned under the header.
  *
- * This was a two-up grid of text tiles: six categories meant three rows and
- * about 870px on a phone — most of a screen spent on six words and six
- * arrows, before a single product appeared. A row of thumbnails does the same
- * job in a fifth of the height, and a picture of what is in a category says
- * more than its name does.
+ * It used to be a block of 7rem circles with a heading over them, which meant
+ * that the moment a reader started scrolling products the categories were
+ * gone and getting to one meant scrolling back to the top. Sticky, it stays
+ * available the whole way down — so a reader can be halfway through the
+ * speakers and still jump straight to cables.
  *
- * The thumbnail is the first product in that category. Nothing is invented or
- * commissioned: it is a photograph the shop already uploaded, of something
- * actually in there.
+ * The picture on each is the first product in that category. Nothing is
+ * invented or commissioned: it is a photograph the shop already uploaded, of
+ * something actually in there.
  */
-function categorySection(allCategories, countsByCategory, products) {
-  const categories = allCategories.filter((c) => (countsByCategory[c.name] || 0) > 0);
+function categoryBar(allCategories, countsByCategory, products) {
+  // Same order as the bands below, largest range first: scrolling down and
+  // reading the bar left to right have to agree, or the bar is a second,
+  // contradictory index of the same page.
+  const categories = allCategories
+    .filter((c) => (countsByCategory[c.name] || 0) > 0)
+    .sort((a, b) => (countsByCategory[b.name] || 0) - (countsByCategory[a.name] || 0));
   if (!categories.length) return '';
 
   const faceOf = (name) => {
@@ -197,41 +202,72 @@ function categorySection(allCategories, countsByCategory, products) {
     return first ? first.image : '';
   };
 
-  return `<section class="section section--top section--tight" id="categories">
+  return `<nav class="catbar" id="categories" aria-label="Shop by category">
   <div class="container">
-    <div class="section__head section__head--tight">
-      <div>
-        <p class="eyebrow">Browse Our Catalogue</p>
-        <h2 class="section__title">Shop by category</h2>
-      </div>
-      <a class="link-arrow" href="/products/">All products <span aria-hidden="true">→</span></a>
-    </div>
-    <ul class="cat-row">
+    <ul class="catbar__row">
       ${categories
         .map((c) => {
-          const n = countsByCategory[c.name] || 0;
           const face = faceOf(c.name);
           return `<li>
-        <a class="cat-face" href="/products/${esc(c.slug)}/"
+        <a class="catbar__item" href="/products/${esc(c.slug)}/"
            data-track-category="${esc(c.name)}">
-          <span class="cat-face__shot">${
+          <span class="catbar__shot">${
             face
-              ? `<img src="${esc(face)}" alt="" width="200" height="200" loading="lazy" decoding="async">`
+              ? `<img src="${esc(face)}" alt="" width="64" height="64" loading="lazy" decoding="async">`
               : ''
           }</span>
-          <span class="cat-face__name">${esc(c.name)}</span>
-          <span class="cat-face__count">${n} ${n === 1 ? 'item' : 'items'}</span>
+          <span>${esc(c.name)}</span>
         </a>
       </li>`;
         })
         .join('')}
+      <li>
+        <a class="catbar__item catbar__item--all" href="/products/">All products</a>
+      </li>
     </ul>
   </div>
-</section>`;
+</nav>`;
 }
 
 /** How many of a category's products a home-page band shows. */
 const BAND_SIZE = 8;
+
+/**
+ * Pick a band's products so they are not all the same thing.
+ *
+ * Taking the cheapest eight put four LP speakers in a row, and five Powerking
+ * cables — a band that read as one product photographed from five angles. The
+ * pick now rotates through the brands in the category, so eight cards are
+ * eight different makes wherever the category has that many.
+ *
+ * The rotation IS the display order. Picking for variety and then re-sorting
+ * by price undid the whole thing: the three cheapest cables were the three
+ * Sky Dolphins, so they landed back-to-back at the top of the band. A band is
+ * a sampler of what a category holds — "See all" leads to the page where
+ * price order is the point.
+ */
+function spreadByBrand(sorted, n) {
+  // The first word of the brand, not the whole field. Several products carry
+  // their full name in the brand — "Sky Dolphin S61V Fast Data Cable V8" —
+  // and matching on the whole string counted three cables from one maker as
+  // three different makers, which is exactly the run this is meant to break
+  // up. Falls back to the slug so an unbranded product is its own group
+  // rather than joining every other unbranded one.
+  const queues = new Map();
+  for (const p of sorted) {
+    const brand = String(p.brand || '').trim().toLowerCase();
+    const key = brand ? brand.split(/\s+/)[0] : p.slug;
+    if (!queues.has(key)) queues.set(key, []);
+    queues.get(key).push(p);
+  }
+  const lists = [...queues.values()];
+  const picked = [];
+  for (let i = 0; picked.length < n && lists.some((q) => q.length); i++) {
+    const q = lists[i % lists.length];
+    if (q.length) picked.push(q.shift());
+  }
+  return picked;
+}
 
 /**
  * The catalogue on the home page, one band per category.
@@ -239,13 +275,16 @@ const BAND_SIZE = 8;
  * It used to be a single "More from the catalogue" grid with every category
  * mixed into it, so finding speakers meant scrolling back up to the category
  * row, choosing one, and landing on another page. Now a reader scrolls
- * straight down through Speakers, then the next range, and the next — each
- * band headed, counted, and linked to its own full page.
+ * straight down through Speakers, then the next range, and the next.
  *
  * Bands run largest range first: the categories the shop actually stocks in
  * depth lead, and the two- and three-product ones close. Within a band the
  * order is the catalogue's own — cheapest first — so a band and the page it
  * links to open on the same products rather than disagreeing.
+ *
+ * The way into a category sits at the FOOT of its band, not the head: a
+ * reader wants it once they have looked at what is there, and at the head it
+ * was a small grey link above products nobody had seen yet.
  */
 function categoryBands(categories, countsByCategory, products) {
   const bands = categories
@@ -256,7 +295,7 @@ function categoryBands(categories, countsByCategory, products) {
 
   return bands
     .map(({ c, all }, i) => {
-      const shown = sortProducts(all).slice(0, BAND_SIZE);
+      const shown = spreadByBrand(sortProducts(all), BAND_SIZE);
       const total = countsByCategory[c.name] || all.length;
       const more = total > shown.length;
       // Alternating grounds, so one band reads as ending and the next as
@@ -269,14 +308,17 @@ function categoryBands(categories, countsByCategory, products) {
         <p class="eyebrow">${esc(total)} ${total === 1 ? 'product' : 'products'}</p>
         <h2 class="section__title section__title--sm">${esc(c.name)}</h2>
       </div>
-      <a class="link-arrow" href="/products/${esc(c.slug)}/"
-         data-track-category="${esc(c.name)}">${
-        more ? `All ${esc(total)}` : 'Open'
-      } <span aria-hidden="true">→</span></a>
     </div>
     <div class="grid grid--cards">
       ${shown.map((p) => productCard(p, { location: 'home_category', showCategory: false })).join('')}
     </div>
+    <p class="band__foot">
+      <a class="btn btn--ghost btn--lg" href="/products/${esc(c.slug)}/"
+         data-track-category="${esc(c.name)}">
+        <span>${more ? `See all ${esc(total)} ${esc(c.name.toLowerCase())}` : `Open ${esc(c.name.toLowerCase())}`}</span>
+        <span class="btn__arrow" aria-hidden="true">→</span>
+      </a>
+    </p>
   </div>
 </section>`;
     })
@@ -378,7 +420,7 @@ export function homePage({ products, categories, countsByCategory }) {
   const body = [
     searchStrip(products),
     heroSlider(featured),
-    categorySection(categories, countsByCategory, products),
+    categoryBar(categories, countsByCategory, products),
     categoryBands(categories, countsByCategory, products),
     allProductsFoot(),
     // The "who we are" band is background, not what a buyer came for. It sits
