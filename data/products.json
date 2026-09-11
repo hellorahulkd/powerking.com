@@ -101,33 +101,6 @@
     ]
   },
   {
-    "id": 105,
-    "name": "VGR Super Trim 14-in-1 Grooming Kit",
-    "slug": "vgr-super-trim-14-in-1-grooming-kit",
-    "brand": "VGR",
-    "category": "Grooming",
-    "description": "Fourteen-piece grooming set built around a rechargeable trimmer with an LED display, rated IPX6 for washing. Includes clipper, nose-trimmer and shaver heads, four guide combs, a charging dock, a USB cable and a cleaning brush. [CONFIRM MODEL NUMBER — not legible in the photograph]",
-    "image": "/images/products/vgr-super-trim-14-in-1-grooming-kit.png",
-    "gallery": [],
-    "packSize": "",
-    "sku": "",
-    "featured": true,
-    "available": true,
-    "tags": [
-      "grooming kit",
-      "trimmer",
-      "shaver",
-      "nose trimmer",
-      "vgr",
-      "14 in 1",
-      "ipx6",
-      "led display",
-      "charging dock"
-    ],
-    "priceCarton": "",
-    "pricePiece": ""
-  },
-  {
     "id": 106,
     "name": "NeePho NP-888 2-in-1 Phone Tripod",
     "slug": "neepho-np-888-phone-tripod",
