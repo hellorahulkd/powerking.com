@@ -201,8 +201,10 @@ export function tabBar() {
   <a class="tabbar__item" href="/">
     ${icon('home', { size: 22 })}<span class="tabbar__label">Home</span>
   </a>
+  <!-- Labelled for where it goes. It has always linked to the catalogue;
+       calling it Categories was the same duplication the header carried. -->
   <a class="tabbar__item" href="/products/">
-    ${icon('grid', { size: 22 })}<span class="tabbar__label">Categories</span>
+    ${icon('grid', { size: 22 })}<span class="tabbar__label">Products</span>
   </a>
   <button type="button" class="tabbar__item" id="tab-enquire" data-enq-open
           aria-label="Open your enquiry list">

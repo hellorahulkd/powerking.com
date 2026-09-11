@@ -786,8 +786,8 @@ function tagOnlyTerm() {
       };
     `);
     check('it is on screen, at the bottom', r.shown && r.atBottom, JSON.stringify(r));
-    check('with Home, Categories and Enquire',
-      r.items.join('|') === 'Home|Categories|Enquire', r.items.join('|'));
+    check('with Home, Products and Enquire',
+      r.items.join('|') === 'Home|Products|Enquire', r.items.join('|'));
     check('the floating bubble stands down for it, so there is one Enquire',
       r.floatShown === false);
     check('the page reserves room, so the bar covers nothing',

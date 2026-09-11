@@ -4,10 +4,19 @@ import { icon } from './icons.js';
 import { lockup } from './brand.js';
 import { categories } from '../data/categories.js';
 
+/**
+ * There is no Categories entry, and there should not be one.
+ *
+ * It pointed at /products/#categories — the same page as Products, scrolled
+ * to a strip of category links. Two words in the nav for one destination, and
+ * once that strip gave way to the catalogue's own category chips the anchor
+ * had nothing left to scroll to. Categories are a filter on the catalogue,
+ * not a place: the chip row on /products/ is the control, and the footer
+ * still links each category's own page for anyone arriving from a search.
+ */
 const NAV = [
   { key: 'home', label: 'Home', href: '/' },
   { key: 'products', label: 'Products', href: '/products/' },
-  { key: 'categories', label: 'Categories', href: '/products/#categories' },
   { key: 'about', label: 'About', href: '/about/' },
   { key: 'contact', label: 'Contact', href: '/contact/' },
 ];
