@@ -161,3 +161,68 @@
     start();
   }
 })();
+
+/**
+ * The category bar's endless scroll.
+ *
+ * Swipe past the last category and the first comes round again; swipe back
+ * before the first and the last is there. Done by cloning the row once and
+ * wrapping scrollLeft at the seam, so there is no animation to fight and the
+ * bar still scrolls at exactly the speed of the thumb pushing it.
+ *
+ * The clone is made here rather than in the HTML: the served markup lists
+ * each category once, so a reader without JavaScript gets a plain scrolling
+ * row instead of every category printed twice.
+ */
+(function () {
+  'use strict';
+
+  var row = document.querySelector('[data-catbar-loop]');
+  if (!row) return;
+
+  // Nothing to loop through if it all fits — and cloning then would put a
+  // second copy of every category on screen at once.
+  if (row.scrollWidth <= row.clientWidth + 4) return;
+
+  var originals = Array.prototype.slice.call(row.children);
+  var span = row.scrollWidth;
+
+  for (var i = 0; i < originals.length; i++) {
+    var copy = originals[i].cloneNode(true);
+    // A duplicate of every link would be read out twice and tabbed through
+    // twice. The copy is scenery: it exists to be scrolled past.
+    copy.setAttribute('aria-hidden', 'true');
+    var link = copy.querySelector('a');
+    if (link) link.setAttribute('tabindex', '-1');
+    row.appendChild(copy);
+  }
+
+  // Start on the real list, not the copy.
+  row.scrollLeft = 0;
+
+  var ticking = false;
+  row.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(function () {
+      ticking = false;
+      // Jumping by exactly one span lands on the identical pill, so the seam
+      // is invisible: the row appears to keep going.
+      //
+      // Both bounds are strict, and the backward wrap lands a pixel short of
+      // the seam. Wrapping 0 to exactly `span` put the row on the other
+      // boundary, which the next frame wrapped straight back to 0 — the bar
+      // sat at the start refusing to move, ping-ponging once per frame.
+      if (row.scrollLeft > span) row.scrollLeft -= span;
+      else if (row.scrollLeft < 1) row.scrollLeft = span - 1;
+    });
+  }, { passive: true });
+
+  // The row is wider than it was, so the width to wrap at changes with the
+  // window. Re-measured from the originals rather than from scrollWidth,
+  // which now includes the clone.
+  window.addEventListener('resize', function () {
+    var last = originals[originals.length - 1];
+    span = last.offsetLeft + last.offsetWidth - originals[0].offsetLeft;
+  });
+}());

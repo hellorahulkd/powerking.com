@@ -184,11 +184,13 @@ function searchStrip(products) {
  * available the whole way down — so a reader can be halfway through the
  * speakers and still jump straight to cables.
  *
- * The picture on each is the first product in that category. Nothing is
- * invented or commissioned: it is a photograph the shop already uploaded, of
- * something actually in there.
+ * The row loops: swipe past the last category and the first comes round
+ * again, in either direction. Done in the browser by cloning the list once —
+ * see catbar.js — so the served HTML holds each category exactly once and a
+ * reader without JavaScript gets a plain scrolling row, not a list printed
+ * twice.
  */
-function categoryBar(allCategories, countsByCategory, products) {
+function categoryBar(allCategories, countsByCategory) {
   // Same order as the bands below, largest range first: scrolling down and
   // reading the bar left to right have to agree, or the bar is a second,
   // contradictory index of the same page.
@@ -197,29 +199,19 @@ function categoryBar(allCategories, countsByCategory, products) {
     .sort((a, b) => (countsByCategory[b.name] || 0) - (countsByCategory[a.name] || 0));
   if (!categories.length) return '';
 
-  const faceOf = (name) => {
-    const first = products.find((p) => p.category === name && p.image);
-    return first ? first.image : '';
-  };
-
+  // Plain pills, no thumbnail. The photo circle stuck on the left end made
+  // each item read as a tag rather than a pill, and it was the widest thing
+  // in a row whose whole job is to fit as many categories as it can.
   return `<nav class="catbar" id="categories" aria-label="Shop by category">
   <div class="container">
-    <ul class="catbar__row">
+    <ul class="catbar__row" data-catbar-loop>
       ${categories
-        .map((c) => {
-          const face = faceOf(c.name);
-          return `<li>
+        .map(
+          (c) => `<li>
         <a class="catbar__item" href="/products/${esc(c.slug)}/"
-           data-track-category="${esc(c.name)}">
-          <span class="catbar__shot">${
-            face
-              ? `<img src="${esc(face)}" alt="" width="64" height="64" loading="lazy" decoding="async">`
-              : ''
-          }</span>
-          <span>${esc(c.name)}</span>
-        </a>
-      </li>`;
-        })
+           data-track-category="${esc(c.name)}">${esc(c.name)}</a>
+      </li>`,
+        )
         .join('')}
     </ul>
     <!--
@@ -435,7 +427,7 @@ export function homePage({ products, categories, countsByCategory }) {
   const body = [
     searchStrip(products),
     heroSlider(featured),
-    categoryBar(categories, countsByCategory, products),
+    categoryBar(categories, countsByCategory),
     categoryBands(categories, countsByCategory, products),
     allProductsFoot(),
     // The "who we are" band is background, not what a buyer came for. It sits

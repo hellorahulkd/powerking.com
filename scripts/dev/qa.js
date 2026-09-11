@@ -403,6 +403,38 @@ function tagOnlyTerm() {
     // However far the row is swiped, the way to all of them stays put.
     check('the way to every category never scrolls out of reach',
       pinned.allPinned === true && pinned.allVisible === true, JSON.stringify(pinned));
+
+    // The row loops: past the last category the first comes round again, and
+    // back before the first the last is there. The clone that makes the seam
+    // invisible must not reach a screen reader or the tab order, and must not
+    // exist in the served HTML at all.
+    const loop = await page.eval(`
+      const row = document.querySelector('[data-catbar-loop]');
+      if (!row) return { missing: true };
+      const links = [...row.querySelectorAll('.catbar__item')];
+      const real = links.filter((a) => a.getAttribute('tabindex') !== '-1');
+      const step = async () =>
+        new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      row.scrollLeft = row.scrollWidth;
+      await step();
+      const forward = row.scrollLeft;
+      row.scrollLeft = 0;
+      await step();
+      const back = row.scrollLeft;
+      return {
+        real: real.length,
+        clones: links.length - real.length,
+        clonesHidden: links.filter((a) => a.getAttribute('tabindex') === '-1')
+          .every((a) => a.closest('[aria-hidden="true"]')),
+        forwardWrapped: forward > 0 && forward < row.scrollWidth - row.clientWidth,
+        backWrapped: back > 0,
+      };
+    `);
+    check('the category row loops in both directions',
+      loop.forwardWrapped === true && loop.backWrapped === true, JSON.stringify(loop));
+    check('and the copies that make the seam are hidden from readers and tabbing',
+      loop.clones === loop.real && loop.clonesHidden === true, JSON.stringify(loop));
+    await page.eval(`document.querySelector('[data-catbar-loop]').scrollLeft = 0; return 1;`);
     await page.eval(`document.scrollingElement.scrollTop = 0; return 1;`);
 
     const listed = categories.filter((c) => products.some((p) => p.category === c.name));

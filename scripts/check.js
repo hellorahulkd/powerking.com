@@ -252,6 +252,20 @@ async function main() {
     Boolean(siteConfig.googleAnalyticsId) || !/googletagmanager/.test(homeDoc));
   assert('images below the fold are lazy-loaded', /loading="lazy"/.test(await html('/products/')));
 
+  // The category bar loops by cloning its list in the browser. The SERVED
+  // markup must still list each category exactly once — cloned in the HTML it
+  // would print every category twice for anyone without JavaScript, and give
+  // a crawler two links to each category page.
+  {
+    const row = homeDoc.match(/<ul class="catbar__row"[^>]*>([\s\S]*?)<\/ul>/);
+    assert('the category bar is served with one row of categories', Boolean(row));
+    if (row) {
+      const hrefs = [...row[1].matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+      assert('and lists each category exactly once',
+        hrefs.length === new Set(hrefs).size, hrefs.join(' '));
+    }
+  }
+
   /* ----------------------------------------------------------- report -- */
   if (failures.length) {
     process.stdout.write(`\n  ✗ ${failures.length} of ${checks} checks failed:\n\n`);

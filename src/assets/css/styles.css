@@ -570,16 +570,18 @@ code {
   flex: 1; min-width: 0;
   list-style: none;
   scrollbar-width: none; -webkit-overflow-scrolling: touch;
-  /* Says "more this way" rather than ending in a chopped-off word — see the
-     matching note on .toolbar .chips. */
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
+  /* Faded at BOTH ends, because the row loops: there is more of it in either
+     direction, and a hard left edge would say the opposite. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 1.25rem,
+    #000 calc(100% - 1.25rem), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 1.25rem,
+    #000 calc(100% - 1.25rem), transparent);
 }
 .catbar__row::-webkit-scrollbar { display: none; }
 .catbar__row > li { flex: none; }
 .catbar__item {
-  display: inline-flex; align-items: center; gap: .5rem;
-  padding: .25rem .9rem .25rem .25rem; border-radius: 100px;
+  display: inline-flex; align-items: center;
+  padding: .5rem 1.1rem; border-radius: 100px;
   background: var(--bg-alt); border: 1px solid transparent;
   font-family: var(--font-display); font-weight: 800;
   font-size: var(--step-0); letter-spacing: -.01em; white-space: nowrap;
@@ -600,18 +602,10 @@ code {
   font-size: var(--step--1); letter-spacing: -.01em; white-space: nowrap;
 }
 .catbar__all:hover { background: var(--volt); color: var(--ink); }
-.catbar__shot {
-  display: block; width: 2.6rem; height: 2.6rem; flex: none;
-  border-radius: 50%; overflow: hidden;
-  background: #fff; border: 1px solid var(--border);
-}
-.catbar__shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* Tighter on a phone, where the bar is the width of a hand: at the desktop
-   size only two categories fit before the fade. */
+/* Tighter on a phone, where the bar is the width of a hand. */
 @media (max-width: 560px) {
   .catbar > .container { gap: .35rem; }
-  .catbar__item { gap: .4rem; padding: .2rem .7rem .2rem .2rem; font-size: .84rem; }
-  .catbar__shot { width: 2.15rem; height: 2.15rem; }
+  .catbar__item { padding: .42rem .85rem; font-size: .86rem; }
   /* Just "All" on a phone: the word it stands for costs a category's worth
      of the row it is there to give access to. */
   .catbar__all { padding: .4rem .7rem; font-size: .76rem; }
