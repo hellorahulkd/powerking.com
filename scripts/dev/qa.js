@@ -12,6 +12,7 @@ import { launch, newPage } from './cdp.js';
 import { products } from '../../src/data/products.js';
 import { searchText } from '../../src/templates/components.js';
 import { PAGE_SIZE } from '../../src/pages/catalogue.js';
+import { categories } from '../../src/data/categories.js';
 
 /**
  * What the catalogue's client-side search should return for a term, worked out
@@ -331,6 +332,55 @@ function tagOnlyTerm() {
         r.includes(`${packed.packSize} pieces per carton`),
         `looking for "${packed.packSize} pieces per carton"`);
     }
+    await page.close();
+  }
+
+  /* ------------------------------------------ 1f. the home page's bands -- */
+  // One long mixed grid meant finding speakers was: scroll back up to the
+  // category row, pick one, land on another page. The home page now runs a
+  // band per category, so a reader scrolls straight down through the ranges.
+  process.stdout.write('\nThe home page is browsable by category\n');
+  {
+    const page = await newPage(port);
+    await page.setViewport(1280, 900, false);
+    await page.goto(`${BASE}/`);
+    const r = await page.eval(`
+      const bands = [...document.querySelectorAll('[id^="cat-"]')].map((s) => ({
+        id: s.id,
+        title: (s.querySelector('.section__title') || {}).textContent.trim(),
+        link: (s.querySelector('a[href^="/products/"]') || {}).getAttribute('href'),
+        cards: s.querySelectorAll('[data-product]').length,
+        cats: [...new Set([...s.querySelectorAll('[data-product]')]
+          .map((c) => c.getAttribute('data-category')))],
+        prices: [...s.querySelectorAll('[data-product]')]
+          .map((c) => Number(c.getAttribute('data-price')) || 0),
+      }));
+      return { bands, total: document.querySelectorAll('[data-product]').length };
+    `);
+
+    const listed = categories.filter((c) => products.some((p) => p.category === c.name));
+    check('every stocked category gets its own band',
+      r.bands.length === listed.length, `${r.bands.length} bands, ${listed.length} categories`);
+    check('each band holds only its own category',
+      r.bands.every((b) => b.cats.length === 1 && b.cats[0] === b.title),
+      JSON.stringify(r.bands.map((b) => ({ t: b.title, c: b.cats }))).slice(0, 140));
+    check('a band shows a handful, not the whole range',
+      r.bands.every((b) => b.cards > 0 && b.cards <= 8),
+      r.bands.map((b) => `${b.title}:${b.cards}`).join(' '));
+    check('every band links to its own full category page',
+      r.bands.every((b) => b.link && b.link.startsWith('/products/') && b.link !== '/products/'),
+      r.bands.map((b) => b.link).join(' '));
+    // The biggest ranges lead; the two-product ones close.
+    check('bands run largest range first',
+      r.bands.every((b, i) => i === 0
+        || products.filter((p) => p.category === r.bands[i - 1].title).length
+           >= products.filter((p) => p.category === b.title).length),
+      r.bands.map((b) => b.title).join(' > '));
+    // A band and the page it links to must open on the same products.
+    check('a band is ordered cheapest first, like the catalogue it links to',
+      r.bands.every((b) => b.prices.filter((v) => v > 0)
+        .every((v, i, a) => i === 0 || v >= a[i - 1])),
+      JSON.stringify(r.bands.map((b) => b.prices)).slice(0, 140));
     await page.close();
   }
 

@@ -261,7 +261,15 @@ function cardPrice(product) {
  * @param {object} opts { eager } — set eager on the first few cards so the
  *                       largest contentful paint is not lazy-loaded.
  */
-export function productCard(product, { eager = false, location = 'product_card' } = {}) {
+/**
+ * `showCategory` is off inside a category band on the home page, where the
+ * section is already headed with that category and the eyebrow would repeat
+ * the same word on all eight cards.
+ */
+export function productCard(
+  product,
+  { eager = false, location = 'product_card', showCategory = true } = {},
+) {
   // The card carries only what someone needs to decide whether to open it:
   // what it is, what it is called, and how it is packed. Description, SKU and
   // the pricing line all live on the product page.
@@ -291,7 +299,7 @@ export function productCard(product, { eager = false, location = 'product_card' 
   ${badges(product)}
   ${enquiryAdd(product, { pin: true })}
   <div class="card__body">
-    <p class="card__eyebrow">${esc(product.category)}</p>
+    ${showCategory ? `<p class="card__eyebrow">${esc(product.category)}</p>` : ''}
     <h3 class="card__title"><a href="${esc(url)}">${esc(product.name)}</a></h3>
     ${product.packSize ? `<p class="card__meta">${esc(packSizeLabel(product.packSize))}</p>` : ''}
     ${cardPrice(product)}

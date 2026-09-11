@@ -3,6 +3,7 @@ import { esc, formatPrice } from '../lib/html.js';
 import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
 import { productCard, whatsappButton } from '../templates/components.js';
+import { sortProducts } from './catalogue.js';
 
 /**
  * Hero carousel of featured products.
@@ -229,25 +230,66 @@ function categorySection(allCategories, countsByCategory, products) {
 </section>`;
 }
 
-function moreSection(rest) {
-  if (!rest.length) return '';
-  return `<section class="section section--alt">
+/** How many of a category's products a home-page band shows. */
+const BAND_SIZE = 8;
+
+/**
+ * The catalogue on the home page, one band per category.
+ *
+ * It used to be a single "More from the catalogue" grid with every category
+ * mixed into it, so finding speakers meant scrolling back up to the category
+ * row, choosing one, and landing on another page. Now a reader scrolls
+ * straight down through Speakers, then the next range, and the next — each
+ * band headed, counted, and linked to its own full page.
+ *
+ * Bands run largest range first: the categories the shop actually stocks in
+ * depth lead, and the two- and three-product ones close. Within a band the
+ * order is the catalogue's own — cheapest first — so a band and the page it
+ * links to open on the same products rather than disagreeing.
+ */
+function categoryBands(categories, countsByCategory, products) {
+  const bands = categories
+    .map((c) => ({ c, all: products.filter((p) => p.category === c.name) }))
+    .filter((b) => b.all.length > 0)
+    .sort((a, b) => b.all.length - a.all.length);
+  if (!bands.length) return '';
+
+  return bands
+    .map(({ c, all }, i) => {
+      const shown = sortProducts(all).slice(0, BAND_SIZE);
+      const total = countsByCategory[c.name] || all.length;
+      const more = total > shown.length;
+      // Alternating grounds, so one band reads as ending and the next as
+      // beginning without a rule drawn between every one of them.
+      const alt = i % 2 === 1 ? ' section--alt' : '';
+      return `<section class="section section--tight${alt}" id="cat-${esc(c.slug)}">
   <div class="container">
-    <div class="section__head">
+    <div class="section__head section__head--tight">
       <div>
-        <p class="eyebrow">The Range</p>
-        <h2 class="section__title">More from the catalogue</h2>
+        <p class="eyebrow">${esc(total)} ${total === 1 ? 'product' : 'products'}</p>
+        <h2 class="section__title section__title--sm">${esc(c.name)}</h2>
       </div>
-      <a class="link-arrow" href="/products/">View all products <span aria-hidden="true">→</span></a>
+      <a class="link-arrow" href="/products/${esc(c.slug)}/"
+         data-track-category="${esc(c.name)}">${
+        more ? `All ${esc(total)}` : 'Open'
+      } <span aria-hidden="true">→</span></a>
     </div>
     <div class="grid grid--cards">
-      ${rest.map((p) => productCard(p, { location: 'home_more' })).join('')}
+      ${shown.map((p) => productCard(p, { location: 'home_category', showCategory: false })).join('')}
     </div>
-    <div class="section__foot">
-      <a class="btn btn--primary btn--lg" href="/products/">
-        <span>View All Products</span><span class="btn__arrow" aria-hidden="true">→</span>
-      </a>
-    </div>
+  </div>
+</section>`;
+    })
+    .join('\n');
+}
+
+/** The one link out, after every band. */
+function allProductsFoot() {
+  return `<section class="section section--tight">
+  <div class="container section__foot">
+    <a class="btn btn--primary btn--lg" href="/products/">
+      <span>View All Products</span><span class="btn__arrow" aria-hidden="true">→</span>
+    </a>
   </div>
 </section>`;
 }
@@ -333,13 +375,12 @@ function ctaSection() {
 
 export function homePage({ products, categories, countsByCategory }) {
   const featured = products.filter((p) => p.featured).slice(0, 8);
-  const featuredIds = new Set(featured.map((p) => p.id));
-  const rest = products.filter((p) => !featuredIds.has(p.id));
   const body = [
     searchStrip(products),
     heroSlider(featured),
     categorySection(categories, countsByCategory, products),
-    moreSection(rest),
+    categoryBands(categories, countsByCategory, products),
+    allProductsFoot(),
     // The "who we are" band is background, not what a buyer came for. It sits
     // after the products now, above the closing call to action.
     videoSection(),
