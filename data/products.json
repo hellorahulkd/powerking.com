@@ -2313,5 +2313,22 @@
     "tags": [
       "bike holder"
     ]
+  },
+  {
+    "id": 324,
+    "name": "Motorcycle & Vehicle Handlebar USB Charger with Voltmeter",
+    "slug": "motorcycle-and-vehicle-handlebar-usb-charger-with-voltmeter",
+    "brand": "Motorcycle & Vehicle Handlebar USB Charger with Voltmeter",
+    "category": "Bike accessories",
+    "description": "Motorcycle & Vehicle Handlebar USB Charger with Voltmeter\nProduct Description\n Dual Charging Ports: Features simultaneous USB-A and Type-C fast-charging ports to power smartphones, GPS devices, and dash cams on the go.\n Real-Time LED Voltmeter: Built-in digital display monitors battery voltage in real time to prevent sudden power drain and vehicle electrical issues.\n Handlebar & Mirror Bracket Mount: Versatile mounting design fits securely on standard handlebars or side-mirror stems for bikes, scooters, and ATVs.\n Weatherproof Protective Cap: Rubber dust and water cover protects internal ports from rain, splash, and road debris during outdoor rides.\n Safe Circuit Protection: Integrated over-charge, over-current, and short-circuit protection ensures safe power delivery to your connected electronics.\nDimensions & Specs\n Type: Motorcycle / Handlebar USB Charger with Voltmeter\n Input Voltage: DC 12V – 24V\n Output Ports: USB-A + Type-C (Quick Charge 3.0 / Power Delivery compatible)\n Display Range: 10V – 19.9V (Red/Blue Digital LED Display)\n Mounting Diameter: Standard 2.2 cm (~0.87 in) handlebar clamp\n Charger Unit Dimensions (L × W × H): ~6.8 cm × 4.2 cm × 5.0 cm (~2.7 in × 1.6 in × 2.0 in)\n Packaging Box (L × W × H): ~11.5 cm × 8.5 cm × 5.5 cm (~4.5 in × 3.3 in × 2.2 in)\n Cable Length: ~1.1 m with integrated fuse line",
+    "image": "/images/products/motorcycle-and-vehicle-handlebar-usb-charger-with-voltmeter.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 725,
+    "pricePiece": 750,
+    "sku": "Motorcycle & Vehicle Handlebar USB Charger with Voltmeter",
+    "featured": false,
+    "available": true,
+    "tags": []
   }
 ]
