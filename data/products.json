@@ -2385,5 +2385,24 @@
     "tags": [
       "Charger"
     ]
+  },
+  {
+    "id": 328,
+    "name": "PowerKing PK-42 – 120W Fast Charger",
+    "slug": "powerking-pk-42-120w-fast-charger",
+    "brand": "PowerKing PK-42 – 120W Fast Charger",
+    "category": "Chargers & Adapters",
+    "description": "PowerKing PK-42 – 120W Fast Charger\n\nExperience powerful and efficient charging with the PowerKing PK-42 120W Fast Charger. Designed for high-speed charging, it is suitable for smartphones, tablets and other compatible devices.\n\nKey Features:\n\n* ⚡ 120W High-Speed Charging\n* 🔌 High-performance charging output\n* 📱 Compatible with a wide range of devices\n* 🛡️ Designed with multiple safety protections\n* 💪 Compact and durable design\n* 🔥 Ideal for daily use and high-power charging needs\n* 📦 Model: PK-42\n\nPowerKing – Powerful charging. Reliable performance.",
+    "image": "/images/products/powerking-pk-42-120w-fast-charger.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 175,
+    "pricePiece": 175,
+    "sku": "Powerking 42",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "Chargers"
+    ]
   }
 ]
