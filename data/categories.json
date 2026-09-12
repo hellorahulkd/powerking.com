@@ -58,5 +58,10 @@
     "name": "Bike accessories",
     "slug": "bike-accessories",
     "description": "Bike accessories"
+  },
+  {
+    "name": "Tihar lights",
+    "slug": "tihar-lights",
+    "description": "Tihar lights"
   }
 ]
