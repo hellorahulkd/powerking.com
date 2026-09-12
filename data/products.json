@@ -2404,5 +2404,24 @@
     "tags": [
       "Chargers"
     ]
+  },
+  {
+    "id": 329,
+    "name": "S23 Fast Charging Cable",
+    "slug": "s23-fast-charging-cable",
+    "brand": "S23 Fast Charging Cable",
+    "category": "Data Cables",
+    "description": "S23 Fast Charging Cable\n\nA reliable and durable charging cable designed for fast charging and stable data transfer. Ideal for everyday smartphone use, with a flexible design that makes it convenient for home, office, travel, and retail customers.\n\nKey Features:\n\n* ⚡ Fast & stable charging\n* 🔄 Data transfer support\n* 💪 Durable and flexible cable design\n* 🔌 Strong connector build\n* 📱 Suitable for compatible smartphones and devices\n* 🎒 Ideal for daily use and travel\n\nS23 Cable — Reliable connection. Powerful performance.",
+    "image": "/images/products/s23-fast-charging-cable.jpg",
+    "gallery": [],
+    "packSize": "200",
+    "priceCarton": 200,
+    "pricePiece": 225,
+    "sku": "S23 Fast Charging Cable",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Cable"
+    ]
   }
 ]
