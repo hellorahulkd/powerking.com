@@ -2366,5 +2366,24 @@
     "tags": [
       "Tihar lights"
     ]
+  },
+  {
+    "id": 327,
+    "name": "Samsung 45wPD Power Adapter",
+    "slug": "samsung-45wpd-power-adapter",
+    "brand": "Samsung 45wPD Power Adapter",
+    "category": "Chargers & Adapters",
+    "description": "Key Features & DesignCompact GaN Technology: Built using Gallium Nitride (GaN) semi-conductors. This makes the charger smaller, more energy-efficient, and much cooler during high-load charging sessions compared to older silicon bricks.Travel-Friendly Form Factor: Features a sleek, matte black or white plastic finish with a single top-facing USB-C port. Its slim profile ensures it does not block adjacent outlets on a power strip.Charging Speeds & PerformanceSuper Fast Charging 2.0: Delivers the maximum 45W output to compatible Samsung devices. It can charge a Galaxy S24 Ultra or S25 Ultra from 0% to nearly 70% in just 30 minutes.Smart Power Delivery: Equipped with USB-PD 3.0 and PPS (Programmable Power Supply) protocols. The charger actively communicates with your device to dynamically adjust the voltage and current, protecting your battery health.Universal Compatibility: Safely steps down power outputs (e.g., 15W, 25W) to safely charge earbuds, smartwatches, older iPhones, and even low-powered USB-C laptops like the MacBook Air.",
+    "image": "/images/products/samsung-45wpd-power-adapter.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 525,
+    "pricePiece": 550,
+    "sku": "Samsung",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Charger"
+    ]
   }
 ]
