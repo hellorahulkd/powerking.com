@@ -2344,7 +2344,7 @@
     "priceCarton": "",
     "pricePiece": "",
     "sku": "Tihar lights",
-    "featured": false,
+    "featured": true,
     "available": true,
     "tags": []
   }
