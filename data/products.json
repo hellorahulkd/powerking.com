@@ -2558,5 +2558,24 @@
     "tags": [
       "Intercom Bluetooth Wireless Headphone"
     ]
+  },
+  {
+    "id": 337,
+    "name": "Y 30",
+    "slug": "y-30",
+    "brand": "Y",
+    "category": "Intercom helmet headset",
+    "description": "Y 30 \nWaterproof \nBluetooth headset\nNo universal pairing",
+    "image": "/images/products/y-30.jpg",
+    "gallery": [],
+    "packSize": "",
+    "priceCarton": 1450,
+    "pricePiece": 1500,
+    "sku": "Y",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Intercom bluetooth headphone speaker"
+    ]
   }
 ]
