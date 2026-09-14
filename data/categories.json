@@ -68,5 +68,10 @@
     "name": "Intercom helmet headset",
     "slug": "intercom-helmet-headset",
     "description": "Intercom Helmet Headset"
+  },
+  {
+    "name": "Headphone",
+    "slug": "headphone",
+    "description": "Headphone"
   }
 ]
