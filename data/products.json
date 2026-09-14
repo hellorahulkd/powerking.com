@@ -2341,12 +2341,14 @@
     "image": "/images/products/50m-multi-color-led-decorative-reel-string-lights.jpg",
     "gallery": [],
     "packSize": "30",
-    "priceCarton": "",
-    "pricePiece": "",
+    "priceCarton": 530,
+    "pricePiece": 535,
     "sku": "Tihar lights",
     "featured": true,
     "available": true,
-    "tags": []
+    "tags": [
+      "lights"
+    ]
   },
   {
     "id": 326,
