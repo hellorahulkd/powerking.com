@@ -63,5 +63,10 @@
     "name": "Tihar lights",
     "slug": "tihar-lights",
     "description": "Tihar lights"
+  },
+  {
+    "name": "Intercom helmet headset",
+    "slug": "intercom-helmet-headset",
+    "description": "Intercom Helmet Headset"
   }
 ]
