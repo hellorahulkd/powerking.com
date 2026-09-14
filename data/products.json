@@ -2463,5 +2463,24 @@
     "tags": [
       "headphone"
     ]
+  },
+  {
+    "id": 332,
+    "name": "EWA E-74 Foldable Wireless Music Headset",
+    "slug": "ewa-e-74-foldable-wireless-music-headset",
+    "brand": "EWA E-74 Foldable Wireless Music Headset",
+    "category": "Headphone",
+    "description": "EWA E-74 Foldable Wireless Music Headset\n Product Name: EWA E-74 Foldable Wireless Music Headset\n Color Scheme: Matte black finish with soft, dark cushioned earcups\n Key Features: Foldable space-saving design, Bluetooth wireless connectivity, integrated hands-free microphone, and physical music control buttons\n Included Accessories: EWA E-74 headphone unit, 3.5mm audio cable, USB Type-C charging cable, and user manual\n Packaging: Studio retail box with model specifications and feature icons",
+    "image": "/images/products/ewa-e-74-foldable-wireless-music-headset.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 925,
+    "pricePiece": 950,
+    "sku": "EWA E-74 Foldable Wireless Music Headset",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "headphone"
+    ]
   }
 ]
