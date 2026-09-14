@@ -2539,5 +2539,24 @@
     "tags": [
       "Intercom Bluetooth Wireless"
     ]
+  },
+  {
+    "id": 336,
+    "name": "Y 12 pro",
+    "slug": "y-12-pro",
+    "brand": "Y 12 Pro",
+    "category": "Intercom helmet headset",
+    "description": "Y 12 Pro \nIntercom Headphones\nDual-core Wireless 5.4",
+    "image": "/images/products/y-12-pro.jpg",
+    "gallery": [],
+    "packSize": "",
+    "priceCarton": 1700,
+    "pricePiece": 1750,
+    "sku": "Y 12",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Intercom Bluetooth Wireless Headphone"
+    ]
   }
 ]
