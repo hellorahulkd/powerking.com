@@ -2596,5 +2596,24 @@
     "tags": [
       "Bluetooth Headphone Intercom Speaker"
     ]
+  },
+  {
+    "id": 339,
+    "name": "Y20 Max",
+    "slug": "y20-max",
+    "brand": "Y",
+    "category": "Intercom helmet headset",
+    "description": "Y20 Max\nWireless Bluetooth Headset\nWaterproof Noice Reduction\nBetter Battery Backup as MAX",
+    "image": "/images/products/y20-max.jpg",
+    "gallery": [],
+    "packSize": "",
+    "priceCarton": 1710,
+    "pricePiece": 1750,
+    "sku": "Y",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "bluetooth headphone speaker intercom"
+    ]
   }
 ]
