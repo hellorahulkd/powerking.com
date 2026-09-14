@@ -2520,5 +2520,24 @@
     "tags": [
       "headphone"
     ]
+  },
+  {
+    "id": 335,
+    "name": "Q30 Pro Helmet Intercom",
+    "slug": "q30-pro-helmet-intercom",
+    "brand": "Intercom",
+    "category": "Intercom helmet headset",
+    "description": "Q30 Pro Intercom\nUniversal Connection\nDual-Core Wireless 5.4",
+    "image": "/images/products/q30-pro-helmet-intercom.jpg",
+    "gallery": [],
+    "packSize": "",
+    "priceCarton": 2100,
+    "pricePiece": 2150,
+    "sku": "Q30 pro",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Intercom Bluetooth Wireless"
+    ]
   }
 ]
