@@ -2425,5 +2425,24 @@
     "tags": [
       "Cable"
     ]
+  },
+  {
+    "id": 330,
+    "name": "BLUE SCENERY BS961 Wireless Headphones",
+    "slug": "blue-scenery-bs961-wireless-headphones",
+    "brand": "BLUE SCENERY BS961 Wireless Headphones",
+    "category": "Headphone",
+    "description": "BLUE SCENERY BS961 Wireless Headphones\n Product Name: BLUE SCENERY BS961 Wireless Hi-Res Audio Headphones\n Color Scheme: White frame with soft coral pink ear cushions and dynamic RGB gradient earcups\n Key Features: Bluetooth V5.3 connectivity, Hi-Res Audio certification, built-in FM radio, MP3 player support, dedicated phone controls, and extra bass tuning\n Included Accessories: Headphone unit, 3.5mm audio cable, USB charging cable, and user manual\n Packaging: Studio retail box with full technical icon overlays and specs",
+    "image": "/images/products/blue-scenery-bs961-wireless-headphones.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 700,
+    "pricePiece": 750,
+    "sku": "BLUE SCENERY BS961 Wireless Headphones",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "Headphone"
+    ]
   }
 ]
