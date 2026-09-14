@@ -2615,5 +2615,24 @@
     "tags": [
       "bluetooth headphone speaker intercom"
     ]
+  },
+  {
+    "id": 340,
+    "name": "K 12",
+    "slug": "k-12",
+    "brand": "K",
+    "category": "Intercom helmet headset",
+    "description": "K 12 Helmet Headphone\nZinc Alloy material\nWireless Waterproof\nMetallic Frame\nRetro Design",
+    "image": "/images/products/k-12.jpg",
+    "gallery": [],
+    "packSize": "",
+    "priceCarton": 1510,
+    "pricePiece": 1550,
+    "sku": "K12",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "bluetooth headphone intercom speaker"
+    ]
   }
 ]
