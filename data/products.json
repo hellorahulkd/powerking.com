@@ -2501,5 +2501,24 @@
     "tags": [
       "headphone"
     ]
+  },
+  {
+    "id": 334,
+    "name": "QYS-M5 Wireless Stereo Headset",
+    "slug": "qys-m5-wireless-stereo-headset",
+    "brand": "QYS-M5 Wireless Stereo Headset",
+    "category": "Headphone",
+    "description": "QYS-M5 Wireless Stereo Headset\nAvailability: Powerking Nepal\nKey Features:\n High-definition stereo sound delivery\n Integrated HD microphone for ultra-clear voice calls\n Ergonomic over-ear design for long-session comfort\n High-capacity battery for extended playback hours\n Built-in sound enhancement presets for immersive listening",
+    "image": "/images/products/qys-m5-wireless-stereo-headset.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 600,
+    "pricePiece": 650,
+    "sku": "QYS-M5 Wireless Stereo Headset",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "headphone"
+    ]
   }
 ]
