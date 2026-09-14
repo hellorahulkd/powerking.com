@@ -2577,5 +2577,24 @@
     "tags": [
       "Intercom bluetooth headphone speaker"
     ]
+  },
+  {
+    "id": 338,
+    "name": "KO8 Wireless Headset",
+    "slug": "ko8-wireless-headset",
+    "brand": "K",
+    "category": "Intercom helmet headset",
+    "description": "KO8 Bluetooth Headset\nWireless Helmet Headset\nWaterproof \nY2K Design",
+    "image": "/images/products/ko8-wireless-headset.jpg",
+    "gallery": [],
+    "packSize": "",
+    "priceCarton": 1350,
+    "pricePiece": 1400,
+    "sku": "K",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Bluetooth Headphone Intercom Speaker"
+    ]
   }
 ]
