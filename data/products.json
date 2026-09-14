@@ -2444,5 +2444,24 @@
     "tags": [
       "Headphone"
     ]
+  },
+  {
+    "id": 331,
+    "name": "BLUE SCENERY BS950 Wireless Headphones",
+    "slug": "blue-scenery-bs950-wireless-headphones",
+    "brand": "BLUE SCENERY BS950 Wireless Headphones",
+    "category": "Headphone",
+    "description": "BLUE SCENERY BS950 Wireless Headphones\n Product Name: BLUE SCENERY BS950 Wireless Hi-Res Audio Headphones\n Color Scheme: Cream beige with soft pink cushions and gold accent trim\n Key Features: Wireless V5.3 connectivity, Hi-Res Audio certification, ergonomic over-ear design, physical volume/media controls on the earcup\n Packaging: Retail box with custom product display graphics and technical specifications",
+    "image": "/images/products/blue-scenery-bs950-wireless-headphones.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 700,
+    "pricePiece": 750,
+    "sku": "BLUE SCENERY BS950 Wireless Headphones",
+    "featured": true,
+    "available": true,
+    "tags": [
+      "headphone"
+    ]
   }
 ]
