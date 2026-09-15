@@ -2824,5 +2824,24 @@
     "tags": [
       "charger adapter type-C phone iphone 50W 45w"
     ]
+  },
+  {
+    "id": 351,
+    "name": "20W Adapter USB-C Two Pin",
+    "slug": "20w-adapter-usb-c-two-pin",
+    "brand": "20W Adapter 2Pin Type C",
+    "category": "Chargers & Adapters",
+    "description": "USB-C 20W Fast Power Adapter - High-Speed Charging Brick for iPhone & Android Devices\n\nCharge your devices in record time with this premium 20W USB-C fast-charging power adapter. Engineered for efficiency, this compact charging brick supports advanced Power Delivery technology to juice up compatible smartphones, tablets, and mobile accessories. Whether you need a quick boost at home, in the office, or on the go, this adapter provides a reliable and powerful current to minimize downtime. The durable design features a folding or standard US prong for seamless connectivity with wall outlets. Keep your essential electronics at full power with this sleek, travel-ready solution that's designed to protect your device from overcharging and overheating. Available now to streamline your charging routine.",
+    "image": "/images/products/20w-adapter-usb-c-two-pin.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 145,
+    "pricePiece": 150,
+    "sku": "20W Adapter USB-C",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "charger adapter two pin phone USB-C"
+    ]
   }
 ]
