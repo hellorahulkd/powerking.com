@@ -2729,5 +2729,24 @@
     "tags": [
       "charger adaptor type-C phone dock"
     ]
+  },
+  {
+    "id": 346,
+    "name": "45W Charger Two Pin",
+    "slug": "45w-charger-two-pin",
+    "brand": "45W Two Pin",
+    "category": "Chargers & Adapters",
+    "description": "High-Speed Power for Your iPhone 16 Pro Max\n\nUnlock the full charging potential of your iPhone 16 Pro (Max) with this premium 35W USB-C Power Adapter. Engineered for efficiency, it supports Gallium Nitride (GaN) technology for a compact, cool, and highly reliable performance. This adapter delivers the optimal voltage and current for rapid 5G 45W charging, ensuring your latest devices are ready when you are. The standard US prongs ensure easy compatibility with most wall outlets. Perfect for power users, it provides stable energy output to extend battery life and reduce downtime. Stay connected without the wait with this powerful, travel-ready solution.",
+    "image": "/images/products/45w-charger-two-pin.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 145,
+    "pricePiece": 150,
+    "sku": "16 Pro Max",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "charger adaptor 45W two pin phone"
+    ]
   }
 ]
