@@ -2634,5 +2634,24 @@
     "tags": [
       "bluetooth headphone intercom speaker"
     ]
+  },
+  {
+    "id": 341,
+    "name": "Apple EarPods (USB-C & Lightning)",
+    "slug": "apple-earpods-usb-c-and-lightning",
+    "brand": "Apple EarPods (USB-C & Lightning)",
+    "category": "Mobile Accessories",
+    "description": "Authentic Apple Design: Engineered by Apple to match the geometry of the ear for maximum comfort and superior sound isolation.\n Dual Interface Support: Equipped with USB-C and Lightning connections for seamless integration with modern iOS, iPadOS, and macOS devices.\n Integrated Remote & Mic: Easily adjust volume, control music and video playback, and answer or end calls with a pinch of the cord.\n Durable & Lightweight: Premium strain-relief casing designed for daily travel, desk setups, and active lifestyles.",
+    "image": "/images/products/apple-earpods-usb-c-and-lightning.jpg",
+    "gallery": [],
+    "packSize": "200",
+    "priceCarton": 300,
+    "pricePiece": 325,
+    "sku": "Apple EarPods (USB-C & Lightning)",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "earpods"
+    ]
   }
 ]
