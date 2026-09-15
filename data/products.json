@@ -2805,5 +2805,24 @@
     "tags": [
       "charger adapter cable type-c lightning phone iphone"
     ]
+  },
+  {
+    "id": 350,
+    "name": "20W USB-C Adapter",
+    "slug": "20w-usb-c-adapter",
+    "brand": "USB-C Adapter only 20W",
+    "category": "Chargers & Adapters",
+    "description": "100% Original 20W USB-C Power Adapter\n\nFast-charge your devices safely with this authentic 20W USB-C Power Adapter. Designed for maximum efficiency and speed, it provides optimal power delivery for your smartphones, tablets, and mobile accessories. Its ultra-compact form factor makes it ideal for home, office, or everyday travel use. Package includes 1x Original 20W USB-C Power Adapter.",
+    "image": "/images/products/20w-usb-c-adapter.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 835,
+    "pricePiece": 850,
+    "sku": "Adapter",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "charger adapter type-C phone iphone 50W 45w"
+    ]
   }
 ]
