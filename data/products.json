@@ -2843,5 +2843,24 @@
     "tags": [
       "charger adapter two pin phone USB-C"
     ]
+  },
+  {
+    "id": 352,
+    "name": "OTG 3-1 Lightning IOS",
+    "slug": "otg-3-1",
+    "brand": "3-1 OTG",
+    "category": "Mobile Accessories",
+    "description": "3-in-1 Lightning OTG Adapter\n\nExpand your device's connectivity effortlessly with this compact 3-in-1 Lightning OTG Adapter. Designed for seamless plug-and-play functionality, it allows you to easily copy, paste, and transfer photos, videos, music, and files between your iOS device and USB flash drives or external accessories. Its portable metal build and attached keychain ring make it perfect to carry on the go for quick media management anywhere. Package includes 1x 3-in-1 Lightning OTG Adapter.",
+    "image": "/images/products/otg-3-1.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 290,
+    "pricePiece": 300,
+    "sku": "OTG 3-1",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "otg phone pendrive"
+    ]
   }
 ]
