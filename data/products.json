@@ -2653,5 +2653,24 @@
     "tags": [
       "earpods"
     ]
+  },
+  {
+    "id": 342,
+    "name": "Fan A1",
+    "slug": "fan-a1",
+    "brand": "Fan A1",
+    "category": "Fans",
+    "description": "Portable Mini Handheld & Desktop Fan\n\nStay cool on the go with this compact, rechargeable mini fan. \nWorks handheld or as a desktop fan with the included stand. \nEasily charges via USB and fits into any bag. \nIncludes fan, base stand, and USB cable.",
+    "image": "/images/products/fan-a1.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 222,
+    "pricePiece": 222,
+    "sku": "A1",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "fan fans hand table charger"
+    ]
   }
 ]
