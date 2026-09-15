@@ -2786,5 +2786,24 @@
     "tags": [
       "charger adapter mobile phone 20W lightning"
     ]
+  },
+  {
+    "id": 349,
+    "name": "50W Adapter and Cable USB-C",
+    "slug": "50w-adapter-and-cable-usb-c",
+    "brand": "50W USB-C 15 Pro Max",
+    "category": "Chargers & Adapters",
+    "description": "50W Dual USB-C Power Adapter & Cable Set for iPhone 15 Pro Max\n\nPower up your devices simultaneously with this high-speed 50W Dual USB-C Power Adapter and Cable Set. Engineered with dual Type-C ports, it allows rapid charging for two devices at once without compromising speed. Compact and reliable, this kit is perfect for everyday home or office use as well as fast charging on the go. Package includes 1x 50W Dual USB-C Power Adapter and matching USB-C to Lightning / USB-C charging cables.",
+    "image": "/images/products/50w-adapter-and-cable-usb-c.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 435,
+    "pricePiece": 450,
+    "sku": "15 Pro Max USB-C",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "charger adapter cable type-c lightning phone iphone"
+    ]
   }
 ]
