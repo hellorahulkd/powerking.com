@@ -2767,5 +2767,24 @@
     "tags": [
       "charger adapter 45W phone"
     ]
+  },
+  {
+    "id": 348,
+    "name": "20W USB-C to Lightning cable & Adapter",
+    "slug": "20w-usb-c-to-lightning-cable-and-adapter",
+    "brand": "20W Apple Adapter and Lightning Cable",
+    "category": "Chargers & Adapters",
+    "description": "20W USB-C Power Adapter with USB-C to Lightning Cable\n\nCharge your Apple devices quickly and efficiently with this 20W USB-C Power Adapter and Lightning Cable bundle. Built for fast power delivery, it offers reliable and safe daily charging for iPhones, iPads, and AirPods. The compact adapter design and durable cable make it an essential combo for home, office, or travel use. Package includes 1x 20W USB-C Power Adapter and 1x USB-C to Lightning Cable.",
+    "image": "/images/products/20w-usb-c-to-lightning-cable-and-adapter.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 235,
+    "pricePiece": 240,
+    "sku": "C to Lightning",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "charger adapter mobile phone 20W lightning"
+    ]
   }
 ]
