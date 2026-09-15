@@ -2862,5 +2862,24 @@
     "tags": [
       "otg phone pendrive"
     ]
+  },
+  {
+    "id": 353,
+    "name": "K27 Speaker - Kisonli",
+    "slug": "k27-speaker-kisonli",
+    "brand": "Kisonli",
+    "category": "Speakers",
+    "description": "Kisonli K27 Portable Wireless Bluetooth Speaker with RGB LED Lights\n\nElevate your audio experience with the Kisonli K27 Portable Bluetooth Speaker. Designed to deliver rich sound and deep bass, this compact speaker features dynamic RGB LED lighting that syncs with your music to create an immersive atmosphere anywhere. Built with convenient top-mounted playback controls and a durable carrying strap, it offers seamless wireless connectivity for smartphones, tablets, and laptops. Whether you are hosting a small gathering, working at your desk, or relaxing outdoors, the K27 provides reliable battery life and clear audio output in a stylish, travel-friendly package. Package includes 1x Kisonli K27 Wireless Speaker and 1x USB Charging Cable.",
+    "image": "/images/products/k27-speaker-kisonli.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 935,
+    "pricePiece": 950,
+    "sku": "K27",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "speaker phone headphone charger audio"
+    ]
   }
 ]
