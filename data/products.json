@@ -2748,5 +2748,24 @@
     "tags": [
       "charger adaptor 45W two pin phone"
     ]
+  },
+  {
+    "id": 347,
+    "name": "45W PD Adapter USB-C",
+    "slug": "45w-pd-adapter-usb-c",
+    "brand": "PD Adapter USB-C",
+    "category": "Chargers & Adapters",
+    "description": "45W PD Adapter (USB-C) for High-Speed Charging\n\nExperience efficient, high-speed charging with this compact 45W PD Adapter. Designed with GaN technology, it delivers powerful energy output while remaining cool and energy-efficient. This USB-C adapter supports the latest Power Delivery standard, providing optimal voltage and current for rapid charging of smartphones, tablets, and compatible USB-C accessories. Its portable, US-plug design makes it ideal for travel, fitting easily into any bag. Keep your devices powered up and ready for anything. Package includes 1x 45W PD Adapter (USB-C).",
+    "image": "/images/products/45w-pd-adapter-usb-c.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 170,
+    "pricePiece": 175,
+    "sku": "45W PD",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "charger adapter 45W phone"
+    ]
   }
 ]
