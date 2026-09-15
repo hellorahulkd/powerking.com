@@ -2672,5 +2672,24 @@
     "tags": [
       "fan fans hand table charger"
     ]
+  },
+  {
+    "id": 343,
+    "name": "Fan A2",
+    "slug": "fan-a2",
+    "brand": "Fan",
+    "category": "Fans",
+    "description": "High-Speed Portable Handheld Fan\n\nBeat the heat with this upgraded high-speed portable mini fan. \nFeaturing a dual-function design. \nLightweight, USB rechargeable, and available in multiple vibrant pastel colors. \nPackage includes fan, desk base, and USB charging cable.",
+    "image": "/images/products/fan-a2.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 165,
+    "pricePiece": 170,
+    "sku": "A2",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "fan fans desk hand speed charger"
+    ]
   }
 ]
