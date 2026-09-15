@@ -73,5 +73,10 @@
     "name": "Headphone",
     "slug": "headphone",
     "description": "Headphone"
+  },
+  {
+    "name": "Fans",
+    "slug": "fans",
+    "description": "Fan"
   }
 ]
