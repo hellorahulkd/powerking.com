@@ -2691,5 +2691,24 @@
     "tags": [
       "fan fans desk hand speed charger"
     ]
+  },
+  {
+    "id": 344,
+    "name": "Fan S1",
+    "slug": "fan-s1",
+    "brand": "Fan",
+    "category": "Fans",
+    "description": "Powerking Classic Rechargeable Handheld Fan\n\nStay cool in style with this sleek, vintage-inspired portable mini fan. Featuring metallic accent rings and an ergonomic dual-tone handle, it delivers powerful personal cooling wherever you are. Compact, lightweight, and USB rechargeable, it fits seamlessly into your purse or backpack for quick relief on hot days. Includes handheld fan and USB charging cable.",
+    "image": "/images/products/fan-s1.jpg",
+    "gallery": [],
+    "packSize": "50",
+    "priceCarton": 295,
+    "pricePiece": 300,
+    "sku": "S1",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "fan fans charger hand desk"
+    ]
   }
 ]
