@@ -2990,5 +2990,24 @@
     "tags": [
       "USB-C to 3.5mm Headphone Jack Adapter Cable"
     ]
+  },
+  {
+    "id": 361,
+    "name": "Lightning to 3.5mm Headphone Jack Adapter Cable",
+    "slug": "lightning-to-3-5mm-headphone-jack-adapter-cable",
+    "brand": "Lightning to 3.5mm Headphone Jack Adapter Cable",
+    "category": "Mobile Accessories",
+    "description": "Listen to high-quality audio effortlessly on your iPhone or iPad using this Lightning to 3.5mm Headphone Jack Adapter. Featuring built-in high-resolution digital decoding, it transfers loss-free, clear audio output to standard 3.5mm wired headphones, earphones, and car AUX cables. The reinforced, flexible TPE strain relief housing resists daily bends and tangles, while its minimalist, ultra-portable design fits easily into any pocket or wallet. Plug-and-play simplicity lets you connect instantly without installing extra software or drivers. Package includes 1x Lightning to 3.5mm Headphone Jack Adapter.",
+    "image": "/images/products/lightning-to-3-5mm-headphone-jack-adapter-cable.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 235,
+    "pricePiece": 250,
+    "sku": "Lightning to 3.5mm Headphone Jack Adapter Cable",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Lightning to 3.5mm Headphone Jack Adapter Cable"
+    ]
   }
 ]
