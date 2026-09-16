@@ -2971,5 +2971,24 @@
     "tags": [
       "Shunxuan NO:012 Multi-Socket Portable Extension Board"
     ]
+  },
+  {
+    "id": 360,
+    "name": "USB-C to 3.5mm Headphone Jack Adapter Cable",
+    "slug": "usb-c-to-3-5mm-headphone-jack-adapter-cable",
+    "brand": "Universal / Apple Compatible USB-C to 3.5mm Headphone Jack Adapter Cable",
+    "category": "Speakers",
+    "description": "Connect your favorite wired headphones, AUX cords, or external microphones to modern USB-C devices with this USB-C to 3.5mm Headphone Jack Adapter. Designed with high-fidelity digital audio processing, it preserves full sound clarity, rich bass, and crisp acoustics without signal loss or background static. The flexible, reinforced TPE jacket protects the internal wiring against bending and daily wear, while its ultra-compact layout ensures seamless portability in any pocket or tech pouch. Compatible with laptops, tablets, and smartphones, this plug-and-play connector delivers immediate audio connectivity wherever you go. Package includes 1x USB-C to 3.5mm Headphone Jack Adapter.",
+    "image": "/images/products/usb-c-to-3-5mm-headphone-jack-adapter-cable.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 235,
+    "pricePiece": 250,
+    "sku": "USB-C to 3.5mm Headphone Jack Adapter Cable",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "USB-C to 3.5mm Headphone Jack Adapter Cable"
+    ]
   }
 ]
