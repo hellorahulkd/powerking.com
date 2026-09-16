@@ -2881,5 +2881,24 @@
     "tags": [
       "speaker phone headphone charger audio"
     ]
+  },
+  {
+    "id": 354,
+    "name": "8-in-1 Type-C to HDTV Multiport Adapter Hub",
+    "slug": "8-in-1-type-c-to-hdtv-multiport-adapter-hub",
+    "brand": "HDTV",
+    "category": "Networking",
+    "description": "8-in-1 Type-C to HDTV Multiport Adapter Hub\n\nExpand your device’s connectivity instantly with this versatile 8-in-1 Type-C Multiport Adapter. Equipped with an HDTV port supporting up to 4K resolution, dual USB 3.0 ports for high-speed data transfer, an RJ45 Ethernet port for stable wired internet, and dedicated SD/TF card reader slots, this hub transforms a single Type-C port into a full workstation. Built with Power Delivery (PD) pass-through charging support, it ensures your laptop stays powered up while connected to multiple peripherals. Its durable aluminum casing and lightweight design make it ideal for remote work, business travel, or home office setups. Package includes 1x 8-in-1 Type-C Multiport Hub.",
+    "image": "/images/products/8-in-1-type-c-to-hdtv-multiport-adapter-hub.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 565,
+    "pricePiece": 575,
+    "sku": "HDTV 8-1",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "Adapter Hub adapterhub Type-C 8-1HDTV multiport"
+    ]
   }
 ]
