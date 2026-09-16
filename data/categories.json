@@ -78,5 +78,10 @@
     "name": "Fans",
     "slug": "fans",
     "description": "Fan"
+  },
+  {
+    "name": "Tripod & Ring Lights",
+    "slug": "tripod-ring-lights",
+    "description": "Tripod and Ring Lights"
   }
 ]
