@@ -2900,5 +2900,24 @@
     "tags": [
       "Adapter Hub adapterhub Type-C 8-1HDTV multiport"
     ]
+  },
+  {
+    "id": 355,
+    "name": "ZERO ZR-301 4-Port High-Speed USB 3.0 Hub",
+    "slug": "zero-zr-301-4-port-high-speed-usb-3-0-hub",
+    "brand": "ZERO ZR-301 4-Port High-Speed USB 3.0 Hub",
+    "category": "Networking",
+    "description": "ZERO ZR-301 4-Port High-Speed USB 3.0 Hub\n\nExpand your computer’s connectivity with the ZERO ZR-301 4-Port USB 3.0 Hub. Featuring SuperSpeed data transfer rates up to 5Gbps and support for external drives up to 2TB, this slim hub allows you to seamlessly connect keyboards, mice, flash drives, and external hard drives simultaneously. Equipped with a generous 1.2m cable and built-in fuse protection for safe device operation, it provides flexible placement and dependable performance for any home or office desk setup. Package includes 1x ZERO 4-Port USB 3.0 Hub.",
+    "image": "/images/products/zero-zr-301-4-port-high-speed-usb-3-0-hub.jpg",
+    "gallery": [],
+    "packSize": "100",
+    "priceCarton": 205,
+    "pricePiece": 210,
+    "sku": "ZERO ZR-301 4-Port High-Speed USB 3.0 Hub",
+    "featured": false,
+    "available": true,
+    "tags": [
+      "ZERO ZR-301 4-Port High-Speed USB 3.0 Hub 1.2m 2TB"
+    ]
   }
 ]
