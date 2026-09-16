@@ -690,30 +690,6 @@
     ]
   },
   {
-    "id": 238,
-    "name": "Kisonli K27 Portable Wireless Speaker",
-    "slug": "kisonli-k27-portable-speaker",
-    "brand": "Kisonli",
-    "category": "Speakers",
-    "description": "Cylindrical portable wireless speaker in a fabric wrap, with an RGB ring around the front port and a moulded carry loop. Type-C charging, a TF card slot and a DC5V input. Supplied in black and purple.",
-    "image": "/images/products/kisonli-k27-portable-speaker.jpg",
-    "gallery": [],
-    "packSize": "50",
-    "priceCarton": 990,
-    "pricePiece": 990,
-    "sku": "K27",
-    "featured": false,
-    "available": true,
-    "tags": [
-      "portable speaker",
-      "rgb",
-      "type-c",
-      "tf card",
-      "fabric",
-      "kisonli"
-    ]
-  },
-  {
     "id": 239,
     "name": "Kisonli A-110 USB 2.0 Desktop Speaker",
     "slug": "kisonli-a-110-usb-speaker",
