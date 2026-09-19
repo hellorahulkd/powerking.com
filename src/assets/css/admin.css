@@ -88,6 +88,41 @@ textarea.af__input { line-height: 1.55; resize: vertical; }
 .admin__photo-empty {
   font-size: .78rem; color: var(--text-faint); align-self: center;
 }
+/* A product's photos, in the order they will appear. The first is the one
+   the catalogue card shows, so it is the one marked. */
+.admin__photo--drop { width: 100%; height: 88px; }
+.shots {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  list-style: none; margin: .6rem 0 0; padding: 0;
+}
+.shots__item {
+  position: relative; width: 120px; height: 120px;
+  background: #fff; border: 1.5px solid var(--border);
+}
+.shots__item.is-main { border-color: var(--ink); }
+.shots__img { width: 100%; height: 100%; object-fit: contain; display: block; }
+/* A photo committed a minute ago is not published yet, so its URL 404s for a
+   little while. Say that, rather than showing a broken image and letting
+   somebody think the upload failed. */
+.shots__img.is-missing { visibility: hidden; }
+.shots__img.is-missing + .shots__flag::after { content: ' — publishing'; }
+.shots__flag {
+  position: absolute; top: 0; left: 0;
+  padding: .1rem .35rem; background: var(--ink); color: #fff;
+  font-family: var(--font-mono); font-size: .58rem; letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.shots__tools {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; gap: 1px; background: var(--border);
+}
+.shots__btn {
+  flex: 1; padding: .3rem .1rem; border: 0; cursor: pointer; white-space: nowrap;
+  background: rgba(255, 255, 255, .94); color: var(--ink);
+  font-family: var(--font-display); font-weight: 700; font-size: .62rem;
+}
+.shots__btn:hover { background: var(--volt); }
+.shots__btn--x:hover { background: #F3D2C8; }
 
 /* --- tabs, list, rows --- */
 .admin__tabs { display: flex; gap: .3rem; margin-bottom: 1.25rem; }

@@ -47,7 +47,7 @@ function harness() {
   });
   const hooks = `
     globalThis.test = {
-      state: state, openEditor: openEditor, usePhoto: usePhoto, prepare: prepare,
+      state: state, openEditor: openEditor, usePhotos: usePhotos, prepare: prepare,
       bulkAddFiles: bulkAddFiles, saveProduct: saveProduct, bulkSave: bulkSave,
       addCategory: addCategory, renameCategory: renameCategory, commitCategories: commitCategories,
       show: show, problems: problems,
@@ -84,20 +84,24 @@ test('a slow first photo cannot replace the latest selected photo', async () => 
   api.openEditor(product);
   const a = deferred(), b = deferred();
   api.overridePrepare(file => file.name === 'a' ? a.promise : b.promise);
-  api.usePhoto({ name: 'a' }); api.usePhoto({ name: 'b' });
+  api.usePhotos([{ name: 'a' }]); api.usePhotos([{ name: 'b' }]);
   b.resolve(rendered('latest')); await tick();
   a.resolve(rendered('stale')); await tick();
-  assert.equal(api.state.pendingImage, 'latest');
+  // The stale one must not reach the strip at all, not merely lose a race for
+  // one slot: photos accumulate now, so a late arrival would be an extra
+  // photo on the product rather than a replaced one.
+  assert.deepEqual(
+    Array.from(api.state.shots, (s) => s.data).filter(Boolean), ['latest']);
 });
 
 test('a photo finishing after switching products cannot enter the new form', async () => {
   const { api } = harness();
   const pending = deferred();
   api.overridePrepare(() => pending.promise);
-  api.openEditor(product); api.usePhoto({ name: 'old.jpg' });
+  api.openEditor(product); api.usePhotos([{ name: 'old.jpg' }]);
   api.openEditor(null);
   pending.resolve(rendered('old')); await tick();
-  assert.equal(api.state.pendingImage, null);
+  assert.deepEqual(Array.from(api.state.shots), []);
 });
 
 test('saving while a replacement photo is processing sends no GitHub writes', async () => {
@@ -106,7 +110,7 @@ test('saving while a replacement photo is processing sends no GitHub writes', as
   api.overridePrepare(() => new Promise(() => {}));
   const calls = [];
   api.overrideGh((...args) => { calls.push(args); return Promise.reject(new Error('unexpected write')); });
-  api.usePhoto({ name: 'slow.jpg' });
+  api.usePhotos([{ name: 'slow.jpg' }]);
   api.saveProduct({ preventDefault() {} }); await tick();
   assert.equal(calls.length, 0);
   assert.match(el('edit-msg').textContent, /prepar|wait|photo/i);
@@ -116,8 +120,10 @@ test('a failed replacement keeps the previous preview and blocks accidental savi
   const { api, el } = harness();
   api.openEditor(product); el('f-category').value = product.category;
   api.overridePrepare(() => Promise.reject(new Error('Unreadable photo')));
-  api.usePhoto({ name: 'bad.heic' }); await tick();
-  assert.equal(el('f-image-preview').src, product.image);
+  api.usePhotos([{ name: 'bad.heic' }]); await tick();
+  // The photo the product already had is still on it: a failed addition must
+  // not take an existing photo off.
+  assert.deepEqual(Array.from(api.state.shots, (s) => s.url), [product.image]);
   const calls = [];
   api.overrideGh((...args) => { calls.push(args); return Promise.reject(new Error('unexpected')); });
   api.saveProduct({ preventDefault() {} }); await tick();

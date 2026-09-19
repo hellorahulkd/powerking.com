@@ -38,7 +38,16 @@
     products: null, productsSha: '',
     categories: null, categoriesSha: '',
     editing: null,          // the product being edited, or null for a new one
-    pendingImage: null,     // base64 tile waiting to be uploaded on save
+    /**
+     * Every photo on the product being edited, in the order they will appear.
+     * The first is the main one — the catalogue card, the search result and
+     * the top of the product page all show it; the rest become the gallery
+     * thumbnails.
+     *
+     *   { url: '/images/products/x.jpg' }   already in the repository
+     *   { data: '<base64>', preview: '<data url>' }   waiting for a save
+     */
+    shots: [],
     pendingReadable: null,  // a larger rendering of the same photo, for reading
     pendingCategories: [],  // categories invented in the form, saved with it
     bulk: [],               // rows waiting in the "Add many" pane
@@ -280,7 +289,7 @@
     state.editConflict = false;
     slugTouched = false;
     state.editing = product;
-    state.pendingImage = null;
+    state.shots = [];
     state.pendingReadable = null;
     state.pendingCategories = [];
 
@@ -301,7 +310,12 @@
 
     renderCategoryOptions(p.category);
 
-    setPreview(p.image || '');
+    // Existing photos, main first, exactly as the product stores them.
+    state.shots = [p.image]
+      .concat(p.gallery || [])
+      .filter(Boolean)
+      .map(function (url) { return { url: url }; });
+    renderShots();
     $('delete').hidden = !product;
     say($('edit-msg'), '');
     show('pane-edit');
@@ -365,20 +379,65 @@
     say(msgEl, '"' + name + '" will be created when you save.', 'ok');
   }
 
-  function setPreview(src) {
-    var img = $('f-image-preview');
+  /**
+   * The strip of photos on the product being edited.
+   *
+   * Rebuilt whole on every change. It is at most a handful of thumbnails, and
+   * the alternative — patching the list in place — is where an index and a
+   * DOM node drift apart and a "Remove" takes the wrong photo out.
+   */
+  function renderShots() {
+    var host = $('f-shots');
+    if (!host) return;
     var empty = $('f-image-empty');
-    img.hidden = !src;
-    empty.hidden = !!src;
-    empty.textContent = 'Tap to choose a photo, or drop it here';
-    if (!src) { img.removeAttribute('src'); return; }
-    // A just-saved photo is not on the site yet, so its URL 404s for a minute.
-    img.onerror = function () {
-      img.hidden = true;
-      empty.hidden = false;
-      empty.textContent = 'Photo is still publishing';
-    };
-    img.src = src;
+    if (empty) {
+      empty.textContent = state.shots.length
+        ? 'Add another photo'
+        : 'Tap to choose photos, or drop them here';
+    }
+    host.innerHTML = state.shots.map(function (shot, i) {
+      var src = shot.preview || shot.url;
+      return '<li class="shots__item' + (i === 0 ? ' is-main' : '') + '">'
+        + '<img class="shots__img" src="' + escapeAttr(src) + '" alt=""'
+        // A photo saved a minute ago is committed but not published yet, so
+        // its URL 404s for a little while. Say so rather than showing a
+        // broken image and letting somebody think the upload failed.
+        + ' onerror="this.classList.add(\'is-missing\')">'
+        + (i === 0 ? '<span class="shots__flag">Main</span>' : '')
+        + '<span class="shots__tools">'
+        + (i === 0 ? '' : '<button type="button" class="shots__btn" data-shot-main="' + i
+          + '" title="Use as the main photo">Set main</button>')
+        + '<button type="button" class="shots__btn shots__btn--x" data-shot-remove="' + i
+        + '" aria-label="Remove photo ' + (i + 1) + '">Remove</button>'
+        + '</span>'
+        + '</li>';
+    }).join('');
+  }
+
+  function shotsHost() { return $('f-shots'); }
+
+  if (shotsHost()) {
+    shotsHost().addEventListener('click', function (ev) {
+      var main = ev.target.getAttribute && ev.target.getAttribute('data-shot-main');
+      var remove = ev.target.getAttribute && ev.target.getAttribute('data-shot-remove');
+      if (main !== null && main !== undefined) {
+        // Moved to the front rather than swapped with it, so the order of
+        // everything else is left alone.
+        var picked = state.shots.splice(Number(main), 1)[0];
+        state.shots.unshift(picked);
+        renderShots();
+        say($('photo-msg'), 'That is the main photo now. It saves when you save the product.', 'ok');
+        return;
+      }
+      if (remove !== null && remove !== undefined) {
+        state.shots.splice(Number(remove), 1);
+        renderShots();
+        say($('photo-msg'), state.shots.length
+          ? 'Photo removed from this product. It saves when you save.'
+          : 'No photos on this product. Add one before saving.',
+          state.shots.length ? 'ok' : 'warn');
+      }
+    });
   }
 
   /**
@@ -688,7 +747,7 @@
         + taken.name + '".');
     }
 
-    if (!product.image && !state.pendingImage) out.push('Add a photo.');
+    if (!state.shots.length) out.push('Add a photo.');
     return out;
   }
 
@@ -1302,24 +1361,62 @@
       });
     }
 
+    /**
+     * Upload whatever is new and hand back the product's photo URLs, in order.
+     *
+     * A photo already in the repository keeps the path it has: reordering the
+     * strip changes which URL is `image` and which are `gallery`, and needs no
+     * upload at all. A new one takes the next free name — the first is
+     * `<slug>.jpg`, the rest `<slug>-2.jpg` and up — and names already used by
+     * this product are skipped rather than overwritten, so adding a fourth
+     * photo cannot quietly replace the second.
+     *
+     * One at a time. The GitHub API rejects concurrent writes to the same
+     * branch with a 409, and a batch of photos uploaded in parallel is exactly
+     * how that happens.
+     */
     var uploaded = ready.then(function () {
-      if (!state.pendingImage) return product.image;
-      var imgPath = IMAGE_DIR + product.slug + '.jpg';
-      return shaOf(imgPath).then(function (sha) {
-        return writeFile(imgPath, state.pendingImage, 'Add photo for ' + product.name, sha);
-      }).then(function () { return '/images/products/' + product.slug + '.jpg'; });
+      var taken = {};
+      state.shots.forEach(function (shot) { if (shot.url) taken[shot.url] = true; });
+
+      var nextName = (function () {
+        var n = 0;
+        return function () {
+          for (;;) {
+            n++;
+            var url = '/images/products/' + product.slug + (n === 1 ? '' : '-' + n) + '.jpg';
+            if (!taken[url]) { taken[url] = true; return url; }
+          }
+        };
+      }());
+
+      var urls = [];
+      var step = function (i) {
+        if (i >= state.shots.length) return Promise.resolve(urls);
+        var shot = state.shots[i];
+        if (shot.url) { urls.push(shot.url); return step(i + 1); }
+        var url = nextName();
+        var path = IMAGE_DIR + url.split('/').pop();
+        return shaOf(path).then(function (sha) {
+          return writeFile(path, shot.data, 'Add photo for ' + product.name, sha);
+        }).then(function () {
+          urls.push(url);
+          return step(i + 1);
+        });
+      };
+      return step(0);
     });
 
-    uploaded.then(function (imagePath) {
-      product.image = imagePath;
+    uploaded.then(function (urls) {
+      product.image = urls[0] || '';
+      product.gallery = urls.slice(1);
       var next = state.products.slice();
       var at = next.findIndex(function (p) { return p.id === product.id; });
       if (at === -1) next.push(product); else next[at] = product;
 
       // Opening a product and saving it unchanged used to commit anyway, which
       // put entries in the history that record nothing.
-      if (at !== -1 && JSON.stringify(state.products[at]) === JSON.stringify(product)
-          && !state.pendingImage) {
+      if (at !== -1 && JSON.stringify(state.products[at]) === JSON.stringify(product)) {
         unchanged = true;
         return null;
       }
@@ -1334,7 +1431,14 @@
         state.productsSha = res.content.sha;
       });
     }).then(function () {
-      state.pendingImage = null;
+      // Every shot is in the repository now, so the next save of this product
+      // re-uploads none of them.
+      state.shots = product.image
+        ? [{ url: product.image }].concat((product.gallery || []).map(function (u) {
+          return { url: u };
+        }))
+        : [];
+      renderShots();
       renderList();
       show('pane-work');
       say($('work-msg'), unchanged
@@ -1776,22 +1880,54 @@
     if (!slugTouched && !state.editing) $('f-slug').value = slugify($('f-name').value);
   });
 
-  function usePhoto(file) {
-    if (!file || state.saving) return Promise.resolve();
+  /**
+   * Take one or more chosen photos onto the product.
+   *
+   * Prepared one at a time rather than all at once: each is decoded at full
+   * phone resolution to be resized, and four of those in flight together is
+   * how a phone browser runs out of memory mid-form.
+   *
+   * "Read the box" reads the FIRST of a batch. It fills the name, brand and
+   * SKU from what is printed, and a second angle of the same product has
+   * nothing new to say about any of that.
+   */
+  function usePhotos(files) {
+    var list = Array.prototype.slice.call(files || []);
+    if (!list.length || state.saving) return Promise.resolve();
     var version = ++state.photoVersion;
     state.photoBusy = true;
     state.photoError = '';
     $('save').disabled = true;
-    photoStatus('Preparing the photo…');
-    return prepare(file).then(function (rendered) {
+
+    var done = 0;
+    var step = function (i) {
+      if (i >= list.length || version !== state.photoVersion) return Promise.resolve();
+      photoStatus(list.length === 1
+        ? 'Preparing the photo…'
+        : 'Preparing photo ' + (i + 1) + ' of ' + list.length + '…');
+      return prepare(list[i]).then(function (rendered) {
+        if (version !== state.photoVersion) return null;
+        state.shots.push({
+          data: rendered.tile.split(',')[1],
+          preview: rendered.tile,
+        });
+        if (done === 0) state.pendingReadable = rendered.readable;
+        done++;
+        renderShots();
+        return step(i + 1);
+      });
+    };
+
+    return step(0).then(function () {
       if (version !== state.photoVersion) return;
-      state.pendingImage = rendered.tile.split(',')[1];
-      state.pendingReadable = rendered.readable;
-      setPreview(rendered.tile);
-      photoStatus(visionReady()
-        ? 'Photo ready. It uploads when you save — or press "Read the box" to '
-          + 'fill in what is printed on it.'
-        : 'Photo ready. It uploads when you save.', 'ok');
+      var many = done > 1;
+      photoStatus(
+        (many ? done + ' photos ready. They upload' : 'Photo ready. It uploads')
+        + ' when you save.'
+        + (visionReady() && done
+          ? ' Press "Read the box" to fill in what is printed on the first one.'
+          : ''),
+        'ok');
     }).catch(function (err) {
       if (version !== state.photoVersion) return;
       state.photoError = err.message;
@@ -1809,7 +1945,7 @@
   }
 
   $('f-image').addEventListener('change', function () {
-    usePhoto($('f-image').files[0]);
+    usePhotos($('f-image').files);
     // Selecting the same file after a failure must fire change again.
     $('f-image').value = '';
   });
@@ -1831,7 +1967,7 @@
   drop.addEventListener('drop', function (ev) {
     ev.preventDefault();
     drop.classList.remove('is-dropping');
-    usePhoto(ev.dataTransfer && ev.dataTransfer.files[0]);
+    usePhotos(ev.dataTransfer && ev.dataTransfer.files);
   });
   ['dragover', 'drop'].forEach(function (type) {
     document.addEventListener(type, function (ev) { ev.preventDefault(); });

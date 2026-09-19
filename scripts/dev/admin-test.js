@@ -349,16 +349,24 @@ console.log('\nPhotos');
     dt.items.add(new File([bytes], 'photo.png', { type: 'image/png' }));
     const box = document.getElementById('f-image-drop');
     box.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
-    return new Promise(function (done) {
-      setTimeout(function () {
-        const img = document.getElementById('f-image-preview');
-        done({
-          msg: document.getElementById('edit-msg').textContent,
-          shown: !img.hidden && img.src.startsWith('data:image/jpeg'),
-          here: location.pathname,
-        });
-      }, 500);
-    });
+    // Waited for, not slept on: a photo is decoded, scanned and re-encoded
+    // before it reaches the strip, and how long that takes depends on the
+    // machine running the test.
+    //
+    // Specifically the DROPPED one. The product open in the form already has
+    // a photo in the strip, so "a thumbnail exists" is true on the first
+    // frame and would pass while the drop was still being prepared.
+    const dropped = () => [...document.querySelectorAll('#f-shots .shots__img')]
+      .find((i) => i.src.startsWith('data:image/jpeg'));
+    for (let i = 0; i < 60; i++) {
+      if (dropped()) break;
+      await new Promise(function (r) { setTimeout(r, 50); });
+    }
+    return {
+      msg: document.getElementById('edit-msg').textContent,
+      shown: !!dropped(),
+      here: location.pathname,
+    };
   `);
   check('a photo dropped on the box is accepted', /Photo ready/i.test(dropped.msg), JSON.stringify(dropped));
   check('and is shown straight away, already redrawn as a tile', dropped.shown === true);
@@ -983,6 +991,121 @@ console.log('\nReading what is printed on the box');
     document.getElementById('bulk-clear').click();
     return 1;
   `);
+}
+
+console.log('\nSeveral photos on one product');
+{
+  // The product page has rendered a gallery since long before anything could
+  // fill it: `image` is the main photo, `gallery` the rest. This is what fills
+  // them, so what reaches the commit is what matters.
+  const tile = (n) => `(() => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 40;
+    const g = c.getContext('2d');
+    g.fillStyle = ['#c00', '#0a0', '#00c'][${n} % 3];
+    g.fillRect(0, 0, 40, 40);
+    return new Promise((done) => c.toBlob((b) =>
+      done(new File([b], 'shot-${n}.jpg', { type: 'image/jpeg' })), 'image/jpeg'));
+  })()`;
+
+  const added = await page.eval(`
+    document.getElementById('edit-back').click();
+    document.querySelector('#list [data-edit]').click();
+    const before = document.querySelectorAll('#f-shots .shots__item').length;
+    const dt = new DataTransfer();
+    dt.items.add(await ${tile(1)});
+    dt.items.add(await ${tile(2)});
+    const input = document.getElementById('f-image');
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    for (let i = 0; i < 80; i++) {
+      if (document.querySelectorAll('#f-shots .shots__item').length >= before + 2) break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    return {
+      before,
+      after: document.querySelectorAll('#f-shots .shots__item').length,
+      mains: document.querySelectorAll('#f-shots .shots__item.is-main').length,
+      msg: document.getElementById('edit-msg').textContent,
+    };
+  `);
+  check('two photos chosen at once both land on the product',
+    added.after === added.before + 2, JSON.stringify(added));
+  check('and exactly one of them is the main photo', added.mains === 1, JSON.stringify(added));
+  check('the message counts what was added', /2 photos ready/i.test(added.msg), added.msg);
+
+  // What the save actually commits: each new photo to its own path, none of
+  // them over a path this product already uses, and the order of the strip
+  // carried into image + gallery.
+  const saved = await page.eval(`
+    window.__gh.calls.length = 0;
+    document.getElementById('edit-form')
+      .dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    for (let i = 0; i < 80; i++) {
+      if (!document.getElementById('pane-work').hidden) break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    const puts = window.__gh.calls.filter((c) => c.method === 'PUT');
+    const cat = puts.find((c) => /products\.json$/.test(c.url));
+    const list = JSON.parse(new TextDecoder().decode(
+      Uint8Array.from(atob(cat.body.content), (c) => c.charCodeAt(0))));
+    const slug = document.getElementById('f-slug').value;
+    return {
+      imagePaths: puts.filter((c) => /\.jpg$/.test(c.url))
+        .map((c) => new URL(c.url).pathname.split('/').pop()),
+      product: list.find((p) => p.slug === slug),
+    };
+  `);
+  check('each new photo is committed to a path of its own',
+    saved.imagePaths.length === 2
+    && new Set(saved.imagePaths).size === 2, JSON.stringify(saved.imagePaths));
+  // Adding a photo must not overwrite one the product already has.
+  check('and never over a path this product already uses',
+    !saved.imagePaths.includes((saved.product.image || '').split('/').pop()),
+    JSON.stringify({ wrote: saved.imagePaths, main: saved.product.image }));
+  check('the extra photos are saved as the gallery',
+    Array.isArray(saved.product.gallery) && saved.product.gallery.length === 2,
+    JSON.stringify(saved.product.gallery));
+  check('the main photo is not repeated in the gallery',
+    !saved.product.gallery.includes(saved.product.image),
+    JSON.stringify({ image: saved.product.image, gallery: saved.product.gallery }));
+
+  // Reordering changes which URL is which. It must not re-upload anything:
+  // the files are already in the repository.
+  const reordered = await page.eval(`
+    document.getElementById('edit-back').click();
+    document.querySelector('#list [data-edit]').click();
+    const wasMain = document.querySelector('#f-shots .shots__img').src;
+    document.querySelector('#f-shots [data-shot-main]').click();
+    const nowMain = document.querySelector('#f-shots .shots__img').src;
+    return { changed: wasMain !== nowMain,
+             mains: document.querySelectorAll('#f-shots .shots__item.is-main').length };
+  `);
+  check('"Set main" moves a photo to the front', reordered.changed === true,
+    JSON.stringify(reordered));
+  check('and there is still exactly one main photo', reordered.mains === 1);
+
+  const removed = await page.eval(`
+    const before = document.querySelectorAll('#f-shots .shots__item').length;
+    document.querySelector('#f-shots [data-shot-remove]').click();
+    return { before, after: document.querySelectorAll('#f-shots .shots__item').length };
+  `);
+  check('Remove takes one photo off the product',
+    removed.after === removed.before - 1, JSON.stringify(removed));
+
+  const none = await page.eval(`
+    let guard = 0;
+    while (document.querySelector('#f-shots [data-shot-remove]') && guard++ < 20) {
+      document.querySelector('#f-shots [data-shot-remove]').click();
+    }
+    document.getElementById('edit-form')
+      .dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    await new Promise((r) => setTimeout(r, 200));
+    return { shots: document.querySelectorAll('#f-shots .shots__item').length,
+             msg: document.getElementById('edit-msg').textContent };
+  `);
+  check('a product with every photo removed is refused, not saved blank',
+    none.shots === 0 && /add a photo/i.test(none.msg), JSON.stringify(none));
 }
 
 console.log('\nSigning out');

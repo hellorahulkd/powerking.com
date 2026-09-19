@@ -221,6 +221,10 @@ async function main() {
   /* ---------------------------------------------------------- assets -- */
   for (const p of products) {
     assert(`image exists for "${p.name}"`, existsSync(path.join(DIST, p.image)), p.image);
+    for (const extra of p.gallery || []) {
+      assert(`gallery image exists for "${p.name}"`,
+        existsSync(path.join(DIST, extra)), extra);
+    }
   }
   const css = await stat(path.join(DIST, 'assets/styles.css'));
   const appJs = await stat(path.join(DIST, 'assets/app.js'));

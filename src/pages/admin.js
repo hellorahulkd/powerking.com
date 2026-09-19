@@ -251,22 +251,30 @@ export function adminPage() {
         ${field('f-description', 'Description', '<textarea class="af__input" id="f-description" rows="5" placeholder="What the box actually states."></textarea>', 'One to three sentences. Also used as the page description in Google. Write down what the carton says rather than what it probably means.')}
 
         <div class="af">
-          <span class="af__label">Photo</span>
-          <label class="admin__photo" id="f-image-drop" for="f-image">
-            <img id="f-image-preview" alt="" hidden>
-            <span class="admin__photo-empty" id="f-image-empty">Tap to choose a photo, or drop it here</span>
+          <span class="af__label">Photos</span>
+          <!--
+            A drop area and a strip of what this product already has. The first
+            photo is the one the catalogue card and the search results show;
+            the rest appear as thumbnails on the product page, which has
+            rendered a gallery since long before anything could fill it.
+          -->
+          <label class="admin__photo admin__photo--drop" id="f-image-drop" for="f-image">
+            <span class="admin__photo-empty" id="f-image-empty">Tap to choose photos, or drop them here</span>
           </label>
-          <input class="af__file" id="f-image" type="file"
-                 accept="image/jpeg,image/png,image/webp" aria-label="Choose photo">
+          <input class="af__file" id="f-image" type="file" multiple
+                 accept="image/jpeg,image/png,image/webp" aria-label="Choose photos">
+          <ul class="shots" id="f-shots"></ul>
           <p class="admin__msg" id="photo-msg" role="status" aria-live="polite"></p>
           <p class="af__actions-inline">
             <button type="button" class="btn btn--ghost btn--sm" id="f-read" hidden>Read the box</button>
             <span class="af__hint af__hint--inline" id="f-read-note"></span>
           </p>
           <p class="af__hint">
-            On your phone, choose Photo Library or take a photo. We resize it
-            for the catalogue and upload it when you save. If an iPhone photo
-            will not open, try choosing it from Photo Library in Safari.
+            Choose several at once. <strong>The first one is the main photo</strong> —
+            use "Set main" on any other to move it to the front. On your phone,
+            choose Photo Library or take a photo. They are resized for the
+            catalogue and uploaded when you save. If an iPhone photo will not
+            open, try choosing it from Photo Library in Safari.
           </p>
         </div>
 

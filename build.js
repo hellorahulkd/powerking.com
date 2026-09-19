@@ -74,6 +74,16 @@ function validate(products) {
     if (p.image && !p.image.startsWith('/')) {
       errors.push(`${where}: image "${p.image}" must start with "/" (e.g. /images/products/x.jpg)`);
     }
+    // The gallery is the rest of a product's photos. It reaches data through
+    // the admin's photo strip, so a bad entry there is as breaking as a bad
+    // main image and has to fail the build the same way.
+    for (const extra of p.gallery || []) {
+      if (typeof extra !== 'string' || !extra.startsWith('/')) {
+        errors.push(`${where}: gallery image ${JSON.stringify(extra)} must start with "/"`);
+      } else if (extra === p.image) {
+        errors.push(`${where}: gallery repeats the main image "${extra}"`);
+      }
+    }
     if (p.image && !existsSync(path.join(ROOT, 'public', p.image))) {
       warnings.push(`${where}: image not found at public${p.image} — the card shows a fallback`);
     }
