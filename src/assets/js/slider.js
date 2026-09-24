@@ -225,4 +225,80 @@
     var last = originals[originals.length - 1];
     span = last.offsetLeft + last.offsetWidth - originals[0].offsetLeft;
   });
+
+  /* ------------------------------------------------------- drifting on -- */
+  /**
+   * The row moves on its own, so every category comes past without anybody
+   * swiping for it.
+   *
+   * Driven by nudging scrollLeft rather than by a CSS transform, which keeps
+   * one mechanism instead of two: the wrap above still makes the seam
+   * invisible, the row is still a native scroller you can swipe or flick, and
+   * pausing is just not nudging it.
+   *
+   * Slow on purpose. This is a row of links, not a banner — at any speed
+   * where the movement is the point, clicking one becomes a game.
+   */
+  var SPEED = 14;            // pixels a second
+  var RESUME_AFTER = 2500;   // quiet time before it starts drifting again
+  var paused = false;
+  var restart = null;
+  var last = 0;
+  var carry = 0;             // sub-pixel remainder, so slow really is slow
+
+  var still = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : { matches: false };
+
+  function hold() {
+    paused = true;
+    window.clearTimeout(restart);
+  }
+
+  function release(delay) {
+    window.clearTimeout(restart);
+    restart = window.setTimeout(function () {
+      paused = false;
+      last = 0;
+    }, delay);
+  }
+
+  // A moving target is hard to click, so it stops for anyone who looks like
+  // they are about to. Touch gets a delay rather than an immediate restart:
+  // there is no "leave" event on a finger.
+  row.addEventListener('pointerenter', hold);
+  row.addEventListener('pointerleave', function () { release(0); });
+  row.addEventListener('focusin', hold);
+  row.addEventListener('focusout', function () { release(0); });
+  row.addEventListener('touchstart', hold, { passive: true });
+  row.addEventListener('touchend', function () { release(RESUME_AFTER); }, { passive: true });
+  // Somebody steering it: a wheel, a trackpad, a drag. Watched through the
+  // input events rather than through 'scroll', which the drift itself fires
+  // every frame — listening for that, the row paused itself on its own
+  // movement and advanced a pixel every few seconds.
+  ['wheel', 'pointerdown'].forEach(function (type) {
+    row.addEventListener(type, function () {
+      hold();
+      release(RESUME_AFTER);
+    }, { passive: true });
+  });
+
+  function drift(now) {
+    window.requestAnimationFrame(drift);
+    // Nothing to do while it is held, off-screen, or asked to be still.
+    if (paused || still.matches || document.hidden) { last = now; return; }
+    if (!last) { last = now; return; }
+    var dt = now - last;
+    last = now;
+    // A tab left in the background can hand back a gap of minutes. Capped, so
+    // returning to it does not fling the row halfway round.
+    if (dt > 100) return;
+    carry += (dt / 1000) * SPEED;
+    var step = Math.floor(carry);
+    if (step < 1) return;
+    carry -= step;
+    // Nudged, not set: the scroll handler above wraps it at the seam.
+    row.scrollLeft += step;
+  }
+  window.requestAnimationFrame(drift);
 }());

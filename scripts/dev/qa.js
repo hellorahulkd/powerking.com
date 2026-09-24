@@ -455,6 +455,69 @@ function tagOnlyTerm() {
       loop.forwardWrapped === true && loop.backWrapped === true, JSON.stringify(loop));
     check('and the copies that make the seam are hidden from readers and tabbing',
       loop.clones === loop.real && loop.clonesHidden === true, JSON.stringify(loop));
+
+    // The row drifts on its own so every category comes past without anybody
+    // swiping for it — and stops the moment somebody reaches for one, because
+    // a moving link is a link you cannot click.
+    const drift = await page.eval(`
+      const row = document.querySelector('[data-catbar-loop]');
+      const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+      // Away from the seam first. The check before this one leaves the row
+      // sitting on it, and a drift that wraps mid-measurement reads as one
+      // span of travel backwards.
+      row.scrollLeft = 10;
+      await wait(60);
+      const a = row.scrollLeft;
+      await wait(1200);
+      const moved = row.scrollLeft - a;
+      row.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
+      const held = row.scrollLeft;
+      await wait(700);
+      const heldFor = row.scrollLeft - held;
+      row.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true }));
+      await wait(700);
+      const resumed = row.scrollLeft - held;
+      return { moved: moved, heldFor: heldFor, resumed: resumed };
+    `);
+    check('the category row drifts on its own', drift.moved > 0, JSON.stringify(drift));
+    check('and stops dead while a pointer is on it', drift.heldFor === 0, JSON.stringify(drift));
+    check('and picks up again once the pointer leaves',
+      drift.resumed > 0, JSON.stringify(drift));
+    // Slowly. At any speed where the movement is the point, clicking one of
+    // these becomes a game.
+    check('it drifts slowly enough to aim at', drift.moved < 40, `${drift.moved}px in 1.2s`);
+    check('and every pill is still a real link',
+      await page.eval(`
+        const a = document.querySelector('[data-catbar-loop] .catbar__item');
+        return !!(a && a.getAttribute('href'));
+      `) === true);
+
+    // Anyone who has asked their system for less motion gets none of it. On
+    // its own page: emulating the preference changes it for every page that
+    // follows, and this one is closed straight after.
+    {
+      const quiet = await newPage(port);
+      await quiet.send('Emulation.setEmulatedMedia', {
+        features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
+      });
+      await quiet.setViewport(1280, 900, false);
+      await quiet.goto(`${BASE}/`);
+      const r = await quiet.eval(`
+        const row = document.querySelector('[data-catbar-loop]');
+        row.scrollLeft = 10;
+        await new Promise((r) => setTimeout(r, 60));
+        const a = row.scrollLeft;
+        await new Promise((r) => setTimeout(r, 1200));
+        return { drifted: row.scrollLeft - a,
+                 swipeable: row.scrollWidth > row.clientWidth };
+      `);
+      check('it does not drift for anyone who asked for less motion',
+        r.drifted === 0, JSON.stringify(r));
+      // Still reachable by hand — the preference asks for no animation, not
+      // for a control that does nothing.
+      check('and the row is still theirs to swipe', r.swipeable === true);
+      await quiet.close();
+    }
     await page.eval(`document.querySelector('[data-catbar-loop]').scrollLeft = 0; return 1;`);
     await page.eval(`document.scrollingElement.scrollTop = 0; return 1;`);
 
