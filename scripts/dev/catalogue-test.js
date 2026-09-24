@@ -10,6 +10,7 @@
  * findable, still ordered correctly, and still reachable without JavaScript.
  */
 import { launch, newPage } from './cdp.js';
+import { PUBLIC_PRICES } from '../../src/config/site.config.js';
 
 const BASE = process.env.BASE || 'http://localhost:4321';
 let pass = 0;
@@ -185,6 +186,37 @@ console.log('\nSorting');
 
   await page.goto(`${BASE}/products/`);
 
+  if (!PUBLIC_PRICES) {
+    // No prices on the site, so no ordering by them: a control that sorts on
+    // a number nobody can see does nothing a reader can perceive.
+    const offered = await page.eval(`
+      return [...document.querySelectorAll('#sort-order option')].map((o) => o.value);
+    `);
+    check('with prices off, the listing offers no price order',
+      offered.length > 0 && !offered.some((v) => v.startsWith('price')), offered.join(', '));
+    check('and still offers the orders that do not need one',
+      offered.includes('name-asc') && offered.includes('featured'), offered.join(', '));
+
+    await choose('name-asc');
+    const names = await page.eval(`
+      return [...document.querySelectorAll('#product-grid [data-product]')]
+        .filter((c) => !c.hidden)
+        .sort((a, b) => Number(a.style.order) - Number(b.style.order))
+        .map((c) => c.querySelector('.card__title').textContent.trim());
+    `);
+    check('A to Z still orders the whole listing',
+      names.length > 1 && names.every((n, i) => i === 0 || names[i - 1].localeCompare(n) <= 0),
+      names.slice(0, 4).join(' | '));
+
+    await page.goto(`${BASE}/products/?sort=nonsense`);
+    const junk = await page.eval(`
+      return { shown: document.querySelectorAll('#product-grid [data-product]:not([hidden])').length,
+               value: document.getElementById('sort-order').value };
+    `);
+    check('an unknown ?sort= falls back rather than emptying the listing',
+      junk.shown > 0 && junk.value === 'featured', JSON.stringify(junk));
+  } else {
+
   // The served page is already in the default order, so a reader without
   // JavaScript, a crawler and page 2 all get the same answer. If this drifts
   // from the script's default the listing visibly reshuffles on load.
@@ -258,6 +290,7 @@ console.log('\nSorting');
   `);
   check('an unknown ?sort= falls back rather than emptying the listing',
     junk.shown > 0 && junk.value === 'price-asc', JSON.stringify(junk));
+  }
 }
 
 console.log('\n' + '-'.repeat(56));

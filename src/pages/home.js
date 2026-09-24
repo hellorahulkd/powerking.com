@@ -1,4 +1,4 @@
-import { siteConfig } from '../config/site.config.js';
+import { siteConfig, PUBLIC_PRICES } from '../config/site.config.js';
 import { esc, formatPrice } from '../lib/html.js';
 import { icon } from '../templates/icons.js';
 import { layout } from '../templates/layout.js';
@@ -18,7 +18,7 @@ function slidePrice(p) {
   // The loose piece rate, same as every card. The carton rate is also a
   // per-piece number, so showing it here without room to say so would read as
   // the same thing at a different price.
-  const piece = formatPrice(p.pricePiece);
+  const piece = PUBLIC_PRICES ? formatPrice(p.pricePiece) : '';
   if (!piece) return '<p class="slide__price">Price on enquiry</p>';
   return `<p class="slide__price">${esc(piece)} <span>per piece, wholesale</span></p>`;
 }
@@ -420,9 +420,13 @@ function ctaSection() {
     <div>
       <h2 class="cta__title">Ready to order?</h2>
       <p class="cta__body">
-        Every price on this site is the wholesale rate for a single piece.
-        Carton rates are different — put what you need on an enquiry and ask,
-        and we will confirm the carton rate, stock and how it reaches you.
+        ${PUBLIC_PRICES
+          ? `Every price on this site is the wholesale rate for a single piece.
+             Carton rates are different — put what you need on an enquiry and ask,
+             and we will confirm the carton rate, stock and how it reaches you.`
+          : `We quote the trade directly rather than publishing our rates. Put
+             what you need on an enquiry with your shop name and where you are,
+             and we reply with prices, stock and how it reaches you.`}
       </p>
     </div>
     <div class="cta__actions">

@@ -180,6 +180,26 @@ export const whatsappMessages = {
  * wa.me URL, so this is a length limit rather than a preference — past this
  * the link risks being truncated by the phone before WhatsApp ever sees it.
  */
+/**
+ * Whether the public site shows prices at all.
+ *
+ * Off. This is a wholesale catalogue and the rates on it are the rates the
+ * trade pays; published openly they undercut the shop's own dealers, which is
+ * what a public price list does to a wholesale market.
+ *
+ * "Off" means gone, not hidden: no price on a card, none in a product page,
+ * and no figure left in the HTML for anyone who opens the page source. A
+ * price that is present but covered is not private — it is one keystroke from
+ * being read, and the people it matters to are exactly the people who would
+ * look.
+ *
+ * Buyers get rates by enquiring. The enquiry carries who they are and what
+ * they want, so the reply is a price rather than a round of questions.
+ *
+ * Set this to true and every price returns exactly where it was.
+ */
+export const PUBLIC_PRICES = false;
+
 export const ENQUIRY_MAX = 20;
 
 export default siteConfig;

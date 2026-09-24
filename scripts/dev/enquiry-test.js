@@ -12,7 +12,7 @@
  */
 import { launch, newPage } from './cdp.js';
 import { products } from '../../src/data/products.js';
-import { siteConfig, whatsappMessages, ENQUIRY_MAX } from '../../src/config/site.config.js';
+import { siteConfig, whatsappMessages, ENQUIRY_MAX, PUBLIC_PRICES } from '../../src/config/site.config.js';
 
 const BASE = process.env.BASE || 'http://localhost:4321';
 
@@ -36,6 +36,10 @@ async function fresh(path = '/products/') {
   await page.eval(`
     localStorage.removeItem('pk-enquiry');
     localStorage.removeItem('pk-enquiry-who');
+    // The buyer's own details are kept on purpose, so a test that left them
+    // filled in would otherwise decide for whatever ran next whether the
+    // form asks at all.
+    localStorage.removeItem('pk-enquiry-you');
     return 1;
   `);
   await page.goto(BASE + path);
@@ -161,7 +165,29 @@ console.log('\nThe message that reaches WhatsApp');
 }
 
 console.log('\nThe message arrives with the arithmetic done');
-{
+if (!PUBLIC_PRICES) {
+  // No prices on the site, so no arithmetic to do. What has to hold instead
+  // is that the message names quantities cleanly and asks for a rate once,
+  // rather than annotating every line with the same six words.
+  await fresh();
+  const r = await page.eval(`
+    document.querySelector('[data-enq-add]').click();
+    document.getElementById('enq-open').click();
+    await new Promise(r => setTimeout(r, 200));
+    const el = document.querySelector('.enq__row [data-pieces]');
+    el.value = '30'; el.dispatchEvent(new Event('input', { bubbles: true }));
+    const set = (id, v) => { const e = document.getElementById(id); e.value = v;
+      e.dispatchEvent(new Event('input', { bubbles: true })); };
+    set('enq-firm', 'Test Traders'); set('enq-place', 'Pokhara');
+    document.getElementById('enq-send').click();
+    await new Promise(r => setTimeout(r, 200));
+    return decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1] || '');
+  `);
+  check('the message carries the quantity', /Loose: 30 pcs/.test(r), r);
+  check('and no rupee figure anywhere in it', !/Rs\./.test(r), r);
+  check('the rate is asked for once, not under every line',
+    (r.match(/best rates/g) || []).length === 1, r);
+} else {
   // The shop was receiving "20 cartons + 200 pieces" and having to look the
   // rate up and multiply it out before it could reply. The site knows the
   // piece rate, so the message carries the total.
@@ -232,6 +258,83 @@ console.log('\nThe message arrives with the arithmetic done');
     check('a product with no price asks rather than showing a figure',
       /Loose: 5 pcs - price on enquiry/.test(r) && !/Rs\./.test(r), r);
   }
+}
+
+console.log('\nWho the buyer is, asked once');
+{
+  // These are the questions the shop was typing out to every new enquiry
+  // before it could quote. Collected on the form they arrive inside the first
+  // message — and a buyer who has answered once must never be asked again,
+  // which is the whole point of collecting them here rather than in chat.
+  await fresh();
+  const blocked = await page.eval(`
+    document.querySelector('[data-enq-add]').click();
+    document.getElementById('enq-open').click();
+    await new Promise(r => setTimeout(r, 200));
+    const el = document.querySelector('.enq__row [data-pieces]');
+    el.value = '12'; el.dispatchEvent(new Event('input', { bubbles: true }));
+    const before = location.href;
+    document.getElementById('enq-send').click();
+    await new Promise(r => setTimeout(r, 200));
+    return {
+      navigated: location.href !== before,
+      note: document.getElementById('enq-note').textContent,
+      asking: !document.getElementById('enq-you-form').hidden,
+    };
+  `);
+  check('a first enquiry is held back until we know who is asking',
+    blocked.navigated === false && blocked.asking === true, JSON.stringify(blocked));
+  check('and says what is missing', /shop name|where you are/i.test(blocked.note), blocked.note);
+
+  const sent = await page.eval(`
+    const set = (id, v) => { const e = document.getElementById(id); e.value = v;
+      e.dispatchEvent(new Event('input', { bubbles: true })); };
+    set('enq-firm', 'New Sagar Electronics');
+    set('enq-place', 'Butwal, Rupandehi');
+    set('enq-pan', '301234567');
+    document.getElementById('enq-send').click();
+    await new Promise(r => setTimeout(r, 200));
+    return decodeURIComponent(document.getElementById('enq-send').href.split('?text=')[1] || '');
+  `);
+  check('the shop name reaches the message', /Shop: New Sagar Electronics/.test(sent), sent);
+  check('so does where they are', /Location: Butwal, Rupandehi/.test(sent), sent);
+  check('and the PAN when they give one', /PAN: 301234567/.test(sent), sent);
+
+  // The part that decides whether anyone tolerates the form: it is asked once.
+  await page.goto(`${BASE}/products/`);
+  const again = await page.eval(`
+    document.querySelector('[data-enq-add]').click();
+    document.getElementById('enq-open').click();
+    await new Promise(r => setTimeout(r, 200));
+    const before = location.href;
+    document.getElementById('enq-send').click();
+    await new Promise(r => setTimeout(r, 200));
+    return {
+      asking: !document.getElementById('enq-you-form').hidden,
+      summary: (document.getElementById('enq-you-summary') || {}).textContent || '',
+      sends: location.href !== before || /wa\.me/.test(document.getElementById('enq-send').href),
+    };
+  `);
+  check('a returning buyer is not asked again', again.asking === false, JSON.stringify(again));
+  check('and is shown who we are quoting, with a way to change it',
+    /New Sagar Electronics/.test(again.summary), again.summary);
+  check('their next enquiry sends without a second interruption', again.sends === true);
+
+  // Half an answer is not an answer: a firm with no address cannot be quoted
+  // delivery, which is one of the two things the reply has to carry.
+  const half = await page.eval(`
+    document.getElementById('enq-you-change').click();
+    const place = document.getElementById('enq-place');
+    place.value = ''; place.dispatchEvent(new Event('input', { bubbles: true }));
+    const before = location.href;
+    document.getElementById('enq-send').click();
+    await new Promise(r => setTimeout(r, 200));
+    return { navigated: location.href !== before,
+             note: document.getElementById('enq-note').textContent };
+  `);
+  check('clearing the address stops the next enquiry until it is given',
+    half.navigated === false && /where is your shop/i.test(half.note),
+    JSON.stringify(half));
 }
 
 console.log('\nWho the buyer is');

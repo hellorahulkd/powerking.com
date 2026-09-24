@@ -1174,6 +1174,38 @@ dd.is-placeholder { color: var(--text-faint); font-style: italic; font-weight: 5
   margin: 0 1.25rem .5rem; font-size: var(--step--1);
 }
 .enq__who > span { color: var(--text-muted); }
+/* Who the buyer is — the questions the shop used to type out, asked once on
+   the form instead. Same flex-none treatment as every other fixed block in
+   the panel; the list keeps whatever height is left. */
+.enq__you {
+  /* Shrinkable, not fixed. Every other block in this panel is a fixed height
+     and the list absorbs what is left, so a fourth fixed block took the list
+     to nothing. This one gives way and scrolls inside itself instead — and
+     only a first-time buyer ever sees it at full height. */
+  flex: 0 1 auto; min-height: 2.5rem; overflow-y: auto;
+  margin: 0 1.25rem .5rem; font-size: var(--step--1);
+}
+.enq__you-lead { margin: 0 0 .35rem; color: var(--text-muted); }
+.enq__you-field { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem; }
+.enq__you-field > span { width: 8.5rem; flex: none; color: var(--text-muted); }
+.enq__you-opt { display: inline; width: auto; color: var(--text-faint); }
+.enq__you-input {
+  flex: 1; min-width: 0; padding: .3rem .45rem; font: inherit;
+  font-size: var(--step--1);
+  border: 1.5px solid var(--border-strong); background: var(--bg); color: var(--text);
+}
+.enq__you-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+.enq__you-known { margin: 0; display: flex; gap: .5rem; align-items: baseline; color: var(--text-muted); }
+.enq__you-edit {
+  padding: 0; background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: var(--step--1); color: var(--ink);
+  text-decoration: underline; text-underline-offset: 2px;
+}
+@media (max-width: 560px) {
+  .enq__you { margin-inline: 1rem; }
+  .enq__you-field { flex-direction: column; align-items: stretch; gap: .1rem; }
+  .enq__you-field > span { width: auto; }
+}
 .enq__who label { display: inline-flex; align-items: center; gap: .3rem; }
 
 .footer__note {
@@ -1393,7 +1425,11 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
 }
 .enq__list {
   margin: 0; padding: 0 1.25rem; overflow-y: auto;
-  flex: 1 1 auto; min-height: 0;
+  /* A floor, not just a share. The panel is a fixed-height column of fixed
+     blocks around one flexible list, so anything added above it comes
+     straight out of the list — the buyer-details block took it to nothing on
+     a 620px-tall window, leaving a panel with no products in it. */
+  flex: 1 1 auto; min-height: 5rem;
   display: flex; flex-direction: column; gap: .5rem;
 }
 .enq__row {
@@ -1575,19 +1611,27 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
 /* A short window — a phone held sideways, or a laptop with a lot of browser
    chrome — left no room between the fixed head and foot, collapsing the list
    to nothing. The explainer and the fine print give way first: on a screen
-   this short, seeing the products matters more than the instructions. */
-@media (max-height: 560px) {
+   this short, seeing the products matters more than the instructions.
+   The threshold is 700px rather than 560px because the panel now also asks a
+   first-time buyer who they are: more to fit means economising sooner. */
+@media (max-height: 700px) {
   .enq { max-height: 94vh; }
   .enq__lead, .enq__fine { display: none; }
-  .enq__head { padding: .7rem 1rem .5rem; }
-  .enq__list { padding-inline: 1rem; min-height: 5rem; }
+  .enq__head { padding: .5rem 1rem .4rem; }
+  /* Still enough for a row and the edge of the next, which is what says the
+     list scrolls. */
+  .enq__list { padding-inline: 1rem; min-height: 4.5rem; }
   /* "Add more products" is the one line here that is not needed to finish the
      enquiry, and on a window this short its 28px is the difference between
      Send being inside the panel and being clipped out of reach. */
   .enq__more { display: none; }
   .enq__note { margin-top: .4rem; }
+  .enq__you { margin-inline: 1rem; }
+  /* The running total is a convenience; the message carries it regardless,
+     and the warnings in the sibling note are not optional. */
+  #enq-total { display: none; }
   .enq__who { margin: 0 1rem .35rem; }
-  .enq__foot { padding: .7rem 1rem .8rem; }
+  .enq__foot { padding: .5rem 1rem .6rem; }
   .enq__row { gap: .4rem; padding: .45rem; }
 }
 

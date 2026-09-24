@@ -1,4 +1,4 @@
-import { siteConfig, whatsappMessages, ENQUIRY_MAX } from '../config/site.config.js';
+import { siteConfig, whatsappMessages, ENQUIRY_MAX, PUBLIC_PRICES } from '../config/site.config.js';
 import { esc, whatsappUrl, hasWhatsApp, formatPrice, packSizeLabel } from '../lib/html.js';
 import { icon } from './icons.js';
 
@@ -55,11 +55,12 @@ export function whatsappButton({
  * the rate up and multiply it out before it could reply.
  */
 function enqData(product) {
-  const price = Number(product.pricePiece) > 0 ? Number(product.pricePiece) : '';
+  const price = PUBLIC_PRICES && Number(product.pricePiece) > 0 ? Number(product.pricePiece) : '';
   // Also a per-piece rate — what one piece costs inside a full carton — so a
   // carton total is arithmetic the page can do rather than a number to ask
   // for. See priceBlock() in src/pages/product.js.
-  const cartonRate = Number(product.priceCarton) > 0 ? Number(product.priceCarton) : '';
+  const cartonRate = PUBLIC_PRICES && Number(product.priceCarton) > 0
+    ? Number(product.priceCarton) : '';
   const pack = /^\d+$/.test(String(product.packSize || '').trim())
     ? String(product.packSize).trim() : '';
   return `data-enq-slug="${esc(product.slug)}" data-enq-name="${esc(product.name)}"`
@@ -144,6 +145,40 @@ export function enquiryList() {
       <span>myself, a few pieces</span></label>
   </div>
 
+  <!--
+    Asked here, once, and remembered.
+    These are the questions the shop was typing out on WhatsApp to every new
+    enquiry before it could quote anything — who are you, where are you, what
+    is your PAN. Asked on the form instead, they arrive inside the first
+    message and the reply can be the price. A returning buyer never sees this
+    block again: it collapses to a line naming the firm, with a way to change
+    it.
+  -->
+  <div class="enq__you" id="enq-you">
+    <p class="enq__you-known" id="enq-you-known" hidden>
+      <span id="enq-you-summary"></span>
+      <button type="button" class="enq__you-edit" id="enq-you-change">Change</button>
+    </p>
+    <div class="enq__you-form" id="enq-you-form">
+      <p class="enq__you-lead">Tell us who we are quoting, once:</p>
+      <label class="enq__you-field">
+        <span>Shop or firm name</span>
+        <input class="enq__you-input" id="enq-firm" type="text" autocomplete="organization"
+               placeholder="New Sagar Electronics" maxlength="80">
+      </label>
+      <label class="enq__you-field">
+        <span>Where is your shop?</span>
+        <input class="enq__you-input" id="enq-place" type="text" autocomplete="address-level2"
+               placeholder="Butwal, Rupandehi" maxlength="80">
+      </label>
+      <label class="enq__you-field">
+        <span>PAN <span class="enq__you-opt">(optional, for the bill)</span></span>
+        <input class="enq__you-input" id="enq-pan" type="text" inputmode="numeric"
+               autocomplete="off" placeholder="123456789" maxlength="20">
+      </label>
+    </div>
+  </div>
+
   <ul class="enq__list" id="enq-list"></ul>
 
   <div class="enq__empty" id="enq-empty" hidden>
@@ -175,9 +210,12 @@ export function enquiryList() {
       ${icon('whatsapp', { size: 20 })}<span>Send on WhatsApp</span>
     </a>
     <p class="enq__fine">
-      Opens WhatsApp with the list, the quantities and the total already
-      written out. Nothing is ordered here — we reply to confirm stock and
-      delivery first.
+      ${PUBLIC_PRICES
+        ? `Opens WhatsApp with the list, the quantities and the total already
+           written out. Nothing is ordered here — we reply to confirm stock and
+           delivery first.`
+        : `Opens WhatsApp with your list and your details already written out,
+           so our first reply is the price. Nothing is ordered here.`}
     </p>
   </div>
 </dialog>`;
@@ -250,7 +288,7 @@ function badges(product) {
  * product page, where there is room to say which is which.
  */
 function cardPrice(product) {
-  const piece = formatPrice(product.pricePiece);
+  const piece = PUBLIC_PRICES ? formatPrice(product.pricePiece) : '';
   if (!piece) return '<p class="card__price card__price--ask">Price on enquiry</p>';
   return `<p class="card__price">${esc(piece)}<span class="card__price-unit">per piece</span></p>`;
 }
@@ -288,7 +326,7 @@ export function productCard(
   data-product
   data-brand="${esc(product.brand)}"
   data-category="${esc(product.category)}"
-  data-price="${esc(Number(product.pricePiece) > 0 ? product.pricePiece : '')}"
+  data-price="${esc(PUBLIC_PRICES && Number(product.pricePiece) > 0 ? product.pricePiece : '')}"
   data-search="${esc(haystack)}">
   <div class="card__media">
     <img src="${esc(product.image)}" alt="" width="400" height="400"

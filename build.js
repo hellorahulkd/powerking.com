@@ -19,7 +19,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { siteConfig } from './src/config/site.config.js';
+import { siteConfig, PUBLIC_PRICES } from './src/config/site.config.js';
 import { products as rawProducts } from './src/data/products.js';
 import { categories } from './src/data/categories.js';
 import { slugifyCategory } from './src/templates/components.js';
@@ -74,6 +74,20 @@ function validate(products) {
     if (p.image && !p.image.startsWith('/')) {
       errors.push(`${where}: image "${p.image}" must start with "/" (e.g. /images/products/x.jpg)`);
     }
+    // A price typed into free text is published like any other word, and the
+    // switch that takes prices off the site cannot reach it. A warning, not an
+    // error: it is the shop's own copy, the pattern can be wrong, and a
+    // deploy should not be blocked by a sentence.
+    if (!PUBLIC_PRICES) {
+      const typed = String(p.description || '').match(/\b(?:Rs\.?|NPR|रू)\s?[0-9][0-9,]*/i);
+      if (typed) {
+        warnings.push(
+          `${where}: the description contains "${typed[0]}" — prices are off the `
+          + 'public site, but text in a description is published as written',
+        );
+      }
+    }
+
     // The gallery is the rest of a product's photos. It reaches data through
     // the admin's photo strip, so a bad entry there is as breaking as a bad
     // main image and has to fail the build the same way.

@@ -46,6 +46,41 @@
   var WHO_STORE = 'pk-enquiry-who';
   var who = readWho();
 
+  /**
+   * Who the buyer is, asked once and kept.
+   *
+   * The shop was typing these questions out to every new enquiry before it
+   * could quote anything. Collected here they ride inside the first message,
+   * so the first reply can be the price — and a buyer who has answered once
+   * never answers again, on this or any later enquiry.
+   *
+   * This browser only. There is no account and no server: it is a note the
+   * form keeps for the person using it, not a record the shop holds.
+   */
+  var YOU_STORE = 'pk-enquiry-you';
+  var you = readYou();
+
+  function readYou() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(YOU_STORE) || '{}');
+      if (!raw || typeof raw !== 'object') return { firm: '', place: '', pan: '' };
+      return {
+        firm: trimmed(raw.firm),
+        place: trimmed(raw.place),
+        pan: trimmed(raw.pan),
+      };
+    } catch (e) { return { firm: '', place: '', pan: '' }; }
+  }
+
+  function saveYou() {
+    try { localStorage.setItem(YOU_STORE, JSON.stringify(you)); } catch (e) { /* private mode */ }
+  }
+
+  function trimmed(v) { return String(v == null ? '' : v).trim().slice(0, 80); }
+
+  /** Enough to quote against: a name to address, and a place to deliver to. */
+  function youKnown() { return !!(you.firm && you.place); }
+
   function readWho() {
     try {
       var v = localStorage.getItem(WHO_STORE);
@@ -206,7 +241,13 @@
    * misreadable. The carton rate is not repeated per line; the summary says
    * it once at the foot.
    */
+  /** True when the site is quoting nothing at all, not merely missing one. */
+  function nothingPriced() {
+    return items.every(function (it) { return !(it.price > 0) && !(it.cartonRate > 0); });
+  }
+
   function messageLines(it, i) {
+    var bare = nothingPriced();
     var out = [(i + 1) + '. ' + it.name];
 
     // Loose first, cartons under it — the same order as the panel, so the
@@ -215,7 +256,7 @@
       var loose = '   Loose: ' + it.pieces + ' pcs';
       out.push(it.price > 0
         ? loose + ' x ' + rupees(it.price) + ' = ' + rupees(looseTotal(it))
-        : loose + ' - price on enquiry');
+        : loose + (bare ? '' : ' - price on enquiry'));
     }
 
     if (it.cartons > 0) {
@@ -225,7 +266,7 @@
       if (it.pack > 0) line += ' (' + it.pack + ' pcs each = ' + (it.cartons * it.pack) + ' pcs)';
       out.push(it.cartonRate > 0 && it.pack > 0
         ? line + ' x ' + rupees(it.cartonRate) + ' = ' + rupees(cartonTotal(it))
-        : line + ' - carton rate on enquiry');
+        : line + (bare ? '' : ' - carton rate on enquiry'));
     }
 
     return out.join('\n');
@@ -240,15 +281,25 @@
 
     var summary = [];
     if (total > 0) summary.push('Total at your listed rates: ' + rupees(total));
-    if (missing > 0) {
+    if (nothingPriced()) {
+      // Asked once at the foot rather than repeated under every line.
+      summary.push('Please send your best rates for these.');
+    } else if (missing > 0) {
       summary.push('Please quote a rate for '
         + amount(missing, 'product', 'products') + ' the site does not price.');
     }
     if (summary.length) parts.push('', summary.join('\n'));
 
-    parts.push('', who === 'personal'
+    // Who and where, above the sign-off, so the shop can price and plan
+    // delivery from the first message instead of asking.
+    var about = [];
+    if (you.firm) about.push('Shop: ' + you.firm);
+    if (you.place) about.push('Location: ' + you.place);
+    if (you.pan) about.push('PAN: ' + you.pan);
+    about.push(who === 'personal'
       ? 'Buying for: myself, a few pieces.'
       : 'Buying for: my shop or business.');
+    parts.push('', about.join('\n'));
     parts.push('', CLOSING);
     return parts.join('\n');
   }
@@ -331,7 +382,10 @@
           + '</span>';
       }
 
-      var looseHint = it.price > 0 ? esc(rupees(it.price)) + ' each' : 'price on enquiry';
+      // Blank, not "price on enquiry", when the site quotes nothing: the
+      // panel already says so once, and repeating it on every box is noise.
+      var looseHint = it.price > 0 ? esc(rupees(it.price)) + ' each'
+        : (nothingPriced() ? '' : 'price on enquiry');
       var cartonHint = it.pack > 0
         ? esc(String(it.pack)) + ' pcs' + (it.cartonRate > 0
           ? ' &middot; ' + esc(rupees(it.cartonRate)) + ' each' : '')
@@ -361,6 +415,7 @@
 
     sendEl.href = sendHref();
     renderWho();
+    renderYou();
     renderTotal();
     say(items.length >= MAX
       ? 'That is the most one message can carry. Send these, then start another list.'
@@ -378,6 +433,9 @@
     var row = listEl.querySelector('[data-slug="' + cssEscape(it.slug) + '"]');
     var el = row && row.querySelector('[data-line]');
     if (!el) return;
+    // With nothing priced there is no arithmetic to show, and the quantity is
+    // already in the box right above it.
+    if (nothingPriced()) { el.innerHTML = ''; return; }
     var bits = [];
     if (it.pieces > 0) {
       bits.push(it.price > 0
@@ -414,7 +472,9 @@
       bits.push('Total at our listed rates: <strong class="enq__amount">'
         + esc(rupees(total)) + '</strong>');
     }
-    if (missing > 0) {
+    if (nothingPriced()) {
+      bits.push('We reply with our rates for these.');
+    } else if (missing > 0) {
       bits.push(missing + (missing === 1 ? ' product needs' : ' products need')
         + ' a rate from us');
     }
@@ -559,6 +619,61 @@
     if (chosen) chosen.checked = true;
   }
 
+  /**
+   * The questions, or the answers.
+   *
+   * Somebody who has enquired before sees one line naming their shop and a
+   * way to change it — not three empty boxes asking again for what they
+   * already gave.
+   */
+  var youForm = document.getElementById('enq-you-form');
+  var youKnownEl = document.getElementById('enq-you-known');
+  var youSummary = document.getElementById('enq-you-summary');
+  var editingYou = false;
+
+  function renderYou() {
+    if (!youForm || !youKnownEl) return;
+    var settled = youKnown() && !editingYou;
+    youForm.hidden = settled;
+    youKnownEl.hidden = !settled;
+    if (settled && youSummary) {
+      youSummary.textContent = 'Quoting ' + you.firm + ', ' + you.place;
+    }
+    if (!settled) {
+      setField('enq-firm', you.firm);
+      setField('enq-place', you.place);
+      setField('enq-pan', you.pan);
+    }
+  }
+
+  function setField(id, value) {
+    var el = document.getElementById(id);
+    if (el && el.value !== value) el.value = value;
+  }
+
+  if (youForm) {
+    youForm.addEventListener('input', function (ev) {
+      var map = { 'enq-firm': 'firm', 'enq-place': 'place', 'enq-pan': 'pan' };
+      var key = map[ev.target.id];
+      if (!key) return;
+      you[key] = trimmed(ev.target.value);
+      saveYou();
+      // Not re-rendered here: the form would collapse under the caret the
+      // moment the second box was filled in.
+      sendEl.href = sendHref();
+    });
+  }
+
+  var youChange = document.getElementById('enq-you-change');
+  if (youChange) {
+    youChange.addEventListener('click', function () {
+      editingYou = true;
+      renderYou();
+      var first = document.getElementById('enq-firm');
+      if (first) { first.focus(); first.select(); }
+    });
+  }
+
   document.getElementById('enq-clear').addEventListener('click', function () {
     if (!items.length) return;
     if (!window.confirm('Clear all ' + items.length + ' products from your enquiry?')) return;
@@ -622,6 +737,23 @@
       if (first) { first.focus(); first.select(); }
       return;
     }
+    // Who and where, before the message goes. Without them the shop is back to
+    // asking, which is the round trip this form exists to remove. Asked once:
+    // a buyer who has enquired before never reaches this.
+    if (!youKnown()) {
+      ev.preventDefault();
+      editingYou = true;
+      renderYou();
+      say(you.firm
+        ? 'Where is your shop? We need it to quote delivery.'
+        : 'Add your shop name and where you are, so we can reply with prices.');
+      var firstYou = document.getElementById(you.firm ? 'enq-place' : 'enq-firm');
+      if (firstYou) { firstYou.focus(); firstYou.select(); }
+      return;
+    }
+    editingYou = false;
+    renderYou();
+
     // Rebuild rather than trust the last render: the reader may have changed a
     // quantity and clicked straight through.
     sendEl.href = sendHref();

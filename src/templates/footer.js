@@ -1,4 +1,4 @@
-import { siteConfig } from '../config/site.config.js';
+import { siteConfig, PUBLIC_PRICES } from '../config/site.config.js';
 import {
   esc, whatsappUrl, hasWhatsApp, orPlaceholder, addressLine, telHref,
 } from '../lib/html.js';
@@ -95,9 +95,14 @@ export function footer() {
     piece rate, so the distinction has to be somewhere they cannot miss it.
   -->
   <div class="container footer__note">
-    <p><strong>About our prices.</strong> Every price on this site is the wholesale
-    rate for a <strong>single piece</strong>. Carton prices are different — send us an
-    enquiry to ask for the carton rate, the minimum order and delivery.</p>
+    <p>${PUBLIC_PRICES
+      ? `<strong>About our prices.</strong> Every price on this site is the wholesale
+         rate for a <strong>single piece</strong>. Carton prices are different — send us an
+         enquiry to ask for the carton rate, the minimum order and delivery.`
+      : `<strong>About our prices.</strong> We supply the trade, so our rates are
+         quoted rather than published. Put what you need on an enquiry with your
+         shop name and where you are, and we reply with prices for loose pieces
+         and by the carton, the minimum order and delivery.`}</p>
   </div>
 
   <div class="container footer__bar">

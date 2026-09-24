@@ -1,4 +1,5 @@
 import { esc, jsonForScript, absoluteUrl } from '../lib/html.js';
+import { PUBLIC_PRICES } from '../config/site.config.js';
 import { layout } from '../templates/layout.js';
 import {
   productCard, emptyState, whatsappButton,
@@ -16,7 +17,9 @@ import {
 export function listPrice(product) {
   // The loose single-piece rate, which is the one number a card shows. Sorting
   // on anything else would order the listing by a figure the reader cannot
-  // see on it.
+  // see on it — and with prices off the public site there is no such figure,
+  // so every product sorts equal and the price orders disappear with them.
+  if (!PUBLIC_PRICES) return 0;
   const piece = Number(product.pricePiece);
   return piece > 0 ? piece : 0;
 }
@@ -32,7 +35,7 @@ export function listPrice(product) {
  * catalogue-test asserts the two agree by checking the rendered order rather
  * than by trusting either copy.
  */
-export const SORTS = [
+const PRICE_SORTS = [
   {
     key: 'price-asc',
     label: 'Price: low to high',
@@ -42,6 +45,14 @@ export const SORTS = [
     compare: (a, b) => listPrice(a) - listPrice(b),
   },
   { key: 'price-desc', label: 'Price: high to low', byPrice: true, compare: (a, b) => listPrice(b) - listPrice(a) },
+];
+
+/**
+ * Sorting by a price nobody can see is a control that appears to do nothing,
+ * so the price orders are offered only while prices are.
+ */
+export const SORTS = [
+  ...(PUBLIC_PRICES ? PRICE_SORTS : []),
   { key: 'name-asc', label: 'Name: A to Z', compare: (a, b) => a.name.localeCompare(b.name) },
   { key: 'featured', label: 'Featured first', compare: () => 0 },
 ];
@@ -53,7 +64,7 @@ export const SORTS = [
  * asks is what it costs. It is the served order too, not just a default the
  * script applies, so a reader without JavaScript and a crawler both see it.
  */
-export const DEFAULT_SORT = 'price-asc';
+export const DEFAULT_SORT = PUBLIC_PRICES ? 'price-asc' : 'featured';
 
 /**
  * Order a listing. Unknown keys fall back to the catalogue's own order rather
@@ -273,7 +284,9 @@ export function cataloguePage({ products: all, categories, brands, page = 1 }) {
 ${pageHead({
   eyebrow: 'Product Catalogue',
   title: 'Our Products',
-  lead: 'Every price shown is the wholesale rate for a single loose piece. Carton rates are lower — select a product to see both.',
+  lead: PUBLIC_PRICES
+    ? 'Every price shown is the wholesale rate for a single loose piece. Carton rates are lower — select a product to see both.'
+    : 'Trade supply, by the carton or in loose pieces. Put what you need on an enquiry and we reply with our rates.',
   crumbs,
 })}
 ${catGrid}

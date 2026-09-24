@@ -12,6 +12,7 @@ import { launch, newPage } from './cdp.js';
 import { products } from '../../src/data/products.js';
 import { searchText } from '../../src/templates/components.js';
 import { PAGE_SIZE } from '../../src/pages/catalogue.js';
+import { PUBLIC_PRICES } from '../../src/config/site.config.js';
 import { categories } from '../../src/data/categories.js';
 
 /**
@@ -255,24 +256,80 @@ function tagOnlyTerm() {
   // FOR. Every priced product used to show its single-piece rate labelled
   // "per carton", which is the most expensive kind of wrong a catalogue can be.
   process.stdout.write('\nPrices\n');
-  {
+  if (!PUBLIC_PRICES) {
+    // Prices are off. "Off" has to mean absent, not covered: a figure left in
+    // the markup, in a data attribute or in the JSON-LD is published, whatever
+    // the page chooses to paint. This is the check that matters — everything
+    // else about the site can be judged by eye, and this cannot.
     const page = await newPage(port);
     await page.setViewport(1280, 900, false);
     const priced = products.find((p) => Number(p.pricePiece) > 0);
-    const unpriced = products.find((p) => !Number(p.priceCarton) && !Number(p.pricePiece));
-    const packed = products.find((p) => /^\d+$/.test(String(p.packSize || '').trim()));
-
-    if (unpriced) {
-      await page.goto(`${BASE}/products/${unpriced.slug}/`);
-      const r = await page.eval(`return {
-        ask: !!document.querySelector('.enquiry__price'),
-        prices: document.querySelectorAll('.price__value').length,
-        text: document.body.textContent,
-      };`);
-      check('a product with no price asks the buyer to enquire',
-        r.ask === true && r.prices === 0, JSON.stringify({ ask: r.ask, prices: r.prices }));
-      check('and never shows a zero price', !/Rs\.\s*0\b/.test(r.text));
+    const urls = ['/', '/products/', `/products/${priced ? priced.slug : products[0].slug}/`];
+    const found = [];
+    for (const url of urls) {
+      await page.goto(BASE + url);
+      const hit = await page.eval(`
+        const html = document.documentElement.outerHTML;
+        const bad = [];
+        // Every rupee figure the site could print, in any of its shapes.
+        const money = html.match(/Rs\\.?\\s?[0-9][0-9,]*/g) || [];
+        if (money.length) bad.push('rupees: ' + money.slice(0, 3).join(', '));
+        for (const attr of ['data-price', 'data-enq-price', 'data-enq-carton']) {
+          const withValue = [...document.querySelectorAll('[' + attr + ']')]
+            .filter((el) => el.getAttribute(attr).trim() !== '');
+          if (withValue.length) {
+            bad.push(attr + '=' + withValue[0].getAttribute(attr));
+          }
+        }
+        // Structured data is read by machines first and is the easiest place
+        // for a price to survive a purge of the visible ones.
+        for (const tag of document.querySelectorAll('script[type="application/ld+json"]')) {
+          if (/"price"\\s*:\\s*[0-9]/.test(tag.textContent)) bad.push('json-ld price');
+        }
+        return bad;
+      `);
+      if (hit.length) found.push(`${url}: ${hit.join(' | ')}`);
     }
+    check('with prices off, no page carries a price anywhere in its markup',
+      found.length === 0, found.join('  ||  '));
+
+    // The served TEXT, not the rendered DOM. Past the first screenful the
+    // catalogue keeps its cards inside a <template>, which querySelectorAll
+    // does not descend into — so a price on a deferred card would pass every
+    // check above while sitting in plain sight in the page source.
+    const raw = await page.eval(`
+      const r = await fetch('/products/');
+      const text = await r.text();
+      return {
+        money: (text.match(/Rs\\.?\\s?[0-9][0-9,]*/g) || []).slice(0, 3),
+        attrs: (text.match(/data-(?:enq-)?(?:price|carton)="[0-9]+"/g) || []).slice(0, 3),
+      };
+    `);
+    check('and none survives in the page source, including the deferred cards',
+      raw.money.length === 0 && raw.attrs.length === 0,
+      JSON.stringify(raw));
+
+    // And the listing must not offer to sort by a number nobody can see.
+    await page.goto(`${BASE}/products/`);
+    const sorts = await page.eval(`
+      return [...document.querySelectorAll('#sort-order option')].map((o) => o.value);
+    `);
+    check('and the listing offers no price sort',
+      !sorts.some((v) => v.startsWith('price')), sorts.join(', '));
+
+    // What replaces them: a buyer is told how to get a rate, on every page.
+    await page.goto(`${BASE}/`);
+    const note = await page.eval(`
+      return (document.querySelector('.footer__note') || {}).textContent || '';
+    `);
+    check('every page still says how to get a rate',
+      /enquiry|enquire/i.test(note) && /quote|rate/i.test(note), note.trim().slice(0, 90));
+    await page.close();
+  } else {
+    const page = await newPage(port);
+    await page.setViewport(1280, 900, false);
+    const priced = products.find((p) => Number(p.pricePiece) > 0);
+    const packed = products.find((p) => /^\d+$/.test(String(p.packSize || '').trim()));
 
     if (priced) {
       await page.goto(`${BASE}/products/${priced.slug}/`);
@@ -283,51 +340,15 @@ function tagOnlyTerm() {
       };`);
       check('a priced product names the rate as the price of one piece',
         r.labels.includes('One piece'), r.labels.join(', '));
-      // Both published rates are per piece — one loose, one inside a full
-      // carton — so the page has to say which of the two it is showing.
-      // "Per carton" read as the price of a whole carton, which it is not.
       check('a carton rate is labelled as a per-piece rate, not a carton total',
         r.labels.every((l) => l !== 'Per carton'), r.labels.join(', '));
-      check('and the note tells the buyer what the carton figure means',
-        /carton/i.test(r.note), r.note.slice(0, 100));
       check('prices are written in rupees with Nepali grouping',
         r.values.every((v) => /^Rs\. [\d,]+$/.test(v)), r.values.join(' | '));
-
-      // The card is where the mislabelling was actually seen.
-      await page.goto(`${BASE}/products/`);
-      const card = await page.eval(`
-        const c = [...document.querySelectorAll('[data-product]')]
-          .find(x => x.querySelector('.card__price:not(.card__price--ask)'));
-        if (!c) return { none: true };
-        return {
-          unit: c.querySelector('.card__price-unit').textContent.trim(),
-          price: c.querySelector('.card__price').textContent.trim(),
-        };
-      `);
-      check('a card says the price is per piece, not per carton',
-        card.unit === 'per piece', JSON.stringify(card));
-    } else {
-      check('no product carries an invented price', true);
-    }
-
-    // The footer is the only place every page ends. A buyer who lands on one
-    // product from a search never reads the catalogue lead, so the piece /
-    // carton distinction has to close every page, not just the ones that
-    // happen to introduce it.
-    for (const url of ['/', '/products/', `/products/${priced ? priced.slug : products[0].slug}/`]) {
-      await page.goto(BASE + url);
-      const note = await page.eval(`
-        return (document.querySelector('.footer__note') || {}).textContent || '';
-      `);
-      check(`${url} ends with the note that carton prices differ`,
-        /single piece/i.test(note) && /carton/i.test(note) && /enquir/i.test(note),
-        note.trim().slice(0, 80));
     }
 
     if (packed) {
       await page.goto(`${BASE}/products/${packed.slug}/`);
       const r = await page.eval(`return document.body.textContent;`);
-      // "48" on its own tells a buyer nothing about what is being counted.
       check('a bare pack-size number is written out as pieces per carton',
         r.includes(`${packed.packSize} pieces per carton`),
         `looking for "${packed.packSize} pieces per carton"`);

@@ -1,4 +1,4 @@
-import { siteConfig } from '../config/site.config.js';
+import { siteConfig, PUBLIC_PRICES } from '../config/site.config.js';
 import {
   esc, absoluteUrl, whatsappUrl, jsonForScript, metaDescription, socialImage,
   formatPrice, packSizeLabel,
@@ -17,8 +17,8 @@ import {
  * has always carried — no price is better than a wrong one.
  */
 function priceBlock(product) {
-  const carton = formatPrice(product.priceCarton);
-  const piece = formatPrice(product.pricePiece);
+  const carton = PUBLIC_PRICES ? formatPrice(product.priceCarton) : '';
+  const piece = PUBLIC_PRICES ? formatPrice(product.pricePiece) : '';
   if (!carton && !piece) {
     return '<p class="enquiry__price">Price on enquiry</p>';
   }
@@ -116,7 +116,7 @@ function compareSection(product, siblings) {
     // money rows side by side across four products was four chances to read
     // the wrong one — the comparison is about which product, not which
     // quantity. The carton rate is on each product's own page.
-    ['Price per piece', (p) => formatPrice(p.pricePiece)],
+    ['Price per piece', (p) => (PUBLIC_PRICES ? formatPrice(p.pricePiece) : '')],
     ['Pack size', (p) => packSizeLabel(p.packSize)],
     ['SKU', (p) => p.sku],
     ['Availability', (p) => (p.available === false ? 'Currently unavailable' : 'Available')],
@@ -255,8 +255,8 @@ export function productPage({ product, related }) {
           ${specRow('Brand', product.brand)}
           ${specRow('Category', product.category)}
           ${specRow('Pack Size', packSizeLabel(product.packSize))}
-          ${specRow('One Piece', formatPrice(product.pricePiece))}
-          ${specRow('Per Piece, By The Carton', formatPrice(product.priceCarton))}
+          ${specRow('One Piece', PUBLIC_PRICES ? formatPrice(product.pricePiece) : '')}
+          ${specRow('Per Piece, By The Carton', PUBLIC_PRICES ? formatPrice(product.priceCarton) : '')}
           ${specRow('SKU', product.sku)}
         </dl>
 
@@ -300,7 +300,12 @@ export function productPage({ product, related }) {
 ${compareSection(product, related)}`;
 
   // A number, not a formatted string: structured data wants the raw amount.
-  const unitPrice = Number(product.pricePiece);
+  //
+  // Gated like every other price, and this one matters most: JSON-LD sits in
+  // the page source and is exactly what a crawler — or a competitor reading
+  // the markup — reads first. A price taken off the cards but left here would
+  // be published in the one place built to be machine-read.
+  const unitPrice = PUBLIC_PRICES ? Number(product.pricePiece) : 0;
   const offerPrice = Number.isFinite(unitPrice) && unitPrice > 0 ? unitPrice : null;
 
   const description = metaDescription(
