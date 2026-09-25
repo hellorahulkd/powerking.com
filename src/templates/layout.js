@@ -1,5 +1,5 @@
 import { siteConfig } from '../config/site.config.js';
-import { esc, absoluteUrl, metaDescription, jsonForScript } from '../lib/html.js';
+import { esc, absoluteUrl, metaDescription, jsonForScript, pngSize } from '../lib/html.js';
 import { header } from './header.js';
 import { footer } from './footer.js';
 import { floatingWhatsApp, enquiryList, tabBar } from './components.js';
@@ -92,6 +92,14 @@ export function layout(o) {
   const desc = metaDescription(description);
   const canonical = absoluteUrl(path);
   const ogImage = absoluteUrl(image);
+  // Telling the crawler the card's size up front is what gets the wide
+  // preview instead of a cropped thumbnail — see pngSize().
+  const ogSize = pngSize(image);
+  const ogImageType = /\.jpe?g$/i.test(image)
+    ? 'image/jpeg'
+    : /\.webp$/i.test(image)
+      ? 'image/webp'
+      : 'image/png';
   const allSchema = [organizationSchema(), ...schema];
 
   return `<!DOCTYPE html>
@@ -111,12 +119,20 @@ ${noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<meta name="
 <meta property="og:url" content="${esc(canonical)}">
 <meta property="og:image" content="${esc(ogImage)}">
 <meta property="og:image:alt" content="${esc(title)}">
+<meta property="og:image:type" content="${esc(ogImageType)}">${
+    ogSize
+      ? `
+<meta property="og:image:width" content="${ogSize.width}">
+<meta property="og:image:height" content="${ogSize.height}">`
+      : ''
+  }
 <meta property="og:locale" content="en_NP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(fullTitle)}">
 <meta name="twitter:description" content="${esc(desc)}">
 <meta name="twitter:image" content="${esc(ogImage)}">
+<meta name="twitter:image:alt" content="${esc(title)}">
 
 <link rel="icon" href="/images/brands/icon-192.png" type="image/png" sizes="192x192">
 <link rel="icon" href="/images/brands/favicon-48.png" type="image/png" sizes="48x48">

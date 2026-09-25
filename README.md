@@ -481,6 +481,7 @@ real product photography:
 | `scripts/dev/catalogue-test.js` | Browser tests for pagination, deferred cards and the icon sprite |
 | `scripts/dev/admin-test.js` | Browser tests for /admin/, against a stubbed GitHub — no token needed |
 | `scripts/dev/enquiry-test.js` | Browser tests for the multi-product enquiry list and the message it sends |
+| `scripts/dev/og-test.js` | Measures the link-preview card, including the square crop a DM makes of it |
 
 ---
 

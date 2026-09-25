@@ -165,23 +165,56 @@ const logoSvg = (() => {
 `;
 })();
 
-/** Open Graph card — what a shared link looks like on WhatsApp and Facebook. */
+/**
+ * Open Graph card — what a shared link looks like on WhatsApp, Facebook,
+ * Instagram and Viber.
+ *
+ * Composed to survive a crop. The card is delivered at 1200x630, but the
+ * chat apps that matter here re-frame it: a DM preview pulls the middle
+ * towards a square and throws the sides away. So nothing sits at the edges.
+ * The lockup and all three lines of type are centred and kept inside the
+ * middle 630x630 of the canvas, which is the tightest square any of them
+ * takes; #safe is the group that holds them, so it can be measured. The
+ * hazard stripes are the only thing allowed to run off the sides, and they
+ * lose nothing by being cut.
+ *
+ * scripts/dev/og-test.js measures the rendered card and fails if any of it
+ * strays outside that square.
+ */
+const OG_W = 1200;
+const OG_H = 630;
+
 const ogSvg = (() => {
-  const l = lockupSvg(54);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  // Sized so the plate keeps a clear margin inside the square crop rather
+  // than running up against its edges.
+  const F = 44;
+  const l = lockupSvg(F);
+  const mid = OG_W / 2;
+  const lockX = mid - l.w / 2;
+  const lockY = 163;
+
+  const line = (y, size, weight, tracking, fill, text) =>
+    `<text x="${(mid + tracking / 2).toFixed(1)}" y="${y}" text-anchor="middle"
+        font-family="Archivo, Inter, Arial, sans-serif" font-size="${size}"
+        font-weight="${weight}" letter-spacing="${tracking}" fill="${fill}">${text}</text>`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${OG_W} ${OG_H}" width="${OG_W}" height="${OG_H}"
+     role="img" aria-label="PowerKing Electronics — wholesale consumer electronics, Kathmandu, Nepal">
   <defs>
     <pattern id="haz" width="45.25" height="45.25" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
       <rect width="22.6" height="45.25" fill="${BRAND.yellow}"/>
       <rect x="22.6" width="22.6" height="45.25" fill="${BRAND.ink}"/>
     </pattern>
   </defs>
-  <rect width="1200" height="630" fill="${BRAND.paper}"/>
-  <g transform="translate(98 ${(178).toFixed(0)})">${l.svg}</g>
-  <text x="98" y="392" font-family="Archivo, Inter, Arial, sans-serif"
-        font-size="24" font-weight="800" letter-spacing="4" fill="${BRAND.ink}">WHOLESALE · KATHMANDU, NEPAL</text>
-  <text x="98" y="446" font-family="Archivo, Inter, Arial, sans-serif"
-        font-size="29" fill="#45454B">Speakers · Earbuds · Chargers · Cables · Multiplugs · Grooming</text>
-  <rect y="0" width="1200" height="12" fill="url(#haz)"/>
+  <rect width="${OG_W}" height="${OG_H}" fill="${BRAND.paper}"/>
+  <g id="safe">
+    <g transform="translate(${lockX.toFixed(1)} ${lockY})">${l.svg}</g>
+    ${line(368, 21, 800, 3, BRAND.ink, 'WHOLESALE · KATHMANDU, NEPAL')}
+    ${line(422, 25, 400, 0, '#45454B', 'Speakers · Earbuds · Chargers')}
+    ${line(458, 25, 400, 0, '#45454B', 'Cables · Multiplugs · Grooming')}
+  </g>
+  <rect y="0" width="${OG_W}" height="12" fill="url(#haz)"/>
+  <rect y="${OG_H - 12}" width="${OG_W}" height="12" fill="url(#haz)"/>
 </svg>
 `;
 })();

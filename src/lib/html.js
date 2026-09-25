@@ -4,7 +4,7 @@
  */
 
 import path from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, openSync, readSync, closeSync } from 'node:fs';
 
 import { siteConfig, whatsappMessages } from '../config/site.config.js';
 
@@ -148,4 +148,42 @@ export function socialImage(product) {
   const png = img.replace(/\.svg$/i, '.png');
   const abs = path.join(process.cwd(), 'public', png);
   return existsSync(abs) ? png : '/images/hero/og-default.png';
+}
+
+/**
+ * Read a PNG's pixel size from its header, for the og:image:width and
+ * og:image:height tags.
+ *
+ * Those tags are not decoration. A crawler that is told the size can lay the
+ * card out on the first scrape; one that is not has to fetch the image and
+ * measure it, and WhatsApp in particular gives up on that and falls back to a
+ * small square thumbnail — which is exactly the cramped preview this is meant
+ * to avoid. Declaring 1200x630 is what asks for the wide card.
+ *
+ * PNG only, and deliberately so: a product page's social image may be a
+ * photograph the shop uploaded, and inventing a size for it would be worse
+ * than saying nothing. Returns null when the size cannot be read, and the
+ * caller then omits the tags.
+ *
+ * @param {string} publicPath  Site-absolute path, e.g. '/images/hero/og-default.png'.
+ * @returns {{ width: number, height: number } | null}
+ */
+export function pngSize(publicPath) {
+  if (!/\.png$/i.test(String(publicPath || ''))) return null;
+  const abs = path.join(process.cwd(), 'public', String(publicPath).replace(/^\//, ''));
+  if (!existsSync(abs)) return null;
+  const head = Buffer.alloc(24);
+  let fd;
+  try {
+    fd = openSync(abs, 'r');
+    if (readSync(fd, head, 0, 24, 0) < 24) return null;
+  } catch {
+    return null;
+  } finally {
+    if (fd !== undefined) closeSync(fd);
+  }
+  if (head.toString('ascii', 12, 16) !== 'IHDR') return null;
+  const width = head.readUInt32BE(16);
+  const height = head.readUInt32BE(20);
+  return width && height ? { width, height } : null;
 }
