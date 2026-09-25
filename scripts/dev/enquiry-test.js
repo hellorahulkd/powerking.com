@@ -28,7 +28,15 @@ const page = await newPage(port);
 await page.setViewport(1280, 900, false);
 
 /** Every test starts from an empty list, whatever the last one left behind. */
-async function fresh(path = '/products/') {
+/**
+ * A clean slate, standing on a product page.
+ *
+ * The default used to be the catalogue, because every card carried an add
+ * control. Cards have one Enquire button now and selecting happens on a
+ * product's own page, so that is where a test that selects has to start.
+ * Pass '/products/' for the checks that are about the listing itself.
+ */
+async function fresh(path = `/products/${products[0].slug}/`) {
   await page.goto(BASE + path);
   // Both keys: the buyer-type answer is remembered across enquiries on
   // purpose, so a test that left it on "personal" would otherwise decide the
@@ -64,49 +72,74 @@ const message = () => page.eval(`
   return decodeURIComponent((href.split('?text=')[1] || ''));
 `);
 
-console.log('\nSelecting products');
-{
-  await fresh();
-  const r = await page.eval(`
-    const btns = [...document.querySelectorAll('[data-enq-add]')];
-    const hiddenBefore = btns.filter(b => b.hidden).length;
-    return { count: btns.length, hiddenBefore,
-             bar: document.getElementById('enq-bar').hidden };
-  `);
-  check('every card offers an add control', r.count > 0, `${r.count}`);
-  check('the controls are revealed by JavaScript, not shipped visible',
-    r.hiddenBefore === 0, `${r.hiddenBefore} still hidden`);
-  check('the bar stays out of the way until something is selected', r.bar === true);
-
-  const added = await page.eval(`
-    const b = [...document.querySelectorAll('[data-enq-add]')];
-    b[0].click(); b[2].click();
+/**
+ * Select a product from its own page — the only place that offers it now.
+ *
+ * Cards used to carry a "+ Select" badge in the corner. They carry one
+ * Enquire button, and the whole card opens the product.
+ */
+async function selectProduct(slug) {
+  await page.goto(`${BASE}/products/${slug}/`);
+  return page.eval(`
+    const b = document.querySelector('[data-enq-add]');
+    if (!b) return { missing: true };
+    b.click();
     return {
-      bar: !document.getElementById('enq-bar').hidden,
+      pressed: b.getAttribute('aria-pressed'),
+      label: b.getAttribute('aria-label'),
       count: document.getElementById('enq-count').textContent,
-      pressed: b[0].getAttribute('aria-pressed'),
-      label: b[0].getAttribute('aria-label'),
+      bar: !document.getElementById('enq-bar').hidden,
       stored: JSON.parse(localStorage.getItem('pk-enquiry') || '[]'),
     };
   `);
-  check('the bar appears with a running count',
-    added.bar && /2 products on your enquiry/.test(added.count),
-    added.count);
-  check('a selected control reports itself pressed', added.pressed === 'true');
+}
+
+console.log('\nSelecting products');
+{
+  await fresh('/products/');
+  // The card was three controls — Select, a view arrow and WhatsApp — and a
+  // first-time visitor had to work out which one to press. It is one button
+  // now, with the whole card as the link.
+  const onCard = await page.eval(`
+    const card = document.querySelector('[data-product]');
+    return {
+      adds: card.querySelectorAll('[data-enq-add]').length,
+      arrows: card.querySelectorAll('.btn--ghost').length,
+      linked: !!card.querySelector('.card__link'),
+      enquire: card.querySelectorAll('.card__wa').length,
+      bar: document.getElementById('enq-bar').hidden,
+    };
+  `);
+  check('a card carries no add control', onCard.adds === 0, `${onCard.adds} found`);
+  check('and no separate view arrow', onCard.arrows === 0, `${onCard.arrows} found`);
+  check('the whole card opens the product', onCard.linked === true);
+  check('and one Enquire button is all that is left on it',
+    onCard.enquire === 1, `${onCard.enquire} found`);
+  check('the bar stays out of the way until something is selected', onCard.bar === true);
+
+  const first = await selectProduct(products[0].slug);
+  check('a product page offers the add control', !first.missing);
+  check('selecting there puts it on the enquiry',
+    first.bar === true && first.stored.length === 1, JSON.stringify(first.stored));
+  check('a selected control reports itself pressed', first.pressed === 'true');
   check('a selected control offers to remove, not add again',
-    /^Remove /.test(added.label), added.label);
+    /^Remove /.test(first.label), first.label);
+
+  const second = await selectProduct(products[2].slug);
+  check('the bar counts them as they are added',
+    /2 products on your enquiry/.test(second.count), second.count);
   // Nothing is pre-filled: selecting opens the panel asking how many, and a
   // quantity nobody chose is the kind that reaches the shop by accident.
   check('a selection starts with no quantity at all, waiting to be told',
-    added.stored.length === 2
-    && added.stored.every((i) => i.cartons === 0 && i.pieces === 0),
-    JSON.stringify(added.stored));
+    second.stored.length === 2
+    && second.stored.every((i) => i.cartons === 0 && i.pieces === 0),
+    JSON.stringify(second.stored));
   check('each stored product carries its picture',
-    added.stored.every((i) => /^\/images\/products\//.test(i.image || '')),
-    JSON.stringify(added.stored.map((i) => i.image)));
+    second.stored.every((i) => /^\/images\/products\//.test(i.image || '')),
+    JSON.stringify(second.stored.map((i) => i.image)));
 
   const toggled = await page.eval(`
-    const b = document.querySelectorAll('[data-enq-add]')[0];
+    const b = document.querySelector('[data-enq-add]');
     b.click();
     return { stored: JSON.parse(localStorage.getItem('pk-enquiry') || '[]').length,
              pressed: b.getAttribute('aria-pressed') };
@@ -118,10 +151,13 @@ console.log('\nSelecting products');
 console.log('\nThe message that reaches WhatsApp');
 {
   await fresh();
+  // Two products, each selected from its own page, then the panel opened
+  // from wherever the buyer happens to be standing.
+  await selectProduct(products[0].slug);
+  await selectProduct(products[1].slug);
   const built = await page.eval(`
-    const b = [...document.querySelectorAll('[data-enq-add]')];
-    b[0].click(); b[1].click();
-    const names = [b[0], b[1]].map(x => x.getAttribute('data-enq-name'));
+    const names = JSON.parse(localStorage.getItem('pk-enquiry') || '[]')
+      .map((i) => i.name);
     document.getElementById('enq-open').click();
     const rows = [...document.querySelectorAll('.enq__row')];
     const c = rows[0].querySelector('[data-cartons]');
@@ -260,6 +296,74 @@ if (!PUBLIC_PRICES) {
   }
 }
 
+console.log('\nThe explainer, for a first visit only');
+{
+  // Selecting used to be a "+ Select" badge on every card, which only reads
+  // as an instruction to somebody who already knows what it does. With the
+  // cards down to one button this is where a newcomer is told how the
+  // enquiry works.
+  await page.goto(`${BASE}/products/`);
+  await page.eval(`localStorage.clear(); return 1;`);
+  await page.goto(`${BASE}/products/`);
+  const first = await page.eval(`
+    await new Promise((r) => setTimeout(r, 2000));
+    const box = document.getElementById('howto');
+    return { shown: box.open, steps: box.querySelectorAll('.howto__steps li').length,
+             text: box.textContent };
+  `);
+  check('a first visit is shown how the enquiry works', first.shown === true);
+  check('and it names the button a newcomer has to find',
+    /Select this product/.test(first.text), first.text.slice(0, 80));
+  check('in steps, not a paragraph', first.steps >= 3, `${first.steps} steps`);
+
+  const dismissed = await page.eval(`
+    document.querySelector('#howto button[value="ok"]').click();
+    await new Promise((r) => setTimeout(r, 100));
+    return document.getElementById('howto').open;
+  `);
+  check('"Got it" closes it', dismissed === false);
+
+  await page.goto(`${BASE}/products/`);
+  const second = await page.eval(`
+    await new Promise((r) => setTimeout(r, 2000));
+    return document.getElementById('howto').open;
+  `);
+  check('and it never comes back', second === false);
+
+  // The part that would make it a nuisance: it must not land on top of
+  // somebody who has already started doing something.
+  await page.goto(`${BASE}/products/`);
+  await page.eval(`localStorage.clear(); return 1;`);
+  await page.goto(`${BASE}/products/`);
+  const busy = await page.eval(`
+    // Touched the page straight away, the way an impatient visitor does.
+    window.dispatchEvent(new WheelEvent('wheel', { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 2000));
+    return { shown: document.getElementById('howto').open,
+             seen: localStorage.getItem('pk-howto-seen') };
+  `);
+  check('it does not interrupt somebody already using the page',
+    busy.shown === false, JSON.stringify(busy));
+  // Cancelled, not spent: the one visitor it is for still gets it next time
+  // they land and hesitate.
+  check('and is not marked as seen when it never appeared', !busy.seen, String(busy.seen));
+
+  // Reachable on purpose, for anyone who dismissed it and then wondered.
+  await page.eval(`localStorage.setItem('pk-howto-seen', '1'); return 1;`);
+  await page.goto(`${BASE}/products/`);
+  const reopened = await page.eval(`
+    document.getElementById('enq-open-float') || document.getElementById('tab-enquire').click();
+    await new Promise((r) => setTimeout(r, 250));
+    const link = document.getElementById('howto-open');
+    if (!link) return { missing: true };
+    link.click();
+    await new Promise((r) => setTimeout(r, 150));
+    return { shown: document.getElementById('howto').open };
+  `);
+  check('and can be opened again from the empty enquiry panel',
+    reopened.shown === true, JSON.stringify(reopened));
+}
+
 console.log('\nWho the buyer is, asked once');
 {
   // These are the questions the shop was typing out to every new enquiry
@@ -301,7 +405,7 @@ console.log('\nWho the buyer is, asked once');
   check('and the PAN when they give one', /PAN: 301234567/.test(sent), sent);
 
   // The part that decides whether anyone tolerates the form: it is asked once.
-  await page.goto(`${BASE}/products/`);
+  await page.goto(`${BASE}/products/${products[1].slug}/`);
   const again = await page.eval(`
     document.querySelector('[data-enq-add]').click();
     document.getElementById('enq-open').click();
@@ -323,6 +427,11 @@ console.log('\nWho the buyer is, asked once');
   // Half an answer is not an answer: a firm with no address cannot be quoted
   // delivery, which is one of the two things the reply has to carry.
   const half = await page.eval(`
+    // Quantities first, on every row: the blank-quantity guard runs ahead of
+    // this one, and rightly — an unfinished row is the reader's own.
+    [...document.querySelectorAll('.enq__row [data-pieces]')].forEach((q) => {
+      q.value = '5'; q.dispatchEvent(new Event('input', { bubbles: true }));
+    });
     document.getElementById('enq-you-change').click();
     const place = document.getElementById('enq-place');
     place.value = ''; place.dispatchEvent(new Event('input', { bubbles: true }));
@@ -487,17 +596,18 @@ console.log('\nThe floating button, with nothing on the list');
 console.log('\nSaying what the buttons do, in words');
 {
   await fresh();
+  // On the product page, where the control now lives and has room for words.
   const words = await page.eval(`
-    const pin = document.querySelector('.enq-add--pin');
-    const on = pin.querySelector('.enq-add__on').textContent.trim();
-    const off = pin.querySelector('.enq-add__off').textContent.trim();
+    const add = document.querySelector('.enq-add');
+    const on = add.querySelector('.enq-add__on').textContent.trim();
+    const off = add.querySelector('.enq-add__off').textContent.trim();
     return { on, off, bar: null };
   `);
-  check('the card control says what it does, not just a plus sign',
-    /select/i.test(words.on) && /selected/i.test(words.off), JSON.stringify(words));
+  check('the add control says what it does, not just a plus sign',
+    /select/i.test(words.on) && /enquiry/i.test(words.off), JSON.stringify(words));
 
   const bar = await page.eval(`
-    document.querySelector('.enq-add--pin').click();
+    document.querySelector('.enq-add').click();
     return { count: document.getElementById('enq-count').textContent,
              open: document.getElementById('enq-open').textContent.trim() };
   `);
@@ -599,19 +709,32 @@ console.log('\nA list saved before the two boxes existed');
 console.log('\nThe cap on one message');
 {
   await fresh();
+  // The real shape of it: a buyer whose list is already full opens one more
+  // product and presses Select. Seeded rather than clicked, because products
+  // are added a page at a time now.
+  await page.eval(`
+    localStorage.setItem('pk-enquiry', JSON.stringify(${JSON.stringify(
+    products.slice(0, ENQUIRY_MAX).map((p) => ({
+      slug: p.slug, name: p.name, image: p.image, price: 0, cartonRate: 0,
+      pack: 0, cartons: 0, pieces: 0,
+    })),
+  )}));
+    return 1;
+  `);
+  await page.goto(`${BASE}/products/${products[ENQUIRY_MAX].slug}/`);
   const capped = await page.eval(`
-    const b = [...document.querySelectorAll('[data-enq-add]')];
-    for (let i = 0; i < b.length; i++) b[i].click();
+    document.querySelector('[data-enq-add]').click();
+    await new Promise((r) => setTimeout(r, 100));
     const flash = document.getElementById('enq-flash');
     return {
       stored: JSON.parse(localStorage.getItem('pk-enquiry') || '[]').length,
-      clicked: b.length,
+      clicked: 1,
       flashed: !!flash && /full/i.test(flash.textContent),
       note: document.getElementById('enq-note') ? '' : 'missing',
     };
   `);
   check(`no more than ${ENQUIRY_MAX} products go into one enquiry`,
-    capped.stored === ENQUIRY_MAX, `${capped.stored} of ${capped.clicked} clicked`);
+    capped.stored === ENQUIRY_MAX, `${capped.stored} stored`);
   check('trying to add past the cap says so rather than failing silently',
     capped.flashed);
 
@@ -643,9 +766,19 @@ console.log('\nThe panel fits the window it is in');
   ]) {
     await page.setViewport(w, h, w < 900);
     await fresh();
+    // A full list, seeded rather than clicked: this is about how the panel
+    // lays out under one, and products are added one page at a time now.
+    await page.eval(`
+      localStorage.setItem('pk-enquiry', JSON.stringify(${JSON.stringify(
+    products.slice(0, ENQUIRY_MAX).map((p) => ({
+      slug: p.slug, name: p.name, image: p.image, price: 0, cartonRate: 0,
+      pack: 0, cartons: 0, pieces: 0,
+    })),
+  )}));
+      return 1;
+    `);
+    await page.goto(`${BASE}/products/${products[0].slug}/`);
     const r = await page.eval(`
-      const b = [...document.querySelectorAll('.enq-add--pin')];
-      for (let i = 0; i < b.length; i++) b[i].click();
       document.getElementById('enq-open').click();
       await new Promise(r => setTimeout(r, 250));
       const dialog = document.getElementById('enq-dialog');
@@ -732,7 +865,8 @@ console.log('\nThe panel is not on the page until it is opened');
 console.log('\nWithout JavaScript, and alongside the rest of the page');
 {
   await fresh();
-  const html = await (await fetch(`${BASE}/products/`)).text();
+  // A product page: the listing carries no add control any more.
+  const html = await (await fetch(`${BASE}/products/${products[0].slug}/`)).text();
   // The controls ship hidden and are revealed by the script, so a reader
   // without JS is never shown a button that cannot do anything.
   const hiddenInHtml = (html.match(/data-enq-add/g) || []).length;

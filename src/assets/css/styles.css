@@ -893,11 +893,21 @@ code {
 .card__title a::after { content: ""; position: absolute; inset: 0; } /* whole-card link */
 .card__title a:hover { color: var(--accent-600); }
 .card__meta { margin: 0; font-size: var(--step--1); color: var(--text-muted); }
+/* The whole card opens the product.
+   One stretched link rather than a wrapper: a card cannot be an <a> without
+   nesting the WhatsApp button inside it, which is invalid and makes the green
+   button open the product page. The title's own link covers the card, and the
+   button sits above it. */
+.card { position: relative; }
+.card__link::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+.card__wa { position: relative; z-index: 2; }
 .card__actions {
-  display: grid; grid-template-columns: 1fr 1fr; gap: .4rem;
+  /* One action, so one column. It was two buttons side by side. */
+  display: grid; gap: .4rem;
   padding: .45rem .75rem .75rem; margin-top: auto;
   position: relative; z-index: 1;
 }
+.card__wa { gap: .4rem; font-size: var(--step--1); }
 
 /* ---------------------------------------------------------- empty state -- */
 .empty {
@@ -1330,22 +1340,12 @@ body.menu-open .wa-float {
    takes over the corner the floating bubble occupies rather than stacking.
    ======================================================================== */
 
-/* The add toggle: a plus that becomes a tick. Two marks in one button so the
-   card's action row keeps its width whichever state it is in. */
-.enq-add--pin {
-  position: absolute; top: .85rem; right: .85rem; z-index: 2;
-  padding: .3rem .6rem; cursor: pointer;
-  background: rgba(255,255,255,.94); color: var(--ink);
-  border: 1px solid var(--border-strong);
-  font-family: var(--font-display); font-weight: 800; font-size: .75rem;
-  letter-spacing: -.01em; line-height: 1;
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px,
-                     100% 100%, 8px 100%, 0 calc(100% - 8px));
-}
-.enq-add--pin .enq-add__on,
-.enq-add--pin .enq-add__off { display: flex; align-items: center; gap: .25rem; }
-.enq-add--pin.is-on .enq-add__on { display: none; }
-.enq-add--pin .enq-add__off { display: none; }
+/* The add toggle: a label that becomes a tick. Two marks in one button so it
+   keeps its width whichever state it is in.
+   The pinned variant is gone with the badge that used to sit in a card's
+   corner — selecting happens on the product page now, where the button has
+   room to say what it does. */
+.enq-add__off { display: none; }
 .enq-add--pin.is-on .enq-add__off { display: flex; }
 .enq-add--pin:hover { background: #fff; border-color: var(--ink); }
 .enq-add--pin.is-on { background: var(--volt); border-color: var(--ink); }
@@ -1397,6 +1397,41 @@ body.menu-open .enq-bar { opacity: 0; pointer-events: none; }
    the pinned bar cut it in half. Restated here as an author rule so the
    cascade lands the right way round. */
 .enq:not([open]) { display: none; }
+/* Restated as an author rule for the same reason as .enq above: the UA's
+   dialog:not([open]) rule loses to any author declaration, and this dialog
+   has one. */
+.howto:not([open]) { display: none; }
+.howto {
+  width: min(28rem, calc(100vw - 2rem)); max-height: 85dvh; overflow-y: auto;
+  padding: 1.4rem 1.35rem 1.25rem;
+  border: 1px solid var(--border-strong); background: var(--bg); color: var(--text);
+}
+.howto::backdrop { background: rgba(16,16,16,.55); }
+.howto__title { margin: 0 0 .2rem; font-size: var(--step-1); }
+.howto__steps {
+  margin: .9rem 0; padding: 0; list-style: none;
+  counter-reset: howto; display: grid; gap: .8rem;
+}
+.howto__steps li {
+  counter-increment: howto; position: relative; padding-left: 2.1rem;
+  font-size: var(--step--1); line-height: 1.55; color: var(--text-muted);
+}
+.howto__steps li::before {
+  content: counter(howto); position: absolute; left: 0; top: -.1rem;
+  display: grid; place-items: center; width: 1.55rem; height: 1.55rem;
+  background: var(--ink); color: #fff; border-radius: 50%;
+  font-family: var(--font-display); font-weight: 800; font-size: .78rem;
+}
+.howto__steps strong { color: var(--ink); }
+.howto__note {
+  margin: 0 0 1rem; padding-top: .8rem; border-top: 1px solid var(--border);
+  font-size: .78rem; color: var(--text-faint);
+}
+.enq__how {
+  padding: 0; background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: var(--step--1); color: var(--ink);
+  text-decoration: underline; text-underline-offset: 2px;
+}
 .enq {
   width: min(34rem, calc(100vw - 2rem)); max-height: 85vh;
   padding: 0; border: 1px solid var(--border-strong); background: var(--bg);

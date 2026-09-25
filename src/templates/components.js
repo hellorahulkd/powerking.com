@@ -77,13 +77,13 @@ function enqData(product) {
  * Without JavaScript it is not rendered at all: the single-product WhatsApp
  * link beside it already works, and a dead button would be worse than none.
  */
-export function enquiryAdd(product, { label = false, pin = false } = {}) {
-  // Three buttons do not fit a card's action row, and wrapping them onto a
-  // second line made every card in the catalogue taller. On a card the toggle
-  // is pinned to the corner opposite the badges instead.
+export function enquiryAdd(product, { label = false } = {}) {
+  // Two shapes: a full-width labelled button on a product page, and a compact
+  // one for anywhere else that needs it. Cards carry neither — they have one
+  // Enquire button and the whole card opens the product.
   const cls = label
     ? 'btn btn--ghost btn--lg btn--block enq-add'
-    : (pin ? 'enq-add enq-add--pin' : 'btn btn--ghost btn--icon enq-add');
+    : 'btn btn--ghost btn--icon enq-add';
   // A bare "+" told a first-time visitor nothing, so both variants say what
   // they do in words. The pinned one stays small enough for a two-up phone grid.
   //
@@ -121,6 +121,40 @@ export function enquiryList() {
     <button type="button" class="btn btn--primary btn--sm" id="enq-open">Set quantities &amp; send</button>
   </div>
 </div>
+
+<!--
+  Shown once, on a first visit.
+  Selecting products used to be a "+ Select" badge in the corner of every
+  card, which is only obvious to somebody who already knows what it does.
+  With the cards down to one button, this is where a newcomer is told how the
+  enquiry works — and it is a dialog rather than a paragraph on the page so it
+  is read once and then never in the way again.
+-->
+<dialog class="howto" id="howto" aria-labelledby="howto-title">
+  <h2 class="howto__title" id="howto-title">Getting a price</h2>
+  <ol class="howto__steps">
+    <li>
+      <strong>Tap any product</strong> to see what it is, what is in a carton
+      and the photographs.
+    </li>
+    <li>
+      On that page, press <strong>Select this product</strong> to put it on
+      your enquiry. Do that for as many products as you want.
+    </li>
+    <li>
+      Press <strong>Enquire</strong> at the bottom, say how many of each, and
+      it opens WhatsApp with the whole list written out. We reply with our
+      rates.
+    </li>
+  </ol>
+  <p class="howto__note">
+    In a hurry? The green WhatsApp button on any product asks about that one
+    on its own.
+  </p>
+  <form method="dialog">
+    <button class="btn btn--primary btn--block" value="ok">Got it</button>
+  </form>
+</dialog>
 
 <dialog class="enq" id="enq-dialog" aria-labelledby="enq-title">
   <form method="dialog" class="enq__head">
@@ -188,6 +222,9 @@ export function enquiryList() {
       a price for. You can put several products on one enquiry.
     </p>
     <a class="btn btn--primary" href="/products/">Browse products</a>
+    <p class="enq__empty-or">
+      <button type="button" class="enq__how" id="howto-open">How enquiries work</button>
+    </p>
     <p class="enq__empty-or">
       Or <a href="${esc(whatsappUrl('general'))}"
         ${hasWhatsApp() ? 'target="_blank" rel="noopener"' : ''}
@@ -335,25 +372,27 @@ export function productCard(
          onerror="this.closest('.card__media').classList.add('card__media--fallback');this.remove()">
   </div>
   ${badges(product)}
-  ${enquiryAdd(product, { pin: true })}
   <div class="card__body">
     ${showCategory ? `<p class="card__eyebrow">${esc(product.category)}</p>` : ''}
-    <h3 class="card__title"><a href="${esc(url)}">${esc(product.name)}</a></h3>
+    <h3 class="card__title"><a class="card__link" href="${esc(url)}">${esc(product.name)}</a></h3>
     ${product.packSize ? `<p class="card__meta">${esc(packSizeLabel(product.packSize))}</p>` : ''}
     ${cardPrice(product)}
   </div>
+  <!--
+    One button, not three. A card carried Select, a "view" arrow and WhatsApp,
+    and a first-time visitor had to work out which of the three to press
+    before they could do anything at all. The arrow is gone because the whole
+    card is the link, and Select is gone because it now lives on the product
+    page where it can say what it does in words.
+  -->
   <div class="card__actions">
-    <a class="btn btn--ghost btn--icon" href="${esc(url)}"
-       aria-label="View ${esc(product.name)}" title="View product">
-      ${icon('arrow', { size: 19 })}
-    </a>
-    <a class="btn btn--whatsapp btn--icon"
+    <a class="btn btn--whatsapp btn--block card__wa"
        href="${esc(whatsappUrl('product', { product: product.name }))}"
        ${waAttrs(location, product)}
        data-enq-open ${enqData(product)}
        aria-label="Enquire about ${esc(product.name)} on WhatsApp"
        title="Enquire — asks how many first">
-      ${icon('whatsapp', { size: 19 })}
+      ${icon('whatsapp', { size: 18 })}<span>Enquire</span>
     </a>
   </div>
 </article>`;

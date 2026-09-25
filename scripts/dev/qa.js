@@ -1046,7 +1046,9 @@ function tagOnlyTerm() {
     // Cleared here and reloaded from Node: reloading inside page.eval destroys
     // the execution context the call is waiting on, and the run hangs.
     await page.eval(`try { localStorage.removeItem('pk-enquiry'); } catch (e) {} return 1;`);
-    await page.goto(`${BASE}/`);
+    // A product page: cards carry one Enquire button now, and the control
+    // that puts a product on the list lives on the product's own page.
+    await page.goto(`${BASE}/products/${products[0].slug}/`);
     const badge = await page.eval(`
       document.querySelector('[data-enq-add]').click();
       return new Promise(function (done) {

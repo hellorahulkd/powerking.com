@@ -816,5 +816,68 @@
     if (changed || stored !== JSON.stringify(items)) save();
   }());
 
+  /* --------------------------------------------------- how this works -- */
+  /**
+   * The explainer, once.
+   *
+   * Shown on a first visit to a page that lists products — not on a product
+   * page, where somebody is already doing the thing it describes, and not to
+   * anyone who has a list going, who plainly knows.
+   *
+   * Delayed a moment so it does not land on top of a page still painting, and
+   * skipped entirely if the enquiry panel is already open.
+   */
+  (function howto() {
+    var box = document.getElementById('howto');
+    if (!box) return;
+    var SEEN = 'pk-howto-seen';
+
+    function open() {
+      if (dialog.open || box.open) return;
+      if (typeof box.showModal === 'function') box.showModal();
+      else box.setAttribute('open', '');
+      try { localStorage.setItem(SEEN, '1'); } catch (e) { /* private mode */ }
+      track('howto_open', { page: window.location.pathname });
+    }
+
+    var reopen = document.getElementById('howto-open');
+    if (reopen) {
+      reopen.addEventListener('click', function () {
+        // From the empty panel, so the panel has to get out of the way first.
+        if (dialog.open) dialog.close();
+        open();
+      });
+    }
+
+    var seen = true;
+    try { seen = !!localStorage.getItem(SEEN); } catch (e) { seen = true; }
+    if (seen || items.length) return;
+    // A listing page only: the catalogue, a category, or the home page.
+    if (!document.getElementById('product-grid')) return;
+
+    /**
+     * Only for somebody who has not started yet.
+     *
+     * A modal thrown up a second after load lands on top of whatever the
+     * visitor was already doing — mid-tap, mid-scroll, mid-search. Anyone who
+     * has touched the page is getting on with it and does not need telling
+     * how; the help is for the person who arrived and paused.
+     *
+     * Cancelled rather than marked as seen, so the one visitor it is for
+     * still gets it next time they land and hesitate.
+     */
+    var timer = window.setTimeout(open, 1400);
+    var events = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'];
+    function started() {
+      window.clearTimeout(timer);
+      events.forEach(function (type) {
+        window.removeEventListener(type, started, true);
+      });
+    }
+    events.forEach(function (type) {
+      window.addEventListener(type, started, { capture: true, passive: true });
+    });
+  }());
+
   render();
 }());
