@@ -265,3 +265,82 @@ textarea.af__input { line-height: 1.55; resize: vertical; }
   background: var(--volt-100, #FBF3C4); border: 1px solid #EFE4B8;
   padding: .3rem .5rem;
 }
+
+/* --- price book ---------------------------------------------------------
+   Built to be read at arm's length with a buyer waiting: the rate is the
+   biggest thing in the row, and what it buys is written under it so a figure
+   is never quoted for the wrong quantity. */
+/* The search stays put while the results move under it. Typing a model
+   number, seeing it was the wrong one and typing another should not mean
+   scrolling back up — there is a buyer waiting on the other end of it. */
+#view-prices .admin__toolbar {
+  position: sticky; top: 0; z-index: 2;
+  padding: .6rem 0; margin-top: -.6rem; background: var(--bg);
+}
+.pricebook { display: grid; gap: .5rem; }
+.pb {
+  display: grid; gap: .55rem; padding: .8rem;
+  background: var(--bg-alt); border: 1px solid var(--border);
+}
+.pb__head { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.pb__name {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--step--1);
+  color: var(--ink); line-height: 1.25; overflow-wrap: anywhere;
+}
+.pb__meta { font-size: .76rem; color: var(--text-faint); overflow-wrap: anywhere; }
+
+.pb__rates { display: flex; flex-wrap: wrap; gap: .5rem .9rem; align-items: flex-end; }
+.pb__rate { display: flex; flex-direction: column; gap: .05rem; }
+/* A slot with no rate in it draws nothing. On the wide layout below the
+   tracks are explicit, so the rates that are there keep their own columns
+   whether or not their neighbours have anything to show. */
+.pb__rate:empty { display: none; }
+.pb__money {
+  font-family: var(--font-display); font-weight: 800; font-size: 1.45rem;
+  line-height: 1; letter-spacing: -.02em; color: var(--ink);
+  /* Tabular figures so a column of rates lines up digit under digit. */
+  font-variant-numeric: tabular-nums;
+}
+.pb__for {
+  font-size: .68rem; letter-spacing: .04em; text-transform: uppercase;
+  font-family: var(--font-mono); color: var(--text-faint);
+}
+/* The worked-out carton total: useful, but not the number being quoted. */
+.pb__rate--quiet .pb__money { font-size: 1.05rem; color: var(--text-muted); font-weight: 700; }
+
+.pb__note { margin: 0; font-size: .74rem; color: var(--text-faint); }
+.pb__copy { justify-self: start; }
+.pb__copy.is-done { background: var(--volt); border-color: var(--volt); color: var(--ink); }
+.pb--empty {
+  display: block; color: var(--text-muted); font-size: var(--step--1);
+  background: none; border-style: dashed;
+}
+
+@media (min-width: 720px) {
+  /* Name on the left, rates on the right, the button at the end — one line
+     to scan instead of three to read. Every part is placed by hand so that
+     a row missing a carton rate keeps the same shape as the row above it. */
+  .pb {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center; gap: .6rem .9rem;
+  }
+  .pb__head { grid-column: 1; grid-row: 1; }
+  .pb__rates { grid-column: 2; grid-row: 1; }
+  .pb__copy { grid-column: 3; grid-row: 1; }
+  .pb__note { grid-column: 1 / -1; grid-row: 2; }
+
+  /* Fixed tracks, not content-sized: this is a price list, and a price list
+     that shifts its columns from row to row cannot be read down. */
+  .pb__rates {
+    display: grid; grid-template-columns: 7rem 8.5rem 8.5rem;
+    gap: .5rem; align-items: end;
+  }
+  /* The tracks are narrow so the product name keeps the room it needs, so a
+     long label wraps inside its own column rather than widening it. What the
+     rate buys is never abbreviated away: "a piece, by the carton" and "a full
+     carton" being confusable is the whole reason both are spelled out. */
+  .pb__for { white-space: normal; line-height: 1.3; }
+  .pb__rate--piece { grid-column: 1; }
+  .pb__rate--carton { grid-column: 2; }
+  .pb__rate--total { grid-column: 3; }
+}

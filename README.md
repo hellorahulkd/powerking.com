@@ -19,7 +19,8 @@ WhatsApp, where pricing and minimum order quantities are agreed.
 | --- | --- |
 | **Add a product or a category** | **Open [powerkingnepal.com/admin/](https://powerkingnepal.com/admin/), sign in, fill in the form** |
 | Add many products at once | A spreadsheet — see [§1](#1-how-to-add-a-product) |
-| Change a price | The same admin panel — carton and piece rates are separate fields |
+| **Look up a price to quote** | **The Price book tab in the admin panel — search, then Copy reply** |
+| Change a price | The same admin panel, Products tab — carton and piece rates are separate fields |
 | Change the WhatsApp number | `whatsappNumber` in [`src/config/site.config.js`](src/config/site.config.js) |
 | Add Google Analytics | `googleAnalyticsId` in the same config file |
 | Change phone/email/address | Same config file |
@@ -55,6 +56,43 @@ edit HTML.
 edit the catalogue from any browser, including a phone. Add and edit products,
 upload photos, and add, rename or remove categories. Saving commits the change
 to this repository; the site rebuilds and is live in about a minute.
+
+### The price book
+
+Prices are off the public site — `PUBLIC_PRICES` in
+[`src/config/site.config.js`](src/config/site.config.js) is `false`, so the
+build strips every figure out of every page, the page source included. The
+**Price book** tab is where they come back, for whoever is signed in.
+
+It is what the panel opens on, because looking a rate up happens many times a
+day and editing a product happens now and then. Search a name, a brand or a
+model number and each product shows three figures: what one loose piece costs,
+the lower rate a full carton buys **per piece**, and the whole carton worked
+out for you. A product with no carton rate says so rather than leaving a blank
+to guess at.
+
+**Copy reply** puts a ready-to-send line on the clipboard:
+
+```
+Kisonli K19 20W Portable Speaker with RGB (K19)
+Rs. 2,350 per piece
+Rs. 2,350 per piece by the carton — 20 pieces, Rs. 47,000 a carton
+```
+
+Paste it straight into WhatsApp. Nothing here can be edited, so there is
+nothing to save and nothing to get wrong with a buyer waiting.
+
+The rates are also kept in that browser, so the book opens instantly and still
+answers when the shop has no signal — which is exactly when someone is standing
+at the counter asking. It says so when it is showing that saved copy, and when
+it does, editing is not offered: the catalogue never arrived. Signing out
+deletes the saved rates along with the token.
+
+> **The repository is public, so `data/products.json` is readable by anyone.**
+> The price book keeps the figures off the *website*, which is what stops a
+> buyer browsing your rates — but it is not a secret while the repository is
+> open. Making the repository private (or moving hosting to somewhere that
+> builds a private repository) is what closes that.
 
 ### How the login works, and what it does not do
 

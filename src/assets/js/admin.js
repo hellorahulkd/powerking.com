@@ -28,6 +28,8 @@
   var CATEGORIES = 'data/categories.json';
   var IMAGE_DIR = 'public/images/products/';
   var STORE = 'pk-admin-token';
+  /** Read from the page rather than written twice, like the enquiry list. */
+  var SYMBOL = root.getAttribute('data-symbol') || 'Rs.';
 
   /** The catalogue tile format, matched exactly so uploads sit alongside the
    *  photographs already in the catalogue rather than beside them. */
@@ -53,6 +55,7 @@
     bulk: [],               // rows waiting in the "Add many" pane
     photoVersion: 0, photoBusy: false, photoError: '', editConflict: false,
     bulkBusy: false, bulkCategories: [], saving: false,
+    priceRows: [],        // the price book's rows — see the price book section
   };
 
   /* ------------------------------------------------------------- helpers -- */
@@ -208,6 +211,9 @@
     if (state.saving) return;
     token = '';
     try { localStorage.removeItem(STORE); } catch (e) { /* private mode */ }
+    // The rates leave with the token. A signed-out device keeps neither.
+    forgetPrices();
+    state.priceRows = [];
     state.products = null;
     state.categories = null;
     $('who').hidden = true;
@@ -267,6 +273,12 @@
         + '<button type="button" class="btn btn--ghost btn--sm" data-edit="' + id + '">Edit</button>'
         + '</li>';
     }).join('');
+
+    // The price book reads the same products, so it is refreshed from here
+    // rather than from each of the places that save. Every save re-renders
+    // this list, which is what keeps the two in step without each new save
+    // having to remember to.
+    setPrices(state.products);
   }
 
   function escapeHtml(s) {
@@ -274,6 +286,239 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
   function escapeAttr(s) { return escapeHtml(s).replace(/"/g, '&quot;'); }
+
+  /* ----------------------------------------------------------- price book -- */
+
+  /**
+   * The rates, for whoever is signed in.
+   *
+   * These numbers are in the repository and nowhere in the published site —
+   * PUBLIC_PRICES is off, so the build strips every price out of every page.
+   * This pane is where they come back, for the one person answering the
+   * enquiry. It reads; it never writes.
+   *
+   * It is kept in this browser too, so it opens instantly and still answers
+   * when the shop has no signal — which is exactly when a buyer is standing
+   * there waiting. Signing out deletes that copy along with the token.
+   */
+  var PRICE_CACHE = 'pk-price-book';
+
+  /** The trimmed-down rows the book needs: no descriptions, no photos. */
+  function priceRowsFrom(products) {
+    return (products || []).map(function (p) {
+      return {
+        id: Number(p.id) || 0,
+        name: String(p.name || ''),
+        brand: String(p.brand || ''),
+        category: String(p.category || ''),
+        sku: String(p.sku || ''),
+        packSize: String(p.packSize == null ? '' : p.packSize),
+        pricePiece: Number(p.pricePiece) || 0,
+        priceCarton: Number(p.priceCarton) || 0,
+        tags: [].concat(p.tags || []).join(' '),
+        available: p.available !== false,
+      };
+    });
+  }
+
+  function cachePrices(products) {
+    try {
+      localStorage.setItem(PRICE_CACHE, JSON.stringify({
+        at: Date.now(), rows: priceRowsFrom(products),
+      }));
+    } catch (e) { /* private mode, or no room — the book still works online */ }
+  }
+
+  function cachedPrices() {
+    try {
+      var raw = localStorage.getItem(PRICE_CACHE);
+      if (!raw) return null;
+      var saved = JSON.parse(raw);
+      if (!saved || !saved.rows || !saved.rows.length) return null;
+      return saved;
+    } catch (e) { return null; }
+  }
+
+  function forgetPrices() {
+    try { localStorage.removeItem(PRICE_CACHE); } catch (e) { /* private mode */ }
+  }
+
+  /**
+   * Rupees grouped the way they are counted here — 25,920 but 1,25,920 —
+   * which Intl will not do: Chrome resolves ne-NP to en-US and groups in
+   * thousands all the way up. Same routine as the enquiry list, so a figure
+   * read off this page and a figure the buyer sees are written alike.
+   */
+  function rupees(n) {
+    var digits = String(Math.round(n));
+    var head = digits.slice(0, -3);
+    var out = digits.slice(-3);
+    while (head.length > 2) { out = head.slice(-2) + ',' + out; head = head.slice(0, -2); }
+    if (head) out = head + ',' + out;
+    return SYMBOL + ' ' + out;
+  }
+
+  /**
+   * How many pieces a carton holds, as a number to multiply by.
+   *
+   * The field is typed by hand and older rows hold things like "40 Pcs
+   * Cartoon", so this takes the leading count and nothing else. No leading
+   * number means no carton total can be worked out, and none is shown rather
+   * than a guessed one.
+   */
+  function packPieces(row) {
+    var m = /^\s*(\d+)/.exec(row.packSize);
+    return m ? Number(m[1]) : 0;
+  }
+
+  /** The line to send a buyer who asked what this one costs. */
+  function priceLine(row) {
+    var head = row.name + (row.sku ? ' (' + row.sku + ')' : '');
+    var out = [head, rupees(row.pricePiece) + ' per piece'];
+    if (row.priceCarton > 0) {
+      var pieces = packPieces(row);
+      out.push(rupees(row.priceCarton) + ' per piece by the carton'
+        + (pieces
+          ? ' — ' + pieces + ' pieces, ' + rupees(row.priceCarton * pieces) + ' a carton'
+          : ''));
+    }
+    if (!row.available) out.push('(currently out of stock)');
+    return out.join('\n');
+  }
+
+  function priceMatches(row, term) {
+    if (!term) return true;
+    var hay = [row.name, row.brand, row.category, row.sku, row.tags]
+      .join(' ').toLowerCase();
+    return hay.indexOf(term.toLowerCase()) !== -1;
+  }
+
+  /**
+   * One rate, in its own slot.
+   *
+   * A slot is emitted even when there is no rate for it, because every row
+   * lays its three slots out on the same three tracks: the piece rate is
+   * always in the first column, the carton rate always in the second. A
+   * column of rows then reads straight down, and no figure can be mistaken
+   * for the one above it. An empty slot draws nothing.
+   */
+  function rate(slot, money, forWhat, quiet) {
+    var cls = 'pb__rate pb__rate--' + slot + (quiet ? ' pb__rate--quiet' : '');
+    if (!money) return '<span class="' + cls + '"></span>';
+    return '<span class="' + cls + '">'
+      + '<b class="pb__money">' + escapeHtml(money) + '</b>'
+      + '<span class="pb__for">' + escapeHtml(forWhat) + '</span></span>';
+  }
+
+  function renderPrices() {
+    var rows = state.priceRows || [];
+    var term = $('price-find').value.trim();
+    var shown = rows.filter(function (r) { return priceMatches(r, term); });
+
+    $('price-count').textContent = !rows.length ? ''
+      : term ? shown.length + ' of ' + rows.length + ' products'
+        : rows.length + ' products';
+
+    if (rows.length && !shown.length) {
+      $('price-list').innerHTML = '<li class="pb pb--empty">Nothing matches “'
+        + escapeHtml(term) + '”. Try the model number, or part of the brand.</li>';
+      return;
+    }
+
+    $('price-list').innerHTML = shown.map(function (r) {
+      var pieces = packPieces(r);
+      var rates = rate('piece',
+        r.pricePiece > 0 ? rupees(r.pricePiece) : '—',
+        r.pricePiece > 0 ? 'one piece' : 'no piece price set',
+        r.pricePiece <= 0)
+        + rate('carton',
+          r.priceCarton > 0 ? rupees(r.priceCarton) : '',
+          'a piece, by the carton')
+        + rate('total',
+          r.priceCarton > 0 && pieces ? rupees(r.priceCarton * pieces) : '',
+          'a full carton of ' + pieces, true);
+      var meta = [r.brand, r.category, r.sku].filter(Boolean).join(' · ');
+      var notes = [];
+      if (r.priceCarton <= 0) notes.push('No carton rate set yet.');
+      if (r.priceCarton > 0 && !pieces) notes.push('No pieces-per-carton, so no carton total.');
+      if (!r.available) notes.push('Marked out of stock.');
+
+      return '<li class="pb" data-price-id="' + r.id + '">'
+        + '<div class="pb__head">'
+        + '<span class="pb__name">' + escapeHtml(r.name) + '</span>'
+        + (meta ? '<span class="pb__meta">' + escapeHtml(meta) + '</span>' : '')
+        + '</div>'
+        + '<div class="pb__rates">' + rates + '</div>'
+        + (notes.length ? '<p class="pb__note">' + escapeHtml(notes.join(' ')) + '</p>' : '')
+        + '<button type="button" class="btn btn--ghost btn--sm pb__copy"'
+        + ' data-price-copy="' + r.id + '">Copy reply</button>'
+        + '</li>';
+    }).join('');
+  }
+
+  /** Put the rates on screen, and remember them for the next time. */
+  function setPrices(products) {
+    state.priceRows = priceRowsFrom(products);
+    cachePrices(products);
+    $('price-note').hidden = true;
+    renderPrices();
+  }
+
+  /** Fall back to the copy on this device, and say plainly that it is one. */
+  function showCachedPrices(saved) {
+    state.priceRows = saved.rows;
+    var when = new Date(saved.at);
+    say($('price-note'), 'No answer from GitHub, so these are the rates saved '
+      + 'on this device on ' + when.toLocaleDateString() + ' at '
+      + when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      + '. Anything changed since then is not in here.', 'warn');
+    $('price-note').hidden = false;
+    renderPrices();
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    // Older Safari, and any browser refusing the clipboard over a gesture it
+    // did not like. A hidden textarea and execCommand still works there.
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('This browser would not copy.'));
+    });
+  }
+
+  $('price-find').addEventListener('input', renderPrices);
+
+  $('price-list').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('[data-price-copy]');
+    if (!btn) return;
+    var id = Number(btn.getAttribute('data-price-copy'));
+    var row = (state.priceRows || []).filter(function (r) { return r.id === id; })[0];
+    if (!row) return;
+    copyText(priceLine(row)).then(function () {
+      btn.textContent = 'Copied';
+      btn.classList.add('is-done');
+      window.setTimeout(function () {
+        btn.textContent = 'Copy reply';
+        btn.classList.remove('is-done');
+      }, 1600);
+    }).catch(function () {
+      // Nothing was copied, so say so instead of leaving a button that lied.
+      btn.textContent = 'Select and copy';
+      window.getSelection().selectAllChildren(btn.closest('.pb'));
+    });
+  });
+
 
   /* ------------------------------------------------------------ edit form -- */
 
@@ -1974,6 +2219,7 @@
   });
 
   var tabs = [
+    { tab: 'tab-prices', view: 'view-prices' },
     { tab: 'tab-products', view: 'view-products' },
     { tab: 'tab-categories', view: 'view-categories' },
   ];
@@ -1998,11 +2244,33 @@
     signIn(saved).then(function () {
       show('pane-work');
       return load();
-    }).catch(function () {
+    }).catch(function (err) {
       // Expired or revoked: drop it and ask again rather than looping on 401s.
-      signOut();
-      say($('auth-msg'), 'That saved token is no longer valid — it may have expired. '
-        + 'Make a new one and sign in again.', 'warn');
+      if (err && (err.status === 401 || err.status === 403)) {
+        signOut();
+        say($('auth-msg'), 'That saved token is no longer valid — it may have expired. '
+          + 'Make a new one and sign in again.', 'warn');
+        return;
+      }
+
+      // Anything else is the connection, not the token. A shop with no signal
+      // is exactly when someone is standing at the counter asking a price, so
+      // a lost connection must not throw away a good token and lock them out
+      // of their own rates. Open the book from the copy on this device.
+      var offline = cachedPrices();
+      if (!offline) {
+        say($('auth-msg'), 'Could not reach GitHub just now. Check the connection '
+          + 'and try again — the token is still saved here.', 'warn');
+        return;
+      }
+      show('pane-work');
+      // Nothing else is loaded, so nothing else is offered: an editor opened
+      // against a catalogue that never arrived has no products to edit.
+      $('tab-products').hidden = true;
+      $('tab-categories').hidden = true;
+      showCachedPrices(offline);
+      say($('work-msg'), 'Offline — the price book below is the copy saved on this '
+        + 'device. Editing needs a connection.', 'warn');
     });
   }
 }());

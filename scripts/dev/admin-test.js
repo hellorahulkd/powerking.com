@@ -36,9 +36,27 @@ const stub = `
 // A previous run may have left a token — or a photo-reading key — in this
 // origin's storage, and the panel would pick either back up. Start clean,
 // always.
+// __keep survives the reload the offline check makes, and nothing else, so
+// that one scenario can seed a signed-in device without every other load
+// inheriting it.
 try {
-  ['pk-admin-token', 'pk-vision-provider', 'pk-vision-model', 'pk-vision-key']
-    .forEach(function (k) { localStorage.removeItem(k); });
+  if (!sessionStorage.getItem('__keep')) {
+    ['pk-admin-token', 'pk-vision-provider', 'pk-vision-model', 'pk-vision-key',
+     'pk-price-book']
+      .forEach(function (k) { localStorage.removeItem(k); });
+  }
+} catch (e) {}
+// Set by the offline check, so every request fails the way a lost connection
+// fails: a rejected fetch with no status, not an HTTP error.
+try { window.__offline = !!sessionStorage.getItem('__offline'); } catch (e) {}
+// Headless Chrome will not hand out the real clipboard without a permission
+// prompt, so the price book's copy is captured here instead of granted.
+window.__copied = [];
+try {
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: { writeText: function (t) { window.__copied.push(String(t)); return Promise.resolve(); } },
+  });
 } catch (e) {}
 window.__gh = {
   calls: [],
@@ -63,6 +81,7 @@ window.__gh = {
     });
   }
   window.fetch = function (url, opts) {
+    if (window.__offline) return Promise.reject(new TypeError('Failed to fetch'));
     opts = opts || {};
     var method = opts.method || 'GET';
     window.__gh.calls.push({
@@ -206,9 +225,143 @@ console.log('\nSigning in');
     after.urls.every((u) => u.startsWith('https://api.github.com/')), after.urls.join(' '));
 }
 
+console.log('\nThe price book');
+{
+  // The rates are stripped out of every published page (PUBLIC_PRICES is
+  // off), so this pane is the only place in the whole site they appear — and
+  // only for a browser holding a token GitHub accepts.
+  const priced = products.filter((p) => Number(p.pricePiece) > 0 && Number(p.priceCarton) > 0
+    && /^\d+$/.test(String(p.packSize)));
+  const sample = priced[0];
+  const noCarton = products.find((p) => !(Number(p.priceCarton) > 0));
+  const money = (n) => {
+    const digits = String(Math.round(n));
+    let head = digits.slice(0, -3);
+    let out = digits.slice(-3);
+    while (head.length > 2) { out = head.slice(-2) + ',' + out; head = head.slice(0, -2); }
+    if (head) out = head + ',' + out;
+    return 'Rs. ' + out;
+  };
+
+  const landing = await page.eval(`return {
+    tab: document.querySelector('.admin__tab.is-active').id,
+    open: !document.getElementById('view-prices').hidden,
+    products: document.getElementById('view-products').hidden,
+    rows: document.querySelectorAll('#price-list .pb').length,
+    count: document.getElementById('price-count').textContent,
+  };`);
+  check('signing in lands on the price book, not the editor',
+    landing.tab === 'tab-prices' && landing.open && landing.products,
+    JSON.stringify(landing));
+  check('every product is in the book', landing.rows === products.length,
+    `${landing.rows} of ${products.length}`);
+  check('and it says how many', landing.count === `${products.length} products`, landing.count);
+
+  const row = await page.eval(`
+    const li = document.querySelector('[data-price-id="${Number(sample.id)}"]');
+    if (!li) return null;
+    const slot = (k) => {
+      const el = li.querySelector('.pb__rate--' + k);
+      return el ? { money: (el.querySelector('.pb__money') || {}).textContent || '',
+                    label: (el.querySelector('.pb__for') || {}).textContent || '' } : null;
+    };
+    return { piece: slot('piece'), carton: slot('carton'), total: slot('total') };
+  `);
+  check('a product shows what one loose piece costs',
+    !!row && row.piece.money === money(sample.pricePiece),
+    JSON.stringify(row && row.piece));
+  check('and the lower rate a carton buys, said to be per piece',
+    !!row && row.carton.money === money(sample.priceCarton)
+      && /piece/i.test(row.carton.label) && /carton/i.test(row.carton.label),
+    JSON.stringify(row && row.carton));
+  // The mistake this exists to prevent: quoting a per-piece rate as if it
+  // were what a whole carton costs.
+  check('and works the full carton out, so nobody multiplies it by hand',
+    !!row && row.total.money === money(sample.priceCarton * Number(sample.packSize)),
+    `${row && row.total.money} — expected ${money(sample.priceCarton * Number(sample.packSize))}`);
+
+  const bare = await page.eval(`
+    const li = document.querySelector('[data-price-id="${Number(noCarton.id)}"]');
+    if (!li) return null;
+    return {
+      carton: li.querySelector('.pb__rate--carton').textContent.trim(),
+      total: li.querySelector('.pb__rate--total').textContent.trim(),
+      note: (li.querySelector('.pb__note') || {}).textContent || '',
+      piece: (li.querySelector('.pb__rate--piece .pb__money') || {}).textContent || '',
+    };
+  `);
+  check('a product with no carton rate shows no carton figure at all',
+    !!bare && bare.carton === '' && bare.total === '', JSON.stringify(bare));
+  check('and says so, rather than leaving a blank to guess at',
+    !!bare && /no carton rate/i.test(bare.note), bare && bare.note);
+  check('its piece rate is still there', !!bare && bare.piece === money(noCarton.pricePiece),
+    bare && bare.piece);
+
+  const found = await page.eval(`
+    const f = document.getElementById('price-find');
+    const run = (term) => {
+      f.value = term;
+      f.dispatchEvent(new Event('input', { bubbles: true }));
+      return [...document.querySelectorAll('#price-list .pb')]
+        .map((li) => li.getAttribute('data-price-id'));
+    };
+    const out = {
+      sku: run(${JSON.stringify(String(sample.sku || ''))}),
+      brand: run(${JSON.stringify(String(sample.brand || ''))}),
+      nowhere: run('zzzznotathing').filter(Boolean),
+    };
+    // The empty state is a .pb too, so it is read before the search is
+    // cleared and counted apart from the rows it stands in for.
+    out.saidSo = !!document.querySelector('#price-list .pb--empty');
+    f.value = '';
+    f.dispatchEvent(new Event('input', { bubbles: true }));
+    out.empty = document.querySelectorAll('#price-list .pb').length;
+    return out;
+  `);
+  check('searching a model number finds it',
+    found.sku.includes(String(sample.id)), found.sku.join(','));
+  check('searching a brand finds it', found.brand.includes(String(sample.id)),
+    found.brand.slice(0, 5).join(','));
+  check('a term that matches nothing says so instead of showing an empty page',
+    found.nowhere.length === 0 && found.saidSo,
+    `${found.nowhere.length} rows, empty state ${found.saidSo}`);
+  check('clearing the search brings the whole book back',
+    found.empty === products.length, String(found.empty));
+
+  const copied = await page.eval(`
+    window.__copied.length = 0;
+    const li = document.querySelector('[data-price-id="${Number(sample.id)}"]');
+    li.querySelector('[data-price-copy]').click();
+    await new Promise((r) => setTimeout(r, 60));
+    return { text: window.__copied[0] || '', label: li.querySelector('[data-price-copy]').textContent };
+  `);
+  check('"Copy reply" puts a sendable line on the clipboard',
+    copied.text.includes(sample.name) && copied.text.includes(money(sample.pricePiece))
+      && copied.text.includes(money(sample.priceCarton)),
+    JSON.stringify(copied.text));
+  check('and the button says it did', /copied/i.test(copied.label), copied.label);
+
+  const kept = await page.eval(`
+    const raw = localStorage.getItem('pk-price-book');
+    const saved = raw ? JSON.parse(raw) : null;
+    return { rows: saved ? saved.rows.length : 0, at: saved ? !!saved.at : false };
+  `);
+  // Bad signal at the counter is exactly when a rate is asked for.
+  check('the rates are kept on this device so the book answers offline',
+    kept.rows === products.length && kept.at, JSON.stringify(kept));
+
+  const doc = await (await fetch(`${BASE}/admin/`)).text();
+  const js = await (await fetch(`${BASE}/assets/admin.js`)).text();
+  check('no rate is baked into the page or its script — they come from GitHub',
+    !doc.includes(sample.name) && !js.includes(sample.name)
+      && !doc.includes(String(sample.pricePiece) + '"'),
+    'a price or product name was served with the page');
+}
+
 console.log('\nSearching and opening a product');
 {
   const r = await page.eval(`
+    document.getElementById('tab-products').click();
     const f = document.getElementById('filter');
     f.value = 'kisonli';
     f.dispatchEvent(new Event('input', { bubbles: true }));
@@ -1115,10 +1268,65 @@ console.log('\nSigning out');
     return {
       auth: !document.getElementById('pane-auth').hidden,
       stored: localStorage.getItem('pk-admin-token'),
+      rates: localStorage.getItem('pk-price-book'),
     };
   `);
   check('signing out returns to the sign-in pane', r.auth);
   check('signing out deletes the stored token', r.stored === null, String(r.stored));
+  // A device that is no longer signed in keeps no rate card either.
+  check('and takes the saved rates off the device with it',
+    r.rates === null, String(r.rates).slice(0, 60));
+}
+
+console.log('\nThe counter with no signal');
+{
+  // A shop with a dead connection is exactly when somebody is standing there
+  // asking a price. Losing the signal must not throw away a working token —
+  // and must not take the rates with it.
+  await page.eval(`
+    localStorage.setItem('pk-admin-token', 'github_pat_TESTTOKEN');
+    localStorage.setItem('pk-price-book', JSON.stringify({
+      at: Date.now(),
+      rows: [{ id: 901, name: 'Saved On This Device', brand: 'PK', category: 'Speakers',
+               sku: 'SD1', packSize: '20', pricePiece: 500, priceCarton: 480,
+               tags: '', available: true }],
+    }));
+    sessionStorage.setItem('__keep', '1');
+    sessionStorage.setItem('__offline', '1');
+    return 1;
+  `);
+  await page.goto(`${BASE}/admin/`);
+  await page.eval(`return new Promise((r) => setTimeout(r, 400));`);
+
+  const off = await page.eval(`return {
+    work: !document.getElementById('pane-work').hidden,
+    auth: !document.getElementById('pane-auth').hidden,
+    rows: document.querySelectorAll('#price-list .pb').length,
+    money: (document.querySelector('#price-list .pb__money') || {}).textContent || '',
+    note: document.getElementById('price-note').textContent,
+    noteShown: !document.getElementById('price-note').hidden,
+    tabs: {
+      products: document.getElementById('tab-products').hidden,
+      categories: document.getElementById('tab-categories').hidden,
+    },
+    token: localStorage.getItem('pk-admin-token'),
+  };`);
+  check('a lost connection still opens the price book',
+    off.work && !off.auth && off.rows === 1, JSON.stringify(off).slice(0, 160));
+  check('with the rates saved on the device', off.money === 'Rs. 500', off.money);
+  check('and says plainly that they may be out of date',
+    off.noteShown && /saved on this device/i.test(off.note), off.note);
+  check('editing is not offered against a catalogue that never arrived',
+    off.tabs.products && off.tabs.categories, JSON.stringify(off.tabs));
+  // The bug this guards: treating any failure as a bad token and signing out.
+  check('and the token is not thrown away over a dropped signal',
+    off.token === 'github_pat_TESTTOKEN', String(off.token));
+
+  await page.eval(`
+    sessionStorage.removeItem('__keep');
+    sessionStorage.removeItem('__offline');
+    return 1;
+  `);
 }
 
 console.log('\n' + '-'.repeat(56));

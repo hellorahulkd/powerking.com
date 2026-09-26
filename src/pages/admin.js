@@ -70,7 +70,8 @@ export function adminPage() {
 
   const body = `
 <div class="admin" id="admin"
-     data-owner="${esc(owner)}" data-repo="${esc(name)}" data-branch="${esc(branch)}">
+     data-owner="${esc(owner)}" data-repo="${esc(name)}" data-branch="${esc(branch)}"
+     data-symbol="${esc(siteConfig.currency.symbol)}">
 
   <header class="admin__bar">
     <span class="admin__brand">${lockup({ height: 16 })}</span>
@@ -123,16 +124,41 @@ export function adminPage() {
   <!-- ----------------------------------------------------------- workspace -->
   <section class="admin__pane" id="pane-work" hidden>
     <nav class="admin__tabs" role="tablist" aria-label="Sections">
-      <button type="button" class="admin__tab is-active" id="tab-products"
-              role="tab" aria-selected="true" aria-controls="view-products">Products</button>
+      <button type="button" class="admin__tab is-active" id="tab-prices"
+              role="tab" aria-selected="true" aria-controls="view-prices">Price book</button>
+      <button type="button" class="admin__tab" id="tab-products"
+              role="tab" aria-selected="false" aria-controls="view-products">Products</button>
       <button type="button" class="admin__tab" id="tab-categories"
               role="tab" aria-selected="false" aria-controls="view-categories">Categories</button>
     </nav>
 
     <p class="admin__msg admin__msg--sticky" id="work-msg" role="status" aria-live="polite"></p>
 
+    <!-- price book -->
+    <!--
+      The tab this pane opens on, because looking a rate up happens many times
+      a day and editing a product happens now and then. It is a reader, not a
+      form: no field here can be changed, so there is nothing to save and
+      nothing to get wrong with a buyer waiting.
+    -->
+    <div id="view-prices" role="tabpanel" aria-labelledby="tab-prices">
+      <p class="admin__lead">
+        Your rates, and only yours — none of these figures are on the website
+        or anywhere in its pages. Search a name, a brand or a model number, and
+        the line to send back is one tap away.
+      </p>
+      <div class="admin__toolbar">
+        <label class="sr-only" for="price-find">Search the price book</label>
+        <input class="af__input" id="price-find" type="search" enterkeyhint="search"
+               placeholder="Search a product, brand or model…" autocomplete="off">
+      </div>
+      <p class="admin__count" id="price-count"></p>
+      <p class="admin__msg" id="price-note" role="status" aria-live="polite" hidden></p>
+      <ul class="pricebook" id="price-list"></ul>
+    </div>
+
     <!-- products list -->
-    <div id="view-products" role="tabpanel" aria-labelledby="tab-products">
+    <div id="view-products" role="tabpanel" aria-labelledby="tab-products" hidden>
       <div class="admin__toolbar">
         <input class="af__input" id="filter" type="search" placeholder="Search products…" autocomplete="off">
         <button type="button" class="btn btn--ghost btn--sm" id="bulk-open">Add many</button>
