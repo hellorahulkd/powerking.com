@@ -27,7 +27,7 @@
  * ============================================================================
  */
 
-import { esc } from '../lib/html.js';
+import { esc, addressLine } from '../lib/html.js';
 import { layout } from '../templates/layout.js';
 import { siteConfig } from '../config/site.config.js';
 import { lockup } from '../templates/brand.js';
@@ -54,9 +54,9 @@ function text(id, { placeholder = '', type = 'text', numeric = false } = {}) {
   return `<input class="af__input" id="${esc(id)}" type="${esc(numeric ? 'text' : type)}"${num ? ' inputmode="numeric"' : ''}${type === 'number' ? ' min="1" step="1"' : ''} placeholder="${esc(placeholder)}" autocomplete="off">`;
 }
 
-function checkbox(id, label, hint) {
+function checkbox(id, label, hint, { checked = false } = {}) {
   return `<label class="af__check">
-  <input type="checkbox" id="${esc(id)}">
+  <input type="checkbox" id="${esc(id)}"${checked ? ' checked' : ''}>
   <span><strong>${esc(label)}</strong>${hint ? `<br><span class="af__hint">${esc(hint)}</span>` : ''}</span>
 </label>`;
 }
@@ -71,7 +71,9 @@ export function adminPage() {
   const body = `
 <div class="admin" id="admin"
      data-owner="${esc(owner)}" data-repo="${esc(name)}" data-branch="${esc(branch)}"
-     data-symbol="${esc(siteConfig.currency.symbol)}">
+     data-symbol="${esc(siteConfig.currency.symbol)}"
+     data-business="${esc(siteConfig.businessName)}"
+     data-supply="${esc(siteConfig.supplyTerms)}">
 
   <header class="admin__bar">
     <span class="admin__brand">${lockup({ height: 16 })}</span>
@@ -151,6 +153,7 @@ export function adminPage() {
         <label class="sr-only" for="price-find">Search the price book</label>
         <input class="af__input" id="price-find" type="search" enterkeyhint="search"
                placeholder="Search a product, brand or model…" autocomplete="off">
+        <button type="button" class="btn btn--primary btn--sm" id="sheet-open">Make a price sheet</button>
       </div>
       <p class="admin__count" id="price-count"></p>
       <p class="admin__msg" id="price-note" role="status" aria-live="polite" hidden></p>
@@ -179,6 +182,85 @@ export function adminPage() {
       <ul class="admin__list" id="cat-list"></ul>
       <button type="button" class="btn btn--primary btn--sm" id="new-category">Add category</button>
     </div>
+  </section>
+
+  <!-- --------------------------------------------------------- price sheet -->
+  <!--
+    A document to send someone, rather than an account to give them.
+    A trusted buyer gets a file with the rates in it; everybody else keeps
+    getting the website, which has none. The file is made here and saved
+    through the browser's own print dialogue — there is no PDF library in
+    this project and no server to make one.
+  -->
+  <section class="admin__pane" id="pane-sheet" hidden>
+    <button type="button" class="admin__back" id="sheet-back">${icon('arrow', { size: 16, className: 'admin__back-icon' })} Back to the price book</button>
+    <h2>Make a price sheet</h2>
+    <p class="admin__lead">
+      Pick what goes in, then save it as a PDF and send that. It is made fresh
+      each time from today's catalogue, so a sheet is never quoting a rate you
+      changed last week.
+    </p>
+
+    <div class="af__grid">
+      ${field('sheet-for', 'Who it is for', text('sheet-for', { placeholder: 'Ram Traders, Birgunj' }), 'Printed at the top and along the foot of every page, so a sheet that gets passed on still says who it was sent to. Leave blank to print no name.')}
+      ${field('sheet-valid', 'Rates hold until', text('sheet-valid', { placeholder: '15 Kartik 2082' }), 'Optional. Anything you type is printed as written.')}
+    </div>
+    ${field('sheet-note', 'A line of your own', '<textarea class="af__input" id="sheet-note" rows="2" placeholder="Delivery free inside the Ring Road on orders over one carton."></textarea>', 'Optional. You can still change this on the preview before saving.')}
+
+    <div class="af">
+      ${checkbox('sheet-prices', 'Include the rates', 'Untick to send a picture catalogue with no prices in it — for a buyer you do not quote to yet.', { checked: true })}
+      ${checkbox('sheet-photos', 'Include the photos', 'Untick for a plain list. A sheet with no photos is a much smaller file to send.', { checked: true })}
+    </div>
+
+    <div class="admin__toolbar">
+      <label class="sr-only" for="sheet-category">Category</label>
+      <select class="af__input" id="sheet-category"></select>
+      <label class="sr-only" for="sheet-find">Search</label>
+      <input class="af__input" id="sheet-find" type="search" enterkeyhint="search"
+             placeholder="Search…" autocomplete="off">
+    </div>
+    <div class="sheet__picks">
+      <button type="button" class="btn btn--ghost btn--sm" id="sheet-all">Tick everything shown</button>
+      <button type="button" class="btn btn--ghost btn--sm" id="sheet-none">Untick everything</button>
+      <span class="admin__count" id="sheet-count"></span>
+    </div>
+    <ul class="sheetpick" id="sheet-list"></ul>
+
+    <div class="admin__actions">
+      <button type="button" class="btn btn--primary" id="sheet-make">Preview the sheet</button>
+    </div>
+    <p class="admin__msg" id="sheet-msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <!--
+    The shop's own details on the sheet, written from the config file at build
+    time rather than copied into the script — there is one place the address
+    and the phone number live, and this is not it.
+  -->
+  <template id="sheet-masthead">
+    <div class="sheet__brand">${lockup({ height: 18 })}</div>
+    <div class="sheet__who">
+      <strong>${esc(siteConfig.businessName)}</strong>
+      <span>${esc(siteConfig.tagline)}</span>
+      <span>${esc(addressLine())}</span>
+      <span>${esc([siteConfig.phone, siteConfig.email].filter(Boolean).join(' · '))}</span>
+      <span>${esc(siteConfig.domain.replace(/^https?:\/\//, ''))}</span>
+    </div>
+  </template>
+
+  <!-- ------------------------------------------------------- the sheet itself -->
+  <section class="admin__pane admin__pane--print" id="pane-print" hidden>
+    <div class="printbar">
+      <button type="button" class="admin__back" id="print-back">${icon('arrow', { size: 16, className: 'admin__back-icon' })} Change what is in it</button>
+      <button type="button" class="btn btn--primary" id="print-go">Save as PDF</button>
+      <p class="af__hint">
+        Your browser's print box opens. Choose <strong>Save as PDF</strong> as
+        the destination (on a phone, <strong>Print</strong> then the share
+        button). Anything underlined below can be clicked and re-typed first —
+        it prints exactly as you leave it.
+      </p>
+    </div>
+    <div class="sheet" id="sheet"></div>
   </section>
 
   <!-- ------------------------------------------------------------ bulk add -->

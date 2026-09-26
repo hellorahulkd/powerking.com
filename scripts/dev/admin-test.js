@@ -358,6 +358,157 @@ console.log('\nThe price book');
     'a price or product name was served with the page');
 }
 
+console.log('\nA price sheet to send someone');
+{
+  // The point of this pane: a trusted buyer gets a document, not an account.
+  const money = (n) => {
+    const digits = String(Math.round(n));
+    let head = digits.slice(0, -3);
+    let out = digits.slice(-3);
+    while (head.length > 2) { out = head.slice(-2) + ',' + out; head = head.slice(0, -2); }
+    if (head) out = head + ',' + out;
+    return 'Rs. ' + out;
+  };
+  const priced = products.filter((p) => Number(p.pricePiece) > 0 && Number(p.priceCarton) > 0
+    && /^\d+$/.test(String(p.packSize)));
+  const sample = priced[0];
+  const longSku = products.find((p) => String(p.sku || '').length > 24);
+  const catOf = sample.category;
+  const inCat = products.filter((p) => p.category === catOf).length;
+
+  const opened = await page.eval(`
+    document.getElementById('sheet-open').click();
+    await new Promise((r) => setTimeout(r, 120));
+    return {
+      pane: !document.getElementById('pane-sheet').hidden,
+      rows: document.querySelectorAll('#sheet-list .sp').length,
+      ticked: [...document.querySelectorAll('[data-sheet-pick]')].filter((b) => b.checked).length,
+      count: document.getElementById('sheet-count').textContent,
+      prices: document.getElementById('sheet-prices').checked,
+      photos: document.getElementById('sheet-photos').checked,
+    };
+  `);
+  check('the sheet builder opens from the price book', opened.pane, JSON.stringify(opened).slice(0, 120));
+  check('with every product ticked, because sending the lot is the common case',
+    opened.ticked === products.length && opened.rows === products.length,
+    `${opened.ticked} ticked of ${opened.rows}`);
+  check('and the rates and photos in by default',
+    opened.prices && opened.photos, JSON.stringify(opened));
+
+  const scoped = await page.eval(`
+    document.getElementById('sheet-none').click();
+    const sel = document.getElementById('sheet-category');
+    sel.value = ${JSON.stringify(catOf)};
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    const shown = document.querySelectorAll('#sheet-list .sp').length;
+    document.getElementById('sheet-all').click();
+    return { shown, count: document.getElementById('sheet-count').textContent };
+  `);
+  check('a category can be picked out on its own', scoped.shown === inCat,
+    `${scoped.shown} of ${inCat}`);
+  check('and ticking what is shown ticks only those',
+    scoped.count.indexOf(`${inCat} products ticked`) === 0, scoped.count);
+
+  const made = await page.eval(`
+    document.getElementById('sheet-for').value = 'Ram Traders, Birgunj';
+    document.getElementById('sheet-valid').value = '15 Kartik 2082';
+    document.getElementById('sheet-note').value = 'Stock confirmed on the day of order.';
+    document.getElementById('sheet-make').click();
+    await new Promise((r) => setTimeout(r, 200));
+    const s = document.getElementById('sheet');
+    const item = s.querySelector('[class="sheet__item"], .sheet__item');
+    return {
+      print: !document.getElementById('pane-print').hidden,
+      items: s.querySelectorAll('.sheet__item').length,
+      bands: [...s.querySelectorAll('.sheet__cat')].map((h) => h.textContent),
+      title: (s.querySelector('h1') || {}).textContent || '',
+      who: (s.querySelector('.sheet__for') || {}).textContent || '',
+      when: (s.querySelector('.sheet__when') || {}).textContent || '',
+      note: (s.querySelector('.sheet__note') || {}).textContent || '',
+      running: (s.querySelector('.sheet__running') || {}).textContent || '',
+      editable: [...s.querySelectorAll('[contenteditable="true"]')].length,
+      text: s.textContent,
+    };
+  `);
+  check('the preview holds exactly the products that were ticked',
+    made.print && made.items === inCat, `${made.items} of ${inCat}`);
+  check('grouped under their category, not in one run',
+    made.bands.length === 1 && made.bands[0] === catOf, made.bands.join(','));
+  check('it is titled as a price list when the rates are in',
+    /price list/i.test(made.title), made.title);
+  check('it names the buyer it was written for', made.who === 'Prepared for Ram Traders, Birgunj', made.who);
+  check('and carries the date, the count and how long the rates hold',
+    /Issued /.test(made.when) && made.when.includes(`${inCat} products`)
+      && /15 Kartik 2082/.test(made.when), made.when);
+  check('your own line is printed as you typed it',
+    made.note === 'Stock confirmed on the day of order.', made.note);
+  // A sheet gets forwarded. It should still say who it was sent to.
+  check('the buyer is named again along the foot, which prints on every page',
+    made.running.includes('Ram Traders, Birgunj'), made.running);
+  check('and the lines that are your own words can be re-typed on the preview',
+    made.editable >= 3, String(made.editable));
+  check('a carton total is the carton rate times the pieces in a carton',
+    made.text.includes(money(sample.priceCarton * Number(sample.packSize))),
+    `expected ${money(sample.priceCarton * Number(sample.packSize))}`);
+  if (longSku && longSku.category === catOf) {
+    check('a model number that is really the whole product name is left off',
+      !made.text.includes('Model ' + longSku.sku), longSku.sku);
+  }
+
+  const noPrices = await page.eval(`
+    document.getElementById('print-back').click();
+    document.getElementById('sheet-prices').checked = false;
+    document.getElementById('sheet-photos').checked = false;
+    document.getElementById('sheet-make').click();
+    await new Promise((r) => setTimeout(r, 200));
+    const s = document.getElementById('sheet');
+    return {
+      title: (s.querySelector('h1') || {}).textContent || '',
+      rates: s.querySelectorAll('.sheet__rate').length,
+      shots: s.querySelectorAll('.sheet__shot').length,
+      items: s.querySelectorAll('.sheet__item').length,
+      rupees: /Rs\\./.test(s.textContent),
+    };
+  `);
+  // The same builder makes the thing you send a buyer you do not quote to.
+  check('with the rates off it is a picture catalogue, not a price list',
+    /product list/i.test(noPrices.title) && noPrices.rates === 0 && !noPrices.rupees,
+    JSON.stringify(noPrices));
+  check('the products are all still there', noPrices.items === inCat, String(noPrices.items));
+  check('and with the photos off there are no images to send',
+    noPrices.shots === 0, String(noPrices.shots));
+
+  await page.send('Emulation.setEmulatedMedia', { media: 'print' });
+  const printed = await page.eval(`
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const gone = (sel) => {
+      const el = document.querySelector(sel);
+      return !el || getComputedStyle(el).display === 'none';
+    };
+    return {
+      bar: gone('.admin__bar'),
+      printbar: gone('.printbar'),
+      work: gone('#pane-work'),
+      sheet: getComputedStyle(document.getElementById('sheet')).display,
+      footFixed: getComputedStyle(document.querySelector('.sheet__running')).position,
+    };
+  `);
+  await page.send('Emulation.setEmulatedMedia', { media: '' });
+  check('on paper the panel itself does not print — only the sheet',
+    printed.bar && printed.printbar && printed.work && printed.sheet !== 'none',
+    JSON.stringify(printed));
+  check('and the foot is fixed, so it repeats on every page',
+    printed.footFixed === 'fixed', printed.footFixed);
+
+  await page.eval(`
+    document.getElementById('print-back').click();
+    document.getElementById('sheet-prices').checked = true;
+    document.getElementById('sheet-photos').checked = true;
+    document.getElementById('sheet-back').click();
+    return 1;
+  `);
+}
+
 console.log('\nSearching and opening a product');
 {
   const r = await page.eval(`

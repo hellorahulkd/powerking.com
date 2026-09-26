@@ -20,6 +20,7 @@ WhatsApp, where pricing and minimum order quantities are agreed.
 | **Add a product or a category** | **Open [powerkingnepal.com/admin/](https://powerkingnepal.com/admin/), sign in, fill in the form** |
 | Add many products at once | A spreadsheet — see [§1](#1-how-to-add-a-product) |
 | **Look up a price to quote** | **The Price book tab in the admin panel — search, then Copy reply** |
+| **Send a partner your rates** | **Price book → Make a price sheet → Save as PDF** |
 | Change a price | The same admin panel, Products tab — carton and piece rates are separate fields |
 | Change the WhatsApp number | `whatsappNumber` in [`src/config/site.config.js`](src/config/site.config.js) |
 | Add Google Analytics | `googleAnalyticsId` in the same config file |
@@ -87,6 +88,39 @@ answers when the shop has no signal — which is exactly when someone is standin
 at the counter asking. It says so when it is showing that saved copy, and when
 it does, editing is not offered: the catalogue never arrived. Signing out
 deletes the saved rates along with the token.
+
+### The price sheet — a PDF to send, instead of an account to give away
+
+A buyer you trust wants your rates, and the only way to show them used to be
+handing over admin access: the whole catalogue, editable, for everyone they
+then showed it to. **Price book → Make a price sheet** makes a document
+instead.
+
+Tick the products (everything starts ticked; filter by category or search and
+use *Tick everything shown*), say who it is for, add a line of your own, then
+**Preview the sheet** and **Save as PDF** in your browser's print box. On a
+phone, choose *Print* and then the share button.
+
+Two switches change what it is:
+
+- **Include the rates** — off, and the same sheet becomes a picture catalogue
+  with no prices in it, for a buyer you do not quote to yet. The heading
+  changes from *Wholesale price list* to *Product list*.
+- **Include the photos** — off gives a plain three-column list. Much smaller
+  to send, and the whole catalogue fits in a few pages.
+
+It is built fresh from the catalogue each time, so a sheet can never be
+quoting a rate you changed last week. It prints on your letterhead with your
+address and phone number from the config file, groups products by category,
+and works out the full carton total beside each per-piece rate. Anything
+underlined on the preview — the buyer's name, your note, the terms line — can
+be clicked and re-typed before you save.
+
+**A PDF forwards as easily as it sends.** The buyer's name is printed at the
+head and along the foot of *every* page, so a sheet that travels still says who
+it was written for. That is a deterrent and a way of knowing where a leak came
+from; it is not a lock, and there is no such thing as one for a file you have
+given somebody.
 
 > **The repository is public, so `data/products.json` is readable by anyone.**
 > The price book keeps the figures off the *website*, which is what stops a

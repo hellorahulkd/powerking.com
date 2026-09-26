@@ -344,3 +344,148 @@ textarea.af__input { line-height: 1.55; resize: vertical; }
   .pb__rate--carton { grid-column: 2; }
   .pb__rate--total { grid-column: 3; }
 }
+
+/* A photo on a price-book row: what a buyer is pointing at on WhatsApp is a
+   picture, not a model number, so the row has to be recognisable by sight. */
+.pb__thumb {
+  width: 46px; height: 46px; flex: none; object-fit: contain;
+  background: var(--bg); border: 1px solid var(--border);
+}
+.pb__thumb.is-missing {
+  display: inline-block;
+  background: var(--bg-alt) center / 18px no-repeat
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B0B0B8' stroke-width='2'><rect x='3' y='5' width='18' height='14' rx='2'/><circle cx='8.5' cy='10' r='1.5'/><path d='M21 15l-5-5L5 19'/></svg>");
+}
+
+/* --- two fields side by side --- */
+.af__grid { display: grid; gap: 0 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 560px) { .af__grid { grid-template-columns: 1fr; } }
+
+/* --- choosing what goes on a sheet --- */
+.sheet__picks {
+  display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+  margin: 1rem 0 .5rem;
+}
+.sheet__picks .admin__count { margin: 0; }
+.sheetpick { display: grid; gap: .3rem; max-height: 26rem; overflow: auto; padding-right: .2rem; }
+.sp__pick {
+  display: flex; align-items: center; gap: .7rem; padding: .45rem .6rem;
+  background: var(--bg-alt); border: 1px solid var(--border); cursor: pointer;
+}
+.sp__pick:hover { border-color: var(--border-strong); }
+.sp__thumb {
+  width: 34px; height: 34px; flex: none; object-fit: contain;
+  background: var(--bg); border: 1px solid var(--border);
+}
+.sp__main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sp__name { font-size: var(--step--1); font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.sp__meta { font-size: .72rem; color: var(--text-faint); }
+.sp__rate {
+  font-family: var(--font-display); font-weight: 800; font-size: .95rem;
+  font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.sp--empty { padding: .8rem; color: var(--text-muted); font-size: var(--step--1); }
+
+/* --- the sheet itself ----------------------------------------------------
+   Laid out for A4 first and shown on screen as a preview of that, so what is
+   on the screen is what lands in the PDF. */
+.printbar {
+  display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+  margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.printbar .af__hint { flex-basis: 100%; margin: 0; }
+.sheet { max-width: 186mm; margin: 0 auto; color: var(--ink); }
+/* Two explicit columns rather than a wrapping flex row: at A4 width the two
+   blocks fit side by side to within a few millimetres, and a wrap there put
+   the title under the address instead of opposite it. */
+/* Two halves rather than a wrapping flex row. A track sized to its content
+   let the issued line — the widest thing in the block — spill left across the
+   address beside it; an even split gives it somewhere to wrap instead. */
+.sheet__head {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: .6rem 1rem; align-items: start;
+  padding-bottom: .9rem; margin-bottom: 1.2rem; border-bottom: 2px solid var(--ink);
+}
+/* Stacked, not side by side: half of an A4 width is not enough for a lockup
+   and an address shoulder to shoulder, and the address is what wrapped. */
+.sheet__masthead { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.sheet__who { display: flex; flex-direction: column; font-size: .72rem; line-height: 1.45; color: var(--text-muted); }
+.sheet__who strong { font-size: .84rem; color: var(--ink); }
+.sheet__title { text-align: right; min-width: 0; }
+.sheet__preamble { grid-column: 1 / -1; }
+.sheet__title h1 {
+  margin: 0 0 .3rem; font-family: var(--font-display); font-weight: 800;
+  font-size: 1.5rem; letter-spacing: -.02em;
+}
+.sheet__for { margin: 0; font-size: .9rem; font-weight: 700; }
+.sheet__when { margin: .15rem 0 0; font-size: .72rem; color: var(--text-muted); }
+.sheet__note { margin: .45rem 0 0; font-size: .78rem; max-width: 120mm; }
+.sheet__terms { margin: .35rem 0 0; font-size: .68rem; color: var(--text-faint); line-height: 1.45; max-width: 120mm; }
+/* The lines that are somebody's own words, marked as changeable. */
+.sheet__for[contenteditable], .sheet__note[contenteditable], .sheet__terms[contenteditable] {
+  text-decoration: underline dotted var(--border-strong); text-underline-offset: 3px;
+}
+.sheet__for:focus, .sheet__note:focus, .sheet__terms:focus {
+  outline: 2px solid var(--volt); outline-offset: 2px; text-decoration: none;
+}
+
+.sheet__band { margin-bottom: 1.4rem; }
+.sheet__cat {
+  margin: 0 0 .5rem; padding-bottom: .2rem;
+  font-family: var(--font-mono); font-size: .68rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.sheet__grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem .9rem; list-style: none; margin: 0; padding: 0;
+}
+.sheet__grid--plain { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sheet__item { display: flex; gap: .6rem; align-items: flex-start; padding: .25rem 0; }
+.sheet__shot {
+  width: 20mm; height: 20mm; flex: none; object-fit: contain;
+  border: 1px solid var(--border); background: #fff;
+}
+.sheet__body { display: flex; flex-direction: column; min-width: 0; }
+.sheet__name { font-size: .78rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.sheet__spec { font-size: .66rem; color: var(--text-muted); }
+.sheet__rate { font-size: .72rem; margin-top: .1rem; font-variant-numeric: tabular-nums; }
+.sheet__rate b { font-family: var(--font-display); font-weight: 800; font-size: .84rem; }
+.sheet__rate--ask { color: var(--text-muted); font-style: italic; }
+/* The carton total. Quieter than the rate beside it, because the rate is the
+   thing being quoted and this is the arithmetic done for them. */
+.sheet__whole { color: var(--text-muted); white-space: nowrap; }
+.sheet__running {
+  margin-top: 1.5rem; padding-top: .5rem; border-top: 1px solid var(--border);
+  font-size: .62rem; letter-spacing: .04em; color: var(--text-faint);
+}
+
+@media print {
+  /* Only the sheet goes on paper. Every other pane is already hidden, so
+     what is left is this pane's own chrome and the page around it. */
+  .admin__bar, .printbar { display: none !important; }
+  .admin { padding: 0; }
+  .admin__pane { padding: 0; border: 0; background: #fff; }
+  body, .page-admin { background: #fff; }
+  @page { size: A4; margin: 13mm 11mm 16mm; }
+
+  /* The one place colour is worth asking for: the lockup is the letterhead. */
+  .sheet__brand, .sheet__brand * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Nothing splits across a page break mid-product, and a category heading
+     never ends up alone at the foot of one. */
+  .sheet__item { break-inside: avoid; }
+  .sheet__cat { break-after: avoid; }
+  .sheet__head { break-after: avoid; }
+  .sheet__band { break-inside: auto; }
+
+  /* Chrome repeats a fixed element on each printed page, which is how the
+     buyer's name gets onto all of them. */
+  .sheet__running {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    margin: 0; padding-top: 2mm; background: #fff;
+  }
+  /* Underlining an editable line is a screen affordance, not part of the
+     document somebody receives. */
+  [contenteditable] { text-decoration: none !important; }
+}

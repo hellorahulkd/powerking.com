@@ -30,6 +30,8 @@
   var STORE = 'pk-admin-token';
   /** Read from the page rather than written twice, like the enquiry list. */
   var SYMBOL = root.getAttribute('data-symbol') || 'Rs.';
+  var BUSINESS = root.getAttribute('data-business') || '';
+  var SUPPLY_TERMS = root.getAttribute('data-supply') || '';
 
   /** The catalogue tile format, matched exactly so uploads sit alongside the
    *  photographs already in the catalogue rather than beside them. */
@@ -56,6 +58,7 @@
     photoVersion: 0, photoBusy: false, photoError: '', editConflict: false,
     bulkBusy: false, bulkCategories: [], saving: false,
     priceRows: [],        // the price book's rows — see the price book section
+    sheetPicks: null,     // which products go on a price sheet, by id
   };
 
   /* ------------------------------------------------------------- helpers -- */
@@ -64,7 +67,8 @@
 
   function show(pane) {
     if (pane !== 'pane-edit') cancelPhoto();
-    ['pane-auth', 'pane-work', 'pane-edit', 'pane-bulk'].forEach(function (id) {
+    ['pane-auth', 'pane-work', 'pane-edit', 'pane-bulk', 'pane-sheet', 'pane-print']
+      .forEach(function (id) {
       $(id).hidden = id !== pane;
     });
     window.scrollTo(0, 0);
@@ -312,6 +316,7 @@
         brand: String(p.brand || ''),
         category: String(p.category || ''),
         sku: String(p.sku || ''),
+        image: String(p.image || ''),
         packSize: String(p.packSize == null ? '' : p.packSize),
         pricePiece: Number(p.pricePiece) || 0,
         priceCarton: Number(p.priceCarton) || 0,
@@ -444,6 +449,13 @@
       if (!r.available) notes.push('Marked out of stock.');
 
       return '<li class="pb" data-price-id="' + r.id + '">'
+        // A photo saved minutes ago is in the repository but not yet on the
+        // site serving this page, so its URL 404s until the build lands.
+        // Same treatment as the products list: no torn-page icon.
+        + (r.image
+          ? '<img class="pb__thumb" src="' + escapeAttr(r.image) + '" alt="" loading="lazy"'
+            + ' onerror="this.classList.add(\'is-missing\');this.removeAttribute(\'src\')">'
+          : '<span class="pb__thumb is-missing"></span>')
         + '<div class="pb__head">'
         + '<span class="pb__name">' + escapeHtml(r.name) + '</span>'
         + (meta ? '<span class="pb__meta">' + escapeHtml(meta) + '</span>' : '')
@@ -496,6 +508,261 @@
       ok ? resolve() : reject(new Error('This browser would not copy.'));
     });
   }
+
+
+  /* ---------------------------------------------------------- price sheet -- */
+
+  /**
+   * A price list to send someone, instead of an account to give them.
+   *
+   * The problem this solves: a buyer you trust wants your rates, and the only
+   * way to show them was to hand over admin access — which is the whole
+   * catalogue, editable, for everyone they then show it to. This makes a
+   * document instead. Pick the products, pick whether the rates go in at all,
+   * and save it through the browser's own print dialogue.
+   *
+   * There is no PDF library here and no server to render one. The browser
+   * already knows how to turn a page into a PDF, and a stylesheet is what
+   * tells it what that page looks like — see the @media print block in
+   * admin.css. The sheet is therefore made fresh from the catalogue that was
+   * loaded a moment ago, so one can never be quoting a rate changed last week.
+   *
+   * What it is not: secret once it is sent. A PDF forwards as easily as it
+   * sends. The buyer's name is printed at the head and along the foot of every
+   * page so that a sheet which travels still says who it was written for.
+   */
+
+  /** Ticked products, by id. Everything starts ticked. */
+  function sheetPicked() {
+    if (!state.sheetPicks) state.sheetPicks = {};
+    return state.sheetPicks;
+  }
+
+  function sheetRows() {
+    return (state.priceRows || []).filter(function (r) { return sheetPicked()[r.id]; });
+  }
+
+  function sheetShown() {
+    var term = $('sheet-find').value.trim();
+    var cat = $('sheet-category').value;
+    return (state.priceRows || []).filter(function (r) {
+      if (cat && r.category !== cat) return false;
+      return priceMatches(r, term);
+    });
+  }
+
+  function renderSheetPicks() {
+    var shown = sheetShown();
+    var picked = sheetPicked();
+    var total = sheetRows().length;
+
+    $('sheet-count').textContent = total + (total === 1 ? ' product ticked' : ' products ticked')
+      + (shown.length === (state.priceRows || []).length ? '' : ' · ' + shown.length + ' shown');
+
+    $('sheet-list').innerHTML = shown.map(function (r) {
+      return '<li class="sp">'
+        + '<label class="sp__pick">'
+        + '<input type="checkbox" data-sheet-pick="' + r.id + '"'
+        + (picked[r.id] ? ' checked' : '') + '>'
+        + (r.image
+          ? '<img class="sp__thumb" src="' + escapeAttr(r.image) + '" alt="" loading="lazy"'
+            + ' onerror="this.classList.add(\'is-missing\');this.removeAttribute(\'src\')">'
+          : '<span class="sp__thumb is-missing"></span>')
+        + '<span class="sp__main">'
+        + '<span class="sp__name">' + escapeHtml(r.name) + '</span>'
+        + '<span class="sp__meta">' + escapeHtml([r.category, r.sku].filter(Boolean).join(' · ')) + '</span>'
+        + '</span>'
+        + '<span class="sp__rate">' + escapeHtml(r.pricePiece > 0 ? rupees(r.pricePiece) : '—') + '</span>'
+        + '</label></li>';
+    }).join('') || '<li class="sp sp--empty">Nothing matches that.</li>';
+
+    $('sheet-make').disabled = total === 0;
+  }
+
+  function openSheet() {
+    if (!state.priceRows || !state.priceRows.length) return;
+    // First time in, everything is ticked: the common case is "send them the
+    // lot", and unticking a few is less work than ticking a hundred.
+    if (!state.sheetPicks) {
+      state.sheetPicks = {};
+      state.priceRows.forEach(function (r) { state.sheetPicks[r.id] = true; });
+    }
+    var names = {};
+    (state.priceRows || []).forEach(function (r) { if (r.category) names[r.category] = true; });
+    $('sheet-category').innerHTML = '<option value="">Every category</option>'
+      + Object.keys(names).sort().map(function (n) {
+        return '<option value="' + escapeAttr(n) + '">' + escapeHtml(n) + '</option>';
+      }).join('');
+    renderSheetPicks();
+    show('pane-sheet');
+  }
+
+  /** One product, as it appears on the page. */
+  /**
+   * The model number, when there is one worth printing.
+   *
+   * Some rows hold the whole product name in the SKU field — "NDR High-Power
+   * Outdoor Trolley Speaker" — and "Model NDR High-Power Outdoor Trolley
+   * Speaker" under a heading that already says it is nonsense on a document
+   * going to a customer. Nothing is corrected here and nothing is invented:
+   * a model number too long to be one is simply left off this sheet, and the
+   * field is still there in the catalogue to be fixed properly.
+   */
+  function modelNumber(r) {
+    var sku = String(r.sku || '').trim();
+    if (!sku || sku.length > 24) return '';
+    if (sku.toLowerCase() === String(r.name || '').trim().toLowerCase()) return '';
+    return sku;
+  }
+
+  function sheetItem(r, withPrices, withPhotos) {
+    var pieces = packPieces(r);
+    var model = modelNumber(r);
+    var spec = [model ? 'Model ' + model : '', pieces ? pieces + ' per carton' : r.packSize]
+      .filter(Boolean).join(' · ');
+    var rates = '';
+    if (withPrices) {
+      if (r.pricePiece > 0) {
+        rates += '<span class="sheet__rate"><b>' + escapeHtml(rupees(r.pricePiece))
+          + '</b> a piece</span>';
+      }
+      if (r.priceCarton > 0) {
+        // The carton total goes in brackets rather than spelled out: the line
+        // has to hold in a half-page column, and the legend in the header
+        // says once what the bracket is.
+        rates += '<span class="sheet__rate"><b>' + escapeHtml(rupees(r.priceCarton))
+          + '</b> a piece by the carton'
+          + (pieces ? ' <span class="sheet__whole">(' + escapeHtml(rupees(r.priceCarton * pieces)) + ')</span>' : '')
+          + '</span>';
+      }
+      if (!rates) rates = '<span class="sheet__rate sheet__rate--ask">Rate on request</span>';
+    }
+    return '<li class="sheet__item">'
+      + (withPhotos && r.image
+        ? '<img class="sheet__shot" src="' + escapeAttr(r.image) + '" alt=""'
+          + ' onerror="this.style.visibility=\'hidden\'">'
+        : '')
+      + '<div class="sheet__body">'
+      + '<span class="sheet__name">' + escapeHtml(r.name) + '</span>'
+      + (spec ? '<span class="sheet__spec">' + escapeHtml(spec) + '</span>' : '')
+      + rates
+      + (r.available ? '' : '<span class="sheet__spec">Currently out of stock</span>')
+      + '</div></li>';
+  }
+
+  function buildSheet() {
+    var rows = sheetRows();
+    var withPrices = $('sheet-prices').checked;
+    var withPhotos = $('sheet-photos').checked;
+    var who = $('sheet-for').value.trim();
+    var until = $('sheet-valid').value.trim();
+    var note = $('sheet-note').value.trim();
+    var today = new Date().toLocaleDateString(undefined,
+      { day: 'numeric', month: 'long', year: 'numeric' });
+
+    // Grouped, because a list of a hundred products in catalogue order is not
+    // something anybody reads. Categories in the order the catalogue has them.
+    var order = [];
+    var bands = {};
+    rows.forEach(function (r) {
+      var key = r.category || 'Other';
+      if (!bands[key]) { bands[key] = []; order.push(key); }
+      bands[key].push(r);
+    });
+
+    var masthead = $('sheet-masthead').innerHTML;
+    var title = withPrices ? 'Wholesale price list' : 'Product list';
+    var stamp = [
+      'Issued ' + today,
+      rows.length + (rows.length === 1 ? ' product' : ' products'),
+      until ? 'Rates hold until ' + until : '',
+    ].filter(Boolean).join(' · ');
+
+    // contenteditable on the two lines that are somebody's own words: the
+    // sheet is a template, and the last edit before sending should not mean
+    // going back a screen.
+    var head = '<header class="sheet__head">'
+      + '<div class="sheet__masthead">' + masthead + '</div>'
+      + '<div class="sheet__title">'
+      + '<h1>' + escapeHtml(title) + '</h1>'
+      + (who
+        ? '<p class="sheet__for" contenteditable="true">Prepared for ' + escapeHtml(who) + '</p>'
+        : '')
+      + '<p class="sheet__when">' + escapeHtml(stamp) + '</p>'
+      + '</div>'
+      // Its own row across the full width: these are sentences, and a
+      // sentence set in a narrow right-aligned column is not read, it is
+      // skipped.
+      + '<div class="sheet__preamble">'
+      + (note ? '<p class="sheet__note" contenteditable="true">' + escapeHtml(note) + '</p>' : '')
+      + '<p class="sheet__terms" contenteditable="true">'
+      + escapeHtml(SUPPLY_TERMS)
+      + (withPrices
+        ? ' All rates are per piece, in Nepalese rupees; the figure in brackets'
+          + ' is what a full carton comes to.'
+        : '')
+      + (who ? ' Sent in confidence to the buyer named above.' : '')
+      + '</p>'
+      + '</div></header>';
+
+    var body = order.map(function (key) {
+      return '<section class="sheet__band">'
+        + '<h2 class="sheet__cat">' + escapeHtml(key) + '</h2>'
+        + '<ul class="sheet__grid' + (withPhotos ? '' : ' sheet__grid--plain') + '">'
+        + bands[key].map(function (r) { return sheetItem(r, withPrices, withPhotos); }).join('')
+        + '</ul></section>';
+    }).join('');
+
+    // Fixed to the foot, which Chrome repeats on every printed page, so the
+    // name travels with the document however many pages it runs to.
+    var running = '<div class="sheet__running">'
+      + escapeHtml([BUSINESS, title.toLowerCase(), who ? 'for ' + who : '', today]
+        .filter(Boolean).join(' · '))
+      + '</div>';
+
+    $('sheet').innerHTML = head + body + running;
+  }
+
+  function sheetPickFromEvent(ev) {
+    var box = ev.target.closest('[data-sheet-pick]');
+    if (!box) return;
+    sheetPicked()[Number(box.getAttribute('data-sheet-pick'))] = box.checked;
+    // Only the count moves — re-rendering the list under a tapping finger
+    // would lose the scroll position on every tick.
+    var total = sheetRows().length;
+    var shownAll = sheetShown().length === (state.priceRows || []).length;
+    $('sheet-count').textContent = total + (total === 1 ? ' product ticked' : ' products ticked')
+      + (shownAll ? '' : ' · ' + sheetShown().length + ' shown');
+    $('sheet-make').disabled = total === 0;
+  }
+
+  $('sheet-open').addEventListener('click', openSheet);
+  $('sheet-back').addEventListener('click', function () { show('pane-work'); });
+  $('sheet-find').addEventListener('input', renderSheetPicks);
+  $('sheet-category').addEventListener('change', renderSheetPicks);
+  $('sheet-list').addEventListener('change', sheetPickFromEvent);
+
+  $('sheet-all').addEventListener('click', function () {
+    sheetShown().forEach(function (r) { sheetPicked()[r.id] = true; });
+    renderSheetPicks();
+  });
+  $('sheet-none').addEventListener('click', function () {
+    sheetShown().forEach(function (r) { delete sheetPicked()[r.id]; });
+    renderSheetPicks();
+  });
+
+  $('sheet-make').addEventListener('click', function () {
+    if (!sheetRows().length) {
+      say($('sheet-msg'), 'Tick at least one product first.', 'warn');
+      return;
+    }
+    say($('sheet-msg'), '');
+    buildSheet();
+    show('pane-print');
+  });
+
+  $('print-back').addEventListener('click', function () { show('pane-sheet'); });
+  $('print-go').addEventListener('click', function () { window.print(); });
 
   $('price-find').addEventListener('input', renderPrices);
 
