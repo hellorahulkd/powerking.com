@@ -509,6 +509,120 @@ console.log('\nA price sheet to send someone');
   `);
 }
 
+console.log('\nThe file that actually gets sent');
+{
+  // The whole reason assets/pdf.js exists. A printed PDF carries whatever the
+  // browser decides to put in the paper margins — on Chrome the document's
+  // title and this page's web address — and no stylesheet can stop it. This
+  // file is written here, so what is in it is what was put in it.
+  const grooming = products.filter((p) => p.category === 'Grooming');
+  const short = grooming.find((p) => p.name.length < 46 && !/[()\\]/.test(p.name));
+
+  const made = await page.eval(`
+    document.getElementById('sheet-open').click();
+    document.getElementById('sheet-none').click();
+    const sel = document.getElementById('sheet-category');
+    sel.value = 'Grooming';
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    document.getElementById('sheet-all').click();
+    document.getElementById('sheet-for').value = 'Ram Traders, Birgunj';
+    document.getElementById('sheet-prices').checked = true;
+    document.getElementById('sheet-photos').checked = true;
+    document.getElementById('sheet-make').click();
+    await new Promise((r) => setTimeout(r, 250));
+
+    const realCreate = URL.createObjectURL;
+    let held = null;
+    let name = '';
+    URL.createObjectURL = function (blob) { held = blob; return realCreate.call(URL, blob); };
+    const realClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function () { name = this.download || ''; };
+    document.getElementById('pdf-go').click();
+    for (let i = 0; i < 300 && !held; i++) await new Promise((r) => setTimeout(r, 100));
+    URL.createObjectURL = realCreate;
+    HTMLAnchorElement.prototype.click = realClick;
+    if (!held) return { ok: false, msg: document.getElementById('print-msg').textContent };
+
+    const bytes = new Uint8Array(await held.arrayBuffer());
+    let text = '';
+    for (let i = 0; i < bytes.length; i++) text += String.fromCharCode(bytes[i]);
+    return {
+      ok: true, size: bytes.length, name, text,
+      msg: document.getElementById('print-msg').textContent,
+    };
+  `);
+
+  check('the panel writes the PDF itself rather than printing one',
+    made.ok && /^%PDF-1\./.test(made.text) && /%%EOF\s*$/.test(made.text),
+    made.ok ? made.text.slice(0, 8) : made.msg);
+
+  if (made.ok) {
+    // The complaint this answers, in three assertions.
+    check('the file carries no web address of any kind',
+      made.text.indexOf('http') === -1, 'a URL was written into the file');
+    check('and no trace of the panel it was made in',
+      made.text.indexOf('admin') === -1 && made.text.indexOf('Catalogue') === -1,
+      'the admin panel is named in the file');
+    check('the document is titled as the business, not as a tool',
+      made.text.indexOf('/Title (' + siteConfig.businessName) !== -1,
+      'unexpected /Title');
+
+    check('it is a price list, with the buyer named on it',
+      made.text.indexOf('Wholesale price list') !== -1
+        && made.text.indexOf('Prepared for Ram Traders, Birgunj') !== -1);
+    check('every page is numbered and footed',
+      /Page 1 of \d/.test(made.text), 'no page numbering');
+    check('the products are in it, under their category',
+      made.text.indexOf('GROOMING') !== -1
+        && (!short || made.text.indexOf(short.name) !== -1),
+      short ? short.name : 'no short-named product to check');
+    check('and so are the rates',
+      made.text.indexOf('Rs. ' + String(grooming[0].pricePiece)) !== -1
+        || /Rs\. [\d,]+/.test(made.text));
+    check('the file is named for the business and the buyer, not for a page',
+      /^PowerKing Nepal - Wholesale price list - Ram Traders/.test(made.name)
+        && /\.pdf$/.test(made.name) && made.name.indexOf('admin') === -1,
+      made.name);
+    // Their own 79-product print was 3.5MB. Photographs are re-encoded at the
+    // size the page uses them, so a sheet is something you can actually send.
+    check('and small enough to send over WhatsApp',
+      made.size < 400 * 1024, `${Math.round(made.size / 1024)} KB`);
+    check('the panel says what it saved', /saved as/i.test(made.msg), made.msg);
+  }
+
+  const noPrices = await page.eval(`
+    document.getElementById('print-back').click();
+    document.getElementById('sheet-prices').checked = false;
+    document.getElementById('sheet-make').click();
+    await new Promise((r) => setTimeout(r, 250));
+    const realCreate = URL.createObjectURL;
+    let held = null; let name = '';
+    URL.createObjectURL = function (blob) { held = blob; return realCreate.call(URL, blob); };
+    const realClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function () { name = this.download || ''; };
+    document.getElementById('pdf-go').click();
+    for (let i = 0; i < 300 && !held; i++) await new Promise((r) => setTimeout(r, 100));
+    URL.createObjectURL = realCreate;
+    HTMLAnchorElement.prototype.click = realClick;
+    if (!held) return null;
+    const bytes = new Uint8Array(await held.arrayBuffer());
+    let text = '';
+    for (let i = 0; i < bytes.length; i++) text += String.fromCharCode(bytes[i]);
+    return { text, name };
+  `);
+  check('with the rates off, not one figure reaches the file',
+    !!noPrices && noPrices.text.indexOf('Rs.') === -1
+      && noPrices.text.indexOf('Product list') !== -1,
+    noPrices ? noPrices.name : 'no file made');
+
+  await page.eval(`
+    document.getElementById('print-back').click();
+    document.getElementById('sheet-prices').checked = true;
+    document.getElementById('sheet-back').click();
+    return 1;
+  `);
+}
+
 console.log('\nWhat the browser prints around the edge');
 {
   // Chrome puts the document title and the page address in the paper margins,

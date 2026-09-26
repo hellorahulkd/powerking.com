@@ -98,8 +98,7 @@ instead.
 
 Tick the products (everything starts ticked; filter by category or search and
 use *Tick everything shown*), say who it is for, add a line of your own, then
-**Preview the sheet** and **Save as PDF** in your browser's print box. On a
-phone, choose *Print* and then the share button.
+**Preview the sheet** and **Download the PDF**.
 
 Two switches change what it is:
 
@@ -116,15 +115,29 @@ and works out the full carton total beside each per-piece rate. Anything
 underlined on the preview — the buyer's name, your note, the terms line — can
 be clicked and re-typed before you save.
 
-**Turn off the browser's own headers and footers, once.** Chrome prints the
-date, the page's web address and a page number around the edge of the paper —
-so the first sheets said *Catalogue admin* and carried a link to `/admin/`,
-which is nothing a customer should be handed. In the print box, open **More
-settings** and untick **Headers and footers**; the browser remembers it. Until
-somebody does, the panel renames itself while the print box is open, so the
-header reads *PowerKing Nepal* and the address loses its `/admin` — but the
-tick box is the only thing that takes them off altogether. No stylesheet can:
-printed at zero page margin, Chrome draws them over the content instead.
+**The file is written here, not printed.** That matters, and it is worth
+saying why. A browser signs whatever it prints: Chrome puts the document's
+title along the top of every page and the page's web address along the foot,
+so the first sheets said *Catalogue admin | PowerKing Nepal* and carried a link
+to `/admin/` — the name of an internal tool and a link to it, on a document
+going to a customer. None of that can be removed from a stylesheet (printed at
+zero page margin Chrome draws it over the content instead), and renaming the
+page while the print box is open only works on browsers that fire
+`beforeprint`, which phones and Safari largely do not.
+
+So [`src/assets/js/pdf.js`](src/assets/js/pdf.js) writes the file instead —
+about four hundred lines, nothing installed. Text is Helvetica, one of the
+fourteen faces every PDF reader must have, so no font is embedded. Photographs
+are re-encoded at the size the page prints them and go in as JPEG, which is
+what a PDF stores anyway: the whole catalogue with photographs is around
+600 KB rather than the 3.5 MB a printed one came to, and without photographs
+all 151 products fit five pages and 62 KB — small enough to send over
+WhatsApp. There is no web address anywhere in it and nothing saying where it
+was made, which a test asserts by reading the bytes.
+
+**Print instead** is still there for paper. That one does get the browser's
+header and footer: open **More settings** in the print box and untick
+**Headers and footers** to stop it.
 
 **A PDF forwards as easily as it sends.** The buyer's name is printed at the
 head and along the foot of *every* page, so a sheet that travels still says who
@@ -564,6 +577,7 @@ real product photography:
 | `scripts/dev/admin-test.js` | Browser tests for /admin/, against a stubbed GitHub — no token needed |
 | `scripts/dev/enquiry-test.js` | Browser tests for the multi-product enquiry list and the message it sends |
 | `scripts/dev/og-test.js` | Measures the link-preview card, including the square crop a DM makes of it |
+| `src/assets/js/pdf.js` | Writes the price-sheet PDF in the browser — not a dev script, it ships |
 
 ---
 

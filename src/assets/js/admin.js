@@ -32,6 +32,8 @@
   var SYMBOL = root.getAttribute('data-symbol') || 'Rs.';
   var BUSINESS = root.getAttribute('data-business') || '';
   var SUPPLY_TERMS = root.getAttribute('data-supply') || '';
+  /** The address block, as written into the masthead template at build time. */
+  var SHEET_LINES = (root.getAttribute('data-lines') || '').split('|').filter(Boolean);
 
   /** The catalogue tile format, matched exactly so uploads sit alongside the
    *  photographs already in the catalogue rather than beside them. */
@@ -615,50 +617,49 @@
     return sku;
   }
 
-  function sheetItem(r, withPrices, withPhotos) {
+  /**
+   * The sheet as facts rather than as markup.
+   *
+   * Two things render it — the preview on screen and the PDF writer — and a
+   * price that differed between what somebody checked and what they sent
+   * would be the worst bug this panel could have. So neither renders from the
+   * form; both render from this.
+   */
+  function sheetItemModel(r, withPrices) {
     var pieces = packPieces(r);
     var model = modelNumber(r);
     var spec = [model ? 'Model ' + model : '', pieces ? pieces + ' per carton' : r.packSize]
-      .filter(Boolean).join(' · ');
-    var rates = '';
+      .filter(Boolean);
+    if (!r.available) spec.push('Currently out of stock');
+
+    var rates = [];
     if (withPrices) {
       if (r.pricePiece > 0) {
-        rates += '<span class="sheet__rate"><b>' + escapeHtml(rupees(r.pricePiece))
-          + '</b> a piece</span>';
+        rates.push({ money: rupees(r.pricePiece), rest: ' a piece' });
       }
       if (r.priceCarton > 0) {
         // The carton total goes in brackets rather than spelled out: the line
-        // has to hold in a half-page column, and the legend in the header
-        // says once what the bracket is.
-        rates += '<span class="sheet__rate"><b>' + escapeHtml(rupees(r.priceCarton))
-          + '</b> a piece by the carton'
-          + (pieces ? ' <span class="sheet__whole">(' + escapeHtml(rupees(r.priceCarton * pieces)) + ')</span>' : '')
-          + '</span>';
+        // has to hold in a half-page column, and the header says once what
+        // the bracket is.
+        rates.push({
+          money: rupees(r.priceCarton),
+          rest: ' a piece by the carton'
+            + (pieces ? ' (' + rupees(r.priceCarton * pieces) + ')' : ''),
+        });
       }
-      if (!rates) rates = '<span class="sheet__rate sheet__rate--ask">Rate on request</span>';
+      if (!rates.length) rates.push({ money: '', rest: 'Rate on request', quiet: true });
     }
-    return '<li class="sheet__item">'
-      + (withPhotos && r.image
-        ? '<img class="sheet__shot" src="' + escapeAttr(r.image) + '" alt=""'
-          + ' onerror="this.style.visibility=\'hidden\'">'
-        : '')
-      + '<div class="sheet__body">'
-      + '<span class="sheet__name">' + escapeHtml(r.name) + '</span>'
-      + (spec ? '<span class="sheet__spec">' + escapeHtml(spec) + '</span>' : '')
-      + rates
-      + (r.available ? '' : '<span class="sheet__spec">Currently out of stock</span>')
-      + '</div></li>';
+    return { name: r.name, spec: spec.join(' · '), rates: rates, image: r.image };
   }
 
-  function buildSheet() {
+  function sheetModel() {
     var rows = sheetRows();
     var withPrices = $('sheet-prices').checked;
-    var withPhotos = $('sheet-photos').checked;
     var who = $('sheet-for').value.trim();
     var until = $('sheet-valid').value.trim();
-    var note = $('sheet-note').value.trim();
     var today = new Date().toLocaleDateString(undefined,
       { day: 'numeric', month: 'long', year: 'numeric' });
+    var title = withPrices ? 'Wholesale price list' : 'Product list';
 
     // Grouped, because a list of a hundred products in catalogue order is not
     // something anybody reads. Categories in the order the catalogue has them.
@@ -667,60 +668,174 @@
     rows.forEach(function (r) {
       var key = r.category || 'Other';
       if (!bands[key]) { bands[key] = []; order.push(key); }
-      bands[key].push(r);
+      bands[key].push(sheetItemModel(r, withPrices));
     });
 
-    var masthead = $('sheet-masthead').innerHTML;
-    var title = withPrices ? 'Wholesale price list' : 'Product list';
-    var stamp = [
-      'Issued ' + today,
-      rows.length + (rows.length === 1 ? ' product' : ' products'),
-      until ? 'Rates hold until ' + until : '',
-    ].filter(Boolean).join(' · ');
+    return {
+      title: title,
+      withPrices: withPrices,
+      withPhotos: $('sheet-photos').checked,
+      who: who,
+      note: $('sheet-note').value.trim(),
+      count: rows.length,
+      today: today,
+      stamp: [
+        'Issued ' + today,
+        rows.length + (rows.length === 1 ? ' product' : ' products'),
+        until ? 'Rates hold until ' + until : '',
+      ].filter(Boolean).join(' · '),
+      terms: SUPPLY_TERMS
+        + (withPrices
+          ? ' All rates are per piece, in Nepalese rupees; the figure in brackets'
+            + ' is what a full carton comes to.'
+          : '')
+        + (who ? ' Sent in confidence to the buyer named above.' : ''),
+      runningFoot: [BUSINESS, title.toLowerCase(), who ? 'for ' + who : '', today]
+        .filter(Boolean).join(' · '),
+      bands: order.map(function (key) { return { name: key, items: bands[key] }; }),
+    };
+  }
 
-    // contenteditable on the two lines that are somebody's own words: the
-    // sheet is a template, and the last edit before sending should not mean
-    // going back a screen.
+  /* --- the preview on screen ---------------------------------------- */
+
+  function sheetItemHtml(item, withPhotos) {
+    var rates = item.rates.map(function (rate) {
+      return '<span class="sheet__rate' + (rate.quiet ? ' sheet__rate--ask' : '') + '">'
+        + (rate.money ? '<b>' + escapeHtml(rate.money) + '</b>' : '')
+        + escapeHtml(rate.rest) + '</span>';
+    }).join('');
+    return '<li class="sheet__item">'
+      + (withPhotos && item.image
+        ? '<img class="sheet__shot" src="' + escapeAttr(item.image) + '" alt=""'
+          + ' onerror="this.style.visibility=\'hidden\'">'
+        : '')
+      + '<div class="sheet__body">'
+      + '<span class="sheet__name">' + escapeHtml(item.name) + '</span>'
+      + (item.spec ? '<span class="sheet__spec">' + escapeHtml(item.spec) + '</span>' : '')
+      + rates
+      + '</div></li>';
+  }
+
+  function buildSheet() {
+    var m = sheetModel();
+    var masthead = $('sheet-masthead').innerHTML;
+
+    // contenteditable on the lines that are somebody's own words: the sheet is
+    // a template, and the last edit before sending should not mean going back
+    // a screen. The PDF is written from the preview for the same reason.
     var head = '<header class="sheet__head">'
       + '<div class="sheet__masthead">' + masthead + '</div>'
       + '<div class="sheet__title">'
-      + '<h1>' + escapeHtml(title) + '</h1>'
-      + (who
-        ? '<p class="sheet__for" contenteditable="true">Prepared for ' + escapeHtml(who) + '</p>'
+      + '<h1>' + escapeHtml(m.title) + '</h1>'
+      + (m.who
+        ? '<p class="sheet__for" contenteditable="true">Prepared for ' + escapeHtml(m.who) + '</p>'
         : '')
-      + '<p class="sheet__when">' + escapeHtml(stamp) + '</p>'
+      + '<p class="sheet__when">' + escapeHtml(m.stamp) + '</p>'
       + '</div>'
       // Its own row across the full width: these are sentences, and a
       // sentence set in a narrow right-aligned column is not read, it is
       // skipped.
       + '<div class="sheet__preamble">'
-      + (note ? '<p class="sheet__note" contenteditable="true">' + escapeHtml(note) + '</p>' : '')
-      + '<p class="sheet__terms" contenteditable="true">'
-      + escapeHtml(SUPPLY_TERMS)
-      + (withPrices
-        ? ' All rates are per piece, in Nepalese rupees; the figure in brackets'
-          + ' is what a full carton comes to.'
-        : '')
-      + (who ? ' Sent in confidence to the buyer named above.' : '')
-      + '</p>'
+      + (m.note ? '<p class="sheet__note" contenteditable="true">' + escapeHtml(m.note) + '</p>' : '')
+      + '<p class="sheet__terms" contenteditable="true">' + escapeHtml(m.terms) + '</p>'
       + '</div></header>';
 
-    var body = order.map(function (key) {
+    var body = m.bands.map(function (band) {
       return '<section class="sheet__band">'
-        + '<h2 class="sheet__cat">' + escapeHtml(key) + '</h2>'
-        + '<ul class="sheet__grid' + (withPhotos ? '' : ' sheet__grid--plain') + '">'
-        + bands[key].map(function (r) { return sheetItem(r, withPrices, withPhotos); }).join('')
+        + '<h2 class="sheet__cat">' + escapeHtml(band.name) + '</h2>'
+        + '<ul class="sheet__grid' + (m.withPhotos ? '' : ' sheet__grid--plain') + '">'
+        + band.items.map(function (item) { return sheetItemHtml(item, m.withPhotos); }).join('')
         + '</ul></section>';
     }).join('');
 
-    // Fixed to the foot, which Chrome repeats on every printed page, so the
-    // name travels with the document however many pages it runs to.
-    var running = '<div class="sheet__running">'
-      + escapeHtml([BUSINESS, title.toLowerCase(), who ? 'for ' + who : '', today]
-        .filter(Boolean).join(' · '))
-      + '</div>';
+    // Fixed to the foot when printing, which Chrome repeats on every page.
+    var running = '<div class="sheet__running">' + escapeHtml(m.runningFoot) + '</div>';
 
     $('sheet').innerHTML = head + body + running;
+  }
+
+  /* --- the file to send --------------------------------------------- */
+
+  /**
+   * Write the PDF here rather than asking the browser to print one.
+   *
+   * A printed PDF carries whatever the browser decides to put in the paper
+   * margins — on Chrome the document's title and this page's web address, and
+   * no stylesheet can stop it. A customer opening a price list does not need
+   * the address of the panel it was made in. So assets/pdf.js writes the file
+   * instead, and what goes in it is only what is put in it.
+   *
+   * Anything re-typed on the preview is read back out of it first, because the
+   * preview is where the last edit happens.
+   */
+  function editedText(selector, fallback) {
+    var el = $('sheet').querySelector(selector);
+    var text = el ? el.textContent.trim() : '';
+    return text || fallback;
+  }
+
+  function fileName(m) {
+    return [BUSINESS, m.title, m.who, new Date().toISOString().slice(0, 10)]
+      .filter(Boolean).join(' - ')
+      .replace(/[\\/:*?"<>|]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim() + '.pdf';
+  }
+
+  function downloadPdf() {
+    if (!window.pkPdf) {
+      say($('print-msg'), 'The PDF writer did not load. Reload the page and try again.', 'warn');
+      return;
+    }
+    var m = sheetModel();
+    // The preview wins: those three lines are editable there on purpose.
+    m.who = editedText('.sheet__for', m.who ? 'Prepared for ' + m.who : '')
+      .replace(/^Prepared for\s*/i, '');
+    m.note = editedText('.sheet__note', m.note);
+    m.terms = editedText('.sheet__terms', m.terms);
+
+    var button = $('pdf-go');
+    button.disabled = true;
+    say($('print-msg'), 'Making the file…');
+
+    window.pkPdf.logo('/images/brands/powerking-nepal-logo.png', 120)
+      .then(function (logo) {
+        return window.pkPdf.build({
+          title: m.title,
+          fileTitle: BUSINESS + ' - ' + m.title,
+          preparedFor: m.who ? 'Prepared for ' + m.who : '',
+          stamp: m.stamp,
+          note: m.note,
+          terms: m.terms,
+          runningFoot: m.runningFoot,
+          withPhotos: m.withPhotos,
+          bands: m.bands,
+          logo: logo,
+          business: { name: BUSINESS, lines: SHEET_LINES },
+        }, function (done, total) {
+          if (total) {
+            say($('print-msg'), 'Preparing photographs — ' + done + ' of ' + total + '…');
+          }
+        });
+      })
+      .then(function (bytes) {
+        var url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fileName(m);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Revoked late: Safari hands the blob to the share sheet after the
+        // click returns, and a revoked URL there downloads nothing.
+        window.setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+        say($('print-msg'), 'Saved as ' + fileName(m)
+          + ' — ' + Math.max(1, Math.round(bytes.length / 1024)) + ' KB.', 'ok');
+      })
+      .catch(function (err) {
+        say($('print-msg'), 'The file could not be made: ' + err.message, 'warn');
+      })
+      .then(function () { button.disabled = false; });
   }
 
   function sheetPickFromEvent(ev) {
@@ -815,6 +930,7 @@
   window.addEventListener('afterprint', endPrint);
 
   $('print-back').addEventListener('click', function () { show('pane-sheet'); });
+  $('pdf-go').addEventListener('click', downloadPdf);
   $('print-go').addEventListener('click', function () { window.print(); });
 
   $('price-find').addEventListener('input', renderPrices);

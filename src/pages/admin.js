@@ -61,6 +61,20 @@ function checkbox(id, label, hint, { checked = false } = {}) {
 </label>`;
 }
 
+/**
+ * The shop's own details, in the order they read on a letterhead. Written
+ * into the page once and used by both the masthead template and the PDF, so
+ * the config file stays the only place they live.
+ */
+function sheetLines() {
+  return [
+    siteConfig.tagline,
+    addressLine(),
+    [siteConfig.phone, siteConfig.email].filter(Boolean).join(' · '),
+    siteConfig.domain.replace(/^https?:\/\//, ''),
+  ].filter(Boolean);
+}
+
 export function adminPage() {
   const { owner, name, branch } = siteConfig.repo;
   const repoPath = `${owner}/${name}`;
@@ -73,7 +87,8 @@ export function adminPage() {
      data-owner="${esc(owner)}" data-repo="${esc(name)}" data-branch="${esc(branch)}"
      data-symbol="${esc(siteConfig.currency.symbol)}"
      data-business="${esc(siteConfig.businessName)}"
-     data-supply="${esc(siteConfig.supplyTerms)}">
+     data-supply="${esc(siteConfig.supplyTerms)}"
+     data-lines="${esc(sheetLines().join('|'))}">
 
   <header class="admin__bar">
     <span class="admin__brand">${lockup({ height: 16 })}</span>
@@ -241,10 +256,7 @@ export function adminPage() {
     <div class="sheet__brand">${lockup({ height: 18 })}</div>
     <div class="sheet__who">
       <strong>${esc(siteConfig.businessName)}</strong>
-      <span>${esc(siteConfig.tagline)}</span>
-      <span>${esc(addressLine())}</span>
-      <span>${esc([siteConfig.phone, siteConfig.email].filter(Boolean).join(' · '))}</span>
-      <span>${esc(siteConfig.domain.replace(/^https?:\/\//, ''))}</span>
+      ${sheetLines().map((line) => `<span>${esc(line)}</span>`).join('\n      ')}
     </div>
   </template>
 
@@ -252,28 +264,30 @@ export function adminPage() {
   <section class="admin__pane admin__pane--print" id="pane-print" hidden>
     <div class="printbar">
       <button type="button" class="admin__back" id="print-back">${icon('arrow', { size: 16, className: 'admin__back-icon' })} Change what is in it</button>
-      <button type="button" class="btn btn--primary" id="print-go">Save as PDF</button>
+      <button type="button" class="btn btn--primary" id="pdf-go">Download the PDF</button>
+      <button type="button" class="btn btn--ghost" id="print-go">Print instead</button>
       <p class="af__hint">
-        Your browser's print box opens. Choose <strong>Save as PDF</strong> as
-        the destination (on a phone, <strong>Print</strong>, then the share
-        button). Anything underlined below can be clicked and re-typed first —
-        it prints exactly as you leave it.
+        The file is written here rather than printed, so it carries your
+        letterhead and nothing else — no web address, no page title, nothing
+        saying where it was made. Anything underlined below can be clicked and
+        re-typed first; the file takes it as you leave it.
       </p>
       <!--
-        The one thing this page cannot do for them. Chrome prints the date and
-        the page address around the edge of the paper and no stylesheet can
-        stop it; the tick box can, and Chrome remembers it, so it is a job
-        done once. Until then the header and footer at least read as the
-        business rather than as an internal tool — see beginPrint().
+        Only for the print path, which is now the second way out of here. The
+        browser signs whatever it prints — Chrome puts the document title along
+        the top and this page's address along the foot, and no stylesheet can
+        stop it. The downloaded file is written by assets/pdf.js and has
+        neither.
       -->
       <p class="af__hint printbar__tip">
-        <strong>Do this once:</strong> in the print box open
+        <strong>Printing on paper instead?</strong> Your browser adds the date
+        and this page's web address around the edge. In the print box open
         <strong>More settings</strong> and untick
-        <strong>Headers and footers</strong>. That takes the date, the page
-        address and the page numbers off the paper — none of which a customer
-        needs. Your browser remembers it for next time.
+        <strong>Headers and footers</strong> to stop it. The downloaded file
+        never has them.
       </p>
     </div>
+    <p class="admin__msg" id="print-msg" role="status" aria-live="polite"></p>
     <div class="sheet" id="sheet"></div>
   </section>
 
@@ -430,7 +444,8 @@ export function adminPage() {
     bodyClass: 'page-admin',
     body,
     headExtra: '<link rel="stylesheet" href="/assets/admin.css">',
-    scripts: '<script src="/assets/admin.js" defer></script>',
+    scripts: '<script src="/assets/pdf.js" defer></script>\n'
+      + '<script src="/assets/admin.js" defer></script>',
   });
 }
 

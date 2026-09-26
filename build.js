@@ -353,6 +353,7 @@ async function build() {
   await cp(path.join(ROOT, 'src/assets/js/catalogue.js'), path.join(DIST, 'assets/catalogue.js'));
   await cp(path.join(ROOT, 'src/assets/js/slider.js'), path.join(DIST, 'assets/slider.js'));
   await cp(path.join(ROOT, 'src/assets/js/admin.js'), path.join(DIST, 'assets/admin.js'));
+  await cp(path.join(ROOT, 'src/assets/js/pdf.js'), path.join(DIST, 'assets/pdf.js'));
   await cp(path.join(ROOT, 'src/assets/js/enquiry.js'), path.join(DIST, 'assets/enquiry.js'));
   // Loaded only by /admin/, so the shop's own tool costs a shopper nothing.
   await writeFile(
