@@ -761,6 +761,59 @@
     show('pane-print');
   });
 
+
+  /**
+   * What the browser prints in the page margins, and what can be done about it.
+   *
+   * Chrome draws its own header and footer around whatever it prints: the
+   * document's title and the date along the top, the document's URL and the
+   * page number along the foot. On a sheet going out to a customer that read
+   * "Catalogue admin | PowerKing Nepal" and "powerkingnepal.com/admin/" — the
+   * name of an internal tool and the address of a page no customer should be
+   * handed.
+   *
+   * It cannot be switched off from a stylesheet. Measured rather than assumed:
+   * printed with the page margin set to zero, Chrome still draws both, over
+   * the top of the content. The only switch is the person's own, in the print
+   * box, which is why the bar above the preview says so in plain words.
+   *
+   * What CAN be set is what they say, because both are read off this document
+   * while the box is open. For as long as it is, the title is the business
+   * name and the address is the site root — so a header that does print reads
+   * "PowerKing Nepal", and a footer that does print carries no /admin. Both go
+   * back the moment the box closes.
+   */
+  var printRestore = null;
+
+  function beginPrint() {
+    if (printRestore) return;
+    printRestore = {
+      title: document.title,
+      url: location.pathname + location.search + location.hash,
+    };
+    if (BUSINESS) document.title = BUSINESS;
+    try { history.replaceState(history.state, '', '/'); } catch (e) { /* file:// */ }
+    // Safari has not always fired afterprint. The window blurs while the box
+    // is open and focuses again when it closes, so that is the backstop —
+    // armed late, so that focus already in hand cannot end the print before
+    // the box has even opened.
+    window.setTimeout(function () {
+      if (printRestore) window.addEventListener('focus', endPrint);
+    }, 500);
+  }
+
+  function endPrint() {
+    if (!printRestore) return;
+    var was = printRestore;
+    printRestore = null;
+    window.removeEventListener('focus', endPrint);
+    document.title = was.title;
+    try { history.replaceState(history.state, '', was.url); } catch (e) { /* file:// */ }
+  }
+
+  window.addEventListener('beforeprint', beginPrint);
+  window.addEventListener('afterprint', endPrint);
+
   $('print-back').addEventListener('click', function () { show('pane-sheet'); });
   $('print-go').addEventListener('click', function () { window.print(); });
 

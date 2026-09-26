@@ -509,6 +509,44 @@ console.log('\nA price sheet to send someone');
   `);
 }
 
+console.log('\nWhat the browser prints around the edge');
+{
+  // Chrome puts the document title and the page address in the paper margins,
+  // and no stylesheet can stop it — printed at zero margin it draws them over
+  // the content instead. What they SAY is this page's to set, and a customer
+  // should not be reading the name of an internal tool or a link to it.
+  const before = await page.eval(`return {
+    title: document.title,
+    path: location.pathname,
+  };`);
+  check('off paper, the page is still the admin panel',
+    /admin/i.test(before.title) && before.path === '/admin/', JSON.stringify(before));
+
+  const printing = await page.eval(`
+    window.dispatchEvent(new Event('beforeprint'));
+    return { title: document.title, path: location.pathname };
+  `);
+  check('on paper the header reads as the business, not "Catalogue admin"',
+    printing.title === siteConfig.businessName, printing.title);
+  check('and the footer address carries no /admin',
+    printing.path === '/' && !/admin/.test(printing.path), printing.path);
+
+  const after = await page.eval(`
+    window.dispatchEvent(new Event('afterprint'));
+    return { title: document.title, path: location.pathname };
+  `);
+  check('and the panel is itself again once the print box closes',
+    after.title === before.title && after.path === before.path, JSON.stringify(after));
+
+  const tip = await page.eval(`
+    const el = document.querySelector('.printbar__tip');
+    return el ? el.textContent.replace(/\\s+/g, ' ').trim() : '';
+  `);
+  // The complete fix is a tick box only the person can reach.
+  check('and the print bar says how to take them off altogether',
+    /headers and footers/i.test(tip) && /more settings/i.test(tip), tip.slice(0, 80));
+}
+
 console.log('\nSearching and opening a product');
 {
   const r = await page.eval(`

@@ -489,3 +489,10 @@ textarea.af__input { line-height: 1.55; resize: vertical; }
      document somebody receives. */
   [contenteditable] { text-decoration: none !important; }
 }
+
+/* The one thing the page cannot do for them, so it should not read as small
+   print. */
+.printbar__tip {
+  padding: .6rem .75rem; border-left: 3px solid var(--volt);
+  background: var(--volt-100, #FBF3C4); color: var(--ink);
+}

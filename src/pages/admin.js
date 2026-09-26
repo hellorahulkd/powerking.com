@@ -255,9 +255,23 @@ export function adminPage() {
       <button type="button" class="btn btn--primary" id="print-go">Save as PDF</button>
       <p class="af__hint">
         Your browser's print box opens. Choose <strong>Save as PDF</strong> as
-        the destination (on a phone, <strong>Print</strong> then the share
+        the destination (on a phone, <strong>Print</strong>, then the share
         button). Anything underlined below can be clicked and re-typed first —
         it prints exactly as you leave it.
+      </p>
+      <!--
+        The one thing this page cannot do for them. Chrome prints the date and
+        the page address around the edge of the paper and no stylesheet can
+        stop it; the tick box can, and Chrome remembers it, so it is a job
+        done once. Until then the header and footer at least read as the
+        business rather than as an internal tool — see beginPrint().
+      -->
+      <p class="af__hint printbar__tip">
+        <strong>Do this once:</strong> in the print box open
+        <strong>More settings</strong> and untick
+        <strong>Headers and footers</strong>. That takes the date, the page
+        address and the page numbers off the paper — none of which a customer
+        needs. Your browser remembers it for next time.
       </p>
     </div>
     <div class="sheet" id="sheet"></div>

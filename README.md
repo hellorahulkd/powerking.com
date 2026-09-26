@@ -116,6 +116,16 @@ and works out the full carton total beside each per-piece rate. Anything
 underlined on the preview — the buyer's name, your note, the terms line — can
 be clicked and re-typed before you save.
 
+**Turn off the browser's own headers and footers, once.** Chrome prints the
+date, the page's web address and a page number around the edge of the paper —
+so the first sheets said *Catalogue admin* and carried a link to `/admin/`,
+which is nothing a customer should be handed. In the print box, open **More
+settings** and untick **Headers and footers**; the browser remembers it. Until
+somebody does, the panel renames itself while the print box is open, so the
+header reads *PowerKing Nepal* and the address loses its `/admin` — but the
+tick box is the only thing that takes them off altogether. No stylesheet can:
+printed at zero page margin, Chrome draws them over the content instead.
+
 **A PDF forwards as easily as it sends.** The buyer's name is printed at the
 head and along the foot of *every* page, so a sheet that travels still says who
 it was written for. That is a deterrent and a way of knowing where a leak came
